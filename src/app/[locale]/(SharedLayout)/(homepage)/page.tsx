@@ -22,9 +22,9 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
   const { t } = await initTranslations(locale, ["homepage"]);
 
 
-  const homeData = await HomeAPI.getHomeData(locale);
-  const ClientReview = await HomeAPI.getClientReview(locale);
-  const NewsData = await HomeAPI.getNewsData(locale);
+  // const homeData = await HomeAPI.getHomeData(locale);
+  // const ClientReview = await HomeAPI.getClientReview(locale);
+  // const NewsData = await HomeAPI.getNewsData(locale);
 
   // const ServiceData = await HomeAPI.getServiceData(locale);
   // const FaqeData = await HomeAPI.getFaqData(locale);
@@ -39,9 +39,9 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
 <Hero t={t} homeData={""} />
         
         
-<AboutApp t={t} homeData={homeData} />
+<AboutApp t={t} homeData={""} />
 
-<Products homeData={homeData} />
+<Products homeData={""} />
 <div  className="main-container flex justify-center items-center rtl:ltr ltr:rtl relative w-full max-w-[1280px] mx-auto h-auto px-4 lg:px-0">
   {/* Background layer */}
   <div className="relative  w-full max-w-[1280px] h-[626px] bg-[#143087] rounded-[32px] top-0 left-1/2 transform -translate-x-1/2" />

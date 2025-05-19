@@ -8,8 +8,10 @@ async function page({
 }) {
 
 
-  return (
-<Features/>
+  return (<>
+faried
+  {/* <Features/> */}
+  </>
   );
 }
 

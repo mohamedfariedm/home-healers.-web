@@ -1,7 +1,7 @@
 import initTranslations from "@/app/i18n";
 import { BreadCrumbComponent } from "@/components/Animations/breadCrumb";
 import { Blogs } from "../(homepage)/_components";
-import HomeAPI from "../../../api/api";
+// import HomeAPI from "../../../api/api";
 
 type props = {
   params: { locale: string };
@@ -22,7 +22,7 @@ interface ArticleData {
 async function page({ params: { locale } }: props) {
   const { t } = await initTranslations(locale, ["blog"]);
 
-  const NewsBlogData = await HomeAPI.getNewsBlogData(locale);
+  // const NewsBlogData = await HomeAPI.getNewsBlogData(locale);
 
 // const data : ArticleData[]=[
 //   {
