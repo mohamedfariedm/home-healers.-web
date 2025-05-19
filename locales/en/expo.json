@@ -1,0 +1,65 @@
+{
+    "about": {
+      "title": "About the Expo",
+      "subtitle": "About the Saudi-Ugandan Coffee Expo",
+      "description": {
+        "line1": "The Saudi-Ugandan Coffee Expo is a distinguished event that reflects the rich cultural and economic exchange between Saudi Arabia and Uganda. The exhibition was established to enhance trade relations between the two countries and has significantly contributed to supporting bilateral trade and cultural cooperation.",
+        "line2": "Over the years, the expo has attracted top industry leaders, showcased the latest innovations in coffee, and helped build strong business partnerships.",
+        "line3": "The 2025 Saudi-Ugandan Coffee Gathering is an important event for coffee lovers worldwide, taking place in Riyadh from February 1 to 4, 2025."
+      }
+    },
+    "hero": {
+        "title": "Discover Coffee Innovations at the Saudi-Ugandan Coffee Expo 2025",
+        "description": "Exclusive launch of new products and strategic partnerships! This gathering aims to advance the coffee industry in Uganda and Saudi Arabia while creating lasting memories and impactful partnerships.",
+        "button": "Register to Attend"
+      },
+      "ourStory": {
+    "guestHonor": "Guest of Honor",
+    "description": {
+      "line1": "We are honored to welcome Her Excellency Jessica Rose Epel Alupo, Vice President of the Republic of Uganda, as a distinguished guest of honor at the Saudi-Ugandan Coffee Gathering in Riyadh, Saudi Arabia.",
+      "line2": "Her presence highlights the importance of strengthening bilateral relations between the two countries and supporting Uganda’s rich coffee heritage on a global scale. Ugandan coffee is renowned for its exceptional quality, rich flavor, and unique aroma, making it a prized commodity in global markets. Its cultivation supports many local farmers and significantly contributes to the national economy, reflecting Uganda’s rich agricultural heritage and commitment to excellence."
+    }
+  },
+  "partners": {
+    "title": "Key Partners & Contributors",
+    "description": "We are proud of our partnerships with leading companies and contributors who have supported the Saudi-Ugandan Coffee Expo, helping foster trade exchange and innovation in the coffee industry.",
+    "logoAlt": "Partner Logo"
+  },
+  "contact": {
+    "registerNow": "Register Now",
+    "description": {
+      "line1": "Be part of the Saudi-Ugandan Coffee Gathering!",
+      "line2": "Register now to participate in this exclusive event, enjoy special offers, and engage with industry experts, coffee enthusiasts, and like-minded individuals."
+    }
+  },
+  "header": {
+    "register": "Register to Attend"
+  },
+  "menu": {
+    "home": "Home",
+    "about": "About the Expo",
+    "products": "Products",
+    "events": "Event Photos",
+    "partners": "Partners"
+  },
+  "footer": {
+    "inquiryQuestion": "Have a question?",
+    "callLabel": "Call us at",
+    "emailLabel": "Email us at",
+    "newsletter": "Newsletter",
+    "newsletterDesc": "Get the latest updates about our events and products.",
+    "enterEmailLabel": "Enter your email",
+    "enterEmailPlaceholder": "Enter your email",
+    "subscribe": "Subscribe Now",
+    "about": "About the Expo",
+    "products": "Products",
+    "events": "Event Photos",
+    "partners": "Partners",
+    "copyright": "2025 © All rights reserved to Nonda Coffee"
+  },
+  "carousel": {
+    "heading": "Moments from the Saudi-Ugandan Coffee Expo",
+    "description": "Enjoy moments from the Saudi-Ugandan Coffee Expo, where passion meets innovation in the world of coffee."
+  }
+  }
+  

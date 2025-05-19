@@ -1,0 +1,24 @@
+{
+"footer": {
+    "home": "Home",
+    "products": "Products",
+    "about": "About Us",
+    "contact": "Contact Us",
+    "blogs": "Blogs",
+    "expo": "Expo",
+    "faq": "FAQ",
+    "email_placeholder": "Your Email",
+    "rights_reserved": "All rights reserved to"
+  },
+  "home": "Home",
+  "about": "About Home Healers",
+  "services": "Our Services",
+  "products": "Medical Products",
+  "blogs": "Blog",
+  "contact": "Contact Us",
+  "expo": "Expo",
+  "book_consultation": "Book Consultation",
+  "book_session": "Book Session",
+  "language": "Language"
+
+}

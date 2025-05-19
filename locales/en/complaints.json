@@ -1,0 +1,31 @@
+{
+  "home": "Home",
+  "breadCrumb": "Submit a Complaint",
+    "title": "Official Complaint Form for Services or Transactions",
+    "description": "We are here to listen to your complaint and address it. Please fill in the fields below to clarify the details of your issue, and we will get back to you as soon as possible.",
+    
+        "fields": {
+          "full_name": "Full Name *",
+          "email": "Email *",
+          "phone": "Phone Number *",
+          "reason": "Reason for Complaint *",
+          "message": "Message *"
+        },
+        "placeholders": {
+          "full_name": "Enter your full name",
+          "email": "you@company.com",
+          "phone": "+966 5XXXXXXXX",
+          "reason": "Select the reason for your complaint",
+          "message": "Please describe your complaint clearly and in detail..."
+        },
+        "buttons": {
+          "submit": "Submit",
+          "sending": "Sending..."
+        },
+        "privacy_note": "We assure you that all your data will be handled with complete confidentiality.",
+        "success_message": "Your complaint has been submitted successfully!",
+        "error_message": "An error occurred while submitting. Please try again."
+      
+      
+  }
+  

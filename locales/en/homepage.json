@@ -1,0 +1,92 @@
+{
+  "hero_title": "Start your day with a cup of happiness",
+  "hero_subtitle": "At Nonda Coffee, we believe that coffee is more than just a drink; it's an experience that inspires you and gives your day a great start.",
+  "contact_us": "Contact Us",
+  "about": {
+    "title": "About Us",
+    "subtitle": "Our Story with Coffee",
+    "description": "Nonda Coffee was founded with a passion for redefining the coffee experience. We started our journey from a small farm that gathers the finest coffee beans, and our vision has expanded to bring specialty coffee to enthusiasts everywhere. We work closely with farmers to ensure quality and sustainability, always striving to inspire our customers with a cup of happiness every day.\nWe are committed to delivering a complete coffee experience, covering every detail from taste to packaging.",
+    "learn_more": "Learn More"
+  },
+  "coffee_trip": {
+    "title": "The Coffee Journey - From Bean to Cup",
+    "description": "At Nonda Coffee, the story begins with a small bean full of potential and ends with an exceptional moment in a perfect cup of coffee.",
+    "steps": {
+      "farming": "1. Farming & Harvesting",
+      "processing": "2. Bean Processing",
+      "roasting": "3. Roasting",
+      "grinding": "4. Grinding",
+      "brewing": "5. Brewing & Serving"
+    }
+  },
+  "products": {
+    "title": "Our Products",
+    "subtitle": "Discover Our Unique Variety",
+    "description": "At Nonda Coffee, we offer a diverse range of products that cater to all tastes, carefully designed for an unforgettable coffee experience.",
+    "items": [
+      {
+        "title": "Colombian Coffee - Exceeding Expectations",
+        "description": "Discover the unique taste of Colombian coffee that combines high quality with rich flavors. With every sip, you'll experience a balanced sweetness with hints of caramel and chocolate, offering an unforgettable experience for coffee lovers."
+      },
+      {
+        "title": "Colombian Coffee - Exceeding Expectations",
+        "description": "Discover the unique taste of Colombian coffee that combines high quality with rich flavors. With every sip, you'll experience a balanced sweetness with hints of caramel and chocolate, offering an unforgettable experience for coffee lovers."
+      },
+      {
+        "title": "Ethiopian Coffee - Authentic Flavor",
+        "description": "Enjoy the unique taste of Ethiopian coffee, with distinctive fruity and floral flavors. A unique experience for coffee lovers."
+      },
+      {
+        "title": "Brazilian Coffee - A Magical Touch",
+        "description": "Rich and distinctive flavors from Brazil, carrying in each sip a balanced taste between chocolate and nuts."
+      }
+    ]
+  },
+  "our_story": {
+    "title": "The Story of Ugandan Coffee",
+    "description": "Enjoy an exciting journey into the heart of Uganda’s coffee farms with this introductory video. Learn about the history of Ugandan coffee, how it is grown in the lush highlands, and the secrets behind its exceptional quality, making it one of the world's most distinguished coffee varieties. See how the beans transform into a rich and flavorful experience."
+  },
+  "testimonials": {
+    "title": "Our Customers' Opinions",
+    "description": "Our customers' feedback reflects the quality of our coffee and their unique experience with Nonda Coffee. We strive to provide an exceptional experience that enriches your daily moments with every cup.",
+    "reviews": [
+      {
+        "text": "A complete coffee experience, from beautiful packaging to great taste. I loved their attention to detail and the perfect coffee brewing method!",
+        "name": "Mohammed Al-Qahtani"
+      },
+      {
+        "text": "Great service and fast delivery, and most importantly, the coffee is always fresh and tastes exceptional. I loved their variety of flavors.",
+        "name": "Maha Al-Farouq"
+      },
+      {
+        "text": "The best coffee I've ever had! The quality of the beans is very clear in every sip, and the flavors are incredibly distinctive. It has become an essential part of my daily morning routine!",
+        "name": "Ahmed Al-Otaibi"
+      }
+    ]
+  },
+  "articles": {
+    "title": "Nonda Coffee Articles - For Coffee Lovers",
+    "description": "Discover coffee secrets and the latest trends in the coffee world. Tips, recipes, and inspiring stories for coffee lovers seeking a unique experience.",
+    "list": [
+      {
+        "title": "Uganda & Saudi Arabia Coffee Exhibition",
+        "description": "Bridging tradition and authenticity, the coffee exhibition highlights the unique connection between Uganda, the land of premium coffee beans, and Saudi Arabia..."
+      },
+      {
+        "title": "Coffee Benefits: More Than Just a Drink",
+        "description": "Coffee is not just for energizing your morning; it offers numerous health benefits such as improving focus and boosting energy. Find out how to make coffee part of your healthy routine."
+      },
+      {
+        "title": "How to Choose the Right Coffee Beans for Your Taste?",
+        "description": "Choosing the right coffee beans can be confusing, but with a few simple tips, you can find the perfect type. Learn the differences between Arabic, Ethiopian, and Colombian coffee..."
+      }
+    ],
+    "read_more": "Read More",
+    "all_articles": "All Articles"
+  },
+  "be_closer": {
+    "title": "Stay Close to the Coffee World",
+    "description": "Subscribe to our newsletter to get the latest offers and updates, along with exclusive discounts for our community members.",
+    "email_placeholder": "Your email"
+  }
+}

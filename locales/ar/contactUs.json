@@ -1,0 +1,37 @@
+{
+  "home":"الصفحة الرئيسية",
+  "name":"تواصل معنا",
+"title":"تواصل معنا",
+"description":"نحن هنا لخدمتك! إذا كان لديك أي استفسار أو ملاحظة، لا تتردد في التواصل معنا. يسعدنا أن نسمع منك دائمًا.",
+  "form": {
+    "firstName": "الاسم الأول",
+    "firstNamePlaceholder": "أدخل اسمك الأول",
+    "lastName": "الاسم الأخير",
+    "lastNamePlaceholder": "أدخل اسمك الأخير",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "phonePlaceholder": "+966 5XXXXXXXX",
+    "message": "الرسالة",
+    "messagePlaceholder": "اترك لنا رسالة...",
+    "submit": "إرسال",
+    "sending": "جاري الإرسال..."
+  },
+  "successMessage": "تم إرسال الرسالة بنجاح!",
+  "errorMessage": "حدث خطأ أثناء الإرسال. حاول مرة أخرى.",
+  "validation": {
+    "firstName": "الاسم الأول مطلوب",
+    "lastName": "الاسم الأخير مطلوب",
+    "emailRequired": "البريد الإلكتروني مطلوب",
+    "emailInvalid": "يرجى إدخال بريد إلكتروني صالح",
+    "phoneRequired": "رقم الهاتف مطلوب",
+    "phoneInvalid": "يرجى إدخال رقم هاتف سعودي صالح",
+    "message": "الرسالة مطلوبة"
+  },
+  "contact": {
+    "phone": "+2 000-111-2222",
+    "working_hours": "ساعات العمل: من الأحد إلى الخميس، من 9 صباحًا حتى 5 مساءً.",
+    "email": "info@nondacoffee.com",
+    "response_time": "الرد خلال 24 ساعة.",
+    "support_message": "لا تتردد في مراسلتنا لمزيد من المعلومات أو الدعم."
+  }
+}

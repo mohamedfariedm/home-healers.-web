@@ -1,0 +1,53 @@
+{
+  "home": "Home",
+  "breadCrumb": "Privacy Policy",
+    "title": "Our Privacy Policy",
+    "introduction": "At Injaz, we are committed to protecting your personal information. This policy explains how we collect, use, and protect your data when using our services. We take your privacy seriously and are dedicated to ensuring security and confidentiality at all times.",
+    "sections": {
+      "dataCollection": {
+        "title": "1. Information We Collect:",
+        "description": "We collect the following information when you use our website or services:",
+        "points": [
+          "Personal Information: Such as name, email, phone number, and account details you provide when registering or using our services.",
+          "Automatic Information: Such as IP address, web browser, and device types used, which are collected while browsing the website."
+        ]
+      },
+      "dataUsage": {
+        "title": "2. How We Use Your Information:",
+        "description": "We use your personal information for the following purposes:",
+        "points": [
+          "Service Improvement: To provide customized services and technical support.",
+          "Communication: To contact you regarding service updates or respond to inquiries.",
+          "Data Analysis: To understand how our services are used and improve user experience."
+        ]
+      },
+      "dataProtection": {
+        "title": "3. Protecting Your Data:",
+        "description": "We take all necessary measures to protect your personal information using security technologies such as encryption and data protection. However, we cannot guarantee complete security in an online environment."
+      },
+      "dataSharing": {
+        "title": "4. Data Sharing with Third Parties:",
+        "points": [
+          "Service Providers: We may share your information with third parties who assist us in providing services (such as payment processors and technical support providers).",
+          "Legal Compliance: We may disclose your information if required by law or to respond to legal authorities."
+        ]
+      },
+      "cookies": {
+        "title": "5. Cookies:",
+        "description": "We use cookies to enhance your experience on the website and customize content. You can modify your browser settings to refuse cookies, but this may affect some website functionality."
+      },
+      "userRights": {
+        "title": "6. Your Rights:",
+        "points": [
+          "Data Access: You have the right to access, correct, or update your personal data.",
+          "Unsubscribe: You can unsubscribe from marketing emails at any time via the link at the bottom of the email.",
+          "Data Deletion: If you wish to delete your data from our records, you can contact us to do so."
+        ]
+      },
+      "policyChanges": {
+        "title": "7. Changes to Privacy Policy:",
+        "description": "We may modify this policy from time to time. Changes will be posted on this page with an update date. If you continue using our services after the changes, you agree to the modified policy."
+      }
+    }
+  }
+  
