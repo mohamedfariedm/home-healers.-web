@@ -36,12 +36,12 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
       <div className="w-full xl:w-[489.058px]  bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-05/Xam6EEVohV.png)] bg-[length:100%_100%] bg-no-repeat relative" />
       <div className=" ">
       <div className="w-full xl:w-[1440px] h-[1px] bg-[#fff] relative shadow-[0_1px_2px_0_rgba(16,24,40,0.06)] mt-0 mr-0 mb-0 ml-0"/>
-<Hero t={t} homeData={""} />
+<Hero />
         
         
-<AboutApp t={t} homeData={""} />
+<AboutApp  />
 
-<Products homeData={""} />
+<Products  />
 <div  className="main-container flex justify-center items-center rtl:ltr ltr:rtl relative w-full max-w-[1280px] mx-auto h-auto px-4 lg:px-0">
   {/* Background layer */}
   <div className="relative  w-full max-w-[1280px] h-[626px] bg-[#143087] rounded-[32px] top-0 left-1/2 transform -translate-x-1/2" />
