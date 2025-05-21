@@ -1,66 +1,224 @@
-"use client";
-import React, { useState, useRef } from "react";
-import { useTranslation } from "react-i18next";
+"use client"
+import { useRef } from "react"
+import { motion, useInView } from "framer-motion"
+import { ArrowLeft } from "lucide-react"
+import { ShowMore } from "@/components/Animations/ShowMore"
 
-function OurStory({homeData} :any) {
-  const { t } = useTranslation("homepage");
-  const [isPlaying, setIsPlaying] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+function OurStory() {
+  // Refs for different sections
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLDivElement>(null)
+  const articlesRef = useRef<HTMLDivElement>(null)
 
-  const handlePlay = () => {
-    if (videoRef.current) {
-      videoRef.current.play(); // Manually play the video
-      videoRef.current.controls = true; // Show video controls
-      setIsPlaying(true);
-    }
-  };
+  // Check if sections are in view
+  const isSectionInView = useInView(sectionRef, { once: false, amount: 0.1 })
+  const isHeaderInView = useInView(headerRef, { once: false, amount: 0.5 })
+  const isArticlesInView = useInView(articlesRef, { once: false, amount: 0.2 })
+
+  // Animation variants
+  const headerVariants = {
+    hidden: { opacity: 0, y: -20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        when: "beforeChildren",
+        staggerChildren: 0.2,
+      },
+    },
+  }
+
+  const headerItemVariants = {
+    hidden: { opacity: 0, y: -20 },
+    visible: { opacity: 1, y: 0 },
+  }
+
+  const articlesContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        when: "beforeChildren",
+        staggerChildren: 0.3,
+      },
+    },
+  }
+
+  const leftColumnVariants = {
+    hidden: { opacity: 0, x: -50 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+        when: "beforeChildren",
+        staggerChildren: 0.2,
+      },
+    },
+  }
+
+  const rightColumnVariants = {
+    hidden: { opacity: 0, x: 50 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  }
+
+  const articleCardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+    hover: {
+      y: -10,
+      boxShadow: "0 10px 25px rgba(20, 48, 135, 0.1)",
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 20,
+      },
+    },
+  }
+
+  const buttonVariants = {
+    hover: {
+      scale: 1.1,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 10,
+      },
+    },
+    tap: { scale: 0.95 },
+  }
+
+  const imageVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+        delay: 0.1,
+      },
+    },
+  }
 
   return (
-    <div className="main-container flex flex-col gap-6 md:gap-0 md:flex-row xl:w-[1110px] justify-between items-center flex-nowrap relative mx-auto my-0">
-      {/* Text Content */}
-      <div className="flex w-full md:w-[479px] flex-col gap-[16px] justify-center items-end shrink-0 flex-nowrap relative z-[1]">
-        <span className="md:h-[36px] self-stretch shrink-0 basis-auto text-[20px] font-bold leading-[36px] text-[#f8992f] relative text-start whitespace-nowrap z-[2]">
-          {homeData?.data?.sections[3]?.Posts[0]?.title}
-        </span>
-        <span className="flex w-full md:w-[479px] md:h-[145px] items-start shrink-0 text-[16px] font-medium leading-[29.12px] text-[#dbdbdb] relative z-[3]">
-          {homeData?.data?.sections[3]?.Posts[0]?.description}
-        </span>
-      </div>
-
-      {/* Video Container */}
-      <div
-        style={{ backgroundImage: `url(/assets/images/story/rectangle.svg)` }}
-        className="w-full md:w-[447.5px] h-[288px] shrink-0 bg-cover bg-no-repeat relative flex justify-center items-center"
+    <div ref={sectionRef} className="main-container ltr:rtl rtl:ltr w-full max-w-[1280px] mx-auto my-0 px-4 py-6">
+      {/* Header Section */}
+      <motion.div
+        ref={headerRef}
+        className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6"
+        variants={headerVariants}
+        initial="hidden"
+        animate={isHeaderInView ? "visible" : "hidden"}
       >
-        {/* Video Element */}
-        <video
-          ref={videoRef} // Attach ref to video
-          className="w-full h-full absolute bottom-2 left-2 object-cover rounded-2xl overflow-hidden"
+        <motion.div
+          className="flex items-center gap-3 bg-[#143087] text-white px-4 py-2 rounded-[8px] border border-[#143087]"
+          variants={headerItemVariants}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          <source
-            src={homeData?.data?.sections[3]?.Posts[0]?.attachment[0]?.original}
-            type="video/mp4"
-          />
-          Your browser does not support the video tag.
-        </video>
+          <ArrowLeft className="w-6 h-6" />
+          <span className="text-[18px] font-medium leading-[28px]">جميع المقالات</span>
+        </motion.div>
 
-        {/* Play Button Overlay */}
-        {!isPlaying && (
-          <div className="absolute w-full h-full left-2 bottom-2 flex justify-center items-center bg-[#00000062]">
-            <button
-              className="absolute w-[56px] h-[56px] flex justify-center items-center cursor-pointer"
-              onClick={handlePlay} // Call handlePlay function
+        <motion.div className="flex flex-col gap-2 items-end" variants={headerItemVariants}>
+          <motion.span className="text-[16px] font-medium text-[#62a0f6]" variants={headerItemVariants}>
+            اخر المقالات الطبية
+          </motion.span>
+          <motion.h2
+            className="text-[30px] font-semibold leading-[40px] text-[#1e1e1e] text-end"
+            variants={headerItemVariants}
+          >
+            استشكف اخر <span className="text-[#62a0f6]">المقالات</span> الطبية
+          </motion.h2>
+        </motion.div>
+      </motion.div>
+
+      {/* Articles Section */}
+      <motion.div
+        ref={articlesRef}
+        className="flex flex-col lg:flex-row gap-8 mt-12"
+        variants={articlesContainerVariants}
+        initial="hidden"
+        animate={isArticlesInView ? "visible" : "hidden"}
+      >
+        {/* Left Column */}
+        <motion.div className="flex flex-col gap-8 flex-1" variants={leftColumnVariants}>
+          {[0, 1].map((_, i) => (
+            <motion.div
+              key={i}
+              className="relative bg-[#eff6fe] rounded-[24px] p-5 cursor-pointer"
+              variants={articleCardVariants}
+              whileHover="hover"
             >
-              <span
-                className="w-full h-full bg-cover bg-no-repeat"
-                style={{ backgroundImage: `url(/assets/images/story/play.svg)` }}
-              ></span>
-            </button>
+              <div className="flex flex-col md:flex-row items-center gap-5">
+                {/* Article Text */}
+                <div className="flex flex-col gap-5 text-end items-end max-w-[353px]">
+                  <span className="text-[16px] font-medium text-[#62a0f6]">3 ديسمبر 2025</span>
+                  <div>
+                    <h3 className="text-[20px] font-semibold text-[#1e1e1e] mb-2">اخر تطورات المجال الطبي</h3>
+                    <p className="text-[16px] font-light text-[#1e1e1e] leading-[32px]">
+                      هنا يكتب وصف بسيط عن المنتج في سطرين كمثال , هنا يكتب وصف بسيط عن المنتج في سطرين كمثال.
+                    </p>
+                  </div>
+                              <ShowMore />
+                  
+                </div>
+                {/* Image */}
+                <motion.div
+                  className="w-[219px] h-[268px] bg-[url('/assets/images/homehellers/Frame2.svg')] bg-cover bg-no-repeat rounded-[20px]"
+                  variants={imageVariants}
+                  whileHover={{ scale: 1.05 }}
+                />
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Right Column */}
+        <motion.div
+          className="flex flex-col items-end bg-[#eff6fe] rounded-[24px] p-6 w-full xl:max-w-[612px] cursor-pointer"
+          variants={rightColumnVariants}
+          whileHover="hover"
+        >
+          <motion.div
+            className="w-full h-[370px] bg-[url('/assets/images/homehellers/Frame3.svg')] bg-cover bg-no-repeat rounded-[20px] mb-6"
+            variants={imageVariants}
+            whileHover={{ scale: 1.03 }}
+          />
+            <ShowMore />
+          <span className="text-[16px] font-medium text-[#62a0f6] mb-2 text-end">3 ديسمبر 2025</span>
+          <h3 className="text-[20px] font-semibold text-[#1e1e1e] text-end mb-2">اخر تطورات المجال الطبي</h3>
+          <p className="text-[16px] font-light text-[#1e1e1e] leading-[32px] text-end mb-4">
+            هنا يكتب وصف بسيط عن المنتج في سطرين كمثال , هنا يكتب وصف بسيط عن المنتج في سطرين كمثال.
+          </p>
+          <div>
+
           </div>
-        )}
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
-  );
+  )
 }
 
-export default OurStory;
+export default OurStory
