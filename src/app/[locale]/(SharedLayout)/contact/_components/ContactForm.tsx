@@ -1,181 +1,168 @@
 "use client";
 
+import { motion } from "framer-motion";
 import React, { useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
-import { IoClose } from "react-icons/io5";
-import SuccessIcon from "@/components/ui/SuccessIcon";
-import { useTranslation } from "react-i18next";
 
-// Validation schema with translations
-const ContactUsSchema = (t: (key: string) => string) =>
-  z.object({
-    firstName: z.string().min(1, t("validation.firstName")),
-    lastName: z.string().min(1, t("validation.lastName")),
-    email: z
-      .string()
-      .email(t("validation.emailInvalid"))
-      .min(1, t("validation.emailRequired")),
-    phone: z
-      .string()
-      .regex(
-        /^(?:\+966|0)?5\d{8}$/,
-        t("validation.phoneInvalid")
-      )
-      .min(1, t("validation.phoneRequired")),
-    message: z.string().min(1, t("validation.message")),
+export default function ContactSection() {
+  // You can add form state handling here if needed
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
   });
 
-type ContactUsType = z.infer<ReturnType<typeof ContactUsSchema>>;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
 
-function ContactForm() {
-  const { t } = useTranslation("contactUs");
-
-  const methods = useForm<ContactUsType>({
-    resolver: zodResolver(ContactUsSchema(t)),
-    mode: "onChange",
-  });
-
-  const [isPending, setIsPending] = useState(false); // Track loading state
-
-  const onSubmit = async (data: ContactUsType) => {
-    setIsPending(true);
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      toast.custom((ts) => (
-        <div className="bg-background-primary-alt border border-border-primary text-text-secondary-700 p-4 rounded-lg shadow-lg flex items-center justify-between gap-3 overflow-hidden">
-          <div className="flex items-center gap-4">
-            <SuccessIcon />
-            <span className="text-sm font-medium">{t("successMessage")}</span>
-          </div>
-          <button
-            onClick={() => toast.dismiss(ts)}
-            className="text-foreground-quinary-400 hover:text-text-primary-900 transition-colors"
-          >
-            <IoClose className="w-5 h-5" />
-          </button>
-        </div>
-      ));
-
-      methods.reset();
-    } catch (error) {
-      toast.error(t("errorMessage"));
-    } finally {
-      setIsPending(false);
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Add your submit logic here (e.g. API call)
+    alert("تم ارسال الرسالة بنجاح!");
   };
 
   return (
-    <FormProvider {...methods}>
-      <div className="main-container w-full flex xl:w-[560px] pt-[32px] pb-[32px] pr-[32px] pl-[32px] flex-col gap-[32px] items-center bg-[#37200B] rounded-[16px] relative z-10 mx-auto my-0">
-        <form
-          onSubmit={methods.handleSubmit(onSubmit)}
-          className="flex w-full xl:w-[496px] flex-col gap-[40px] items-center shrink-0 relative"
-        >
-          <div className="flex flex-col gap-[24px] items-center self-stretch shrink-0 relative z-[1]">
-            <div className="flex flex-col xl:flex-row gap-[32px] items-start self-stretch shrink-0 relative z-[2]">
-              {/* First Name */}
-              <div className="flex xl:w-[232px] flex-col gap-[8px] self-stretch shrink-0 relative z-[11]">
-                <label className="text-[14px] font-medium text-[#FFFFFF]">
-                  {t("form.firstName")} *
-                </label>
-                <input
-                  {...methods.register("firstName")}
-                  placeholder={t("form.firstNamePlaceholder")}
-                  className="outline-none text-black w-full xl:w-[232px] h-[56px] bg-[#5F3F23] rounded-[15px] px-[16px] placeholder:text-[#DCDCDC] "
-                />
-                {methods.formState.errors.firstName && (
-                  <div className="text-red-500 text-[12px]">
-                    {methods.formState.errors.firstName.message}
-                  </div>
-                )}
+    <motion.div
+      className="flex flex-col lg:flex-row gap-14 items-start w-full max-w-[1280px] mx-auto mt-20 px-4 xl:px-0"
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+    >
+      {/* Form Container */}
+      <motion.div
+        className="flex flex-col items-center gap-10 bg-white rounded-xl border border-[#d0d5dd] p-6 md:p-12 w-full"
+        initial={{ opacity: 0, x: -40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-[#1e1e1e] mb-2">اتصل بنا</h2>
+          <p className="text-sm text-[#736b7a]">من فضلك ادخل البيانات التالية لتتمكن من ارسال طلبك</p>
+        </div>
+
+        <form className="w-full max-w-[590px] space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-2">
+            <label htmlFor="name" className="block text-start text-sm font-medium text-[#1e1e1e]">الاسم</label>
+            <input
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="bg-white w-full border border-[#d0d5dd] rounded-md px-4 py-3 text-sm text-start"
+              placeholder="ادخل الاسم كاملا"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="email" className="block text-start text-sm font-medium text-[#1e1e1e]">البريد الالكتروني</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="bg-white w-full border border-[#d0d5dd] rounded-md px-4 py-3 text-sm text-start"
+              placeholder="ادخل البريد الالكتروني"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="phone" className="block text-start text-sm font-medium text-[#1e1e1e]">رقم الهاتف</label>
+            <div className="flex items-center border border-[#d0d5dd] rounded-md overflow-hidden">
+              <div className="bg-[#e8eaf3]/50 px-3 py-2 flex items-center gap-2">
+                <img src="https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/SUr7AzvBDd.png" className="w-6 h-6" alt="flag" />
+                <span className="text-sm font-medium">+966</span>
               </div>
-
-              {/* Last Name */}
-              <div className="flex xl:w-[232px] flex-col gap-[8px] self-stretch shrink-0 relative z-[3]">
-                <label className="text-[14px] font-medium text-[#FFFFFF]">
-                  {t("form.lastName")} *
-                </label>
-                <input
-                  {...methods.register("lastName")}
-                  placeholder={t("form.lastNamePlaceholder")}
-                  className="outline-none text-black placeholder:text-[#DCDCDC] w-full xl:w-[232px] h-[56px] bg-[#5F3F23] rounded-[15px] px-[16px] "
-                />
-                {methods.formState.errors.lastName && (
-                  <div className="text-red-500 text-[12px]">
-                    {methods.formState.errors.lastName.message}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Email */}
-            <div className="flex flex-col gap-[8px] self-stretch shrink-0 relative z-[19]">
-              <label className="text-[14px] font-medium text-[#FFFFFF]">
-                {t("form.email")} *
-              </label>
               <input
-                {...methods.register("email")}
-                type="email"
-                placeholder="you@company.com"
-                className="outline-none text-black placeholder:text-[#DCDCDC] w-full xl:w-[496px] h-[56px] bg-[#5F3F23] rounded-[15px] px-[16px] "
+                id="phone"
+                name="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={handleChange}
+                className="bg-white flex-1 px-4 py-3 text-sm text-start"
+                placeholder="رقم الهاتف"
+                required
               />
-              {methods.formState.errors.email && (
-                <div className="text-red-500 text-[12px]">
-                  {methods.formState.errors.email.message}
-                </div>
-              )}
-            </div>
-
-            {/* Phone */}
-            <div className="flex flex-col gap-[8px] self-stretch shrink-0 relative z-[27]">
-              <label className="text-[14px] font-medium text-[#FFFFFF]">
-                {t("form.phone")} *
-              </label>
-              <input
-                {...methods.register("phone")}
-                placeholder={t("form.phonePlaceholder")}
-                className="outline-none text-black placeholder:text-[#DCDCDC] w-full xl:w-[496px] h-[56px] bg-[#5F3F23] rounded-[15px] px-[16px] "
-              />
-              {methods.formState.errors.phone && (
-                <div className="text-red-500 text-[12px]">
-                  {methods.formState.errors.phone.message}
-                </div>
-              )}
-            </div>
-
-            {/* Message */}
-            <div className="flex flex-col gap-[8px] self-stretch shrink-0 relative z-[29]">
-              <label className="text-[14px] font-medium text-[#FFFFFF]">
-                {t("form.message")}
-              </label>
-              <textarea
-                {...methods.register("message")}
-                placeholder={t("form.messagePlaceholder")}
-                className="outline-none placeholder:text-[#DCDCDC] text-black w-full xl:w-[496px] h-[90px] bg-[#5F3F23] rounded-[15px] py-[16px] px-[16px] "
-              />
-              {methods.formState.errors.message && (
-                <div className="text-red-500 text-[12px]">
-                  {methods.formState.errors.message.message}
-                </div>
-              )}
             </div>
           </div>
+
+          <div className="space-y-2">
+            <label htmlFor="message" className="block text-start text-sm font-medium text-[#1e1e1e]">الرسالة</label>
+            <textarea
+              id="message"
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              className="w-full bg-white border border-[#d0d5dd] rounded-md px-4 py-3 text-sm text-start h-40"
+              placeholder="الرسالة"
+              required
+            />
+          </div>
+
           <button
             type="submit"
-            disabled={isPending}
-            className="flex gap-[16px] items-start justify-center self-stretch shrink-0 bg-[#F8992F] text-[#fff] rounded-[15px] px-[50px] py-[14px]"
+            className="w-full bg-[#143087] text-white py-3 rounded-md flex justify-center items-center gap-2 hover:bg-[#0f2d6a] transition-colors duration-300"
           >
-            {isPending ? t("form.sending") : t("form.submit")}
+            <img
+              src="https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/XEW1LZHYfx.png"
+              className="w-3 h-6"
+              alt="arrow icon"
+              aria-hidden="true"
+            />
+            <span className="text-lg font-medium">ارسال رسالتك</span>
           </button>
         </form>
+      </motion.div>
+
+      {/* Contact Info */}
+      <motion.div
+        className="flex flex-col gap-8 w-full lg:max-w-[538px]"
+        initial={{ opacity: 0, x: 40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        {[
+          {
+            icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/fxFV5KXUD4.png",
+            title: "قم بزيارتنا",
+            description: "الرياض - شارع الامير عبدالعزيز بن مساعد بن جلوي",
+          },
+          {
+            icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/RKCBiHeaWM.png",
+            title: "أرسلنا عبر الايميل",
+            description: "customer.service@home-healers.com",
+          },
+          {
+            icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/pyxgUkH7d4.png",
+            title: "قم بالاتصال بنا",
+            description: "0551172232",
+          },
+        ].map(({ icon, title, description }, i) => (
+          <motion.div
+    key={i}
+    className="flex flex-col gap-2 bg-[#143087] rounded-xl p-8 text-white cursor-pointer"
+    whileHover={{ scale: 1.05, boxShadow: "0 8px 20px rgba(98, 160, 246, 0.5)" }}
+    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+  >
+    <div className="flex gap-4 items-center">
+      <div className="w-14 h-14 bg-[#62a0f6] rounded-md flex items-center justify-center">
+        <img src={icon} alt={`${title} icon`} className="w-5 h-5" />
       </div>
-    </FormProvider>
+      <div className="flex flex-col items-start text-start gap-2">
+        <span className="text-lg lg:text-2xl font-semibold">{title}</span>
+        <span className="text-sm lg:text-base">{description}</span>
+      </div>
+    </div>
+  </motion.div>
+        ))}
+      </motion.div>
+    </motion.div>
   );
 }
-
-export default ContactForm;

@@ -1,5 +1,6 @@
 import initTranslations from "@/app/i18n";
 import Features from "@/components/Animations/features";
+import BlogRelatedSection from "./_components/BlogSection";
 
 async function page({
   params: { locale, blogID },
@@ -39,66 +40,7 @@ async function page({
   </div>
 </div>
 
-  <div className="flex flex-col lg:flex-row my-[106px] gap-10 max-w-screen-xl mx-auto ">
-        <div className="w-full lg:w-[348px] flex flex-col gap-5">
-      <div className="flex flex-col gap-5 items-start">
-        <h3 className="text-right text-[30px] font-medium text-[#1e1e1e]">
-          مواضيع <span className="text-[#62a0f6]">متعلقة</span>
-        </h3>
-
-        {[1, 2, 3].map((_, index) => (
-          <div key={index} className="flex gap-4 items-center border-b border-[#d0d5dd] pb-5">
-                        <div className="w-[104px] h-[104px] rounded-md bg-cover bg-no-repeat"
-              style={{ backgroundImage: `url('https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/DcZcfg1h8D.png')` }} />
-            <div className="flex flex-col items-start gap-1">
-              <p className="text-right text-lg text-[#1e1e1e] leading-[30px]">تأهيل مابعد العمليات الجراحية</p>
-              <span className="text-xs text-[#62a0f6]">3 ديسمبر 2025</span>
-            </div>
-
-          </div>
-        ))}
-      </div>
-
-      <div className="flex flex-col gap-5 items-start">
-        <h3 className="text-right text-[30px] font-medium text-[#1e1e1e]">هاشتجات</h3>
-
-        <div className="flex flex-wrap justify-start gap-4">
-          {["معلومات طبية", "صحة وطب", "معلومات ثقافة طبية"].map((tag, i) => (
-            <div key={i} className="border border-[#d0d5dd] rounded-md px-2 py-1">
-              <span className="text-[#736b7a] text-lg">{tag}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-    <div className="flex-1 flex flex-col gap-6">
-      <div className="rounded-[24px] bg-cover bg-no-repeat h-[300px] md:h-[456px] w-full"
-        style={{ backgroundImage: "url('https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/DcZcfg1h8D.png')" }} />
-
-      <div className="flex flex-col gap-2 items-start">
-        <span className="text-[#62a0f6] text-sm font-medium">3 ديسمبر 2025</span>
-
-        <div className="flex flex-col gap-6 items-start">
-          <h2 className="text-2xl md:text-[30px] font-medium text-right text-[#1e1e1e]">تأهيل مابعد العمليات الجراحية</h2>
-          <p className="text-right text-[#475467] text-base md:text-xl leading-loose">
-            إعادة التأهيل بعد الجراحة هي مرحلة حاسمة في رحلة التعافي، فهي لا تقل أهمية عن العملية الجراحية نفسها...<br />
-            الأسباب الرئيسية التي تجعل إعادة التأهيل بعد الجراحة ضرورية... تقوية العضلات الضعيفة
-          </p>
-        </div>
-      </div>
-
-<div className="flex justify-end">
-
-      <div className="flex items-center gap-2 border border-[#143087] rounded-md px-2 py-2 w-fit">
-        <span className="text-sm font-medium text-[#143087]">مشاركة المقال</span>
-        <div className="w-6 h-6 bg-cover bg-no-repeat"
-          style={{ backgroundImage: "url('https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/ZPsHKGyuOB.png')" }} />
-      </div>
-</div>
-    </div>
-
-
-  </div>
+<BlogRelatedSection/>
 </div>
   );
 }
