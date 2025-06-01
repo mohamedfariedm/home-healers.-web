@@ -15,12 +15,9 @@ export default async function Layout({
 }) {
   return (
     <>
-    <div className="">
       <Header locale={locale} />
       {children}
       <Footer locale={locale} />
-
-    </div>
     </>
   );
 }
