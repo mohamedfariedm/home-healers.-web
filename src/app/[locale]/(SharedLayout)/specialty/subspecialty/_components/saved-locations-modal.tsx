@@ -1,43 +1,51 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 
 interface SavedLocationsModalProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 interface Location {
-  id: number
-  title: string
-  address: string
-  iconUrl: string
-  isSelected?: boolean
+  id: number;
+  title: string;
+  address: string;
+  iconUrl: string;
+  isSelected?: boolean;
 }
 
-export default function SavedLocationsModal({ isOpen, onClose }: SavedLocationsModalProps) {
-  const [selectedLocation, setSelectedLocation] = useState<number>(1)
+export default function SavedLocationsModal({
+  isOpen,
+  onClose,
+}: SavedLocationsModalProps) {
+  const [selectedLocation, setSelectedLocation] = useState<number>(1);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   const locations: Location[] = [
     {
       id: 1,
       title: "الرياض - السعودية",
       address: "السعودية - الرياض - شارع الامير محمد بن سلمان",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/OimPRcCr7m.png",
+      iconUrl:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/OimPRcCr7m.png",
       isSelected: true,
     },
     {
       id: 2,
       title: "الرياض - السعودية",
       address: "السعودية - الرياض - شارع الامير محمد بن سلمان",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/Td0CfY2fe4.png",
+      iconUrl:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/Td0CfY2fe4.png",
     },
-  ]
+  ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto" dir="rtl">
+    <div
+      className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4 overflow-y-auto"
+      dir="rtl"
+    >
       <div className="relative bg-white rounded-3xl w-full max-w-4xl max-h-[95vh] overflow-y-auto">
         {/* Close Button */}
         <button onClick={onClose} className="absolute top-5 right-5 z-10">
@@ -49,7 +57,9 @@ export default function SavedLocationsModal({ isOpen, onClose }: SavedLocationsM
         <div className="flex flex-col gap-6 p-6 pt-16">
           {/* Title */}
           <div className="flex justify-center">
-            <h2 className="text-xl font-bold text-[#1e1e1e]">المواقع المحفوظة</h2>
+            <h2 className="text-xl font-bold text-[#1e1e1e]">
+              المواقع المحفوظة
+            </h2>
           </div>
 
           {/* Locations List */}
@@ -58,20 +68,26 @@ export default function SavedLocationsModal({ isOpen, onClose }: SavedLocationsM
               <div
                 key={location.id}
                 className={`flex flex-col sm:flex-row justify-between items-center p-4 rounded-2xl transition-all ${
-                  selectedLocation === location.id ? "bg-[#eff6fe]" : "border border-[#d0d5dd] hover:border-[#62a0f6]"
+                  selectedLocation === location.id
+                    ? "bg-[#eff6fe]"
+                    : "border border-[#d0d5dd] hover:border-[#62a0f6]"
                 }`}
               >
                 {/* Location Info */}
                 <div className="flex items-center gap-5 flex-1 order-2 sm:order-1">
                   <div className="flex flex-col gap-4 items-end flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-base font-semibold text-[#1e1e1e] text-right">{location.title}</span>
+                      <span className="text-base font-semibold text-[#1e1e1e] text-right">
+                        {location.title}
+                      </span>
                       <div
                         className="w-4 h-4 bg-cover bg-no-repeat"
                         style={{ backgroundImage: `url(${location.iconUrl})` }}
                       />
                     </div>
-                    <span className="text-base text-[#1e1e1e] text-right">{location.address}</span>
+                    <span className="text-base text-[#1e1e1e] text-right">
+                      {location.address}
+                    </span>
                   </div>
                 </div>
 
@@ -100,5 +116,5 @@ export default function SavedLocationsModal({ isOpen, onClose }: SavedLocationsM
         </div>
       </div>
     </div>
-  )
+  );
 }

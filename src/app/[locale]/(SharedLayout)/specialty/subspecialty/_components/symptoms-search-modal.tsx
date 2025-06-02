@@ -1,59 +1,69 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 
 interface SymptomsSearchModalProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 interface Symptom {
-  id: number
-  name: string
-  iconUrl: string
-  isSelected?: boolean
+  id: number;
+  name: string;
+  iconUrl: string;
+  isSelected?: boolean;
 }
 
-export default function SymptomsSearchModal({ isOpen, onClose }: SymptomsSearchModalProps) {
-  const [selectedSymptoms, setSelectedSymptoms] = useState<number[]>([3, 6, 9]) // Pre-select some symptoms
+export default function SymptomsSearchModal({
+  isOpen,
+  onClose,
+}: SymptomsSearchModalProps) {
+  const [selectedSymptoms, setSelectedSymptoms] = useState<number[]>([3, 6, 9]); // Pre-select some symptoms
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   const symptoms: Symptom[] = [
     {
       id: 1,
       name: "الكلي",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/mP9SAY3boe.png",
+      iconUrl:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/mP9SAY3boe.png",
     },
     {
       id: 2,
       name: "حب الشباب",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/1MdAt5KzHX.png",
+      iconUrl:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/1MdAt5KzHX.png",
     },
     {
       id: 3,
       name: "ارتجاع المرئ",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/NGZUfnz7iS.png",
+      iconUrl:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/NGZUfnz7iS.png",
     },
     {
       id: 4,
       name: "تساقط الشعر",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/tJS2z8zfZ1.png",
+      iconUrl:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/tJS2z8zfZ1.png",
     },
     {
       id: 5,
       name: "الكلي",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/dQPOJG4LuC.png",
+      iconUrl:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/dQPOJG4LuC.png",
     },
     {
       id: 6,
       name: "ارتجاع المرئ",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/bybCA66GKF.png",
+      iconUrl:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/bybCA66GKF.png",
     },
     {
       id: 7,
       name: "حب الشباب",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/HRNv09PCwY.png",
+      iconUrl:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/HRNv09PCwY.png",
     },
     // {
     //   id: 8,
@@ -80,21 +90,26 @@ export default function SymptomsSearchModal({ isOpen, onClose }: SymptomsSearchM
     //   name: "حب الشباب",
     //   iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/AK0koZfmxg.png",
     // },
-  ]
+  ];
 
   const toggleSymptom = (symptomId: number) => {
     setSelectedSymptoms((prev) =>
-      prev.includes(symptomId) ? prev.filter((id) => id !== symptomId) : [...prev, symptomId],
-    )
-  }
+      prev.includes(symptomId)
+        ? prev.filter((id) => id !== symptomId)
+        : [...prev, symptomId]
+    );
+  };
 
   const handleConfirm = () => {
-    console.log("Selected symptoms:", selectedSymptoms)
-    onClose()
-  }
+    console.log("Selected symptoms:", selectedSymptoms);
+    onClose();
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto" dir="rtl">
+    <div
+      className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4 overflow-y-auto"
+      dir="rtl"
+    >
       <div className="relative bg-white rounded-3xl w-full max-w-5xl max-h-[95vh] overflow-y-auto">
         {/* Close Button */}
         <button onClick={onClose} className="absolute top-4 right-4 z-10">
@@ -106,13 +121,15 @@ export default function SymptomsSearchModal({ isOpen, onClose }: SymptomsSearchM
         <div className="flex flex-col gap-6 p-6 pt-16">
           {/* Title */}
           <div className="flex justify-center">
-            <h2 className="text-xl font-bold text-[#1e1e1e]">بحث حسب الأعراض</h2>
+            <h2 className="text-xl font-bold text-[#1e1e1e]">
+              بحث حسب الأعراض
+            </h2>
           </div>
 
           {/* Symptoms Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {symptoms.map((symptom) => {
-              const isSelected = selectedSymptoms.includes(symptom.id)
+              const isSelected = selectedSymptoms.includes(symptom.id);
               return (
                 <button
                   key={symptom.id}
@@ -138,12 +155,14 @@ export default function SymptomsSearchModal({ isOpen, onClose }: SymptomsSearchM
 
                   {/* Symptom Name */}
                   <span
-                    className={`text-base font-medium text-center ${isSelected ? "text-[#62a0f6]" : "text-[#1e1e1e]"}`}
+                    className={`text-base font-medium text-center ${
+                      isSelected ? "text-[#62a0f6]" : "text-[#1e1e1e]"
+                    }`}
                   >
                     {symptom.name}
                   </span>
                 </button>
-              )
+              );
             })}
           </div>
 
@@ -157,5 +176,5 @@ export default function SymptomsSearchModal({ isOpen, onClose }: SymptomsSearchM
         </div>
       </div>
     </div>
-  )
+  );
 }

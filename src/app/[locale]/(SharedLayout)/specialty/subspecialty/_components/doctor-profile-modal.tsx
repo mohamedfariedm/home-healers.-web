@@ -1,15 +1,21 @@
-"use client"
+"use client";
 
 interface DoctorProfileModalProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export default function DoctorProfileModal({ isOpen, onClose }: DoctorProfileModalProps) {
-  if (!isOpen) return null
+export default function DoctorProfileModal({
+  isOpen,
+  onClose,
+}: DoctorProfileModalProps) {
+  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto" dir="rtl">
+    <div
+      className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4 overflow-y-auto"
+      dir="rtl"
+    >
       <div
         className="relative bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
@@ -24,7 +30,9 @@ export default function DoctorProfileModal({ isOpen, onClose }: DoctorProfileMod
         <div className="flex flex-col gap-4 p-6">
           {/* Doctor Title */}
           <div className="flex justify-center mb-2">
-            <span className="text-xl font-bold text-[#1e1e1e]">بيانات الطبيب</span>
+            <span className="text-xl font-bold text-[#1e1e1e]">
+              بيانات الطبيب
+            </span>
           </div>
 
           <div className="flex flex-col gap-8">
@@ -58,7 +66,9 @@ export default function DoctorProfileModal({ isOpen, onClose }: DoctorProfileMod
 
                     <div className="flex items-center gap-2">
                       <div className="text-sm">
-                        <span className="text-[#b5b5b5]">استشارة طبية فيديو : </span>
+                        <span className="text-[#b5b5b5]">
+                          استشارة طبية فيديو :{" "}
+                        </span>
                         <span className="text-[#1e1e1e]">15 دقيقة</span>
                       </div>
                       <div className="w-8 h-8 rounded-full border border-[#d0d5dd] flex items-center justify-center">
@@ -80,7 +90,9 @@ export default function DoctorProfileModal({ isOpen, onClose }: DoctorProfileMod
                   <div className="hidden md:block w-px h-32 bg-gray-200 mx-2"></div>
 
                   <div className="flex flex-col gap-3 items-end">
-                    <h3 className="text-xl font-semibold text-[#1e1e1e]">د / أحمد عاطف</h3>
+                    <h3 className="text-xl font-semibold text-[#1e1e1e]">
+                      د / أحمد عاطف
+                    </h3>
                     <p className="text-sm text-[#1e1e1e]">أخصائي أول</p>
                     <div className="w-[100px] h-5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/9hYbtA0zcp.png)] bg-cover bg-no-repeat"></div>
                     <p className="text-sm text-[#736b7a]">وصف بسيط جدا هنا</p>
@@ -98,7 +110,9 @@ export default function DoctorProfileModal({ isOpen, onClose }: DoctorProfileMod
               <div className="flex justify-center">
                 <div className="text-right">
                   <span className="text-sm text-[#1e1e1e]">السعر : </span>
-                  <span className="text-lg font-bold text-[#62a0f6]">300 ريال</span>
+                  <span className="text-lg font-bold text-[#62a0f6]">
+                    300 ريال
+                  </span>
                 </div>
               </div>
             </div>
@@ -108,11 +122,14 @@ export default function DoctorProfileModal({ isOpen, onClose }: DoctorProfileMod
               {/* About Doctor */}
               <div className="flex flex-col">
                 <div className="bg-[#eff6fe] rounded-t-xl inline-block self-end px-3 py-3 w-28">
-                  <span className="text-base font-bold text-[#62a0f6]">عن الطبيب</span>
+                  <span className="text-base font-bold text-[#62a0f6]">
+                    عن الطبيب
+                  </span>
                 </div>
                 <div className="bg-[#eff6fe] rounded-xl rounded-tr-none p-3">
                   <span className="text-base text-[#1e1e1e] text-right block">
-                    استشاري طب اسرة البورد العربي لطب الاسرة ٢٠٢١ البورد السعودي لطب الاسرة ٢٠١٩
+                    استشاري طب اسرة البورد العربي لطب الاسرة ٢٠٢١ البورد السعودي
+                    لطب الاسرة ٢٠١٩
                   </span>
                 </div>
               </div>
@@ -120,7 +137,9 @@ export default function DoctorProfileModal({ isOpen, onClose }: DoctorProfileMod
               {/* Medical Certificates */}
               <div className="flex flex-col">
                 <div className="bg-[#eff6fe] rounded-t-xl inline-block self-end px-3 py-3 w-40">
-                  <span className="text-base font-bold text-[#62a0f6]">الشهادات الطبية</span>
+                  <span className="text-base font-bold text-[#62a0f6]">
+                    الشهادات الطبية
+                  </span>
                 </div>
                 <div className="bg-[#eff6fe] rounded-xl rounded-tr-none p-3">
                   <div className="flex flex-wrap gap-3 justify-end">
@@ -134,7 +153,9 @@ export default function DoctorProfileModal({ isOpen, onClose }: DoctorProfileMod
               {/* Expertise */}
               <div className="flex flex-col">
                 <div className="bg-[#eff6fe] rounded-t-xl inline-block self-end px-3 py-3 w-48">
-                  <span className="text-base font-bold text-[#62a0f6]">خبرة في الحالات الاتية</span>
+                  <span className="text-base font-bold text-[#62a0f6]">
+                    خبرة في الحالات الاتية
+                  </span>
                 </div>
                 <div className="bg-[#eff6fe] rounded-xl rounded-tr-none p-3">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -142,7 +163,10 @@ export default function DoctorProfileModal({ isOpen, onClose }: DoctorProfileMod
                     {Array(12)
                       .fill(0)
                       .map((_, index) => (
-                        <div key={index} className="flex items-center gap-3 justify-end">
+                        <div
+                          key={index}
+                          className="flex items-center gap-3 justify-end"
+                        >
                           <span className="text-sm font-medium text-[#1e1e1e]">
                             التهاب الشعب الهوائية و الجيوب الأنفية
                           </span>
@@ -164,5 +188,5 @@ export default function DoctorProfileModal({ isOpen, onClose }: DoctorProfileMod
         </div>
       </div>
     </div>
-  )
+  );
 }

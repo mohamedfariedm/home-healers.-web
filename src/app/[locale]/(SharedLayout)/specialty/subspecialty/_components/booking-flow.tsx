@@ -646,6 +646,10 @@ function Step3PatientInfo({ onNext,onOpenAddPatient }: { onNext: () => void, onO
 
         <div className="bg-white rounded-2xl border border-[#d0d5dd] p-5">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col gap-3 items-start text-right">
+              <h3 className="text-lg font-semibold text-[#62a0f6]">اسم المريض</h3>
+              <p className="text-sm text-[#1e1e1e]">يمكنك اضافة مزيد من المرضي</p>
+            </div>
             <button
             onClick={onOpenAddPatient}
             className="flex items-center gap-2 bg-[#62a0f6] text-white rounded-lg px-3 py-3 text-sm font-medium">
@@ -653,10 +657,7 @@ function Step3PatientInfo({ onNext,onOpenAddPatient }: { onNext: () => void, onO
               <span>اضافة المزيد من المرضي</span>
             </button>
 
-            <div className="flex flex-col gap-3 items-start text-right">
-              <h3 className="text-lg font-semibold text-[#62a0f6]">اسم المريض</h3>
-              <p className="text-sm text-[#1e1e1e]">يمكنك اضافة مزيد من المرضي</p>
-            </div>
+            
           </div>
 
           <div className="flex items-center justify-start gap-4 mt-8">
