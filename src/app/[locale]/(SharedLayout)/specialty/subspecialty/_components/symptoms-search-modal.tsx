@@ -55,31 +55,31 @@ export default function SymptomsSearchModal({ isOpen, onClose }: SymptomsSearchM
       name: "حب الشباب",
       iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/HRNv09PCwY.png",
     },
-    {
-      id: 8,
-      name: "تساقط الشعر",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/JDJMueqg8s.png",
-    },
-    {
-      id: 9,
-      name: "ارتجاع المرئ",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/MgHe63rK0U.png",
-    },
-    {
-      id: 10,
-      name: "الكلي",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/ce5YuU6uS9.png",
-    },
-    {
-      id: 11,
-      name: "تساقط الشعر",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/t7TLe4H4RC.png",
-    },
-    {
-      id: 12,
-      name: "حب الشباب",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/AK0koZfmxg.png",
-    },
+    // {
+    //   id: 8,
+    //   name: "تساقط الشعر",
+    //   iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/JDJMueqg8s.png",
+    // },
+    // {
+    //   id: 9,
+    //   name: "ارتجاع المرئ",
+    //   iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/MgHe63rK0U.png",
+    // },
+    // {
+    //   id: 10,
+    //   name: "الكلي",
+    //   iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/ce5YuU6uS9.png",
+    // },
+    // {
+    //   id: 11,
+    //   name: "تساقط الشعر",
+    //   iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/t7TLe4H4RC.png",
+    // },
+    // {
+    //   id: 12,
+    //   name: "حب الشباب",
+    //   iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-29/AK0koZfmxg.png",
+    // },
   ]
 
   const toggleSymptom = (symptomId: number) => {
