@@ -19,13 +19,14 @@ import HomeAPI from "../../../api/api";
 import AppHeader from "./_components/AppHeader";
 import AppRating from "./_components/AppRating";
 import DownloadButtons from "./_components/DownloadButtons";
+import ClientAPI from "../../../api/api";
 
 const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
 
   const { t } = await initTranslations(locale, ["homepage"]);
 
 
-  // const homeData = await HomeAPI.getHomeData(locale);
+  const homeData = await ClientAPI.getHomeData(locale);
   // const ClientReview = await HomeAPI.getClientReview(locale);
   // const NewsData = await HomeAPI.getNewsData(locale);
 
@@ -39,7 +40,7 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
       <div className="w-full xl:w-[489.058px]  bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-05/Xam6EEVohV.png)] bg-[length:100%_100%] bg-no-repeat relative" />
       <div className=" ">
       <div className="w-full xl:w-[1440px] h-[1px] bg-[#fff] relative shadow-[0_1px_2px_0_rgba(16,24,40,0.06)] mt-0 mr-0 mb-0 ml-0"/>
-<Hero />
+<Hero  />
         
         
 <AboutApp  />

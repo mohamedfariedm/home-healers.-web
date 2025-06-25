@@ -3,8 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { IoMenu, IoClose } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link"; // Import Link for navigation
 import LanguageChanger from "../LanguageChanger";
 import MenuItemsDesktop from "./MenuItemsDesktop";
+import { ArrowLeft } from "lucide-react";
 
 function MobileMenu({ locale }: { locale: string }) {
   const [open, setOpen] = useState(false);
@@ -22,6 +24,11 @@ function MobileMenu({ locale }: { locale: string }) {
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
 
+  // Function to close menu when a link is clicked
+  const handleLinkClick = () => {
+    setOpen(false);
+  };
+
   return (
     <>
       <div className="flex justify-center items-center gap-[16px]">
@@ -31,7 +38,7 @@ function MobileMenu({ locale }: { locale: string }) {
             <div className="flex w-[41px] gap-[20px] items-center shrink-0 flex-wrap relative z-[17]">
               <div className="w-[41px] h-[43px] shrink-0 relative z-[18]">
                 <div className="flex w-[20px] h-[20px] pt-[2px] pr-[5px] pb-[2px] pl-[5px] flex-col gap-[10px] justify-center items-center flex-wrap bg-[#62a0f6] rounded-[10px] relative z-[21]">
-                  <span className="h-[16px] shrink-0  text-[12px] font-semibold leading-[16px] text-[#fff]">
+                  <span className="h-[16px] shrink-0 text-[12px] font-semibold leading-[16px] text-[#fff]">
                     0
                   </span>
                 </div>
@@ -40,23 +47,24 @@ function MobileMenu({ locale }: { locale: string }) {
                 </div>
               </div>
             </div>
+            {/* Desktop Buttons */}
             <div className="hidden xl:flex w-[258px] gap-[12px] items-center shrink-0 flex-wrap relative z-[8]">
-              <div className="flex w-[126px] h-[40px] px-[8px] py-[9px] gap-[10px] justify-center items-center bg-[#62a0f6] rounded-[8px] z-[13]">
-                <span className="text-white text-[14px] font-medium leading-[20px] ">
-                  احجز استشارة
-                </span>
-                <div className="w-[16px] h-[16px] relative z-[14]">
-                  <div className="w-[4px] h-[8px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-08/HWSfSuULfT.png)] bg-contain bg-no-repeat relative z-[15] mt-[4px] ml-[6px]" />
+              <Link className="hover:scale-105 transition-all duration-300" href="/book-consultation" onClick={handleLinkClick}>
+                <div className="flex w-[126px] h-[40px] px-[8px] py-[9px] gap-[10px] justify-center items-center bg-[#62a0f6] rounded-[8px] z-[13]">
+                  <span className="text-white text-[14px] font-medium leading-[20px]">
+                    احجز استشارة
+                  </span>
+                  <ArrowLeft className="w-[16px] h-[16px] text-white" />
                 </div>
-              </div>
-              <div className="flex w-[120px] h-[40px] px-[8px] py-[9px] gap-[10px] justify-center items-center bg-[#143087] rounded-[8px] z-[9]">
-                <span className="text-white text-[14px] font-medium leading-[20px] ">
-                  احجز جلستك
-                </span>
-                <div className="w-[16px] h-[16px] relative z-10">
-                  <div className="w-[4px] h-[8px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-08/TAFiOHwPN2.png)] bg-cover bg-no-repeat relative z-[11] mt-[4px] ml-[6px]" />
+              </Link>
+              <Link className="hover:scale-105 transition-all duration-300"  href="/book-session" onClick={handleLinkClick}>
+                <div className="flex w-[120px] h-[40px] px-[8px] py-[9px] gap-[10px] justify-center items-center bg-[#143087] rounded-[8px] z-[9]">
+                  <span className="text-white text-[14px] font-medium leading-[20px]">
+                    احجز جلستك
+                  </span>
+                    <ArrowLeft className="w-[16px] h-[16px] text-white" />
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
           <LanguageChanger />
@@ -87,9 +95,28 @@ function MobileMenu({ locale }: { locale: string }) {
             <div className="flex flex-col items-end gap-6">
               <MenuItemsDesktop
                 locale={locale}
-                onLinkClick={() => setOpen(false)}
+                onLinkClick={handleLinkClick}
                 className="flex-col items-end"
               />
+              {/* Mobile Buttons */}
+              <div className="flex flex-col w-full gap-[12px] items-center shrink-0 flex-wrap relative z-[8] mt-4">
+              <Link className="hover:scale-105 transition-all duration-300 w-full" href="/book-consultation" onClick={handleLinkClick}>
+                <div className="flex w-full h-[40px] px-[8px] py-[9px] gap-[80px] justify-center items-center bg-[#62a0f6] rounded-[8px] z-[13]">
+                  <span className="text-white text-[14px] font-medium leading-[20px]">
+                    احجز استشارة
+                  </span>
+                  <ArrowLeft className="w-[16px] h-[16px] text-white" />
+                </div>
+              </Link>
+              <Link className="hover:scale-105 transition-all duration-300 w-full"  href="/book-session" onClick={handleLinkClick}>
+                <div className="flex w-full h-[40px] px-[8px] py-[9px] gap-[80px] justify-center items-center bg-[#143087] rounded-[8px] z-[9]">
+                  <span className="text-white text-[14px] font-medium leading-[20px]">
+                    احجز جلستك
+                  </span>
+                    <ArrowLeft className="w-[16px] h-[16px] text-white" />
+                </div>
+              </Link>
+              </div>
               {/* <LanguageChanger /> */}
             </div>
           </motion.div>
