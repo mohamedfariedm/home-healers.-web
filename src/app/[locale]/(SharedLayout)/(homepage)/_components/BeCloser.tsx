@@ -2,8 +2,9 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
-function BeCloser() {
+function BeCloser({ locale }: { locale: string }) {
   return (
     <div className="main-container flex justify-center items-center rtl:ltr ltr:rtl relative w-full max-w-[1280px] mx-auto h-auto px-4 lg:px-0">
       {/* Background layer */}
@@ -82,8 +83,10 @@ function BeCloser() {
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
       className="flex items-center gap-2 bg-[#143087] text-white text-sm font-medium px-4 py-2 rounded-md">
+       <Link href={`/${locale}/specialty/subspecialty`} className="flex items-center gap-2 bg-[#143087] text-white text-sm font-medium  rounded-md">
         <ArrowLeft className="w-6 h-6" />
         احجز استشارتك الان
+       </Link>
       </motion.button>
     </div>
   </motion.div>
@@ -112,8 +115,11 @@ function BeCloser() {
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
       className="flex items-center gap-2 bg-[#143087] text-white text-sm font-medium px-4 py-2 rounded-md">
+      <Link href={`/${locale}/specialty/subspecialty`} className="flex items-center gap-2 bg-[#143087] text-white text-sm font-medium rounded-md">
                 <ArrowLeft className="w-6 h-6" />
         احجز استشارتك الان
+      
+      </Link>
       </motion.button>
     </div>
   </motion.div>

@@ -384,15 +384,16 @@ html {
 .swiper-pagination-bullet {
   width: 12px !important;
   height: 12px !important;
+  background: #cee2fc !important;
   opacity: 1 !important;
   border: white 2px solid !important;
 }
 
 /* Customizing the active bullet */
 .swiper-pagination-bullet-active {
-  background: #F8992F !important;
   width: 12px !important;
   height: 12px !important;
+  background: #62a0f6 !important;
   opacity: 1;
   border:none !important;
 

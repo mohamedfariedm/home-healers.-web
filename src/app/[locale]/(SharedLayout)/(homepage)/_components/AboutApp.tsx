@@ -3,15 +3,24 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Autoplay } from "swiper/modules";
 import { ShowMore } from "@/components/Animations/ShowMore";
 import { AboutAppTwoColumns } from ".";
+import { useState } from "react";
+import "swiper/css";
+import "swiper/css/pagination";
 
-function AboutApp() {
-  const icons = [
-    "/assets/images/homehellers/elements.svg",
-    "/assets/images/homehellers/elements-1.svg",
-    "/assets/images/homehellers/guidance_physical-therapy.svg",
-  ];
+function AboutApp({ locale }: { locale: string }) {
+  const [activeDot, setActiveDot] = useState(0);
+
+  const services = Array.from({ length: 6 }, (_, i) => ({
+    id: i + 1,
+    title: "تأهيل مابعد العمليات الجراحية",
+    desc: "دعم المرضى في فترة التعافي بعد العمليات الجراحية.",
+    icon: "/assets/images/homehellers/Injury.svg",
+  }));
+
   return (
     <div className="flex w-full xl:w-[1280px] flex-col gap-[100px] items-start flex-nowrap relative z-[487] mt-[91px] mx-auto">
       {/* Section Header */}
@@ -32,55 +41,66 @@ function AboutApp() {
           </h2>
         </div>
 
-        {/* Service Card */}
-        <motion.div
-          className="w-full max-w-[1280px] flex flex-wrap justify-center gap-7"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          viewport={{ once: false, amount: 0.5 }}
+        {/* Swiper Slider with 6 Cards */}
+        <Swiper
+          modules={[Pagination, Autoplay]}
+          spaceBetween={0}
+          slidesPerView={20}
+          autoplay={{ delay: 3500 }}
+          pagination={{
+            clickable: true,
+            el: ".custom-dots",
+          }}
+          loop
+          onSlideChange={(swiper) => setActiveDot(swiper.realIndex)}
+          breakpoints={{
+            640: { slidesPerView: 1 },
+            768: { slidesPerView: 2 },
+            1024: { slidesPerView: 4 },
+          }}
+          className="w-full max-w-[1280px] "
         >
-          {/* Card 1 */}
-          <div className="relative bg-[#0077b7] rounded-3xl w-[299px] h-[352px] px-2 py-10 hover:shadow-2xl hover:scale-105 transition-all  duration-300">
-            <div className="absolute top-6 left-2 flex flex-col items-start gap-4 px-2">
-              <div className="bg-white rounded-full w-24 h-24 flex items-center justify-center">
-                <div className="w-16 h-16 bg-[url('/assets/images/homehellers/Injury.svg')] bg-contain bg-no-repeat" />
-              </div>
-              <div className="text-white">
-                <h3 className="text-lg font-semibold leading-7">
-                  تأهيل مابعد العمليات
-                  <br />
-                  الجراحية
-                </h3>
-                <p className="text-sm font-light leading-8 mt-1">
-                  دعم المرضى في فترة التعافي بعد العمليات الجراحية.
-                </p>
-              </div>
-            </div>
+          {services.map((service, i) => (
+            <SwiperSlide key={i}>
+              <Link
+                href={`/${locale}/services?id=${service.id}`}
+                className="relative bg-[#0077b7] rounded-3xl w-[299px] h-[352px] px-2 py-10 hover:shadow-2xl hover:scale-105 transition-all duration-300 block mx-auto"
+              >
+                <div className="absolute top-6 left-2 flex flex-col items-start gap-4 px-2">
+                  <div className="bg-white rounded-full w-24 h-24 flex items-center justify-center">
+                    <div
+                      className="w-16 h-16 bg-contain bg-no-repeat"
+                      style={{ backgroundImage: `url(${service.icon})` }}
+                    />
+                  </div>
+                  <div className="text-white">
+                    <h3 className="text-lg font-semibold leading-7">
+                      {service.title}
+                    </h3>
+                    <p className="text-sm font-light leading-8 mt-1">
+                      {service.desc}
+                    </p>
+                  </div>
+                </div>
+                <ShowMore />
+              </Link>
+            </SwiperSlide>
+          ))}
+        </Swiper>
 
-            <ShowMore />
-          </div>
-          {/* Card 2 */}
-          <div className="relative bg-[#0077b7] rounded-3xl w-[299px] h-[352px] px-2 py-10 hover:shadow-2xl hover:scale-105 transition-all  duration-300">
-            <div className="absolute top-6 left-2 flex flex-col items-start gap-4 px-2">
-              <div className="bg-white rounded-full w-24 h-24 flex items-center justify-center">
-                <div className="w-16 h-16 bg-[url('/assets/images/homehellers/Injury.svg')] bg-contain bg-no-repeat" />
-              </div>
-              <div className="text-white">
-                <h3 className="text-lg font-semibold leading-7">
-                  تأهيل مابعد العمليات
-                  <br />
-                  الجراحية
-                </h3>
-                <p className="text-sm font-light leading-8 mt-1">
-                  دعم المرضى في فترة التعافي بعد العمليات الجراحية.
-                </p>
-              </div>
-            </div>
-
-            <ShowMore />
-          </div>
-        </motion.div>
+        {/* Custom Dots */}
+        <div className="flex gap-6 mt-6 custom-dots justify-center">
+          {services.map((_, index) => (
+            <div
+              key={index}
+              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 bg-[#cee2fc] ${
+                index === activeDot
+                  ? "bg-[#62a0f6]"
+                  : "bg-[#cee2fc]"
+              }`}
+            />
+          ))}
+        </div>
 
         {/* CTA Button */}
         <motion.div
@@ -88,22 +108,18 @@ function AboutApp() {
           whileHover={{ scale: 1.05 }}
           transition={{ duration: 0.3 }}
         >
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#143087] text-white rounded-md text-lg font-medium border border-[#143087]">
+          <Link
+            href={`/${locale}/services`}
+            className="flex items-center gap-2 px-4 py-2 bg-[#143087] text-white rounded-md text-lg font-medium border border-[#143087]"
+          >
             جميع الخدمات
             <ArrowLeft className="w-6 h-6 text-white" />
-          </button>
+          </Link>
         </motion.div>
-
-        {/* Slider Dots */}
-        <div className="flex gap-6 mt-6">
-          <div className="w-2.5 h-2.5 bg-[#cee2fc] rounded-full" />
-          <div className="w-2.5 h-2.5 bg-[#cee2fc] rounded-full" />
-          <div className="w-2.5 h-2.5 bg-[url('https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-11/RLrCWzKCGD.png')] bg-cover bg-no-repeat rounded-full" />
-        </div>
       </motion.div>
 
       {/* Two Column Layout */}
-      <AboutAppTwoColumns />
+      <AboutAppTwoColumns locale={locale} />
     </div>
   );
 }

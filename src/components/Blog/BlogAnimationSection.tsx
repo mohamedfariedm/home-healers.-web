@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import React, { useState } from "react";
 import { ShowMore } from "../Animations/ShowMore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 const cardsData = Array(9).fill({
   image: "jdGR6vHAgn.png",
@@ -57,7 +58,7 @@ const pageVariants = {
   hover: { scale: 1.2, color: "#4287f5" },
 };
 
-const BlogAnimationSection = () => {
+const BlogAnimationSection = ({locale}:{locale:string}) => {
   const [activePage, setActivePage] = useState(2);
 
   // For demo, cards stay the same on all pages
@@ -81,6 +82,9 @@ const BlogAnimationSection = () => {
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10">
           {cards.map((card, i) => (
+            <Link
+
+            href={`/${locale}/blogs/${i}`} key={i}>
             <motion.div
               key={i}
               className="relative w-full max-w-[400px] h-[550px] bg-[#eff6fe] rounded-[24px] overflow-hidden mx-auto cursor-pointer shadow-md"
@@ -114,6 +118,7 @@ const BlogAnimationSection = () => {
               {/* Button */}
               <ShowMore />
             </motion.div>
+            </Link>
           ))}
         </div>
       </motion.div>

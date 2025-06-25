@@ -1,7 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay } from "swiper/modules";
+import SwiperCore from "swiper";
+import "swiper/css";
 
 interface DoctorCardProps {
   image: string;
@@ -47,28 +51,6 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
   );
 };
 
-interface PaginationDotsProps {
-  count: number;
-  active: number;
-}
-
-const PaginationDots: React.FC<PaginationDotsProps> = ({ count, active }) => {
-  return (
-    <div className="flex gap-4 mt-4">
-      {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          className={`w-2.5 h-2.5 rounded-full ${
-            i === active
-              ? "bg-[url('https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/Mpx5xpAzU0.png')] bg-cover bg-no-repeat"
-              : "bg-[#cee2fc]"
-          }`}
-        />
-      ))}
-    </div>
-  );
-};
-
 const DoctorsSection: React.FC = () => {
   const doctors = [
     {
@@ -89,6 +71,22 @@ const DoctorsSection: React.FC = () => {
     },
     {
       image:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/RvxhzCn35G.png",
+      rating:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/q1oETFEkV4.png",
+      name: "دكتور/ أحمد عاطف",
+      specialty: "أخصائي علاج طبيعي",
+    },
+    {
+      image:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/21r9mRJf4z.png",
+      rating:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/WzpLXiVCY9.png",
+      name: "دكتور/ أحمد عاطف",
+      specialty: "أخصائي علاج طبيعي",
+    },
+    {
+      image:
         "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/21r9mRJf4z.png",
       rating:
         "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/WzpLXiVCY9.png",
@@ -96,6 +94,13 @@ const DoctorsSection: React.FC = () => {
       specialty: "أخصائي علاج طبيعي",
     },
   ];
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const swiperRef = useRef<SwiperCore>();
+
+  const handleDotClick = (index: number) => {
+    swiperRef.current?.slideTo(index);
+  };
 
   return (
     <div className="w-full max-w-screen-xl mx-auto mt-24 px-4 flex flex-col gap-14 items-center">
@@ -111,21 +116,48 @@ const DoctorsSection: React.FC = () => {
         </h2>
       </div>
 
-      {/* Doctors Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10 w-full">
+      {/* Swiper Slider */}
+      <Swiper
+        modules={[Autoplay]}
+        spaceBetween={30}
+        slidesPerView={1}
+        autoplay={{ delay: 2000 }}
+        loop
+        onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+        onBeforeInit={(swiper) => {
+          swiperRef.current = swiper;
+        }}
+        breakpoints={{
+          640: { slidesPerView: 1 },
+          768: { slidesPerView: 2 },
+          1280: { slidesPerView: 3 },
+        }}
+        className="w-full"
+      >
         {doctors.map((doctor, index) => (
-          <DoctorCard
+          <SwiperSlide key={index}>
+            <DoctorCard
+              image={doctor.image}
+              rating={doctor.rating}
+              name={doctor.name}
+              specialty={doctor.specialty}
+            />
+          </SwiperSlide>
+        ))}
+      </Swiper>
+
+      {/* Custom Pagination Dots */}
+      <div className="flex gap-3 mt-1">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <button
             key={index}
-            image={doctor.image}
-            rating={doctor.rating}
-            name={doctor.name}
-            specialty={doctor.specialty}
+            onClick={() => handleDotClick(index)}
+            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+              activeIndex === index ? "bg-[#62a0f6]" : "bg-[#cee2fc]"
+            }`}
           />
         ))}
       </div>
-
-      {/* Pagination Dots */}
-      <PaginationDots count={5} active={2} />
     </div>
   );
 };

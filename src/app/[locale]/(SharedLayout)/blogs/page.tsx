@@ -56,7 +56,7 @@ async function page({ params: { locale } }: props) {
   </div>
 </div>
 
-<BlogAnimationSection/>
+<BlogAnimationSection locale={locale}/>
     </div>
     </>
   );

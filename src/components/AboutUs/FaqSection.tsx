@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, X } from "lucide-react";
+import Link from "next/link";
 
 interface FaqItemProps {
   question: string;
@@ -47,32 +48,44 @@ const FaqItem: React.FC<FaqItemProps> = ({
           </AnimatePresence>
         </div>
         <div className="relative w-8 h-8 shrink-0">
-          
           <motion.div
-  className="absolute top-2 left-2 w-[26px] h-[26px] rounded-full bg-[#143087] flex items-center justify-center cursor-pointer"
-  animate={{ rotate: isOpen ? 45 : 0 }}
-  transition={{ duration: 0.3 }}
->
-  <X className="text-white w-4 h-4" />
-</motion.div>
+            className="absolute top-2 left-2 w-[26px] h-[26px] rounded-full bg-[#143087] flex items-center justify-center cursor-pointer"
+            animate={{ rotate: isOpen ? 45 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <X className="text-white w-4 h-4" />
+          </motion.div>
         </div>
-        
       </div>
     </motion.div>
   );
 };
 
 const ContactCard: React.FC = () => {
+  // Animation variants for the button
+  const buttonVariants = {
+    hover: {
+      scale: 1.05,
+      backgroundColor: "#1a3ca7", // Slightly lighter on hover
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 10,
+      },
+    },
+    tap: { scale: 0.95 },
+  };
+
   return (
-<motion.div
+    <motion.div
       className="relative w-full lg:w-1/2 max-w-md mx-auto bg-[#e8eaf3] bg-opacity-50 rounded-[24px] p-6 pt-24 z-0"
       animate={{
-        scale: [1, 1.05, 1, 1.05, 1], // pulse scale sequence
+        scale: [1, 1.05, 1, 1.05, 1], // Pulse scale sequence
       }}
       transition={{
-        duration: 4,          // duration of one beat cycle
-        repeat: Infinity,     // infinite loop
-        ease: "easeInOut",    // smooth easing
+        duration: 4,
+        repeat: Infinity,
+        ease: "easeInOut",
       }}
     >
       <div className="flex flex-col items-center gap-6 z-10 relative">
@@ -87,10 +100,19 @@ const ContactCard: React.FC = () => {
             وسنرد عليك في أسرع وقت
           </p>
         </div>
-        <button className="bg-[#143087] text-white flex items-center justify-center gap-2 rounded-lg px-6 py-3 mt-4 hover:bg-opacity-90 transition-all duration-300">
+        <motion.a
+          href="https://wa.me/1234567890?text=مرحبا، لدي استفسار"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-[#143087] text-white flex items-center justify-center gap-2 rounded-lg px-6 py-3 mt-4"
+          variants={buttonVariants}
+          whileHover="hover"
+          whileTap="tap"
+          aria-label="تواصل معنا عبر الواتساب"
+        >
           <span className="text-lg font-medium">تواصل معنا الان</span>
           <ArrowLeft className="w-4 h-4" />
-        </button>
+        </motion.a>
       </div>
     </motion.div>
   );
@@ -128,7 +150,7 @@ const FaqSection: React.FC = () => {
 
       {/* Content */}
       <div className="flex flex-col lg:flex-row gap-12 w-full items-start">
-               {/* FAQs */}
+        {/* FAQs */}
         <div className="w-full lg:w-1/2 flex flex-col gap-6">
           {faqItems.map((item, index) => (
             <FaqItem
@@ -140,11 +162,9 @@ const FaqSection: React.FC = () => {
             />
           ))}
         </div>
-       
+
         {/* Contact Card */}
         <ContactCard />
-
-
       </div>
     </div>
   );

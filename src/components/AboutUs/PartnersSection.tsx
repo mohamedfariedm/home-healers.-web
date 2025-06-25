@@ -1,6 +1,10 @@
 "use client";
 
-import React from 'react';
+import React, { useRef } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation } from "swiper/modules";
+import "swiper/css";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PartnerLogoProps {
   image: string;
@@ -16,19 +20,21 @@ const PartnerLogo: React.FC<PartnerLogoProps> = ({ image }) => {
 };
 
 interface NavigationArrowProps {
-  icon: string;
-  direction: 'next' | 'prev';
-  onClick: () => void;
+  direction: "next" | "prev";
+  buttonRef: React.RefObject<HTMLDivElement>;
 }
 
-const NavigationArrow: React.FC<NavigationArrowProps> = ({ icon, direction, onClick }) => {
+const NavigationArrow: React.FC<NavigationArrowProps> = ({ direction, buttonRef }) => {
+  const Icon = direction === "next" ? ChevronRight : ChevronLeft;
+
   return (
     <div
-      className="w-14 h-14 bg-cover bg-no-repeat cursor-pointer transition-transform duration-300 hover:scale-110"
-      style={{ backgroundImage: `url(${icon})` }}
-      onClick={onClick}
-      aria-label={direction === 'next' ? 'Next' : 'Previous'}
-    />
+      ref={buttonRef}
+      className="w-14 h-14 border border-[#143087] text-[#143087] rounded-full flex items-center justify-center cursor-pointer hover:bg-[#143087] hover:text-white transition-all duration-300"
+      aria-label={direction === "next" ? "Next" : "Previous"}
+    >
+      <Icon size={28} />
+    </div>
   );
 };
 
@@ -36,20 +42,14 @@ const PartnersSection: React.FC = () => {
   const partnerLogos = [
     "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/KCcDpoQzXv.png",
     "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/LkbvfH3ryJ.png",
+    "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/KCcDpoQzXv.png",
+    "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/LkbvfH3ryJ.png",
+    "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/KCcDpoQzXv.png",
+    "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/LkbvfH3ryJ.png",
   ];
 
-  const navigationIcons = [
-    "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/GoViyKzQCs.png",
-    "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/qBKs1Atn9m.png",
-  ];
-
-  const handlePrev = () => {
-    console.log('Previous partners');
-  };
-
-  const handleNext = () => {
-    console.log('Next partners');
-  };
+  const prevRef = useRef<HTMLDivElement>(null);
+  const nextRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className="w-full max-w-screen-xl mx-auto mt-24 px-4 flex flex-col gap-14 items-center">
@@ -63,25 +63,41 @@ const PartnersSection: React.FC = () => {
         </h2>
       </div>
 
-      {/* Partner Logos Grid */}
-      <div className="flex flex-wrap justify-center gap-8 w-full">
+      {/* Partner Logos Slider */}
+      <Swiper
+        modules={[Navigation, Autoplay]}
+        spaceBetween={30}
+        slidesPerView={1}
+        autoplay={{ delay: 2500 }}
+        loop
+        navigation={{
+          prevEl: prevRef.current,
+          nextEl: nextRef.current,
+        }}
+        onBeforeInit={(swiper) => {
+          // @ts-ignore
+          swiper.params.navigation.prevEl = prevRef.current;
+          // @ts-ignore
+          swiper.params.navigation.nextEl = nextRef.current;
+        }}
+        breakpoints={{
+          640: { slidesPerView: 2 },
+          768: { slidesPerView: 3 },
+          1024: { slidesPerView: 4 },
+        }}
+        className="w-full"
+      >
         {partnerLogos.map((logo, i) => (
-          <PartnerLogo key={i} image={logo} />
+          <SwiperSlide key={i}>
+            <PartnerLogo image={logo} />
+          </SwiperSlide>
         ))}
-      </div>
+      </Swiper>
 
       {/* Navigation Arrows */}
       <div className="flex gap-10 mt-6">
-        <NavigationArrow
-          icon={navigationIcons[0]}
-          direction="prev"
-          onClick={handlePrev}
-        />
-        <NavigationArrow
-          icon={navigationIcons[1]}
-          direction="next"
-          onClick={handleNext}
-        />
+        <NavigationArrow direction="next" buttonRef={nextRef} />
+        <NavigationArrow direction="prev" buttonRef={prevRef} />
       </div>
     </div>
   );

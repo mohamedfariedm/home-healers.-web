@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { ShowMore } from "@/components/Animations/ShowMore";
 
-function AboutApp() {
+function AboutApp({ locale }: { locale: string }) {
   const icons = [
     "/assets/images/homehellers/elements.svg",
     "/assets/images/homehellers/elements-1.svg",
@@ -14,7 +14,7 @@ function AboutApp() {
   return (<>
 
       {/* Two Column Layout */}
-      <div className="flex rtl:ltr ltr:rtl flex-col xl:flex-row gap-6 items-center justify-between w-full px-4 xl:px-0">
+      <div className="flex rtl:ltr ltr:rtl flex-col xl:flex-row gap-6 items-center mb-[91px] justify-between w-full px-4 xl:px-0">
         {/* Visual Block (left) */}
         <motion.div
           className="relative w-full xl:w-[597px] h-[531px] bg-[url('/assets/images/homehellers/about.svg')] sm:bg-contain bg-no-repeat"
@@ -93,9 +93,12 @@ function AboutApp() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              
             >
+<Link className="flex items-center gap-3 bg-[#143087] text-white rounded-md text-lg font-medium" href={`/${locale}/about`} >
               <ArrowLeft className="w-6 h-6 ml-2 text-white" />
               اكــــتشف المزيد
+</Link>
             </motion.button>
           </div>
         </motion.div>

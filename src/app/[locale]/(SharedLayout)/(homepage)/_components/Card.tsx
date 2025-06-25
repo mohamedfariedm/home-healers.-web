@@ -2,8 +2,9 @@
 import { useRef } from "react"
 import { motion, useInView } from "framer-motion"
 import { ArrowLeft } from "lucide-react"
+import Link from "next/link"
 
-function Card() {
+function Card({locale}:{locale:string}) {
   // Refs for different sections
   const sectionRef = useRef<HTMLDivElement>(null)
   const cardsRef = useRef<HTMLDivElement>(null)
@@ -160,18 +161,22 @@ function Card() {
 
       {/* Button Section */}
       <motion.div
-        className="flex w-[255px] h-[56px] pt-[8px] pr-[16px] pb-[8px] pl-[16px] gap-[10px] justify-center items-center bg-[#143087] rounded-[8px] border-solid border border-[#143087] relative z-[29] mt-[56px] mx-auto cursor-pointer"
         
               whileHover={{ scale: 1.05 }}
                      whileTap={{ scale: 0.95 }}
                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
+        <Link
+        className="flex w-[255px] h-[56px] pt-[8px] pr-[16px] pb-[8px] pl-[16px] gap-[10px] justify-center items-center bg-[#143087] rounded-[8px] border-solid border border-[#143087] relative z-[29] mt-[56px] mx-auto cursor-pointer"
+        href={`/${locale}/contact`}>
         <span className="h-[28px] shrink-0 basis-auto text-[18px] font-medium leading-[28px] text-[#fff] relative text-start z-[32]">
           اطلب الكارت الطبي الان
         </span>
         <div className="w-[24px] h-[24px] relative overflow-hidden z-30">
           <ArrowLeft className="w-6 h-6" />
         </div>
+        
+        </Link>
       </motion.div>
 
       {/* Background container */}

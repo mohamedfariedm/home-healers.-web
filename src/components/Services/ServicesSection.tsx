@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import React, { useState } from "react";
 
 interface SideService {
@@ -126,11 +127,11 @@ const AnimatedServicesSection = () => {
             mainContents[activeService.text]?.description ||
               "وصف الخدمة غير متوفر حالياً."}
           </p>
-          <button className="bg-[#143087] text-white flex items-center justify-center gap-2 px-6 py-3 rounded-md w-fit self-end">
+          <Link href="/specialty/subspecialty" className="bg-[#143087] text-white flex items-center hover:scale-105 duration-300 transition-all justify-center gap-2 px-6 py-3 rounded-md w-fit self-end">
             
             احجز جلستك العلاجية الان
             <ArrowLeft className="w-4 h-4"/>
-          </button>
+          </Link>
         </div>
       </motion.div>
     </motion.div>

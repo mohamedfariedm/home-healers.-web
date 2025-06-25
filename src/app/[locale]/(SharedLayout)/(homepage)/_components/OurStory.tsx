@@ -1,19 +1,20 @@
-"use client"
-import { useRef } from "react"
-import { motion, useInView } from "framer-motion"
-import { ArrowLeft } from "lucide-react"
-import { ShowMore } from "@/components/Animations/ShowMore"
+"use client";
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
+import { ShowMore } from "@/components/Animations/ShowMore";
+import Link from "next/link";
 
-function OurStory() {
+function OurStory({ locale }: { locale: string }) {
   // Refs for different sections
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const headerRef = useRef<HTMLDivElement>(null)
-  const articlesRef = useRef<HTMLDivElement>(null)
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const articlesRef = useRef<HTMLDivElement>(null);
 
   // Check if sections are in view
-  const isSectionInView = useInView(sectionRef, { once: false, amount: 0.1 })
-  const isHeaderInView = useInView(headerRef, { once: false, amount: 0.5 })
-  const isArticlesInView = useInView(articlesRef, { once: false, amount: 0.2 })
+  const isSectionInView = useInView(sectionRef, { once: false, amount: 0.1 });
+  const isHeaderInView = useInView(headerRef, { once: false, amount: 0.5 });
+  const isArticlesInView = useInView(articlesRef, { once: false, amount: 0.2 });
 
   // Animation variants
   const headerVariants = {
@@ -27,12 +28,12 @@ function OurStory() {
         staggerChildren: 0.2,
       },
     },
-  }
+  };
 
   const headerItemVariants = {
     hidden: { opacity: 0, y: -20 },
     visible: { opacity: 1, y: 0 },
-  }
+  };
 
   const articlesContainerVariants = {
     hidden: { opacity: 0 },
@@ -43,7 +44,7 @@ function OurStory() {
         staggerChildren: 0.3,
       },
     },
-  }
+  };
 
   const leftColumnVariants = {
     hidden: { opacity: 0, x: -50 },
@@ -58,10 +59,10 @@ function OurStory() {
         staggerChildren: 0.2,
       },
     },
-  }
+  };
 
   const rightColumnVariants = {
-    hidden: { opacity: 0, x: 50 },
+    hidden: { opacity: 0, x: 20 }, // Adjusted for RTL
     visible: {
       opacity: 1,
       x: 0,
@@ -71,7 +72,7 @@ function OurStory() {
         damping: 15,
       },
     },
-  }
+  };
 
   const articleCardVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -93,7 +94,7 @@ function OurStory() {
         damping: 20,
       },
     },
-  }
+  };
 
   const buttonVariants = {
     hover: {
@@ -105,7 +106,7 @@ function OurStory() {
       },
     },
     tap: { scale: 0.95 },
-  }
+  };
 
   const imageVariants = {
     hidden: { opacity: 0, scale: 0.8 },
@@ -119,10 +120,17 @@ function OurStory() {
         delay: 0.1,
       },
     },
-  }
+  };
+
+  // Mock article data (replace with API data if available)
+  const articles = [
+    { id: 1, date: "3 ديسمبر 2025", title: "اخر تطورات المجال الطبي", description: "هنا يكتب وصف بسيط عن المنتج في سطرين كمثال , هنا يكتب وصف بسيط عن المنتج في سطرين كمثال." },
+    { id: 2, date: "3 ديسمبر 2025", title: "اخر تطورات المجال الطبي", description: "هنا يكتب وصف بسيط عن المنتج في سطرين كمثال , هنا يكتب وصف بسيط عن المنتج في سطرين كمثال." },
+    { id: 3, date: "3 ديسمبر 2025", title: "اخر تطورات المجال الطبي", description: "هنا يكتب وصف بسيط عن المنتج في سطرين كمثال , هنا يكتب وصف بسيط عن المنتج في سطرين كمثال." },
+  ];
 
   return (
-    <div ref={sectionRef} className="main-container ltr:rtl rtl:ltr w-full max-w-[1280px] mx-auto my-0 px-4 py-6">
+    <div ref={sectionRef} className="main-container ltr:rtl rtl:ltr w-full max-w-[1280px] mt-[80px] mx-auto my-0 px-4 py-6">
       {/* Header Section */}
       <motion.div
         ref={headerRef}
@@ -131,15 +139,17 @@ function OurStory() {
         initial="hidden"
         animate={isHeaderInView ? "visible" : "hidden"}
       >
-        <motion.div
-          className="flex items-center gap-3 bg-[#143087] text-white px-4 py-2 rounded-[8px] border border-[#143087]"
-          variants={headerItemVariants}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <ArrowLeft className="w-6 h-6" />
-          <span className="text-[18px] font-medium leading-[28px]">جميع المقالات</span>
-        </motion.div>
+        <Link href={`/${locale}/blogs`}>
+          <motion.div
+            className="flex items-center gap-3 bg-[#143087] text-white px-4 py-2 rounded-[8px] border border-[#143087]"
+            variants={headerItemVariants}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <ArrowLeft className="w-6 h-6" />
+            <span className="text-[18px] font-medium leading-[28px]">جميع المقالات</span>
+          </motion.div>
+        </Link>
 
         <motion.div className="flex flex-col gap-2 items-end" variants={headerItemVariants}>
           <motion.span className="text-[16px] font-medium text-[#62a0f6]" variants={headerItemVariants}>
@@ -164,61 +174,62 @@ function OurStory() {
       >
         {/* Left Column */}
         <motion.div className="flex flex-col gap-8 flex-1" variants={leftColumnVariants}>
-          {[0, 1].map((_, i) => (
-            <motion.div
-              key={i}
-              className="relative bg-[#eff6fe] rounded-[24px] p-5 cursor-pointer"
-              variants={articleCardVariants}
-              whileHover="hover"
-            >
-              <div className="flex flex-col md:flex-row items-center gap-5">
-                {/* Article Text */}
-                <div className="flex flex-col gap-5 text-end items-end max-w-[353px]">
-                  <span className="text-[16px] font-medium text-[#62a0f6]">3 ديسمبر 2025</span>
-                  <div>
-                    <h3 className="text-[20px] font-semibold text-[#1e1e1e] mb-2">اخر تطورات المجال الطبي</h3>
-                    <p className="text-[16px] font-light text-[#1e1e1e] leading-[32px]">
-                      هنا يكتب وصف بسيط عن المنتج في سطرين كمثال , هنا يكتب وصف بسيط عن المنتج في سطرين كمثال.
-                    </p>
+          {articles.slice(0, 2).map((article, i) => (
+            <Link href={`/${locale}/blogs/${article.id}`} key={article.id}>
+              <motion.div
+                className="relative bg-[#eff6fe] rounded-[24px] p-5 cursor-pointer"
+                variants={articleCardVariants}
+                whileHover="hover"
+              >
+                <div className="flex flex-col md:flex-row items-center gap-5">
+                  {/* Article Text */}
+                  <div className="flex flex-col gap-5 text-end items-end max-w-[353px]">
+                    <span className="text-[16px] font-medium text-[#62a0f6]">{article.date}</span>
+                    <div>
+                      <h3 className="text-[20px] font-semibold text-[#1e1e1e] mb-2">{article.title}</h3>
+                      <p className="text-[16px] font-light text-[#1e1e1e] leading-[32px]">
+                        {article.description}
+                      </p>
+                    </div>
+                    <ShowMore
+                    />
                   </div>
-                              <ShowMore />
-                  
+                  {/* Image */}
+                  <motion.div
+                    className="w-[219px] h-[268px] bg-[url('/assets/images/homehellers/Frame2.svg')] bg-cover bg-no-repeat rounded-[20px]"
+                    variants={imageVariants}
+                    whileHover={{ scale: 1.05 }}
+                  />
                 </div>
-                {/* Image */}
-                <motion.div
-                  className="w-[219px] h-[268px] bg-[url('/assets/images/homehellers/Frame2.svg')] bg-cover bg-no-repeat rounded-[20px]"
-                  variants={imageVariants}
-                  whileHover={{ scale: 1.05 }}
-                />
-              </div>
-            </motion.div>
+              </motion.div>
+            </Link>
           ))}
         </motion.div>
 
         {/* Right Column */}
-        <motion.div
-          className="flex flex-col items-end bg-[#eff6fe] rounded-[24px] p-6 w-full xl:max-w-[612px] cursor-pointer"
-          variants={rightColumnVariants}
-          whileHover="hover"
-        >
+        <Link href={`/${locale}/blogs/${articles[2].id}`}>
           <motion.div
-            className="w-full h-[370px] bg-[url('/assets/images/homehellers/Frame3.svg')] bg-cover bg-no-repeat rounded-[20px] mb-6"
-            variants={imageVariants}
-            whileHover={{ scale: 1.03 }}
-          />
-            <ShowMore />
-          <span className="text-[16px] font-medium text-[#62a0f6] mb-2 text-end">3 ديسمبر 2025</span>
-          <h3 className="text-[20px] font-semibold text-[#1e1e1e] text-end mb-2">اخر تطورات المجال الطبي</h3>
-          <p className="text-[16px] font-light text-[#1e1e1e] leading-[32px] text-end mb-4">
-            هنا يكتب وصف بسيط عن المنتج في سطرين كمثال , هنا يكتب وصف بسيط عن المنتج في سطرين كمثال.
-          </p>
-          <div>
+            className="flex flex-col items-end bg-[#eff6fe] rounded-[24px] p-6 w-full xl:max-w-[612px] cursor-pointer relative"
+            variants={rightColumnVariants}
+            whileHover="hover"
+          >
 
-          </div>
-        </motion.div>
+            <motion.div
+              className="w-full h-[370px] bg-[url('/assets/images/homehellers/Frame3.svg')] bg-cover bg-no-repeat rounded-[20px] mb-6"
+              variants={imageVariants}
+              whileHover={{ scale: 1.03 }}
+            />
+            <span className="text-[16px] font-medium text-[#62a0f6] mb-2 text-end">{articles[2].date}</span>
+            <h3 className="text-[20px] font-semibold text-[#1e1e1e] text-end mb-2">{articles[2].title}</h3>
+            <p className="text-[16px] font-light text-[#1e1e1e] leading-[32px] text-end mb-[75px]">
+              {articles[2].description}
+            </p>
+                      <ShowMore/>
+          </motion.div>
+        </Link>
       </motion.div>
     </div>
-  )
+  );
 }
 
-export default OurStory
+export default OurStory;

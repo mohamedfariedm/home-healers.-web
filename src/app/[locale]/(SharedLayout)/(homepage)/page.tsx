@@ -22,9 +22,7 @@ import DownloadButtons from "./_components/DownloadButtons";
 import ClientAPI from "../../../api/api";
 
 const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
-
   const { t } = await initTranslations(locale, ["homepage"]);
-
 
   const homeData = await ClientAPI.getHomeData(locale);
   // const ClientReview = await HomeAPI.getClientReview(locale);
@@ -34,31 +32,25 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
   // const FaqeData = await HomeAPI.getFaqData(locale);
   // const SettingData = await HomeAPI.getSetting(locale);
 
-
   return (
     <div className="main-container w-full xl:w-[1440px]  bg-[#fff] relative overflow-hidden mx-auto my-0">
       <div className="w-full xl:w-[489.058px]  bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-05/Xam6EEVohV.png)] bg-[length:100%_100%] bg-no-repeat relative" />
       <div className=" ">
-      <div className="w-full xl:w-[1440px] h-[1px] bg-[#fff] relative shadow-[0_1px_2px_0_rgba(16,24,40,0.06)] mt-0 mr-0 mb-0 ml-0"/>
-<Hero  />
-        
-        
-<AboutApp  />
+        <div className="w-full xl:w-[1440px] h-[1px] bg-[#fff] relative shadow-[0_1px_2px_0_rgba(16,24,40,0.06)] mt-0 mr-0 mb-0 ml-0" />
+        <Hero locale={locale} />
 
-<Products  />
-<BeCloser />
-<DownloadApp/>
+        <AboutApp locale={locale} />
 
-<Bannar/>
+        {/* <Products /> */}
+        <BeCloser locale={locale} />
 
-<OurStory  />
+        <DownloadApp />
 
+        <Bannar />
 
+        <OurStory locale={locale} />
 
-
-
-<Card/>
-
+        <Card locale={locale} />
       </div>
     </div>
   );

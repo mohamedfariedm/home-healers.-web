@@ -25,14 +25,14 @@ async function page({ params: { locale } }: props) {
         <div className="flex max-w-screen-xl rtl:ltr ltr:rtl flex-col xl:flex-row gap-6 items-center justify-between w-full px-4 xl:px-0">
           {/* This is a placeholder for the AboutAppTwoColumns component which is imported in the original file */}
           <div className="w-full py-8 text-center">
-            <AboutAppTwoColumns />
+            <AboutAppTwoColumns locale={locale} />
           </div>
         </div>
       </div>
 
       <FeaturesSection />
       <DoctorsSection />
-      <FaqSection />
+      <FaqSection  />
       <PartnersSection />
     </div>
     </>
