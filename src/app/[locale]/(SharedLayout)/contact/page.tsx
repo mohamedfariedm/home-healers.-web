@@ -1,6 +1,7 @@
 import initTranslations from "@/app/i18n";
 import React from "react";
 import ContactSection from "./_components/ContactForm";
+import MapComponent from "./_components/MapComponent";
 
 async function page({ params: { locale } }: { params: { locale: string } }) {
   const { t } = await initTranslations(locale, ["contactUs"]);
@@ -37,8 +38,7 @@ async function page({ params: { locale } }: { params: { locale: string } }) {
   </div>
 </div>
 <ContactSection/>
-
-  <div className="max-w-[1280px] w-full h-[300px] md:h-[400px] lg:h-[570px] bg-[url('https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/8Zc18AXwXM.png')] bg-contain bg-no-repeat rounded-[16px] mx-auto mt-24 px-4 xl:px-0" />
+<MapComponent/>
 </div>
 </>
 
