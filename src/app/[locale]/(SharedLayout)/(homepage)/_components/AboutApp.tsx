@@ -11,7 +11,7 @@ import { useState } from "react";
 import "swiper/css";
 import "swiper/css/pagination";
 
-function AboutApp({ locale }: { locale: string }) {
+function AboutApp({ locale,section }: { locale: string, section: any }) {
   const [activeDot, setActiveDot] = useState(0);
 
   const services = Array.from({ length: 6 }, (_, i) => ({
@@ -33,7 +33,7 @@ function AboutApp({ locale }: { locale: string }) {
       >
         <div className="flex flex-col items-center gap-12 w-full max-w-3xl text-center">
           <span className="text-primary text-base font-medium">
-            خدمات العلاج الطبيعي والتأهيل
+{section?.title}
           </span>
           <h2 className="text-2xl sm:text-3xl font-semibold leading-10 text-gray-900">
             مجموعة من <span className="text-primary">الخدمات</span> الطبية

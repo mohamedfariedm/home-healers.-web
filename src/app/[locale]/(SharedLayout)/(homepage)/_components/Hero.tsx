@@ -10,22 +10,18 @@ import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
-const heroImages = [
-  "/assets/images/homehellers/hero.svg",
-  "/assets/images/homehellers/hero.svg",
-  "/assets/images/homehellers/hero.svg",
-];
-
-function Hero({ locale }: { locale: string }) {
+function Hero({ locale, section }: { locale: string; section: any }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: false, margin: "-100px" });
   const [activeIndex, setActiveIndex] = useState(0);
 
+  // Use attachment images or fallback to default
+  const heroImages = section?.Posts?.[0]?.attachment?.map((att: any) => att.original) || [
+    "/assets/images/homehellers/hero.svg",
+  ];
+
   return (
-    <div
-      ref={ref}
-      className="w-full xl:max-w-[1280px] relative mx-auto pb-8 px-4 lg:px-0"
-    >
+    <div ref={ref} className="w-full xl:max-w-[1280px] relative mx-auto pb-8 px-4 lg:px-0">
       {/* Dots (custom pagination) */}
       <motion.div
         className="hidden xl:flex gap-3 items-center absolute bottom-0 left-[355px] z-[1000]"
@@ -33,7 +29,7 @@ function Hero({ locale }: { locale: string }) {
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
         transition={{ delay: 0.5 }}
       >
-        {heroImages.map((_, i) => (
+        {heroImages.map((_:any, i: number) => (
           <div
             key={i}
             className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
@@ -45,20 +41,13 @@ function Hero({ locale }: { locale: string }) {
         ))}
       </motion.div>
 
-      {/* Layout */}
       <div className="flex relative flex-col-reverse xl:flex-row gap-10 items-center">
-        {/* Floating dots background */}
         <motion.div
           className="absolute top-20 right-0 left-[50px] bottom-0 bg-[url(/assets/images/homehellers/dots.svg)] bg-contain -z-0"
           animate={{ opacity: 1, y: [0, 50, 0] }}
-          transition={{
-            duration: 3,
-            ease: "easeInOut",
-            repeat: Infinity,
-          }}
+          transition={{ duration: 3, ease: "easeInOut", repeat: Infinity }}
         />
 
-        {/* Text Section (unchanged) */}
         <motion.div
           className="relative w-full xl:w-1/2 flex flex-col gap-8 justify-center bg-no-repeat bg-contain"
           initial={{ opacity: 0, y: 40 }}
@@ -71,7 +60,7 @@ function Hero({ locale }: { locale: string }) {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ delay: 0.3 }}
           >
-            خدمات <span className="text-[#62a0f6]">العلاج الطبيعي</span> والتأهيل الطبي المنزلي
+            {section?.Posts?.[0]?.title || "Physical Therapy and Rehabilitation Services"}
           </motion.div>
 
           <motion.div
@@ -80,7 +69,8 @@ function Hero({ locale }: { locale: string }) {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ delay: 0.4 }}
           >
-            تطبيق وموقع إلكتروني متخصص في تقديم خدمات العلاج الطبيعي والتأهيل الطبي للعملاء في منازلهم، عبر أخصائيين مؤهلين وذوي كفاءة عالية
+            {section?.Posts?.[0]?.description ||
+              "A specialized application and website providing in-home physical therapy and medical rehabilitation services through highly qualified specialists."}
           </motion.div>
 
           <motion.div
@@ -92,7 +82,7 @@ function Hero({ locale }: { locale: string }) {
             <div className="w-[200px] h-[56px] bg-[url(/assets/images/homehellers/rating.svg)] bg-cover bg-no-repeat" />
             <div className="flex flex-col gap-1">
               <span className="text-sm sm:text-base font-semibold text-[#1e1e1e] whitespace-nowrap">
-                تقييم المرضي
+                تقيم المرضي
               </span>
               <motion.div
                 className="flex gap-1 items-center"
@@ -104,13 +94,7 @@ function Hero({ locale }: { locale: string }) {
                   <motion.div
                     key={i}
                     animate={{ scale: [1, 1.25, 1] }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      repeatType: "loop",
-                      delay: i * 0.2,
-                      ease: "easeInOut",
-                    }}
+                    transition={{ duration: 2, repeat: Infinity, repeatType: "loop", delay: i * 0.2, ease: "easeInOut" }}
                   >
                     <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
                   </motion.div>
@@ -126,40 +110,37 @@ function Hero({ locale }: { locale: string }) {
               className="flex items-center gap-3 px-5 py-3 bg-[#143087] rounded-md w-fit hover:bg-[#0f245f] transition z-10 relative"
             >
               <span className="text-white text-base sm:text-lg font-medium">
-                احجز جلستك الان
+            احجز جلستك الآن
               </span>
               <ArrowLeft className="w-6 h-6 text-white" />
             </motion.div>
           </Link>
         </motion.div>
 
-        {/* Hero Swiper Image Section */}
-<div className="w-full xl:w-auto relative z-10 max-w-[727px]">
-  <Swiper
-    modules={[Pagination, Autoplay]}
-    slidesPerView={1}
-    loop
-    autoplay={{ delay: 4000 }}
-    onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-    className="w-full max-w-[727px]"
-  >
-    {heroImages.map((src, i) => (
-      <SwiperSlide key={i}>
-        {/* Outer fixed-height container */}
-        <div className="w-full max-w-[727px] h-[624px]">
-          <motion.div
-            className="w-[727px] h-full bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${src})` }}
-            initial={{ opacity: 1, y: -30 }}
-            animate={isInView ? { opacity: 1, y: [0, 10, 0] } : { opacity: 1, y: -30 }}
-            transition={{ duration: 4, ease: "easeInOut", repeat: Infinity }}
-          />
+        <div className="w-full xl:w-auto relative z-10 max-w-[727px]">
+          <Swiper
+            modules={[Pagination, Autoplay]}
+            slidesPerView={1}
+            loop
+            autoplay={{ delay: 4000 }}
+            onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+            className="w-full max-w-[727px]"
+          >
+            {heroImages.map((src: string, i: number) => (
+              <SwiperSlide key={i}>
+                <div className="w-full max-w-[727px] h-[624px]">
+                  <motion.div
+                    className="w-[727px] h-full bg-cover bg-center bg-no-repeat"
+                    style={{ backgroundImage: `url(${src})` }}
+                    initial={{ opacity: 1, y: -30 }}
+                    animate={isInView ? { opacity: 1, y: [0, 10, 0] } : { opacity: 1, y: -30 }}
+                    transition={{ duration: 4, ease: "easeInOut", repeat: Infinity }}
+                  />
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
-      </SwiperSlide>
-    ))}
-  </Swiper>
-</div>
-
       </div>
     </div>
   );

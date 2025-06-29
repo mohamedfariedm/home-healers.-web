@@ -4,8 +4,10 @@ import { motion, useInView } from "framer-motion"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
-function Card({locale}:{locale:string}) {
+function Card({locale,section}:{locale:string,section:any}) {
   // Refs for different sections
+  console.log("Card Section Data:", section);
+  
   const sectionRef = useRef<HTMLDivElement>(null)
   const cardsRef = useRef<HTMLDivElement>(null)
   const cardImageRef = useRef<HTMLDivElement>(null)

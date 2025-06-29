@@ -1,28 +1,28 @@
-"use client"
-import { useRef } from "react"
-import { motion, useInView } from "framer-motion"
-import AppHeader from "./AppHeader"
-import AppRating from "./AppRating"
-import DownloadButtons from "./DownloadButtons"
+"use client";
 
-function DownloadApp() {
-  // Create a ref for the container element
-  const containerRef = useRef<HTMLDivElement>(null)
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import AppHeader from "./AppHeader";
+import AppRating from "./AppRating";
+import DownloadButtons from "./DownloadButtons";
 
-  // Use useInView with once: false to detect every time the element enters the viewport
+function DownloadApp({ section }: { section: any }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, {
     once: false,
     amount: 0.3,
-  })
+  });
+console.log("DownloadApp Section Data:", section);
+
+  const post = section.Posts?.[0]; // safely get the first post
 
   return (
     <div className="w-full max-w-7xl mx-auto my-16 relative overflow-hidden bg-[#eff6fe] rounded-[32px] shadow-lg">
       <div className="flex flex-col lg:flex-row">
         {/* End side with content - becomes bottom on mobile */}
         <div className="w-full lg:w-1/2 p-6 lg:p-10 flex flex-col justify-center relative">
-
           <div className="flex flex-col gap-8 items-start relative z-10">
-            <AppHeader />
+            <AppHeader title={section?.title} description={post?.description} />
             <AppRating />
             <DownloadButtons />
           </div>
@@ -39,7 +39,6 @@ function DownloadApp() {
               type: "spring",
               stiffness: 100,
               damping: 25,
-              // Reset the animation when isInView changes
               restDelta: 0.001,
             }}
           >
@@ -59,7 +58,6 @@ function DownloadApp() {
               type: "spring",
               stiffness: 100,
               damping: 25,
-              // Add a slight delay to the second animation
               delay: 0.2,
               restDelta: 0.001,
             }}
@@ -73,7 +71,7 @@ function DownloadApp() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default DownloadApp
+export default DownloadApp;
