@@ -1,7 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
+import React from "react";
+import parse from "html-react-parser"; // Import html-react-parser
 
+// Mock related posts (can be replaced with dynamic data if available)
 const relatedPosts = [
   {
     title: "تأهيل مابعد العمليات الجراحية",
@@ -20,9 +23,22 @@ const relatedPosts = [
   },
 ];
 
+// Mock tags (can be replaced with dynamic data if available)
 const tags = ["معلومات طبية", "صحة وطب", "معلومات ثقافة طبية"];
 
-export default function BlogRelatedSection() {
+export default function BlogRelatedSection({ data, locale }: { data: any, locale: string }) {
+  console.log("BlogRelatedSection Data:", data);
+
+  // Format date function
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ar-EG", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
   return (
     <motion.div
       className="flex flex-col lg:flex-row my-[106px] gap-10 max-w-screen-xl mx-auto"
@@ -100,8 +116,7 @@ export default function BlogRelatedSection() {
         <motion.div
           className="rounded-[24px] bg-cover bg-no-repeat h-[300px] md:h-[456px] w-full"
           style={{
-            backgroundImage:
-              "url('https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/DcZcfg1h8D.png')",
+            backgroundImage: `url(${data.image[0]?.thumbnail || "/assets/images/placeholder.jpg"})`,
           }}
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -109,18 +124,15 @@ export default function BlogRelatedSection() {
         />
 
         <div className="flex flex-col gap-2 items-start">
-          <span className="text-[#62a0f6] text-sm font-medium">3 ديسمبر 2025</span>
+          <span className="text-[#62a0f6] text-sm font-medium">{formatDate(data.date)}</span>
 
           <div className="flex flex-col gap-6 items-start">
             <h2 className="text-2xl md:text-[30px] font-medium text-right text-[#1e1e1e]">
-              تأهيل مابعد العمليات الجراحية
+              {data.name}
             </h2>
-            <p className="text-right text-[#475467] text-base md:text-xl leading-loose">
-              إعادة التأهيل بعد الجراحة هي مرحلة حاسمة في رحلة التعافي، فهي لا تقل أهمية
-              عن العملية الجراحية نفسها...<br />
-              الأسباب الرئيسية التي تجعل إعادة التأهيل بعد الجراحة ضرورية... تقوية العضلات
-              الضعيفة
-            </p>
+            <div className="text-right text-[#475467] text-base md:text-xl leading-loose">
+              {parse(data.description)}
+            </div>
           </div>
         </div>
 

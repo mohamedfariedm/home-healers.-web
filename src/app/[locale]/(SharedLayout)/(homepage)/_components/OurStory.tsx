@@ -4,9 +4,12 @@ import { motion, useInView } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { ShowMore } from "@/components/Animations/ShowMore";
 import Link from "next/link";
+import parse from "html-react-parser"; // Import html-react-parser
 
-function OurStory({ locale }: { locale: string }) {
+function OurStory({ locale, data }: { locale: string; data: any }) {
   // Refs for different sections
+  console.log("Data in OurStory:", data);
+
   const sectionRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const articlesRef = useRef<HTMLDivElement>(null);
@@ -62,7 +65,7 @@ function OurStory({ locale }: { locale: string }) {
   };
 
   const rightColumnVariants = {
-    hidden: { opacity: 0, x: 20 }, // Adjusted for RTL
+    hidden: { opacity: 0, x: 20 },
     visible: {
       opacity: 1,
       x: 0,
@@ -96,18 +99,6 @@ function OurStory({ locale }: { locale: string }) {
     },
   };
 
-  const buttonVariants = {
-    hover: {
-      scale: 1.1,
-      transition: {
-        type: "spring",
-        stiffness: 400,
-        damping: 10,
-      },
-    },
-    tap: { scale: 0.95 },
-  };
-
   const imageVariants = {
     hidden: { opacity: 0, scale: 0.8 },
     visible: {
@@ -122,12 +113,15 @@ function OurStory({ locale }: { locale: string }) {
     },
   };
 
-  // Mock article data (replace with API data if available)
-  const articles = [
-    { id: 1, date: "3 ديسمبر 2025", title: "اخر تطورات المجال الطبي", description: "هنا يكتب وصف بسيط عن المنتج في سطرين كمثال , هنا يكتب وصف بسيط عن المنتج في سطرين كمثال." },
-    { id: 2, date: "3 ديسمبر 2025", title: "اخر تطورات المجال الطبي", description: "هنا يكتب وصف بسيط عن المنتج في سطرين كمثال , هنا يكتب وصف بسيط عن المنتج في سطرين كمثال." },
-    { id: 3, date: "3 ديسمبر 2025", title: "اخر تطورات المجال الطبي", description: "هنا يكتب وصف بسيط عن المنتج في سطرين كمثال , هنا يكتب وصف بسيط عن المنتج في سطرين كمثال." },
-  ];
+  // Format date function (optional, customize as needed)
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ar-EG", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
 
   return (
     <div ref={sectionRef} className="main-container ltr:rtl rtl:ltr w-full max-w-[1280px] mt-[80px] mx-auto my-0 px-4 py-6">
@@ -174,7 +168,7 @@ function OurStory({ locale }: { locale: string }) {
       >
         {/* Left Column */}
         <motion.div className="flex flex-col gap-8 flex-1" variants={leftColumnVariants}>
-          {articles.slice(0, 2).map((article, i) => (
+          {data.slice(0, 2).map((article: any, i: number) => (
             <Link href={`/${locale}/blogs/${article.id}`} key={article.id}>
               <motion.div
                 className="relative bg-[#eff6fe] rounded-[24px] p-5 cursor-pointer"
@@ -184,19 +178,23 @@ function OurStory({ locale }: { locale: string }) {
                 <div className="flex flex-col md:flex-row items-center gap-5">
                   {/* Article Text */}
                   <div className="flex flex-col gap-5 text-end items-end max-w-[353px]">
-                    <span className="text-[16px] font-medium text-[#62a0f6]">{article.date}</span>
+                    <span className="text-[16px] font-medium text-[#62a0f6]">
+                      {formatDate(article.date)}
+                    </span>
                     <div>
-                      <h3 className="text-[20px] font-semibold text-[#1e1e1e] mb-2">{article.title}</h3>
-                      <p className="text-[16px] font-light text-[#1e1e1e] leading-[32px]">
-                        {article.description}
-                      </p>
+                      <h3 className="text-[20px] font-semibold text-[#1e1e1e] mb-2">{article.name}</h3>
+                      <div className="text-[16px] font-light text-[#1e1e1e] leading-[32px] line-clamp-2">
+                        {parse(article.description)}
+                      </div>
                     </div>
-                    <ShowMore
-                    />
+                    <ShowMore />
                   </div>
                   {/* Image */}
                   <motion.div
-                    className="w-[219px] h-[268px] bg-[url('/assets/images/homehellers/Frame2.svg')] bg-cover bg-no-repeat rounded-[20px]"
+                    className="w-[219px] h-[268px] bg-cover bg-no-repeat rounded-[20px]"
+                    style={{
+                      backgroundImage: `url(${article.image[0]?.thumbnail || "/assets/images/placeholder.jpg"})`,
+                    }}
                     variants={imageVariants}
                     whileHover={{ scale: 1.05 }}
                   />
@@ -207,26 +205,32 @@ function OurStory({ locale }: { locale: string }) {
         </motion.div>
 
         {/* Right Column */}
-        <Link href={`/${locale}/blogs/${articles[2].id}`}>
-          <motion.div
-            className="flex flex-col items-end bg-[#eff6fe] rounded-[24px] p-6 w-full xl:max-w-[612px] cursor-pointer relative"
-            variants={rightColumnVariants}
-            whileHover="hover"
-          >
-
+        {data[2] && (
+          <Link href={`/${locale}/blogs/${data[2].id}`}>
             <motion.div
-              className="w-full h-[370px] bg-[url('/assets/images/homehellers/Frame3.svg')] bg-cover bg-no-repeat rounded-[20px] mb-6"
-              variants={imageVariants}
-              whileHover={{ scale: 1.03 }}
-            />
-            <span className="text-[16px] font-medium text-[#62a0f6] mb-2 text-end">{articles[2].date}</span>
-            <h3 className="text-[20px] font-semibold text-[#1e1e1e] text-end mb-2">{articles[2].title}</h3>
-            <p className="text-[16px] font-light text-[#1e1e1e] leading-[32px] text-end mb-[75px]">
-              {articles[2].description}
-            </p>
-                      <ShowMore/>
-          </motion.div>
-        </Link>
+              className="flex flex-col items-end bg-[#eff6fe] rounded-[24px] p-6 w-full xl:max-w-[612px] cursor-pointer relative"
+              variants={rightColumnVariants}
+              whileHover="hover"
+            >
+              <motion.div
+                className="w-full h-[370px] bg-cover bg-no-repeat rounded-[20px] mb-6"
+                style={{
+                  backgroundImage: `url(${data[2].image[0]?.thumbnail || "/assets/images/placeholder.jpg"})`,
+                }}
+                variants={imageVariants}
+                whileHover={{ scale: 1.03 }}
+              />
+              <span className="text-[16px] font-medium text-[#62a0f6] mb-2 text-end">
+                {formatDate(data[2].date)}
+              </span>
+              <h3 className="text-[20px] font-semibold text-[#1e1e1e] text-end mb-2">{data[2].name}</h3>
+              <div className="text-[16px] font-light text-[#1e1e1e] leading-[32px] text-end mb-[75px] line-clamp-2">
+                {parse(data[2].description)}
+              </div>
+              <ShowMore />
+            </motion.div>
+          </Link>
+        )}
       </motion.div>
     </div>
   );

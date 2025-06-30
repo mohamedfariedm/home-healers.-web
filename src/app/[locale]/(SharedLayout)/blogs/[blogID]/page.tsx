@@ -1,12 +1,15 @@
 import initTranslations from "@/app/i18n";
 import Features from "@/components/Animations/features";
 import BlogRelatedSection from "./_components/BlogSection";
+import ClientAPI from "@/app/api/api";
 
 async function page({
   params: { locale, blogID },
 }: {
   params: { locale: string; blogID: string };
 }) {
+
+  const {data} = await ClientAPI.getSingleBlog(blogID,locale);
 
 
   return (
@@ -40,7 +43,7 @@ async function page({
   </div>
 </div>
 
-<BlogRelatedSection/>
+<BlogRelatedSection data={data} locale={locale}/>
 </div>
   );
 }

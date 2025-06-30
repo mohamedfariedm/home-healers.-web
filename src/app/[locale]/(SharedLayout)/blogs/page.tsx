@@ -1,8 +1,6 @@
+import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
-import { BreadCrumbComponent } from "@/components/Animations/breadCrumb";
-import { Blogs } from "../(homepage)/_components";
 import { BlogAnimationSection } from "@/components/Blog";
-// import HomeAPI from "../../../api/api";
 
 type props = {
   params: { locale: string };
@@ -22,6 +20,7 @@ interface ArticleData {
 
 async function page({ params: { locale } }: props) {
   const { t } = await initTranslations(locale, ["blog"]);
+  const {data} = await ClientAPI.getAllBlogs(locale);
 
 
   return (
@@ -56,7 +55,7 @@ async function page({ params: { locale } }: props) {
   </div>
 </div>
 
-<BlogAnimationSection locale={locale}/>
+<BlogAnimationSection data={data} locale={locale}/>
     </div>
     </>
   );

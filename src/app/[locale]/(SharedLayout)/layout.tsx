@@ -1,3 +1,4 @@
+import ClientAPI from "@/app/api/api";
 import { Footer, Header} from "@/components/Layout";
 import type { Metadata } from "next";
 
@@ -13,11 +14,16 @@ export default async function Layout({
   children: React.ReactNode;
   params: { locale: string };
 }) {
+    const homeData = await ClientAPI.getHomeData(locale);
+console.log("Home Data:", homeData);
+  const footerSection = homeData?.data.sections.find((section: any) => section.id === 6);
+
+
   return (
     <>
       <Header locale={locale} />
       {children}
-      <Footer locale={locale} />
+      <Footer section={footerSection} locale={locale} />
     </>
   );
 }

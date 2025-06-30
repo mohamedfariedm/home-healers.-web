@@ -15,6 +15,7 @@ import ClientAPI from "../../../api/api";
 const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
   const { t } = await initTranslations(locale, ["homepage"]);
   const homeData = await ClientAPI.getHomeData(locale);
+  const blogData = await ClientAPI.getAllBlogs(locale);
 
   // Find sections by ID
   const heroSection = homeData?.data.sections.find((section: any) => section.id === 12);
@@ -33,7 +34,7 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
         <BeCloser locale={locale} section={beCloserSection} />
         <DownloadApp section={downloadAppSection} />
         <Bannar />
-        <OurStory locale={locale} />
+        <OurStory data={blogData.data} locale={locale} />
         <Card locale={locale} section={cardSection} />
       </div>
     </div>

@@ -1,11 +1,39 @@
 "use client";
 import React from "react";
-import initTranslations from "@/app/i18n";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
-function Footer({ locale }: { locale: string }) {
+interface Post {
+  id: number;
+  title: string;
+  description?: string;
+  section_id: number;
+  active: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Section {
+  id: number;
+  title: string;
+  slug: string | null;
+  page_id: number;
+  Posts: Post[];
+  active: number;
+  priority: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface FooterProps {
+  locale: string;
+  section: Section;
+}
+
+function Footer({ locale, section }: FooterProps) {
   // Animation variants for buttons and links
+  console.log("Footer Section Data:", section);
+  
   const buttonVariants = {
     hover: {
       scale: 1.05,
@@ -30,6 +58,10 @@ function Footer({ locale }: { locale: string }) {
     },
   };
 
+  // Extract dynamic content from section data
+  const contactTitle = section.title || "اذا كان لديك أي استفسار فلا تردد !";
+  const contactDescription = section.Posts[0]?.title || "قم بالتواصل معنا وسنرد عليك في أسرع وقت ممكن";
+
   return (
     <div className="main-container flex w-full flex-col gap-px items-start flex-nowrap relative mx-auto mt-[80px]">
       {/* Contact Section */}
@@ -44,18 +76,24 @@ function Footer({ locale }: { locale: string }) {
               <div className="flex flex-col w-full max-w-[564px] gap-3">
                 <div className="flex justify-start items-start w-full">
                   <span className="text-lg sm:text-xl font-semibold leading-7 sm:leading-8 text-[#1e1e1e] text-right">
-                    اذا كان لديك أي <span className="text-[#1e1e1e]">استفسار</span> فلا تردد !
+                    {contactTitle.includes('استفسار') ? (
+                      <>
+                        اذا كان لديك أي <span className="text-[#1e1e1e]">استفسار</span> فلا تردد !
+                      </>
+                    ) : (
+                      contactTitle
+                    )}
                   </span>
                 </div>
                 <span className="text-sm sm:text-base font-normal leading-6 text-[#1e1e1e] text-right">
-                  قم بالتواصل معنا وسنرد عليك في أسرع وقت ممكن
+                  {contactDescription}
                 </span>
               </div>
             </div>
           </div>
           {/* WhatsApp Button */}
           <motion.a
-            href="https://wa.me/1234567890?text=مرحبا، لدي استفسار"
+            href="https://wa.me/966551172232?text=مرحبا، لدي استفسار"
             target="_blank"
             rel="noopener noreferrer"
             className="flex w-full sm:w-auto min-w-[200px] h-14 px-4 py-2 gap-2 justify-center items-center bg-[#12b669] rounded-lg"
@@ -100,39 +138,42 @@ function Footer({ locale }: { locale: string }) {
                 </div>
                 <div className="flex gap-[28px] items-center relative z-[88]">
                   <motion.a
-                    href="https://twitter.com"
+                    href="https://twitter.com/homehealers_sa"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex w-[40px] h-[40px] p-2 items-center bg-[#62a0f6] rounded-[8px] relative z-[95]"
                     variants={buttonVariants}
                     whileHover="hover"
                     whileTap="tap"
+                    aria-label="تابعنا على تويتر"
                   >
                     <div className="w-[24px] h-[24px] flex justify-center items-center relative overflow-hidden z-[96]">
                       <div className="w-[20px] h-[20px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/xbofKUrvfM.png)] bg-cover bg-no-repeat relative" />
                     </div>
                   </motion.a>
                   <motion.a
-                    href="https://facebook.com"
+                    href="https://facebook.com/homehealers.sa"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex w-[40px] h-[40px] p-2 items-center bg-[#62a0f6] rounded-[8px] relative z-[92]"
                     variants={buttonVariants}
                     whileHover="hover"
                     whileTap="tap"
+                    aria-label="تابعنا على فيسبوك"
                   >
                     <div className="w-[24px] h-[24px] flex justify-center items-center relative overflow-hidden z-[93]">
                       <div className="w-[20px] h-[20px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/ejCSBuhAsH.png)] bg-cover bg-no-repeat relative" />
                     </div>
                   </motion.a>
                   <motion.a
-                    href="https://instagram.com"
+                    href="https://instagram.com/homehealers.sa"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex w-[40px] h-[40px] p-2 items-center bg-[#62a0f6] rounded-[8px] relative z-[89]"
                     variants={buttonVariants}
                     whileHover="hover"
                     whileTap="tap"
+                    aria-label="تابعنا على انستغرام"
                   >
                     <div className="w-[24px] h-[24px] flex justify-center items-center relative overflow-hidden z-[90]">
                       <div className="w-[14px] h-[20px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/Mok2MoGDLG.png)] bg-cover bg-no-repeat relative" />
@@ -237,13 +278,14 @@ function Footer({ locale }: { locale: string }) {
               </div>
               <div className="flex flex-col gap-[12px] items-start self-stretch flex-nowrap relative z-[45]">
                 <motion.a
-                  href="https://play.google.com/store/apps/details?id=com.example.app"
+                  href="https://play.google.com/store/apps/details?id=com.homehealers.app"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex w-full sm:w-[172px] pt-[16px] pr-[20px] pb-[16px] pl-[20px] gap-[16px] justify-center items-center flex-nowrap bg-[#143087] rounded-[8px] relative z-[46]"
                   variants={buttonVariants}
                   whileHover="hover"
                   whileTap="tap"
+                  aria-label="حمل التطبيق من جوجل بلاي"
                 >
                   <div className="flex w-[132px] gap-[16px] items-center flex-nowrap relative z-[47]">
                     <div className="w-[32px] h-[32px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/f3GhWRCGPf.png)] bg-cover bg-no-repeat relative overflow-hidden z-[51]" />
@@ -258,13 +300,14 @@ function Footer({ locale }: { locale: string }) {
                   </div>
                 </motion.a>
                 <motion.a
-                  href="https://www.apple.com/app-store/"
+                  href="https://apps.apple.com/sa/app/home-healers/id123456789"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex w-full sm:w-[172px] pt-[16px] pr-[20px] pb-[16px] pl-[20px] gap-[16px] justify-center items-center flex-nowrap bg-[#143087] rounded-[8px] relative z-[52]"
                   variants={buttonVariants}
                   whileHover="hover"
                   whileTap="tap"
+                  aria-label="حمل التطبيق من آب ستور"
                 >
                   <div className="flex w-[121px] gap-[16px] items-center flex-nowrap relative z-[53]">
                     <div className="w-[32px] h-[32px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/GrVtXLn6Og.png)] bg-cover bg-no-repeat relative overflow-hidden z-[57]" />
@@ -295,12 +338,13 @@ function Footer({ locale }: { locale: string }) {
               </div>
               <div className="flex flex-col gap-[24px] items-start self-stretch flex-nowrap relative z-[24]">
                 <motion.a
-                  href="https://www.google.com/maps?q=الرياض+شارع+الامير+عبدالعزيز+بن+مساعد+بن+جلوي"
+                  href="https://www.google.com/maps/search/الرياض+شارع+الامير+عبدالعزيز+بن+مساعد+بن+جلوي"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex gap-[12px] justify-start items-start self-stretch flex-nowrap relative z-[25]"
                   variants={linkVariants}
                   whileHover="hover"
+                  aria-label="موقعنا على الخريطة"
                 >
                   <div className="w-[24px] h-[24px] relative overflow-hidden z-[28]">
                     <div className="w-[16px] h-[20px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/KZx9WMQ2oO.png)] bg-[length:100%_100%] bg-no-repeat relative z-[29] mt-[2px] mr-0 mb-0 ml-[4px]" />
@@ -319,6 +363,7 @@ function Footer({ locale }: { locale: string }) {
                   className="flex w-[298px] gap-[12px] justify-center items-center flex-nowrap relative z-30"
                   variants={linkVariants}
                   whileHover="hover"
+                  aria-label="راسلنا عبر البريد الإلكتروني"
                 >
                   <div className="w-[24px] h-[24px] relative overflow-hidden z-[33]">
                     <div className="w-[20px] h-[17px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/YMvEXnJGd2.png)] bg-[length:100%_100%] bg-no-repeat relative z-[34] mt-[3.5px] mr-0 mb-0 ml-[2px]" />
@@ -336,6 +381,7 @@ function Footer({ locale }: { locale: string }) {
                   className="flex w-[115px] gap-[12px] justify-center items-center flex-nowrap relative z-[35]"
                   variants={linkVariants}
                   whileHover="hover"
+                  aria-label="اتصل بنا"
                 >
                   <div className="w-[24px] h-[24px] relative overflow-hidden z-[38]">
                     <div className="w-[20px] h-[20px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/c4wQnrL1nf.png)] bg-[length:100%_100%] bg-no-repeat relative z-[39] mt-[2px] mr-0 mb-0 ml-[2px]" />
@@ -359,49 +405,54 @@ function Footer({ locale }: { locale: string }) {
         <div className="w-full bg-[#eff6fe] py-4">
           <div className="flex flex-wrap justify-center items-center gap-6 max-w-[1200px] mx-auto px-4">
             <motion.a
-              href="https://twitter.com"
+              href="https://twitter.com/homehealers_sa"
               target="_blank"
               rel="noopener noreferrer"
               className="w-[56px] h-[17px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/EGBeNfjh4v.png)] bg-cover bg-no-repeat relative overflow-hidden z-[102]"
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
+              aria-label="تابعنا على تويتر"
             />
             <motion.a
-              href="https://facebook.com"
+              href="https://facebook.com/homehealers.sa"
               target="_blank"
               rel="noopener noreferrer"
               className="w-[44px] h-[44px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/ZcLPTdQTEC.png)] bg-cover bg-no-repeat relative overflow-hidden z-[103]"
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
+              aria-label="تابعنا على فيسبوك"
             />
             <motion.a
-              href="https://instagram.com"
+              href="https://instagram.com/homehealers.sa"
               target="_blank"
               rel="noopener noreferrer"
               className="w-[30px] h-[36px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/2uanR5T9Rg.png)] bg-cover bg-no-repeat relative overflow-hidden z-[104]"
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
+              aria-label="تابعنا على انستغرام"
             />
             <motion.a
-              href="https://linkedin.com"
+              href="https://linkedin.com/company/home-healers"
               target="_blank"
               rel="noopener noreferrer"
               className="w-[72.423px] h-[32.001px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/Lqu4Zva9bZ.png)] bg-[length:100%_100%] bg-no-repeat relative z-[105]"
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
+              aria-label="تابعنا على لينكد إن"
             />
             <motion.a
-              href="https://youtube.com"
+              href="https://youtube.com/@homehealers"
               target="_blank"
               rel="noopener noreferrer"
               className="w-[39.944px] h-[24.386px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/jNgEQAgqyw.png)] bg-[length:100%_100%] bg-no-repeat relative z-[107]"
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
+              aria-label="تابعنا على يوتيوب"
             />
           </div>
         </div>
@@ -411,7 +462,7 @@ function Footer({ locale }: { locale: string }) {
             <div className="flex flex-col sm:flex-row gap-4 items-center z-[111]">
               <Link href={`/${locale}/terms`}>
                 <motion.span
-                  className="text-[16px] font-medium leading-[24px] text-[#1e1e1e] z-[112]"
+                  className="text-[16px] font-medium leading-[24px] text-[#1e1e1e] z-[112] cursor-pointer"
                   variants={linkVariants}
                   whileHover="hover"
                 >
@@ -420,7 +471,7 @@ function Footer({ locale }: { locale: string }) {
               </Link>
               <Link href={`/${locale}/privacy`}>
                 <motion.span
-                  className="text-[16px] font-medium leading-[24px] text-[#1e1e1e] z-[113]"
+                  className="text-[16px] font-medium leading-[24px] text-[#1e1e1e] z-[113] cursor-pointer"
                   variants={linkVariants}
                   whileHover="hover"
                 >
@@ -429,7 +480,7 @@ function Footer({ locale }: { locale: string }) {
               </Link>
             </div>
             <span className="text-[16px] font-medium leading-[24px] text-[#1e1e1e] text-center z-[110]">
-              © 2023 جميع الحقوق محفوظة | Homehealers
+              © 2025 جميع الحقوق محفوظة | Home Healers
             </span>
           </div>
         </div>

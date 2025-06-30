@@ -160,16 +160,16 @@ const ClientAPI = {
 
   // Existing Endpoints (Integrated)
   getContactMessage: (payload: any, locale: string) =>
-    fetchData('user/contact-messages/send', locale, {
+    fetchData('client/contact-messages/send', locale, {
       method: 'POST',
       body: payload,
     }),
 
   getAllBlogs: (locale: string, params?: { page?: number; limit?: number; type?: string; show_home?: boolean }) =>
-    fetchData('v1/user/blogs', locale, { params }),
+    fetchData('client/news', locale, { params }),
 
   getSingleBlog: (id: string | number, locale: string) =>
-    fetchData(`v1/user/blogs/${id}/details`, locale),
+    fetchData(`client/news/${id}`, locale),
 };
 
 export default ClientAPI;
