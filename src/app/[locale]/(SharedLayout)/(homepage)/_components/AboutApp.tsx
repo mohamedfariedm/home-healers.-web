@@ -8,18 +8,16 @@ import { Pagination, Autoplay } from "swiper/modules";
 import { ShowMore } from "@/components/Animations/ShowMore";
 import { AboutAppTwoColumns } from ".";
 import { useState } from "react";
+import parse from "html-react-parser";
 import "swiper/css";
 import "swiper/css/pagination";
 
-function AboutApp({ locale,section }: { locale: string, section: any }) {
+function AboutApp({ locale, section, data,aboutHomeSection }: { locale: string, section: any, data?: any, aboutHomeSection?: any }) {
   const [activeDot, setActiveDot] = useState(0);
+  console.log(data);
 
-  const services = Array.from({ length: 6 }, (_, i) => ({
-    id: i + 1,
-    title: "تأهيل مابعد العمليات الجراحية",
-    desc: "دعم المرضى في فترة التعافي بعد العمليات الجراحية.",
-    icon: "/assets/images/homehellers/Injury.svg",
-  }));
+  // Use provided data or fallback to empty array
+  const services = data || [];
 
   return (
     <div className="flex w-full xl:w-[1280px] flex-col gap-[100px] items-start flex-nowrap relative z-[487] mt-[91px] mx-auto">
@@ -33,19 +31,26 @@ function AboutApp({ locale,section }: { locale: string, section: any }) {
       >
         <div className="flex flex-col items-center gap-12 w-full max-w-3xl text-center">
           <span className="text-primary text-base font-medium">
-{section?.title}
+            {section?.title}
           </span>
           <h2 className="text-2xl sm:text-3xl font-semibold leading-10 text-gray-900">
-            مجموعة من <span className="text-primary">الخدمات</span> الطبية
-            المتنوعة
+            {locale === "ar" ? (
+              <>
+                مجموعة من <span className="text-primary">الخدمات</span> الطبية المتنوعة
+              </>
+            ) : (
+              <>
+                A range of <span className="text-primary">medical services</span>
+              </>
+            )}
           </h2>
         </div>
 
-        {/* Swiper Slider with 6 Cards */}
+        {/* Swiper Slider with Dynamic Data */}
         <Swiper
           modules={[Pagination, Autoplay]}
           spaceBetween={0}
-          slidesPerView={20}
+          slidesPerView={1}
           autoplay={{ delay: 3500 }}
           pagination={{
             clickable: true,
@@ -58,9 +63,9 @@ function AboutApp({ locale,section }: { locale: string, section: any }) {
             768: { slidesPerView: 2 },
             1024: { slidesPerView: 4 },
           }}
-          className="w-full max-w-[1280px] "
+          className="w-full max-w-[1280px]"
         >
-          {services.map((service, i) => (
+          {services.map((service: any, i: number) => (
             <SwiperSlide key={i}>
               <Link
                 href={`/${locale}/services?id=${service.id}`}
@@ -70,16 +75,20 @@ function AboutApp({ locale,section }: { locale: string, section: any }) {
                   <div className="bg-white rounded-full w-24 h-24 flex items-center justify-center">
                     <div
                       className="w-16 h-16 bg-contain bg-no-repeat"
-                      style={{ backgroundImage: `url(${service.icon})` }}
+                      style={{
+                        backgroundImage: `url(${
+                          service.image?.[0]?.thumbnail || "/assets/images/homehellers/Injury.svg"
+                        })`,
+                      }}
                     />
                   </div>
                   <div className="text-white">
                     <h3 className="text-lg font-semibold leading-7">
-                      {service.title}
+                      {service.name[locale]}
                     </h3>
-                    <p className="text-sm font-light leading-8 mt-1">
-                      {service.desc}
-                    </p>
+                    <div className="text-sm font-light leading-8 mt-1 max-h-[96px] overflow-hidden text-ellipsis">
+                      {parse(service.description[locale])}
+                    </div>
                   </div>
                 </div>
                 <ShowMore />
@@ -90,13 +99,11 @@ function AboutApp({ locale,section }: { locale: string, section: any }) {
 
         {/* Custom Dots */}
         <div className="flex gap-6 mt-6 custom-dots justify-center">
-          {services.map((_, index) => (
+          {services.map((_: any, index: number) => (
             <div
               key={index}
-              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 bg-[#cee2fc] ${
-                index === activeDot
-                  ? "bg-[#62a0f6]"
-                  : "bg-[#cee2fc]"
+              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                index === activeDot ? "bg-[#62a0f6]" : "bg-[#cee2fc]"
               }`}
             />
           ))}
@@ -112,14 +119,14 @@ function AboutApp({ locale,section }: { locale: string, section: any }) {
             href={`/${locale}/services`}
             className="flex items-center gap-2 px-4 py-2 bg-[#143087] text-white rounded-md text-lg font-medium border border-[#143087]"
           >
-            جميع الخدمات
+            {locale === "ar" ? "جميع الخدمات" : "All Services"}
             <ArrowLeft className="w-6 h-6 text-white" />
           </Link>
         </motion.div>
       </motion.div>
 
       {/* Two Column Layout */}
-      <AboutAppTwoColumns locale={locale} />
+      <AboutAppTwoColumns aboutHomeSection={aboutHomeSection} locale={locale} />
     </div>
   );
 }

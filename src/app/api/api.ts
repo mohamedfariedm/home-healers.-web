@@ -167,7 +167,11 @@ const ClientAPI = {
 
   getAllBlogs: (locale: string, params?: { page?: number; limit?: number; type?: string; show_home?: boolean }) =>
     fetchData('client/news', locale, { params }),
+  getAllServices: (locale: string, params?: { page?: number; limit?: number; type?: string; show_home?: boolean }) =>
+    fetchData('client/services', locale, { params }),
 
+  getSingleService: (id: string | number, locale: string) =>
+    fetchData(`client/services/${id}`, locale),
   getSingleBlog: (id: string | number, locale: string) =>
     fetchData(`client/news/${id}`, locale),
 };

@@ -21,21 +21,21 @@ function Features() {
   const [statsData, setStatsData] = useState<StatsDataType | null>(null);
   const locale = i18n.language || "ar";
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const blogID = Array.isArray(id.blogID) ? id.blogID[0] : id.blogID;
-        if (blogID) {
-          const data = await HomeAPI.getStatsData(blogID, locale);
-          setStatsData(data);
-        }
-      } catch (error) {
-        console.error("Error fetching stats data:", error);
-      }
-    }
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     try {
+  //       const blogID = Array.isArray(id.blogID) ? id.blogID[0] : id.blogID;
+  //       if (blogID) {
+  //         const data = await HomeAPI.getStatsData(blogID, locale);
+  //         setStatsData(data);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching stats data:", error);
+  //     }
+  //   }
 
-    fetchData();
-  }, [id.blogID, locale]);
+  //   fetchData();
+  // }, [id.blogID, locale]);
 
   console.log("Stats Data:", statsData);
 

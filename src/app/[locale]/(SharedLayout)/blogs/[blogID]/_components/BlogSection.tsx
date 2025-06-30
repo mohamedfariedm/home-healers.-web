@@ -1,8 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
-import React from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import React, { useState } from "react";
 import parse from "html-react-parser"; // Import html-react-parser
+import { FaEnvelope, FaFacebook, FaInstagram, FaLink, FaTwitter } from "react-icons/fa";
+import { toast } from "sonner";
 
 // Mock related posts (can be replaced with dynamic data if available)
 const relatedPosts = [
@@ -30,6 +32,10 @@ export default function BlogRelatedSection({ data, locale }: { data: any, locale
   console.log("BlogRelatedSection Data:", data);
 
   // Format date function
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Format date function
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("ar-EG", {
@@ -37,6 +43,54 @@ export default function BlogRelatedSection({ data, locale }: { data: any, locale
       month: "long",
       year: "numeric",
     });
+  };
+
+  // Share data
+  const shareData = {
+    title: data.name || "مقال جديد",
+    text: data.description || "تحقق من هذا المقال الرائع!",
+    url: window.location.href,
+  };
+
+  // Share handlers
+  const handleFacebookShare = () => {
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareData.url)}`;
+    window.open(facebookUrl, "_blank");
+    setIsPopupOpen(false);
+    toast.success("تم مشاركة المقال على فيسبوك!", { duration: 3000 });
+  };
+
+  const handleTwitterShare = () => {
+    const twitterUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareData.text)}&url=${encodeURIComponent(shareData.url)}`;
+    window.open(twitterUrl, "_blank");
+    setIsPopupOpen(false);
+    toast.success("تم مشاركة المقال على تويتر!", { duration: 3000 });
+  };
+
+  const handleInstagramShare = () => {
+    setToastMessage("للمشاركة عبر إنستغرام، انسخ الرابط وشاركه في قصتك!");
+    setTimeout(() => setToastMessage(null), 3000);
+    setIsPopupOpen(false);
+    toast.success("تم مشاركة المقال على إنستغرام!", { duration: 3000 });
+  };
+
+  const handleEmailShare = () => {
+    const emailUrl = `mailto:?subject=${encodeURIComponent(shareData.title)}&body=${encodeURIComponent(shareData.text + "\n" + shareData.url)}`;
+    window.open(emailUrl, "_blank");
+    setIsPopupOpen(false);
+    toast.success("تم مشاركة المقال عبر البريد الإلكتروني!", { duration: 3000 });
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareData.url);
+toast.success("تم نسخ الرابط إلى الحافظة!", { duration: 3000 });
+    } catch (err) {
+      console.error("Error copying link:", err);
+      setToastMessage("حدث خطأ أثناء نسخ الرابط.");
+      setTimeout(() => setToastMessage(null), 3000);
+    }
+    setIsPopupOpen(false);
   };
 
   return (
@@ -107,7 +161,7 @@ export default function BlogRelatedSection({ data, locale }: { data: any, locale
 
       {/* Right Column */}
       <motion.div
-        className="flex-1 flex flex-col gap-6"
+        className="flex-1 flex items-end flex-col gap-6"
         variants={{
           hidden: { opacity: 0, x: 40 },
           visible: { opacity: 1, x: 0, transition: { duration: 0.6 } },
@@ -136,14 +190,15 @@ export default function BlogRelatedSection({ data, locale }: { data: any, locale
           </div>
         </div>
 
-        <motion.div
-          className="flex justify-end cursor-pointer"
+        <motion.span
+          className="flex justify-end w-[fit-content] cursor-pointer"
+          onClick={() => setIsPopupOpen(true)}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="flex items-center gap-2 border border-[#143087] rounded-md px-2 py-2 w-fit hover:bg-[#143087] hover:text-white transition-colors duration-300">
-            <span className="text-sm font-medium text-[#143087] hover:text-white">مشاركة المقال</span>
+          <div className="flex items-center gap-2 border border-[#143087] rounded-md px-2 py-2 w-fit group hover:bg-[#143087] hover:text-white transition-colors duration-300">
+            <span className="text-sm font-medium text-[#143087] group-hover:text-white">مشاركة المقال</span>
             <div
               className="w-6 h-6 bg-cover bg-no-repeat"
               style={{
@@ -152,8 +207,88 @@ export default function BlogRelatedSection({ data, locale }: { data: any, locale
               }}
             />
           </div>
-        </motion.div>
+        </motion.span>
       </motion.div>
+            {/* Popup Modal */}
+      <AnimatePresence>
+        {isPopupOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsPopupOpen(false)}
+          >
+            <motion.div
+              className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-xl border border-[#d0d5dd] bg-gradient-to-br from-white to-[#f0f6ff]"
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-right text-2xl font-semibold text-[#1e1e1e] mb-6">مشاركة المقال</h3>
+              <div className="grid grid-cols-1 gap-4">
+                <motion.button
+                  className="flex items-center gap-3 border border-[#143087] rounded-lg px-4 py-3 text-[#143087] hover:bg-[#143087] hover:text-white transition-colors duration-300 text-right"
+                  onClick={handleFacebookShare}
+                  whileHover={{ scale: 1.05, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <FaFacebook className="text-xl" />
+                  <span className="flex-1">مشاركة عبر فيسبوك</span>
+                </motion.button>
+                <motion.button
+                  className="flex items-center gap-3 border border-[#143087] rounded-lg px-4 py-3 text-[#143087] hover:bg-[#143087] hover:text-white transition-colors duration-300 text-right"
+                  onClick={handleTwitterShare}
+                  whileHover={{ scale: 1.05, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <FaTwitter className="text-xl" />
+                  <span className="flex-1">مشاركة عبر تويتر</span>
+                </motion.button>
+                <motion.button
+                  className="flex items-center gap-3 border border-[#143087] rounded-lg px-4 py-3 text-[#143087] hover:bg-[#143087] hover:text-white transition-colors duration-300 text-right"
+                  onClick={handleInstagramShare}
+                  whileHover={{ scale: 1.05, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <FaInstagram className="text-xl" />
+                  <span className="flex-1">مشاركة عبر إنستغرام</span>
+                </motion.button>
+                <motion.button
+                  className="flex items-center gap-3 border border-[#143087] rounded-lg px-4 py-3 text-[#143087] hover:bg-[#143087] hover:text-white transition-colors duration-300 text-right"
+                  onClick={handleEmailShare}
+                  whileHover={{ scale: 1.05, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <FaEnvelope className="text-xl" />
+                  <span className="flex-1">مشاركة عبر البريد الإلكتروني</span>
+                </motion.button>
+                <motion.button
+                  className="flex items-center gap-3 border border-[#143087] rounded-lg px-4 py-3 text-[#143087] hover:bg-[#143087] hover:text-white transition-colors duration-300 text-right"
+                  onClick={handleCopyLink}
+                  whileHover={{ scale: 1.05, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <FaLink className="text-xl" />
+                  <span className="flex-1">نسخ الرابط</span>
+                </motion.button>
+              </div>
+              <motion.button
+                className="mt-6 text-[#62a0f6] text-base font-medium text-right w-full hover:underline"
+                onClick={() => setIsPopupOpen(false)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                إغلاق
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+
     </motion.div>
   );
 }

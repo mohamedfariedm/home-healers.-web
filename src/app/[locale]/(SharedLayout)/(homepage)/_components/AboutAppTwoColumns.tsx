@@ -4,20 +4,53 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { ShowMore } from "@/components/Animations/ShowMore";
+import parse from "html-react-parser";
 
-function AboutApp({ locale }: { locale: string }) {
+function AboutApp({ locale, aboutHomeSection }: { locale: string, aboutHomeSection?: any }) {
+  console.log("About Home Section Data:", aboutHomeSection);
+
   const icons = [
     "/assets/images/homehellers/elements.svg",
     "/assets/images/homehellers/elements-1.svg",
     "/assets/images/homehellers/guidance_physical-therapy.svg",
   ];
-  return (<>
 
+  // Static list items (since JSON description doesn't provide them)
+  const listItems = {
+    ar: [
+      "خدمة طوال الـ 24 ساعة",
+      "تقدم منصة هوميلرز الطبية أكثر من 60 خدمة طبية",
+      "أكثر من 100 أخصائي علاج طبيعي",
+    ],
+    en: [
+      "24/7 Service",
+      "Home Healers platform offers over 60 medical services",
+      "More than 100 physical therapy specialists",
+    ],
+  };
+
+  // Fallback translations for Arabic
+  const fallbackTitle = {
+    ar: "خدمات العلاج الطبيعي والتأهيل الطبي المنزلي",
+    en: "In-Home Physical Therapy and Medical Rehabilitation Services",
+  };
+  const fallbackDescription = {
+    ar: "منصة سعودية متخصصة في توفير خدمة العلاج الطبيعي والتأهيل الطبي المنزلي للعملاء في منازلهم بواسطة اختصاصيين مصنفين ومتميزين بكفاءة عالية طوال أيام الأسبوع وعلي مدار ٢٤ ساعة",
+    en: "Home Healers is a Saudi platform specialized in providing in-home physical therapy and medical rehabilitation services to clients in their homes through highly qualified and distinguished specialists, available throughout the week and 24/7.",
+  };
+
+  return (
+    <>
       {/* Two Column Layout */}
       <div className="flex rtl:ltr ltr:rtl flex-col xl:flex-row gap-6 items-center mb-[91px] justify-between w-full px-4 xl:px-0">
         {/* Visual Block (left) */}
         <motion.div
-          className="relative w-full xl:w-[597px] h-[531px] bg-[url('/assets/images/homehellers/about.svg')] sm:bg-contain bg-no-repeat"
+          className="relative w-full xl:w-[597px] h-[531px] bg-contain bg-no-repeat"
+          style={{
+            backgroundImage: `url(${
+              aboutHomeSection?.Posts?.[0]?.attachment?.[0]?.thumbnail || "/assets/images/homehellers/about.svg"
+            })`,
+          }}
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
@@ -34,24 +67,22 @@ function AboutApp({ locale }: { locale: string }) {
         >
           <div className="flex flex-col items-end gap-4 text-end">
             <span className="text-[#62a0f6] text-base font-medium">
-              عن هوم هيليرز
+              {locale === "ar" ? "عن هوم هيليرز" : "About Home Healers"}
             </span>
             <h2 className="text-2xl xl:text-[30px] font-semibold text-[#1e1e1e]">
-              خدمات العلاج الطبيعي والتأهيل الطبي المنزلي
+              {aboutHomeSection?.Posts?.[0]?.title ||""}
             </h2>
-            <p className="text-lg leading-8 text-[#1e1e1e]">
-              منصة سعودية متخصصة في توفير خدمة العلاج الطبيعي والتأهيل الطبي
-              المنزلي للعملاء في منازلهم بواسطة اختصاصيين مصنفين ومتميزين بكفاءة
-              عالية طوال أيام الأسبوع وعلي مدار ٢٤ ساعة
-            </p>
+            <div className="text-lg leading-8 text-[#1e1e1e]">
+              {aboutHomeSection?.Posts?.[0]?.description
+                ? parse(aboutHomeSection?.Posts[0]?.description)
+                : ""}
+            </div>
           </div>
 
           <div className="flex flex-col items-end gap-4 text-end">
-            {[
-              "خدمة طوال الـ 24 شاعة",
-              "تقدم منصة هوميلرز الطبية أكثر من 60 خدمة طبية",
-              "أكثر من 100 أخصائي علاج طبيعي",
-            ].map((text, i) => (
+            {
+            //@ts-ignore
+            listItems[locale]?.map((text:any, i:any) => (
               <motion.div
                 key={i}
                 className="flex items-center gap-3"
@@ -73,37 +104,41 @@ function AboutApp({ locale }: { locale: string }) {
 
           <div className="flex items-center gap-6 mt-4">
             <motion.div
-            animate={{
-      rotate: [0, 5, -5, 5, 0],
-      scale: [1, 1.05, 1, 1.05, 1],
-    }}
-    transition={{
-      duration: 2,
-      repeat: Infinity,
-      ease: "easeInOut",
-    }}
-            className="w-14 h-14 bg-[#62a0f6] rounded-full flex items-center justify-center rotate-180">
-  <div
-    className="w-8 h-8 bg-cover bg-center bg-no-repeat bg-[url('/assets/images/homehellers/vedio.svg')]"
-    
-  />
-</motion.div>
+              animate={{
+                rotate: [0, 5, -5, 5, 0],
+                scale: [1, 1.05, 1, 1.05, 1],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="w-14 h-14 bg-[#62a0f6] rounded-full flex items-center justify-center rotate-180"
+            >
+              <div
+                className="w-8 h-8 bg-cover bg-center bg-no-repeat"
+                style={{ backgroundImage: "url('/assets/images/homehellers/vedio.svg')" }}
+              />
+            </motion.div>
             <motion.button
               className="flex items-center gap-3 px-4 py-2 bg-[#143087] text-white rounded-md text-lg font-medium"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              
             >
-<Link className="flex items-center gap-3 bg-[#143087] text-white rounded-md text-lg font-medium" href={`/${locale}/about`} >
-              <ArrowLeft className="w-6 h-6 ml-2 text-white" />
-              اكــــتشف المزيد
-</Link>
+              <Link
+                className="flex items-center gap-3 bg-[#143087] text-white rounded-md text-lg font-medium"
+                href={`/${locale}/about`}
+              >
+                <ArrowLeft className="w-6 h-6 ml-2 text-white" />
+                {locale === "ar" ? "اكتشف المزيد" : "Discover More"}
+              </Link>
             </motion.button>
           </div>
         </motion.div>
       </div>
-</>  );
+    </>
+  );
 }
 
 export default AboutApp;

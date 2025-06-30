@@ -1,5 +1,5 @@
+import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
-import { BreadCrumbComponent } from "@/components/Animations/breadCrumb";
 import { AnimatedServicesSection } from "@/components/Services";
 
 type props = {
@@ -8,6 +8,7 @@ type props = {
 
 async function page({ params: { locale } }: props) {
   const { t } = await initTranslations(locale, ["aboutUs"]);
+  const servicesData = await ClientAPI.getAllServices(locale);
 
   return (
     <>
@@ -42,7 +43,7 @@ async function page({ params: { locale } }: props) {
   </div>
 </div>
 
-<AnimatedServicesSection />
+<AnimatedServicesSection data={servicesData.data} locale={locale} />
 
 
       </div>
