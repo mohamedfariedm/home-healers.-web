@@ -34,16 +34,15 @@ const FaqItem: React.FC<FaqItemProps> = ({
           <h4 className="text-lg font-medium text-[#1e1e1e] mb-2">{question}</h4>
           <AnimatePresence>
             {isOpen && answer && (
-              <motion.p
+              <motion.div
                 className="text-sm text-[#1e1e1e] leading-7 mt-2"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
                 style={{ overflow: "hidden" }}
-              >
-                {answer}
-              </motion.p>
+                dangerouslySetInnerHTML={{ __html: answer }}
+              />
             )}
           </AnimatePresence>
         </div>
@@ -62,11 +61,10 @@ const FaqItem: React.FC<FaqItemProps> = ({
 };
 
 const ContactCard: React.FC = () => {
-  // Animation variants for the button
   const buttonVariants = {
     hover: {
       scale: 1.05,
-      backgroundColor: "#1a3ca7", // Slightly lighter on hover
+      backgroundColor: "#1a3ca7",
       transition: {
         type: "spring",
         stiffness: 400,
@@ -79,14 +77,8 @@ const ContactCard: React.FC = () => {
   return (
     <motion.div
       className="relative w-full lg:w-1/2 max-w-md mx-auto bg-[#e8eaf3] bg-opacity-50 rounded-[24px] p-6 pt-24 z-0"
-      animate={{
-        scale: [1, 1.05, 1, 1.05, 1], // Pulse scale sequence
-      }}
-      transition={{
-        duration: 4,
-        repeat: Infinity,
-        ease: "easeInOut",
-      }}
+      animate={{ scale: [1, 1.05, 1, 1.05, 1] }}
+      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
     >
       <div className="flex flex-col items-center gap-6 z-10 relative">
         <div className="w-40 h-40">
@@ -118,41 +110,49 @@ const ContactCard: React.FC = () => {
   );
 };
 
-const FaqSection: React.FC = () => {
-  const faqItems = [
-    {
-      question: "كيف يمكنني الحجز بسهولة في هوم هيليرز ؟",
-      answer:
-        "يمكنك الحجز بسهولة من خلال الضغط على زر احجز جلستك الان، ثم إكمال جميع خطوات التسجيل واختيار التخصص والطبيب المناسب.",
-    },
-    { question: "ما هي تكلفة الجلسة العلاجية؟" },
-    { question: "هل يمكنني اختيار طبيب معين؟" },
-    { question: "ما هي مدة الجلسة العلاجية؟" },
-    { question: "هل تقدمون خدمات للأطفال؟" },
-  ];
+const FaqSection = ({
+  data,
+  locale,
+  faqsData,
+}: {
+  data: any;
+  locale: string;
+  faqsData: any;
+}) => {
+  console.log("faqsData:", faqsData);
+
+  // Map faqsData into usable format
+  const faqItems = faqsData.map((item: any) => ({
+    question: item.title_question?.[locale] ?? "بدون عنوان",
+    answer: item.answer?.[locale] ?? "",
+  }));
+
+  const subtitle = data.Posts[0]?.title || "استكشف أبرز الأسئلة";
+  const words = subtitle.split(" ");
+  const subtitleParts = {
+    before: `${words[0] ?? ""} ${words[1] ?? ""} `,
+    highlight: words[2] ?? "",
+    after: words.slice(3).join(" "),
+  };
 
   const [openIndex, setOpenIndex] = useState(0);
-
   const handleToggle = (index: number) => {
     setOpenIndex(index === openIndex ? -1 : index);
   };
 
   return (
     <div className="w-full max-w-screen-xl mx-auto mt-24 px-4 flex flex-col gap-14 items-center">
-      {/* Heading */}
       <div className="text-center">
         <h2 className="text-[28px] sm:text-[30px] font-semibold leading-10 text-[#1e1e1e]">
-          <span>استكشف أبرز </span>
-          <span className="text-[#62a0f6]">الأسئلة</span>
-          <span> الشائعة</span>
+          <span>{subtitleParts.before}</span>
+          <span className="text-[#62a0f6]">{subtitleParts.highlight}</span>
+          <span>{subtitleParts.after}</span>
         </h2>
       </div>
 
-      {/* Content */}
       <div className="flex flex-col lg:flex-row gap-12 w-full items-start">
-        {/* FAQs */}
         <div className="w-full lg:w-1/2 flex flex-col gap-6">
-          {faqItems.map((item, index) => (
+          {faqItems.map((item: any, index: number) => (
             <FaqItem
               key={index}
               question={item.question}
@@ -163,7 +163,6 @@ const FaqSection: React.FC = () => {
           ))}
         </div>
 
-        {/* Contact Card */}
         <ContactCard />
       </div>
     </div>

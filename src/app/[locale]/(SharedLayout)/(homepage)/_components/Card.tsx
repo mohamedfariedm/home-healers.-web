@@ -203,11 +203,11 @@ function Card({ locale, section }: CardProps) {
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
         <Link
-          className="flex w-[255px] h-[56px] pt-[8px] pr-[16px] pb-[8px] pl-[16px] gap-[10px] justify-center items-center bg-[#143087] rounded-[8px] border-solid border border-[#143087] relative z-[29] mt-[56px] mx-auto cursor-pointer"
+          className="flex rtl:w-[255px] ltr:w-[400px] h-[56px] pt-[8px] pr-[16px] pb-[8px] pl-[16px] gap-[10px] justify-center items-center bg-[#143087] rounded-[8px] border-solid border border-[#143087] relative z-[29] mt-[56px] mx-auto cursor-pointer"
           href={`/${locale}/contact`}
         >
           <span className="h-[28px] shrink-0 basis-auto text-[18px] font-medium leading-[28px] text-[#fff] relative text-start z-[32]">
-            اطلب الكارت الطبي الان
+          {locale === "ar" ? "اطلب الكارت الطبي الان" : "Request Your Medical Card"}
           </span>
           <div className="w-[24px] h-[24px] relative overflow-hidden z-30">
             <ArrowLeft className="w-6 h-6" />

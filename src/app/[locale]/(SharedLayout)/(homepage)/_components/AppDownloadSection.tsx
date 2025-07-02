@@ -38,8 +38,7 @@ const AppDownloadSection: React.FC = () => {
           
           <div className="flex flex-col gap-8 items-end relative z-10">
             <AppHeader />
-            <AppRating />
-            <DownloadButtons />
+
           </div>
         </div>
       </div>

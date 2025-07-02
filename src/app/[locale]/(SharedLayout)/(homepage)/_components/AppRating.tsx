@@ -3,7 +3,7 @@ import { motion } from "framer-motion"
 import { Star } from "lucide-react";
 import React from "react";
 
-const AppRating: React.FC = () => {
+const AppRating= ({locale}: {locale: string}) => {
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-center justify-start w-full">
       <div className="flex items-center">
@@ -42,7 +42,7 @@ const AppRating: React.FC = () => {
 </motion.div>  
         </div>
         <span className="  text-sm font-bold text-[#1e1e1e] text-right whitespace-nowrap">
-          اكتر من 5000+ مستخدم
+          {locale === "ar" ? "اكتر من 5000+ مستخدم" : "Over 5000+ Users"}
         </span>
       </div>      
     </div>

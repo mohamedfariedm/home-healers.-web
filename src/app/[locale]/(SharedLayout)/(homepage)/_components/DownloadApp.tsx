@@ -6,7 +6,7 @@ import AppHeader from "./AppHeader";
 import AppRating from "./AppRating";
 import DownloadButtons from "./DownloadButtons";
 
-function DownloadApp({ section }: { section: any }) {
+function DownloadApp({ section,locale }: { section: any,locale: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, {
     once: false,
@@ -23,8 +23,8 @@ console.log("DownloadApp Section Data:", section);
         <div className="w-full lg:w-1/2 p-6 lg:p-10 flex flex-col justify-center relative">
           <div className="flex flex-col gap-8 items-start relative z-10">
             <AppHeader title={section?.title} description={post?.description} />
-            <AppRating />
-            <DownloadButtons />
+            <AppRating locale={locale} />
+            <DownloadButtons locale={locale} />
           </div>
         </div>
 

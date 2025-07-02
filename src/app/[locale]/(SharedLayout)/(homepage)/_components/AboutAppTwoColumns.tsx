@@ -7,8 +7,6 @@ import { ShowMore } from "@/components/Animations/ShowMore";
 import parse from "html-react-parser";
 
 function AboutApp({ locale, aboutHomeSection }: { locale: string, aboutHomeSection?: any }) {
-  console.log("About Home Section Data:", aboutHomeSection);
-
   const icons = [
     "/assets/images/homehellers/elements.svg",
     "/assets/images/homehellers/elements-1.svg",

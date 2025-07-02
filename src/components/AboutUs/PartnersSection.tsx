@@ -38,15 +38,12 @@ const NavigationArrow: React.FC<NavigationArrowProps> = ({ direction, buttonRef 
   );
 };
 
-const PartnersSection: React.FC = () => {
-  const partnerLogos = [
-    "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/KCcDpoQzXv.png",
-    "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/LkbvfH3ryJ.png",
-    "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/KCcDpoQzXv.png",
-    "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/LkbvfH3ryJ.png",
-    "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/KCcDpoQzXv.png",
-    "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/LkbvfH3ryJ.png",
-  ];
+const PartnersSection= ({data,locale}:{data:any,locale:string}) => {
+
+  console.log("PartnersSection data:", data, "locale:", locale);
+  
+const partnerLogos: string[] = data?.Posts?.[0]?.attachment?.map((att: any) => att.thumbnail) || [];
+
 
   const prevRef = useRef<HTMLDivElement>(null);
   const nextRef = useRef<HTMLDivElement>(null);
@@ -56,11 +53,10 @@ const PartnersSection: React.FC = () => {
       {/* Heading */}
       <div className="flex flex-col items-center text-center gap-3">
         <span className="text-[#62a0f6] text-base font-medium leading-6">
-          مع من نعمل ؟
-        </span>
+{data?.title}        </span>
         <h2 className="text-[28px] sm:text-[30px] font-semibold leading-10 text-[#1e1e1e]">
-          شركاؤنا في رحلة النجاح
-        </h2>
+{data?.Posts[0].title} 
+       </h2>
       </div>
 
       {/* Partner Logos Slider */}

@@ -141,20 +141,19 @@ function OurStory({ locale, data }: { locale: string; data: any }) {
             whileTap={{ scale: 0.95 }}
           >
             <ArrowLeft className="w-6 h-6" />
-            <span className="text-[18px] font-medium leading-[28px]">جميع المقالات</span>
+            <span className="text-[18px] font-medium leading-[28px]">{locale === "ar" ? "جميع المقالات" : "All Articles"}</span>
           </motion.div>
         </Link>
 
         <motion.div className="flex flex-col gap-2 items-end" variants={headerItemVariants}>
           <motion.span className="text-[16px] font-medium text-[#62a0f6]" variants={headerItemVariants}>
-            اخر المقالات الطبية
+{locale === "ar" ? "استشكف اخر المقالات الطبية" : "Explore the Latest Medical Articles"}
           </motion.span>
           <motion.h2
             className="text-[30px] font-semibold leading-[40px] text-[#1e1e1e] text-end"
             variants={headerItemVariants}
           >
-            استشكف اخر <span className="text-[#62a0f6]">المقالات</span> الطبية
-          </motion.h2>
+            {locale === "ar" ? "استشكف اخر " : "Explore the latest "}<span className="text-[#62a0f6]">{locale === "ar" ? "المقالات " : "Medical Articles"}</span>{locale === "ar" ? "الطبية" :" in Medicine" }          </motion.h2>
         </motion.div>
       </motion.div>
 

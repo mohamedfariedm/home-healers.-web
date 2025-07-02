@@ -35,7 +35,7 @@ console.log(servicesData.data, "servicesData");
         <Hero locale={locale} section={heroSection} />
         <AboutApp locale={locale} data={servicesData.data} aboutHomeSection={aboutHomeSection} section={aboutAppSection} />
         <BeCloser locale={locale} section={beCloserSection} />
-        <DownloadApp section={downloadAppSection} />
+        <DownloadApp section={downloadAppSection} locale={locale} />
         <Bannar />
         <OurStory data={blogData.data} locale={locale} />
         <Card locale={locale} section={cardSection} />

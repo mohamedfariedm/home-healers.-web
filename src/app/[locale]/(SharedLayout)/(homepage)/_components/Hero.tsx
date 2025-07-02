@@ -82,7 +82,7 @@ function Hero({ locale, section }: { locale: string; section: any }) {
             <div className="w-[200px] h-[56px] bg-[url(/assets/images/homehellers/rating.svg)] bg-cover bg-no-repeat" />
             <div className="flex flex-col gap-1">
               <span className="text-sm sm:text-base font-semibold text-[#1e1e1e] whitespace-nowrap">
-                تقيم المرضي
+               {locale === "ar" ? "تقيم المرضي" : "Patient Rating"}
               </span>
               <motion.div
                 className="flex gap-1 items-center"
@@ -110,8 +110,7 @@ function Hero({ locale, section }: { locale: string; section: any }) {
               className="flex items-center gap-3 px-5 py-3 bg-[#143087] rounded-md w-fit hover:bg-[#0f245f] transition z-10 relative"
             >
               <span className="text-white text-base sm:text-lg font-medium">
-            احجز جلستك الآن
-              </span>
+{locale === "ar" ? "احجز جلستك الان" :" Book Your Session Now"}              </span>
               <ArrowLeft className="w-6 h-6 text-white" />
             </motion.div>
           </Link>

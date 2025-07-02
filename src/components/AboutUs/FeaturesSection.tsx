@@ -17,7 +17,6 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) =
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, amount: 0.5 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
@@ -35,41 +34,43 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) =
   );
 };
 
-const FeaturesSection: React.FC = () => {
-  const features = [
-    {
-      icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/a0EeWAUs0T.png",
-      title: "تعالج وانت في منزلك",
-      description: "يمكنك حجز جلسات حيث يأتي لك الطبيب في منزلك أينما توجد",
-    },
-    {
-      icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/j71hUz4G23.png",
-      title: "أكثر من 15K حالة علاجية",
-      description:
-        "عملاؤنا يشعرون بالسعادة والايجابية خلال رحلتهم العلاجية عبر هوم هيليرز",
-    },
-    {
-      icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/Mdh41mJVz1.png",
-      title: "خطط علاجية مخصصة لك",
-      description: "أكثر من 60 خدمة طبية متنوعة وأكثر من 120 دكتور علاج طبيعي.",
-    },
-  ];
+const FeaturesSection = ({ data, locale }: { data: any; locale: string }) => {
+
+  // Map the Posts array to the features structure
+  const features = data.Posts.filter((post: any) => post.id !== 12).map((post: any) => ({
+    icon: post.attachment[0]?.image || "https://via.placeholder.com/52", // Fallback image if none provided
+    title: post.title,
+    description: post.description,
+  }));
+
+    const subtitlePost = data.Posts.find((post: any) => post.id === 12);
+  const subtitle = subtitlePost?.title || "مزايا تجعل هوم هيليرز الخيار الأول في الوطن العربي";
+
+  // Split the subtitle into words
+  const words = subtitle.split(" ");
+  // Combine the second and third words (index 1 and 2) for the highlight
+  const subtitleParts = {
+    before: `${words[0]} ${words[1]} ` || "", // First word
+    highlight: words.length > 2 ? `${words[2]} ${words[3]}` : words[1] || "", // Second and third words
+    after: words.slice(4).join(" ") || "", // Remaining words
+  };
+
 
   return (
     <div className="flex flex-col items-center gap-14 mt-24 w-full mx-auto">
       {/* Section Heading */}
-      <div className="flex flex-col items-center gap-3 text-center">
-        <span className="text-[#62a0f6] text-base font-medium">لماذا هــومهيليرز ؟</span>
+     <div className="flex flex-col items-center gap-3 text-center">
+        <span className="text-[#62a0f6] text-base font-medium">{data?.title}</span>
         <h2 className="text-[28px] sm:text-[30px] font-semibold leading-[1.4] text-[#1e1e1e]">
-          <span>مزايا تجعل </span>
-          <span className="text-[#62a0f6]">هوم هيليرز</span>
-          <span> الخيار الأول في الوطن العربي</span>
+          <span>{subtitleParts.before}</span>
+          <span className="text-[#62a0f6]">{subtitleParts.highlight}</span>
+          <span>{subtitleParts.after}</span>
         </h2>
       </div>
 
       {/* Features Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-[43px] w-full bg-[linear-gradient(135deg,_#143087_0%,_#111F4C_100%)] p-[56px]">
-        {features.map((feature, index) => (
+        {features.map((feature: any, index: number) => (
           <FeatureCard
             key={index}
             icon={feature.icon}
