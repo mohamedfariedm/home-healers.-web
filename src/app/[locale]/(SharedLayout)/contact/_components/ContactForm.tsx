@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { ArrowLeft, ArrowRightIcon } from "lucide-react";
 import React, { useState } from "react";
 
 export default function ContactSection() {
@@ -108,15 +109,11 @@ export default function ContactSection() {
 
           <button
             type="submit"
-            className="w-full bg-[#143087] text-white py-3 rounded-md flex justify-center items-center gap-2 hover:bg-[#0f2d6a] transition-colors duration-300"
+            className="w-full bg-[#143087] hover:scale-105 text-white py-3 rounded-md flex justify-center items-center gap-2 hover:bg-[#0f2d6a] transition-colors duration-1000"
           >
-            <img
-              src="https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/XEW1LZHYfx.png"
-              className="w-3 h-6"
-              alt="arrow icon"
-              aria-hidden="true"
-            />
+            
             <span className="text-lg font-medium">ارسال رسالتك</span>
+            <ArrowLeft className="w-6 h-6" />
           </button>
         </form>
       </motion.div>
