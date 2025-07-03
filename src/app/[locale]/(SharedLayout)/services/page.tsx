@@ -1,6 +1,7 @@
 import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
 import { AnimatedServicesSection } from "@/components/Services";
+import { Bannar } from "../(homepage)/_components";
 
 type props = {
   params: { locale: string };
@@ -44,7 +45,12 @@ export async function generateMetadata({
 async function page({ params: { locale } }: props) {
   const { t } = await initTranslations(locale, ["aboutUs"]);
   const servicesData = await ClientAPI.getAllServices(locale);
+  const settings = await ClientAPI.getSettings(locale);
 
+
+    const homeBanners = settings.data[0].setting.banners.filter(
+  (banner: any) => banner.page === 'services'
+);
   return (
     <>
       <div className="main-container w-full  bg-[#fff] relative overflow-hidden mx-auto my-0">
@@ -80,7 +86,12 @@ async function page({ params: { locale } }: props) {
 
 <AnimatedServicesSection data={servicesData.data} locale={locale} />
 
-
+              {homeBanners.length > 0 && (
+          homeBanners.map((banner: any, index: number) => (
+            <Bannar key={index} banner={banner} />
+          ))
+        )
+        }
       </div>
     </>
   );

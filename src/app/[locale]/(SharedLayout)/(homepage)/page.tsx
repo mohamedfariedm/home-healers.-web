@@ -66,6 +66,13 @@ console.log(servicesData.data, "servicesData");
   const downloadAppSection = homeData?.data.sections.find((section: any) => section.id === 4);
   const cardSection = homeData?.data.sections.find((section: any) => section.id === 5);
 
+
+    const settings = await ClientAPI.getSettings(locale);
+    const homeBanners = settings.data[0].setting.banners.filter(
+  (banner: any) => banner.page === 'home'
+);
+  console.log(settings.data[0].setting.banners, "homeBanners");
+
   return (
     <div className="main-container w-full xl:w-[1440px] bg-[#fff] relative overflow-hidden mx-auto my-0">
       <div className="w-full xl:w-[489.058px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-05/Xam6EEVohV.png)] bg-[length:100%_100%] bg-no-repeat relative" />
@@ -75,7 +82,13 @@ console.log(servicesData.data, "servicesData");
         <AboutApp locale={locale} data={servicesData.data} aboutHomeSection={aboutHomeSection} section={aboutAppSection} />
         <BeCloser locale={locale} section={beCloserSection} />
         <DownloadApp section={downloadAppSection} locale={locale} />
-        <Bannar />
+        {homeBanners.length > 0 && (
+          homeBanners.map((banner: any, index: number) => (
+            <Bannar key={index} banner={banner} />
+          ))
+        )
+        }
+
         <OurStory data={blogData.data} locale={locale} />
         <Card locale={locale} section={cardSection} />
       </div>

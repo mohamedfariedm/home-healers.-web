@@ -3,6 +3,7 @@ import React from "react";
 import ContactSection from "./_components/ContactForm";
 import MapComponent from "./_components/MapComponent";
 import ClientAPI from "@/app/api/api";
+import { Bannar } from "../(homepage)/_components";
 
 
 export async function generateMetadata({
@@ -47,7 +48,12 @@ export async function generateMetadata({
 
 async function page({ params: { locale } }: { params: { locale: string } }) {
   const { t } = await initTranslations(locale, ["contactUs"]);
+  const settings = await ClientAPI.getSettings(locale);
 
+
+    const homeBanners = settings.data[0].setting.banners.filter(
+  (banner: any) => banner.page === 'contact'
+);
   return (
 <>
 <div className="main-container w-full bg-white relative overflow-hidden mx-auto">
@@ -81,6 +87,12 @@ async function page({ params: { locale } }: { params: { locale: string } }) {
 </div>
 <ContactSection/>
 <MapComponent/>
+              {homeBanners.length > 0 && (
+          homeBanners.map((banner: any, index: number) => (
+            <Bannar key={index} banner={banner} />
+          ))
+        )
+        }
 </div>
 </>
 

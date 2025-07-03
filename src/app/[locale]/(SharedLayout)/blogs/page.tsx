@@ -1,6 +1,7 @@
 import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
 import { BlogAnimationSection } from "@/components/Blog";
+import { Bannar } from "../(homepage)/_components";
 
 type props = {
   params: { locale: string };
@@ -59,7 +60,12 @@ export async function generateMetadata({
 async function page({ params: { locale } }: props) {
   const { t } = await initTranslations(locale, ["blog"]);
   const {data} = await ClientAPI.getAllBlogs(locale);
+  const settings = await ClientAPI.getSettings(locale);
 
+
+    const homeBanners = settings.data[0].setting.banners.filter(
+  (banner: any) => banner.page === 'blogs'
+);
 
   return (
     <>
@@ -94,6 +100,13 @@ async function page({ params: { locale } }: props) {
 </div>
 
 <BlogAnimationSection data={data} locale={locale}/>
+
+              {homeBanners.length > 0 && (
+          homeBanners.map((banner: any, index: number) => (
+            <Bannar key={index} banner={banner} />
+          ))
+        )
+        }
     </div>
     </>
   );

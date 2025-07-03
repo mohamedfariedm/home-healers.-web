@@ -1,5 +1,5 @@
 import initTranslations from "@/app/i18n";
-import { AboutAppTwoColumns } from "../(homepage)/_components";
+import { AboutAppTwoColumns, Bannar } from "../(homepage)/_components";
 import { DoctorsSection, FaqSection, FeaturesSection, HeroBanner, PartnersSection } from "@/components/AboutUs";
 import ClientAPI from "@/app/api/api";
 
@@ -53,9 +53,11 @@ async function page({ params: { locale } }: props) {
   const doctorsData = await ClientAPI.getDoctors(locale);
   const faqsData = await ClientAPI.getFAQs(locale);
   const settings = await ClientAPI.getSettings(locale);
-  const seo = settings.data[0].setting.seo["about-us"];
-console.log(aboutData, "aboutData");
 
+
+    const homeBanners = settings.data[0].setting.banners.filter(
+  (banner: any) => banner.page === 'about-us'
+);
   return (
     <>
 <div className="min-h-screen bg-white">
@@ -77,6 +79,12 @@ console.log(aboutData, "aboutData");
       </div>
 
       <FeaturesSection data={aboutData?.data?.sections?.[1]} locale={locale} />
+              {homeBanners.length > 0 && (
+          homeBanners.map((banner: any, index: number) => (
+            <Bannar key={index} banner={banner} />
+          ))
+        )
+        }
       <DoctorsSection doctorsData={doctorsData?.data} data={aboutData?.data?.sections?.[2]} locale={locale} />
       <FaqSection faqsData={faqsData?.data} data={aboutData?.data?.sections?.[3]} locale={locale}  />
       <PartnersSection data={aboutData?.data?.sections?.[4]} locale={locale} />
