@@ -174,6 +174,9 @@ const ClientAPI = {
     fetchData(`client/services/${id}`, locale),
   getSingleBlog: (id: string | number, locale: string) =>
     fetchData(`client/news/${id}`, locale),
+
+  getSettings: (locale: string) =>
+    fetchData('client/settings', locale),
 };
 
 export default ClientAPI;
