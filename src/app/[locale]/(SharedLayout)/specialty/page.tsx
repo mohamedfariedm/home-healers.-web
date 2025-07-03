@@ -1,8 +1,5 @@
-"use client";
-
 import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
-import React from "react";
 
 type PageProps = {
   params: { locale: string };
