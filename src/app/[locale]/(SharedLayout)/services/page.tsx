@@ -2,6 +2,7 @@ import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
 import { AnimatedServicesSection } from "@/components/Services";
 import { Bannar } from "../(homepage)/_components";
+export const dynamic = "force-dynamic";
 
 type props = {
   params: { locale: string };

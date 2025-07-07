@@ -11,6 +11,7 @@ import {
   Card,
 } from "./_components";
 import ClientAPI from "../../../api/api";
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params: { locale, slug },

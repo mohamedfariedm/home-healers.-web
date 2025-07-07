@@ -2,6 +2,7 @@ import initTranslations from "@/app/i18n";
 import { AboutAppTwoColumns, Bannar } from "../(homepage)/_components";
 import { DoctorsSection, FaqSection, FeaturesSection, HeroBanner, PartnersSection } from "@/components/AboutUs";
 import ClientAPI from "@/app/api/api";
+export const dynamic = "force-dynamic";
 
 type props = {
   params: { locale: string };

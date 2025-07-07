@@ -4,6 +4,7 @@ import ContactSection from "./_components/ContactForm";
 import MapComponent from "./_components/MapComponent";
 import ClientAPI from "@/app/api/api";
 import { Bannar } from "../(homepage)/_components";
+export const dynamic = "force-dynamic";
 
 
 export async function generateMetadata({

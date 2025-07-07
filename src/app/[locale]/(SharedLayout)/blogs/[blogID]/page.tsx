@@ -2,6 +2,7 @@ import initTranslations from "@/app/i18n";
 import Features from "@/components/Animations/features";
 import BlogRelatedSection from "./_components/BlogSection";
 import ClientAPI from "@/app/api/api";
+export const dynamic = "force-dynamic";
 
 async function page({
   params: { locale, blogID },
