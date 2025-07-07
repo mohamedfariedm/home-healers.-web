@@ -16,9 +16,7 @@ const fetchData = async (endpoint: string, locale: string, params?: Record<strin
       headers: {
         "Content-Type": "application/json",
         "Accept-Language": locale,
-        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-        "Pragma": "no-cache",
-        "Expires": "0"
+      cache: "no-store", // 👈 tells Next.js not to cache this request
       },
     });
 
