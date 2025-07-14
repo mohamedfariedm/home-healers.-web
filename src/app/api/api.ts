@@ -3,7 +3,6 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const fetchData = async (endpoint: string, locale: string, params?: Record<string, any>) => {
   try {
     const url = new URL(`${API_BASE_URL}/${endpoint}`);
-    url.searchParams.append("cacheBuster", Date.now().toString());
 
     if (params) {
       Object.keys(params).forEach((key) =>
@@ -69,25 +68,25 @@ const ClientAPI = {
   getClientReview: (id: string | number, locale: string) =>
     fetchData(`client/ClientReview/${id}`, locale),
 
-  createClientReview: (payload: any, locale: string) =>
-    fetchData('client/ClientReview', locale, {
-      method: 'POST',
-      body: payload,
-      requiresAuth: true,
-    }),
+  // createClientReview: (payload: any, locale: string) =>
+  //   fetchData('client/ClientReview', locale, {
+  //     method: 'POST',
+  //     body: payload,
+  //     requiresAuth: true,
+  //   }),
 
-  updateClientReview: (id: string | number, payload: any, locale: string) =>
-    fetchData(`client/ClientReview/${id}`, locale, {
-      method: 'PUT',
-      body: payload,
-      requiresAuth: true,
-    }),
+  // updateClientReview: (id: string | number, payload: any, locale: string) =>
+  //   fetchData(`client/ClientReview/${id}`, locale, {
+  //     method: 'PUT',
+  //     body: payload,
+  //     requiresAuth: true,
+  //   }),
 
-  deleteClientReview: (id: string | number, locale: string) =>
-    fetchData(`client/ClientReview/${id}`, locale, {
-      method: 'DELETE',
-      requiresAuth: true,
-    }),
+  // deleteClientReview: (id: string | number, locale: string) =>
+  //   fetchData(`client/ClientReview/${id}`, locale, {
+  //     method: 'DELETE',
+  //     requiresAuth: true,
+  //   }),
 
   // Reservations
   createReservation: (payload: any, locale: string) =>
@@ -131,18 +130,7 @@ const ClientAPI = {
   getNewsItem: (id: string | number, locale: string) =>
     fetchData(`client/news/${id}`, locale),
 
-  createNews: (payload: any, locale: string) =>
-    fetchData('client/news', locale, {
-      method: 'POST',
-      body: payload,
-      requiresAuth: true,
-    }),
 
-  deleteNews: (id: string | number, locale: string) =>
-    fetchData(`client/news/${id}`, locale, {
-      method: 'DELETE',
-      requiresAuth: true,
-    }),
 
   // FAQs
   getFAQs: (locale: string, params?: { show_in_home_page?: boolean }) =>

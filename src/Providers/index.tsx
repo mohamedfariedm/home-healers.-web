@@ -19,8 +19,8 @@ export default async function GlobalProvider({
     <>
       <ThemeProvider
         attribute="class"
-        defaultTheme="dark"
-        forcedTheme="dark"
+        defaultTheme="light"
+        forcedTheme="light" 
         enableSystem
         disableTransitionOnChange
       >

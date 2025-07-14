@@ -1,0 +1,251 @@
+"use client";
+import { useState } from "react";
+import { MapPin, Calendar, Clock, Plus } from "lucide-react";
+import type { BookingData, Location } from "@/types/booking";
+
+interface Step3Props {
+  bookingData: BookingData;
+  updateBookingData: (updates: Partial<BookingData>) => void;
+  savedLocations: Location[];
+  onNext: () => void;
+  onPrev: () => void;
+  onOpenLocationPicker: () => void;
+}
+
+export default function Step3LocationTime({
+  bookingData,
+  updateBookingData,
+  savedLocations,
+  onNext,
+  onPrev,
+  onOpenLocationPicker,
+}: Step3Props) {
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
+
+  const timeSlots = [
+    { time: "09:00", period: "morning", label: "9:00 صباحاً" },
+    { time: "10:00", period: "morning", label: "10:00 صباحاً" },
+    { time: "11:00", period: "morning", label: "11:00 صباحاً" },
+    { time: "14:00", period: "afternoon", label: "2:00 مساءً" },
+    { time: "15:00", period: "afternoon", label: "3:00 مساءً" },
+    { time: "16:00", period: "afternoon", label: "4:00 مساءً" },
+    { time: "19:00", period: "evening", label: "7:00 مساءً" },
+    { time: "20:00", period: "evening", label: "8:00 مساءً" },
+  ];
+
+  const handleLocationSelect = (location: Location) => {
+    updateBookingData({ selectedLocation: location });
+  };
+
+  const handleAddDateTime = () => {
+    if (selectedDate && selectedTime) {
+      const timeSlot = timeSlots.find((slot) => slot.time === selectedTime);
+      if (timeSlot) {
+        const newDate = {
+          date: selectedDate,
+          time: selectedTime,
+          start_time: `${selectedDate} ${selectedTime}:00`,
+          end_time: `${selectedDate} ${selectedTime.split(":")[0]}:${
+            Number.parseInt(selectedTime.split(":")[1]) + 60
+          }:00`,
+          time_period: timeSlot.period as "morning" | "afternoon" | "evening",
+        };
+
+        updateBookingData({
+          selectedDates: [...bookingData.selectedDates, newDate],
+        });
+
+        setSelectedDate("");
+        setSelectedTime("");
+      }
+    }
+  };
+
+  const handleRemoveDateTime = (index: number) => {
+    const newDates = bookingData.selectedDates.filter((_, i) => i !== index);
+    updateBookingData({ selectedDates: newDates });
+  };
+
+  const handleSessionsCountChange = (count: number) => {
+    updateBookingData({ sessionsCount: count });
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Location Selection */}
+      <div className="bg-white rounded-2xl shadow-md p-6">
+        <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+          <MapPin className="w-6 h-6 text-[#62a0f6]" />
+          اختيار موقع الزيارة
+        </h2>
+
+        {/* Current Selected Location */}
+        {bookingData.selectedLocation && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <h3 className="font-semibold text-green-800 mb-1">
+              الموقع المختار:
+            </h3>
+            <p className="text-green-700">
+              {bookingData.selectedLocation.title}
+            </p>
+            <p className="text-sm text-green-600">
+              {bookingData.selectedLocation.address}
+            </p>
+          </div>
+        )}
+
+        {/* Saved Locations */}
+        <div className="mb-6">
+          <h3 className="font-semibold mb-4">المواقع المحفوظة</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {savedLocations.map((location) => (
+              <button
+                key={location.id}
+                onClick={() => handleLocationSelect(location)}
+                className={`p-4 rounded-lg border-2 text-right transition-all ${
+                  bookingData.selectedLocation?.id === location.id
+                    ? "border-[#62a0f6] bg-[#eff6fe]"
+                    : "border-gray-200 hover:border-[#62a0f6]"
+                }`}
+              >
+                <h4 className="font-semibold mb-1">{location.title}</h4>
+                <p className="text-sm text-gray-600">{location.address}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Add New Location */}
+        <button
+          onClick={onOpenLocationPicker}
+          className="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-[#62a0f6] transition-colors flex items-center justify-center gap-2"
+        >
+          <Plus className="w-5 h-5" />
+          إضافة موقع جديد
+        </button>
+      </div>
+
+      {/* Date and Time Selection */}
+      <div className="bg-white rounded-2xl shadow-md p-6">
+        <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+          <Calendar className="w-6 h-6 text-[#62a0f6]" />
+          اختيار المواعيد
+        </h2>
+
+        {/* Sessions Count */}
+        <div className="mb-6">
+          <label className="block font-semibold mb-3">عدد الجلسات</label>
+          <div className="flex gap-3">
+            {[1, 2, 3, 4, 5].map((count) => (
+              <button
+                key={count}
+                onClick={() => handleSessionsCountChange(count)}
+                className={`w-12 h-12 rounded-lg border-2 font-semibold transition-all ${
+                  bookingData.sessionsCount === count
+                    ? "border-[#62a0f6] bg-[#eff6fe] text-[#62a0f6]"
+                    : "border-gray-300 hover:border-[#62a0f6]"
+                }`}
+              >
+                {count}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Date Selection */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label className="block font-semibold mb-3">اختر التاريخ</label>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              min={new Date().toISOString().split("T")[0]}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#62a0f6]"
+            />
+          </div>
+
+          <div>
+            <label className="block font-semibold mb-3">اختر الوقت</label>
+            <select
+              value={selectedTime}
+              onChange={(e) => setSelectedTime(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#62a0f6]"
+            >
+              <option value="">اختر الوقت</option>
+              {timeSlots.map((slot) => (
+                <option key={slot.time} value={slot.time}>
+                  {slot.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Add Date/Time Button */}
+        <button
+          onClick={handleAddDateTime}
+          disabled={!selectedDate || !selectedTime}
+          className="w-full p-3 bg-[#62a0f6] text-white rounded-lg hover:bg-[#5090e6] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+        >
+          <Plus className="w-5 h-5" />
+          إضافة موعد
+        </button>
+
+        {/* Selected Dates */}
+        {bookingData.selectedDates.length > 0 && (
+          <div className="mt-6">
+            <h3 className="font-semibold mb-4">المواعيد المختارة</h3>
+            <div className="space-y-3">
+              {bookingData.selectedDates.map((dateTime, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                >
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-gray-600" />
+                    <span>{dateTime.date}</span>
+                    <Clock className="w-4 h-4 text-gray-600 mr-4" />
+                    <span>
+                      {
+                        timeSlots.find((slot) => slot.time === dateTime.time)
+                          ?.label
+                      }
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => handleRemoveDateTime(index)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    حذف
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Navigation */}
+      <div className="flex justify-between">
+        <button
+          onClick={onPrev}
+          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+        >
+          السابق
+        </button>
+        <button
+          onClick={onNext}
+          disabled={
+            !bookingData.selectedLocation ||
+            bookingData.selectedDates.length === 0
+          }
+          className="px-6 py-3 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] disabled:bg-gray-300 disabled:cursor-not-allowed"
+        >
+          التالي
+        </button>
+      </div>
+    </div>
+  );
+}
