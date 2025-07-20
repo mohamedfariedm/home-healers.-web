@@ -90,8 +90,7 @@ export default function Step2DoctorSelection({
     updateBookingData({
       searchFilters: {
         ...bookingData.searchFilters,
-        //@ts-ignore
-        search: query,
+
       },
     })
   }
@@ -107,6 +106,8 @@ export default function Step2DoctorSelection({
   }
 
   const handleDoctorSelect = (doctor: Doctor) => {
+    console.log("Selected doctor:", doctor);
+    
     updateBookingData({ selectedDoctor: doctor })
     toast.success(`تم اختيار الطبيب: ${doctor.name}`)
     onNext()
