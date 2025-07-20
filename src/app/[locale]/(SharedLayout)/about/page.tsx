@@ -55,6 +55,7 @@ async function page({ params: { locale } }: props) {
   const faqsData = await ClientAPI.getFAQs(locale);
   const settings = await ClientAPI.getSettings(locale);
 
+  const seo = settings.data[0].setting.seo["about-us"];
 
     const homeBanners = settings.data[0].setting.banners.filter(
   (banner: any) => banner.page === 'about-us'
@@ -62,6 +63,8 @@ async function page({ params: { locale } }: props) {
   return (
     <>
 <div className="min-h-screen bg-white">
+              <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">{seo.title}</h1>
+
       <HeroBanner 
         title={"عن هوم هيليرز"}
         breadcrumbItems={[

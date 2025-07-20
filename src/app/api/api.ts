@@ -175,7 +175,7 @@ payReservationWithTelr: (reservationId: number, locale: string) =>
     fetchData(`client/services/${id}`, locale),
 
   getSingleBlog: (id: string | number, locale: string) =>
-    fetchData(`client/news/${id}`, locale),
+    fetchData(`client/news-slug/${id}`, locale),
 
   getSettings: (locale: string) =>
     fetchData('client/settings', locale),

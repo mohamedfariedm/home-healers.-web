@@ -63,6 +63,7 @@ async function page({ params: { locale } }: props) {
   const {data} = await ClientAPI.getAllBlogs(locale);
   const settings = await ClientAPI.getSettings(locale);
 
+  const seo = settings.data[0].setting.seo["blogs"];
 
     const homeBanners = settings.data[0].setting.banners.filter(
   (banner: any) => banner.page === 'blogs'
@@ -70,6 +71,8 @@ async function page({ params: { locale } }: props) {
 
   return (
     <>
+                  <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">{seo.title}</h1>
+
     <div className="main-container w-full  bg-[#fff] relative  mx-auto my-0">
      <div className="w-full h-[250px] relative bg-no-repeat bg-cover bg-center" style={{ backgroundImage: 'url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/DFhQezQ5hS.png)' }}>
   <div className="absolute inset-0 w-full h-full bg-no-repeat bg-cover" style={{ backgroundImage: 'url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/0owx2TM42T.png)' }}>

@@ -1,6 +1,4 @@
 import initTranslations from "@/app/i18n";
-import { Container } from "@/components/Layout";
-import { Separator } from "@/components/ui/separator";
 import {
   AboutApp,
   Hero,
@@ -58,7 +56,6 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
   const blogData = await ClientAPI.getAllBlogs(locale);
   const servicesData = await ClientAPI.getAllServices(locale);
 console.log(servicesData.data, "servicesData");
-
   // Find sections by ID
   const heroSection = homeData?.data.sections.find((section: any) => section.id === 12);
   const aboutAppSection = homeData?.data.sections.find((section: any) => section.id === 1);
@@ -72,12 +69,14 @@ console.log(servicesData.data, "servicesData");
     const homeBanners = settings.data[0].setting.banners.filter(
   (banner: any) => banner.page === 'home'
 );
-  console.log(settings.data[0].setting.banners, "homeBanners");
+const seo = settings.data[0].setting.seo["home"];
+
 
   return (
     <div className="main-container w-full xl:w-[1440px] bg-[#fff] relative overflow-hidden mx-auto my-0">
       <div className="w-full xl:w-[489.058px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-05/Xam6EEVohV.png)] bg-[length:100%_100%] bg-no-repeat relative" />
       <div>
+        <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">{seo.title}</h1>
         <div className="w-full xl:w-[1440px] h-[1px] bg-[#fff] relative shadow-[0_1px_2px_0_rgba(16,24,40,0.06)] mt-0 mr-0 mb-0 ml-0" />
         <Hero locale={locale} section={heroSection} />
         <AboutApp locale={locale} data={servicesData.data} aboutHomeSection={aboutHomeSection} section={aboutAppSection} />

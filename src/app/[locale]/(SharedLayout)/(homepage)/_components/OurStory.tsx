@@ -9,6 +9,7 @@ import parse from "html-react-parser"; // Import html-react-parser
 function OurStory({ locale, data }: { locale: string; data: any }) {
   // Refs for different sections
   console.log("Data in OurStory:", data);
+console.log(data);
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -168,7 +169,7 @@ function OurStory({ locale, data }: { locale: string; data: any }) {
         {/* Left Column */}
         <motion.div className="flex flex-col gap-8 flex-1" variants={leftColumnVariants}>
           {data.slice(0, 2).map((article: any, i: number) => (
-            <Link href={`/${locale}/blogs/${article.id}`} key={article.id}>
+            <Link href={`/${locale}/blogs/${article.slug}`} key={article.id}>
               <motion.div
                 className="relative bg-[#eff6fe] rounded-[24px] p-5 cursor-pointer"
                 variants={articleCardVariants}
