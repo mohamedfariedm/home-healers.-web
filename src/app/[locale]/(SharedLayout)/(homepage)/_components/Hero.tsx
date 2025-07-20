@@ -16,12 +16,15 @@ function Hero({ locale, section }: { locale: string; section: any }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   // Use attachment images or fallback to default
-  const heroImages = section?.Posts?.[0]?.attachment?.map((att: any) => att.original) || [
-    "/assets/images/homehellers/hero.svg",
-  ];
+  const heroImages = section?.Posts?.[0]?.attachment?.map(
+    (att: any) => att.original
+  ) || ["/assets/images/homehellers/hero.svg"];
 
   return (
-    <div ref={ref} className="w-full xl:max-w-[1280px] relative mx-auto pb-8 px-4 lg:px-0">
+    <div
+      ref={ref}
+      className="w-full xl:max-w-[1280px] relative mx-auto pb-8 px-4 lg:px-0"
+    >
       {/* Dots (custom pagination) */}
       <motion.div
         className="hidden xl:flex gap-3 items-center absolute bottom-0 left-[355px] z-[1000]"
@@ -29,7 +32,7 @@ function Hero({ locale, section }: { locale: string; section: any }) {
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
         transition={{ delay: 0.5 }}
       >
-        {heroImages.map((_:any, i: number) => (
+        {heroImages.map((_: any, i: number) => (
           <div
             key={i}
             className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
@@ -60,7 +63,8 @@ function Hero({ locale, section }: { locale: string; section: any }) {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ delay: 0.3 }}
           >
-            {section?.Posts?.[0]?.title || "Physical Therapy and Rehabilitation Services"}
+            {section?.Posts?.[0]?.title ||
+              "Physical Therapy and Rehabilitation Services"}
           </motion.div>
 
           <motion.div
@@ -82,7 +86,7 @@ function Hero({ locale, section }: { locale: string; section: any }) {
             <div className="w-[200px] h-[56px] bg-[url(/assets/images/homehellers/rating.svg)] bg-cover bg-no-repeat" />
             <div className="flex flex-col gap-1">
               <span className="text-sm sm:text-base font-semibold text-[#1e1e1e] whitespace-nowrap">
-               {locale === "ar" ? "تقيم المرضي" : "Patient Rating"}
+                {locale === "ar" ? "تقيم المرضي" : "Patient Rating"}
               </span>
               <motion.div
                 className="flex gap-1 items-center"
@@ -94,7 +98,13 @@ function Hero({ locale, section }: { locale: string; section: any }) {
                   <motion.div
                     key={i}
                     animate={{ scale: [1, 1.25, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, repeatType: "loop", delay: i * 0.2, ease: "easeInOut" }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      repeatType: "loop",
+                      delay: i * 0.2,
+                      ease: "easeInOut",
+                    }}
                   >
                     <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
                   </motion.div>
@@ -103,14 +113,15 @@ function Hero({ locale, section }: { locale: string; section: any }) {
             </div>
           </motion.div>
 
-          <Link href={`/${locale}/specialty/subspecialty`}>
+          <Link href={`/${locale}/booking`}>
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="flex items-center gap-3 px-5 py-3 bg-[#143087] rounded-md w-fit hover:bg-[#0f245f] transition z-10 relative"
             >
               <span className="text-white text-base sm:text-lg font-medium">
-{locale === "ar" ? "احجز جلستك الان" :" Book Your Session Now"}              </span>
+                {locale === "ar" ? "احجز جلستك الان" : " Book Your Session Now"}{" "}
+              </span>
               <ArrowLeft className="w-6 h-6 text-white" />
             </motion.div>
           </Link>
@@ -132,8 +143,16 @@ function Hero({ locale, section }: { locale: string; section: any }) {
                     className="w-[727px] h-full bg-cover bg-center bg-no-repeat"
                     style={{ backgroundImage: `url(${src})` }}
                     initial={{ opacity: 1, y: -30 }}
-                    animate={isInView ? { opacity: 1, y: [0, 10, 0] } : { opacity: 1, y: -30 }}
-                    transition={{ duration: 4, ease: "easeInOut", repeat: Infinity }}
+                    animate={
+                      isInView
+                        ? { opacity: 1, y: [0, 10, 0] }
+                        : { opacity: 1, y: -30 }
+                    }
+                    transition={{
+                      duration: 4,
+                      ease: "easeInOut",
+                      repeat: Infinity,
+                    }}
                   />
                 </div>
               </SwiperSlide>

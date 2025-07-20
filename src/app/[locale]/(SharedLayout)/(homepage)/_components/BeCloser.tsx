@@ -13,12 +13,23 @@ function BeCloser({ locale, section }: { locale: string; section: any }) {
       <motion.div
         className="absolute w-[90%] bg-[url('/assets/images/homehellers/firstlayer.svg')] bg-cover bg-no-repeat xl:max-w-[585.48px] h-[586px] top-1/2 left-4 lg:left-[55px] transform -translate-y-1/2 hidden md:flex opacity-30 xl:opacity-100 xl:z-[37]"
         animate={{ scaleZ: [1, 1.1, 1] }}
-        transition={{ duration: 1, repeat: Infinity, repeatType: "loop", ease: "easeInOut" }}
+        transition={{
+          duration: 1,
+          repeat: Infinity,
+          repeatType: "loop",
+          ease: "easeInOut",
+        }}
       />
       <motion.div
         className="absolute w-[90%] bg-[url('/assets/images/homehellers/secondlayer.svg')] bg-cover bg-no-repeat xl:max-w-[585.48px] h-[586px] top-1/2 left-4 lg:left-[55px] transform -translate-y-1/2 hidden md:flex opacity-30 xl:opacity-100 xl:z-[37]"
         animate={{ scaleZ: [1, 1.1, 1], opacity: [0.3, 1, 0.3] }}
-        transition={{ duration: 2, repeat: Infinity, delay: 0.5, repeatType: "loop", ease: "easeInOut" }}
+        transition={{
+          duration: 2,
+          repeat: Infinity,
+          delay: 0.5,
+          repeatType: "loop",
+          ease: "easeInOut",
+        }}
       />
 
       {/* Text Content */}
@@ -56,7 +67,9 @@ function BeCloser({ locale, section }: { locale: string; section: any }) {
               <div
                 className="absolute top-0 end-0 w-[141px] h-full bg-cover bg-no-repeat rounded-[24px] z-20"
                 style={{
-                  backgroundImage: `url(${post.attachment?.[0]?.thumbnail || "/default-image.svg"})`,
+                  backgroundImage: `url(${
+                    post.attachment?.[0]?.thumbnail || "/default-image.svg"
+                  })`,
                 }}
               />
               <div className="absolute left-[-6%] top-1/2 transform -translate-y-1/2 w-[76.78%] h-[154px] flex flex-col gap-5 items-end z-30">
@@ -77,7 +90,7 @@ function BeCloser({ locale, section }: { locale: string; section: any }) {
                   className="flex items-center gap-2 bg-[#143087] text-white text-sm font-medium px-4 py-2 rounded-md"
                 >
                   <Link
-                    href={`/${locale}/specialty/subspecialty`}
+                    href={`/${locale}/booking`}
                     className="flex items-center gap-2 text-white"
                   >
                     <ArrowLeft className="w-6 h-6" />

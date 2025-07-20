@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import {
   CheckCircle,
   Calendar,
@@ -11,14 +12,16 @@ import {
 import type { BookingData } from "@/types/booking";
 import { Document, Page, Text, View, StyleSheet, Font, pdf } from "@react-pdf/renderer";
 import { toast } from "sonner";
+import { useLocalStorage } from "@/Hooks/use-local-storage";
+import { useRouter, useSearchParams } from "next/navigation";
 
 // Register Amiri font
 Font.register({
   family: "Amiri",
-  src: "https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHqUp.ttf", // Amiri font URL
+  src: "https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHqUp.ttf",
 });
 
-// Styles for the PDF
+// PDF Styles (same as Step6Confirmation)
 const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
@@ -59,7 +62,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     border: "1pt solid #e5e7eb",
     boxShadow: "0 2pt 4pt rgba(0,0,0,0.1)",
-        textAlign: "right",
+    textAlign: "right",
     direction: "rtl",
   },
   row: {
@@ -67,7 +70,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 8,
     paddingHorizontal: 10,
-        textAlign: "right",
+    textAlign: "right",
     direction: "rtl",
   },
   label: {
@@ -82,15 +85,15 @@ const styles = StyleSheet.create({
     fontWeight: "medium",
     color: "#111827",
     width: "60%",
-        textAlign: "right",
+    textAlign: "right",
     direction: "rtl",
   },
   divider: {
     borderBottom: "1pt solid #e5e7eb",
     marginVertical: 10,
-        flexDirection: "row",
+    flexDirection: "row",
     justifyContent: "space-between",
-            textAlign: "right",
+    textAlign: "right",
     direction: "rtl",
   },
   footer: {
@@ -106,16 +109,10 @@ const styles = StyleSheet.create({
   },
 });
 
-interface Step6Props {
-  bookingData: BookingData;
-  reservationId?: number | null;
-}
-
-// PDF Document Component
-const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => (
+// PDF Document Component (same as Step6Confirmation)
+const ReceiptDocument = ({ bookingData, reservationId }: { bookingData: BookingData; reservationId: number | null }) => (
   <Document>
-    <Page size="A4"  style={styles.page}>
-      {/* Header */}
+    <Page size="A4" style={styles.page}>
       <Text style={styles.header}>إيصال الحجز - هوم هيلرز</Text>
       <View style={styles.section}>
         <View style={styles.row}>
@@ -128,7 +125,6 @@ const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => (
         </View>
       </View>
 
-      {/* Patient Info */}
       <Text style={styles.subHeader}>تفاصيل الحجز</Text>
       <View style={styles.section}>
         <View style={styles.row}>
@@ -157,7 +153,6 @@ const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => (
         )}
       </View>
 
-      {/* Location & Schedule */}
       <Text style={styles.subHeader}>الموقع والمواعيد</Text>
       <View style={styles.section}>
         <View style={styles.row}>
@@ -176,7 +171,6 @@ const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => (
         ))}
       </View>
 
-      {/* Payment Summary */}
       <Text style={styles.subHeader}>ملخص الدفع</Text>
       <View style={styles.section}>
         <View style={styles.row}>
@@ -216,7 +210,6 @@ const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => (
         </View>
       </View>
 
-      {/* Footer */}
       <Text style={styles.footer}>
         فريق هوم هيلرز - support@homehealers.com | للتواصل: +966 50 000 0000
       </Text>
@@ -224,7 +217,30 @@ const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => (
   </Document>
 );
 
-export default function Step6Confirmation({ bookingData, reservationId }: Step6Props) {
+export default function PaymentSuccess() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [bookingData, setBookingData] = useLocalStorage<BookingData>("bookingData", {} as BookingData);
+  const [reservationId, setReservationId] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Retrieve reservationId from query parameters or localStorage
+    const resId = searchParams.get("reservationId");
+    if (resId) {
+      setReservationId(Number(resId));
+    } else if (localStorage.getItem("reservationId")) {
+      setReservationId(Number(localStorage.getItem("reservationId")));
+    }
+
+    // Check if bookingData is available
+    if (!bookingData || !Object.keys(bookingData).length) {
+      toast.error("لم يتم العثور على بيانات الحجز. يرجى المحاولة مرة أخرى.");
+      router.push("/");
+    }
+    setIsLoading(false);
+  }, [bookingData, router, searchParams]);
+
   const handleDownloadReceipt = async () => {
     try {
       const blob = await pdf(<ReceiptDocument bookingData={bookingData} reservationId={reservationId} />).toBlob();
@@ -242,22 +258,30 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
 
   const handleGoHome = () => {
     localStorage.removeItem("bookingData");
-    window.location.href = "/";
+    localStorage.removeItem("reservationId");
+    router.push("/");
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#143087]"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 py-12" dir="rtl">
       {/* Success Header */}
       <div className="text-center py-12">
         <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle className="w-12 h-12 text-green-600" />
         </div>
         <h1 className="text-3xl font-bold text-green-800 mb-4">
-          تم تأكيد حجزك بنجاح!
+          تم تأكيد الدفع بنجاح!
         </h1>
         <p className="text-lg text-gray-600 mb-6">
-          شكراً لك لاستخدام منصة هوم هيلرز. سيتم التواصل معك قريباً لتأكيد موعد
-          الزيارة.
+          شكراً لك لاستخدام منصة هوم هيلرز. سيتم التواصل معك قريباً لتأكيد موعد الزيارة.
         </p>
         <div className="inline-flex items-center gap-2 px-6 py-3 bg-green-50 border border-green-200 rounded-lg">
           <span className="text-green-800 font-medium">رقم الحجز:</span>
@@ -388,11 +412,7 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-green-800 text-sm">
               ✅ تم الدفع بنجاح عبر{" "}
-              {bookingData.paymentMethod === "cash_on_delivery"
-                ? "الدفع عند الاستلام"
-                : bookingData.paymentMethod === "telr"
-                ? "Telr Payment"
-                : "Apple Pay"}
+              {bookingData.paymentMethod === "telr" ? "Telr Payment" : "Apple Pay"}
             </p>
           </div>
         </div>

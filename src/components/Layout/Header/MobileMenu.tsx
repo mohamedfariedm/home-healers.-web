@@ -49,7 +49,11 @@ function MobileMenu({ locale }: { locale: string }) {
             </div> */}
             {/* Desktop Buttons */}
             <div className="hidden xl:flex w-[258px] gap-[12px] items-center shrink-0 flex-wrap relative z-[8]">
-              <Link className="hover:scale-105 transition-all duration-300" href="/specialty" onClick={handleLinkClick}>
+              <Link
+                className="hover:scale-105 transition-all duration-300"
+                href="/booking"
+                onClick={handleLinkClick}
+              >
                 <div className="flex w-[126px] h-[40px] px-[8px] py-[9px] gap-[10px] justify-center items-center bg-[#62a0f6] rounded-[8px] z-[13]">
                   <span className="text-white text-[14px] font-medium leading-[20px]">
                     احجز استشارة
@@ -57,12 +61,16 @@ function MobileMenu({ locale }: { locale: string }) {
                   <ArrowLeft className="w-[16px] h-[16px] text-white" />
                 </div>
               </Link>
-              <Link className="hover:scale-105 transition-all duration-300"  href="/specialty/subspecialty" onClick={handleLinkClick}>
+              <Link
+                className="hover:scale-105 transition-all duration-300"
+                href="/booking"
+                onClick={handleLinkClick}
+              >
                 <div className="flex w-[120px] h-[40px] px-[8px] py-[9px] gap-[10px] justify-center items-center bg-[#143087] rounded-[8px] z-[9]">
                   <span className="text-white text-[14px] font-medium leading-[20px]">
                     احجز جلستك
                   </span>
-                    <ArrowLeft className="w-[16px] h-[16px] text-white" />
+                  <ArrowLeft className="w-[16px] h-[16px] text-white" />
                 </div>
               </Link>
             </div>
@@ -100,22 +108,30 @@ function MobileMenu({ locale }: { locale: string }) {
               />
               {/* Mobile Buttons */}
               <div className="flex flex-col w-full gap-[12px] items-center shrink-0 flex-wrap relative z-[8] mt-4">
-              <Link className="hover:scale-105 transition-all duration-300 w-full" href="/specialty" onClick={handleLinkClick}>
-                <div className="flex w-full h-[40px] px-[8px] py-[9px] gap-[80px] justify-center items-center bg-[#62a0f6] rounded-[8px] z-[13]">
-                  <span className="text-white text-[14px] font-medium leading-[20px]">
-                    احجز استشارة
-                  </span>
-                  <ArrowLeft className="w-[16px] h-[16px] text-white" />
-                </div>
-              </Link>
-              <Link className="hover:scale-105 transition-all duration-300 w-full"  href="/specialty/subspecialty" onClick={handleLinkClick}>
-                <div className="flex w-full h-[40px] px-[8px] py-[9px] gap-[80px] justify-center items-center bg-[#143087] rounded-[8px] z-[9]">
-                  <span className="text-white text-[14px] font-medium leading-[20px]">
-                    احجز جلستك
-                  </span>
+                <Link
+                  className="hover:scale-105 transition-all duration-300 w-full"
+                  href="/booking"
+                  onClick={handleLinkClick}
+                >
+                  <div className="flex w-full h-[40px] px-[8px] py-[9px] gap-[80px] justify-center items-center bg-[#62a0f6] rounded-[8px] z-[13]">
+                    <span className="text-white text-[14px] font-medium leading-[20px]">
+                      احجز استشارة
+                    </span>
                     <ArrowLeft className="w-[16px] h-[16px] text-white" />
-                </div>
-              </Link>
+                  </div>
+                </Link>
+                <Link
+                  className="hover:scale-105 transition-all duration-300 w-full"
+                  href="/booking"
+                  onClick={handleLinkClick}
+                >
+                  <div className="flex w-full h-[40px] px-[8px] py-[9px] gap-[80px] justify-center items-center bg-[#143087] rounded-[8px] z-[9]">
+                    <span className="text-white text-[14px] font-medium leading-[20px]">
+                      احجز جلستك
+                    </span>
+                    <ArrowLeft className="w-[16px] h-[16px] text-white" />
+                  </div>
+                </Link>
               </div>
               {/* <LanguageChanger /> */}
             </div>

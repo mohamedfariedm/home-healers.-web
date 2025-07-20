@@ -20,9 +20,63 @@ export interface Doctor {
   clinic_name: string
   medical_school: string
   certification: string
+  session_price: number
   medical_registration_number: string
   from: string
   to: string
+  rate: number | null // Added from data
+  national_id: string // Added from data
+  country_code: string // Added from data
+  date_of_birth: string // Added from data
+  blood_group: string // Added from data
+  status: boolean // Added from data
+  languages_spoken: string // Added from data
+  classification: string // Added from data
+  medical_license_expiry: string // Added from data
+  memberships: string // Added from data
+  awards: string // Added from data
+  upload_attachments: string // Added from data
+  specialized_in: string // Added from data
+  offers: Array<{
+    id: number
+    name: {
+      en: string
+      ar: string
+    }
+    description: {
+      en: string
+      ar: string
+    }
+    price: string
+    discount: string
+    sessions_count: number
+    type: string
+    doctors: Array<{
+      id: number
+      name: string
+    }>
+  }> // Added from data
+  service: {
+    id: number
+    name: {
+      en: string
+      ar: string
+    }
+    description: {
+      en: string
+      ar: string
+    }
+    image: Array<{
+      thumbnail: string
+      original: string
+      id: number
+    }>
+  } | null // Added from data
+  addresses: Array<{
+    city?: string
+    district?: string
+    address?: string
+  }> // Added from data
 }
 
 export interface Category {
@@ -31,11 +85,17 @@ export interface Category {
     en: string
     ar: string
   }
+  image: any
   services: Service[]
 }
 
 export interface Service {
   id: number
+  image: Array<{
+    thumbnail: string
+    original: string
+    id: number
+  }>
   name: {
     en: string
     ar: string
@@ -66,38 +126,38 @@ export interface Package {
   price: string
   discount: string
   type: string
+  sessions_count?: number // Added to align with offers
 }
 
 export interface Location {
-  id?: number
+  id: number
+  country: string
   title: string
   address: string
   latitude?: number
   longitude?: number
-  city?: string
+  city: string
   district?: string
 }
 
 export interface Patient {
-  id?: number
+  id: number
   name: string
-  relationship: string
+  birthDate: string
+  relationship: string |undefined
   nationality: string
   idNumber: string
   phone: string
   email: string
   gender: "male" | "female"
-  birthDate: string
   bloodType: string
 }
 
 export interface BookingData {
-  // Step 1: Specialty Selection
   selectedCategory: Category | null
+    selectedPatients: Patient[];
   selectedService: Service | null
   selectedSymptoms: string[]
-
-  // Step 2: Doctor Selection
   selectedDoctor: Doctor | null
   selectedPackage: Package | null
   searchFilters: {
@@ -108,8 +168,6 @@ export interface BookingData {
     rating: number
     priceRange: [number, number]
   }
-
-  // Step 3: Location & Time
   selectedLocation: Location | null
   selectedDates: Array<{
     date: string
@@ -119,9 +177,6 @@ export interface BookingData {
     time_period: "morning" | "afternoon" | "evening"
   }>
   sessionsCount: number
-
-  // Step 4: Patient Information
-  selectedPatient: Patient | null
   patients: Patient[]
   healthInfo: {
     painLocation: string
@@ -132,8 +187,6 @@ export interface BookingData {
     notes: string
     attachments: File[]
   }
-
-  // Step 5: Payment
   paymentMethod: string
   couponCode: string
   pricing: {
@@ -143,10 +196,8 @@ export interface BookingData {
     discount: number
     total: number
   }
-
-  // Additional fields
-  clientId: number
-  addressId: number
+  clientId?: number
+  addressId?: number
 }
 
 export interface ReservationRequest {

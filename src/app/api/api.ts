@@ -1,27 +1,46 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-const fetchData = async (endpoint: string, locale: string, params?: Record<string, any>) => {
+const fetchData = async (endpoint: string, locale: string, params: Record<string, any> = {}) => {
   try {
     const url = new URL(`${API_BASE_URL}/${endpoint}`);
 
-    if (params) {
-      Object.keys(params).forEach((key) =>
-        url.searchParams.append(key, params[key])
+    // Append query parameters for GET requests
+    if (params.params) {
+      Object.keys(params.params).forEach((key) =>
+        url.searchParams.append(key, params.params[key])
       );
     }
 
-    const response = await fetch(url.toString(), {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept-Language": locale,
-      cache: "no-store", // 👈 tells Next.js not to cache this request
-      },
-    });
+    const headers: HeadersInit = {
+      "Accept-Language": locale,
+    };
+
+    // Only set Content-Type for JSON payloads
+    if (!params.isFormData) {
+      headers["Content-Type"] = "application/json";
+    }
+
+    // Add authorization header if required (optional, as requiresAuth is removed)
+    if (params.requiresAuth) {
+      headers["Content-Type"] = "application/json";
+      headers["Accept"] = "application/json";
+    }
+
+    const fetchOptions: RequestInit = {
+      method: params.method || "GET",
+      headers,
+      cache: "no-store",
+    };
+
+    // Add body for POST requests
+    if (params.method === "POST" || params.method === "PUT") {
+      fetchOptions.body = params.isFormData ? params.body : JSON.stringify(params.body);
+    }
+
+    const response = await fetch(url.toString(), fetchOptions);
 
     if (!response.ok) {
       console.log("API Fetch Error:", response);
-      
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
@@ -68,39 +87,38 @@ const ClientAPI = {
   getClientReview: (id: string | number, locale: string) =>
     fetchData(`client/ClientReview/${id}`, locale),
 
-  // createClientReview: (payload: any, locale: string) =>
-  //   fetchData('client/ClientReview', locale, {
-  //     method: 'POST',
-  //     body: payload,
-  //     requiresAuth: true,
-  //   }),
-
-  // updateClientReview: (id: string | number, payload: any, locale: string) =>
-  //   fetchData(`client/ClientReview/${id}`, locale, {
-  //     method: 'PUT',
-  //     body: payload,
-  //     requiresAuth: true,
-  //   }),
-
-  // deleteClientReview: (id: string | number, locale: string) =>
-  //   fetchData(`client/ClientReview/${id}`, locale, {
-  //     method: 'DELETE',
-  //     requiresAuth: true,
-  //   }),
-
   // Reservations
   createReservation: (payload: any, locale: string) =>
     fetchData('client/reservations', locale, {
       method: 'POST',
       body: payload,
+      requiresAuth: true,
     }),
 
-  createReservationWithPackage: (payload: any, locale: string) =>
-    fetchData('client/booking-with-packages', locale, {
+  createReservationWithPackage: (payload: any, locale: string) => {
+    console.log("createReservationWithPackage", payload);
+    return fetchData('client/booking-with-packages', locale, {
       method: 'POST',
       body: payload,
       requiresAuth: true,
-    }),
+    });
+  },
+
+  // Payment - Apple Pay or default payment
+payReservation: (reservationId: number, locale: string) =>
+  fetchData('payment/pay', locale, {
+    method: 'POST',
+    body: { reservation_id: reservationId,method:"web" },
+    requiresAuth: true,
+  }),
+
+// Payment - Telr Payment
+payReservationWithTelr: (reservationId: number, locale: string) =>
+  fetchData('payment/telr/pay', locale, {
+    method: 'POST',
+    body: { reservation_id: reservationId,method:"web" },
+    requiresAuth: true,
+  }),
 
   // Attachments
   getAttachments: (locale: string) =>
@@ -114,13 +132,11 @@ const ClientAPI = {
       method: 'POST',
       body: formData,
       isFormData: true,
-      requiresAuth: true,
     }),
 
   deleteAttachment: (id: string | number, locale: string) =>
     fetchData(`attachments/${id}`, locale, {
       method: 'DELETE',
-      requiresAuth: true,
     }),
 
   // News
@@ -129,8 +145,6 @@ const ClientAPI = {
 
   getNewsItem: (id: string | number, locale: string) =>
     fetchData(`client/news/${id}`, locale),
-
-
 
   // FAQs
   getFAQs: (locale: string, params?: { show_in_home_page?: boolean }) =>
@@ -153,11 +167,13 @@ const ClientAPI = {
 
   getAllBlogs: (locale: string, params?: { page?: number; limit?: number; type?: string; show_home?: boolean }) =>
     fetchData('client/news', locale, { params }),
+
   getAllServices: (locale: string, params?: { page?: number; limit?: number; type?: string; show_home?: boolean }) =>
-    fetchData('client/services', locale, { params }),
+    fetchData('client/services', locale),
 
   getSingleService: (id: string | number, locale: string) =>
     fetchData(`client/services/${id}`, locale),
+
   getSingleBlog: (id: string | number, locale: string) =>
     fetchData(`client/news/${id}`, locale),
 

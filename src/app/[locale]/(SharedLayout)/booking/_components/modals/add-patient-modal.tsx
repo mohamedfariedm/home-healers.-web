@@ -1,20 +1,21 @@
 "use client";
-import { useState } from "react";
-import type React from "react";
-
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { toast } from "sonner";
 import type { Patient } from "@/types/booking";
 
 interface AddPatientModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (patient: Patient) => void;
+  onSave: (patient: Patient, isEditing?: boolean) => void;
+  patient: Patient|null; // Optional for editing
 }
 
 export default function AddPatientModal({
   isOpen,
   onClose,
   onSave,
+  patient,
 }: AddPatientModalProps) {
   const [formData, setFormData] = useState<Omit<Patient, "id">>({
     name: "",
@@ -29,8 +30,6 @@ export default function AddPatientModal({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  if (!isOpen) return null;
 
   const relationships = [
     "الأب",
@@ -62,36 +61,20 @@ export default function AddPatientModal({
 
   const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.name.trim()) newErrors.name = "الاسم مطلوب";
-    if (!formData.relationship) newErrors.relationship = "صلة القرابة مطلوبة";
-    if (!formData.nationality) newErrors.nationality = "الجنسية مطلوبة";
-    if (!formData.idNumber.trim()) newErrors.idNumber = "رقم الهوية مطلوب";
-    if (!formData.phone.trim()) newErrors.phone = "رقم الهاتف مطلوب";
-    if (!formData.email.trim()) newErrors.email = "البريد الإلكتروني مطلوب";
-    if (!formData.birthDate) newErrors.birthDate = "تاريخ الميلاد مطلوب";
-
-    // Email validation
-    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "البريد الإلكتروني غير صحيح";
-    }
-
-    // Phone validation
-    if (formData.phone && !/^[0-9+\-\s()]+$/.test(formData.phone)) {
-      newErrors.phone = "رقم الهاتف غير صحيح";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (validateForm()) {
-      onSave(formData as Patient);
+  useEffect(() => {
+    if (patient) {
+      setFormData({
+        name: patient.name,
+        relationship: patient.relationship,
+        nationality: patient.nationality,
+        idNumber: patient.idNumber,
+        phone: patient.phone,
+        email: patient.email,
+        gender: patient.gender,
+        birthDate: patient.birthDate,
+        bloodType: patient.bloodType,
+      });
+    } else {
       setFormData({
         name: "",
         relationship: "",
@@ -105,6 +88,57 @@ export default function AddPatientModal({
       });
       setErrors({});
     }
+  }, [patient, isOpen]);
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name.trim()) newErrors.name = "الاسم مطلوب";
+    if (!formData.relationship) newErrors.relationship = "صلة القرابة مطلوبة";
+    if (!formData.nationality) newErrors.nationality = "الجنسية مطلوبة";
+    if (!formData.idNumber.trim()) newErrors.idNumber = "رقم الهوية مطلوب";
+    if (!formData.phone.trim()) newErrors.phone = "رقم الهاتف مطلوب";
+    if (!formData.email.trim()) newErrors.email = "البريد الإلكتروني مطلوب";
+    if (!formData.birthDate) newErrors.birthDate = "تاريخ الميلاد مطلوب";
+
+    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "البريد الإلكتروني غير صحيح";
+    }
+
+    if (formData.phone && !/^[0-9+\-\s()]+$/.test(formData.phone)) {
+      newErrors.phone = "رقم الهاتف غير صحيح";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (validateForm()) {
+      const newPatient: Patient = {
+        id: patient?.id || Date.now(),
+        ...formData,
+      };
+      onSave(newPatient, !!patient);
+      if (!patient) {
+        setFormData({
+          name: "",
+          relationship: "",
+          nationality: "",
+          idNumber: "",
+          phone: "",
+          email: "",
+          gender: "male",
+          birthDate: "",
+          bloodType: "",
+        });
+        setErrors({});
+      }
+      toast.success(patient ? "تم تعديل المريض بنجاح" : "تم إضافة المريض بنجاح");
+      onClose();
+    }
   };
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
@@ -114,15 +148,18 @@ export default function AddPatientModal({
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <div
       className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4 overflow-y-auto"
       dir="rtl"
     >
       <div className="relative bg-white rounded-3xl w-full max-w-4xl max-h-[95vh] overflow-y-auto">
-        {/* Header */}
         <div className="sticky top-0 bg-white rounded-t-3xl border-b border-gray-200 p-6 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-[#1e1e1e]">إضافة مريض جديد</h2>
+          <h2 className="text-xl font-bold text-[#1e1e1e]">
+            {patient ? "تعديل بيانات المريض" : "إضافة مريض جديد"}
+          </h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full"
@@ -131,9 +168,7 @@ export default function AddPatientModal({
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Name */}
           <div>
             <label className="block text-sm font-medium mb-2 text-red-500">
               * الاسم الكامل
@@ -152,7 +187,6 @@ export default function AddPatientModal({
             )}
           </div>
 
-          {/* Relationship and Nationality */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium mb-2 text-red-500">
@@ -160,9 +194,7 @@ export default function AddPatientModal({
               </label>
               <select
                 value={formData.relationship}
-                onChange={(e) =>
-                  handleInputChange("relationship", e.target.value)
-                }
+                onChange={(e) => handleInputChange("relationship", e.target.value)}
                 className={`w-full p-3 border rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6] ${
                   errors.relationship ? "border-red-500" : "border-gray-300"
                 }`}
@@ -175,9 +207,7 @@ export default function AddPatientModal({
                 ))}
               </select>
               {errors.relationship && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.relationship}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{errors.relationship}</p>
               )}
             </div>
 
@@ -187,9 +217,7 @@ export default function AddPatientModal({
               </label>
               <select
                 value={formData.nationality}
-                onChange={(e) =>
-                  handleInputChange("nationality", e.target.value)
-                }
+                onChange={(e) => handleInputChange("nationality", e.target.value)}
                 className={`w-full p-3 border rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6] ${
                   errors.nationality ? "border-red-500" : "border-gray-300"
                 }`}
@@ -202,14 +230,11 @@ export default function AddPatientModal({
                 ))}
               </select>
               {errors.nationality && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.nationality}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{errors.nationality}</p>
               )}
             </div>
           </div>
 
-          {/* ID Number */}
           <div>
             <label className="block text-sm font-medium mb-2 text-red-500">
               * رقم الهوية
@@ -228,7 +253,6 @@ export default function AddPatientModal({
             )}
           </div>
 
-          {/* Phone and Email */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium mb-2 text-red-500">
@@ -267,7 +291,6 @@ export default function AddPatientModal({
             </div>
           </div>
 
-          {/* Gender */}
           <div>
             <label className="block text-sm font-medium mb-2">الجنس</label>
             <div className="flex gap-4">
@@ -296,7 +319,6 @@ export default function AddPatientModal({
             </div>
           </div>
 
-          {/* Birth Date and Blood Type */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium mb-2 text-red-500">
@@ -334,7 +356,6 @@ export default function AddPatientModal({
             </div>
           </div>
 
-          {/* Submit Button */}
           <div className="flex gap-4 pt-6">
             <button
               type="button"
@@ -347,7 +368,7 @@ export default function AddPatientModal({
               type="submit"
               className="flex-1 px-6 py-3 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470]"
             >
-              حفظ المريض
+              {patient ? "حفظ التعديلات" : "حفظ المريض"}
             </button>
           </div>
         </form>

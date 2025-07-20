@@ -6,7 +6,13 @@ import Link from "next/link";
 import React, { useState } from "react";
 import parse from "html-react-parser";
 
-const AnimatedServicesSection = ({ locale, data }: { locale: string, data: any }) => {
+const AnimatedServicesSection = ({
+  locale,
+  data,
+}: {
+  locale: string;
+  data: any;
+}) => {
   const [activeIndex, setActiveIndex] = useState(0);
   console.log("Data in AnimatedServicesSection:", data);
 
@@ -43,14 +49,15 @@ const AnimatedServicesSection = ({ locale, data }: { locale: string, data: any }
             <motion.button
               key={idx}
               className={`flex items-center gap-[10px] p-3 border rounded-md focus:outline-none transition-transform ${
-                isActive
-                  ? "bg-[#EFF6FE] border-[#62A0F6]"
-                  : "border-[#62A0F6]"
+                isActive ? "bg-[#EFF6FE] border-[#62A0F6]" : "border-[#62A0F6]"
               }`}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: idx * 0.15 }}
-              whileHover={{ scale: 1.05, boxShadow: "0 4px 10px rgba(98, 160, 246, 0.4)" }}
+              whileHover={{
+                scale: 1.05,
+                boxShadow: "0 4px 10px rgba(98, 160, 246, 0.4)",
+              }}
               onClick={() => setActiveIndex(idx)}
               aria-pressed={isActive}
             >
@@ -85,7 +92,8 @@ const AnimatedServicesSection = ({ locale, data }: { locale: string, data: any }
           className="h-72 lg:h-[456px] bg-cover bg-no-repeat rounded-2xl"
           style={{
             backgroundImage: `url(${
-              activeService.image?.[0]?.thumbnail || "/assets/images/homehellers/Injury.svg"
+              activeService.image?.[0]?.thumbnail ||
+              "/assets/images/homehellers/Injury.svg"
             })`,
           }}
         />
@@ -99,10 +107,12 @@ const AnimatedServicesSection = ({ locale, data }: { locale: string, data: any }
               : "وصف الخدمة غير متوفر حالياً."}
           </div>
           <Link
-            href="/specialty/subspecialty"
+            href="/booking"
             className="bg-[#143087] text-white flex items-center hover:scale-105 duration-300 transition-all justify-center gap-2 px-6 py-3 rounded-md w-fit self-end"
           >
-            {locale === "ar" ? "احجز جلستك العلاجية الان" : "Book Your Therapy Session Now"}
+            {locale === "ar"
+              ? "احجز جلستك العلاجية الان"
+              : "Book Your Therapy Session Now"}
             <ArrowLeft className="w-4 h-4" />
           </Link>
         </div>
