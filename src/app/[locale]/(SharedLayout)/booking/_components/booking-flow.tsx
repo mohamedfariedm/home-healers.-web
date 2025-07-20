@@ -376,7 +376,9 @@ const completePayment = async () => {
     } else if (bookingData.paymentMethod === "telr") {
       // Telr Payment
       const responceTelr = await ClientAPI.payReservationWithTelr(reservationId, "ar");
-      route.push(responceTelr.data.redirect_url);
+      console.log("responceTelr", responceTelr);
+      
+      route.push(responceTelr.redirect_url);
 
       localStorage.removeItem("bookingData");
       toast.success("تم تأكيد الدفع بنجاح عبر Telr!");

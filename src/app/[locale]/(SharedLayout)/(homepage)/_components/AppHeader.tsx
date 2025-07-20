@@ -17,7 +17,7 @@ export default function AppHeader({ title, description }: AppHeaderProps) {
         </div>
       )}
 
-      <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-right leading-tight">
+      <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-right leading-tight">
         {chars.length >= 3 ? (
           <>
             <span className="text-[#1e1e1e]">{chars[0]} </span>
@@ -30,7 +30,7 @@ export default function AppHeader({ title, description }: AppHeaderProps) {
         ) : (
           <span className="text-[#1e1e1e]">{description}</span>
         )}
-      </h1>
+      </h2>
     </div>
   );
 }
