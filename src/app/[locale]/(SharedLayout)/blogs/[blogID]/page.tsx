@@ -4,6 +4,48 @@ import BlogRelatedSection from "./_components/BlogSection";
 import ClientAPI from "@/app/api/api";
 export const dynamic = "force-dynamic";
 
+
+export async function generateMetadata({
+  params: { locale, blogID },
+}: {
+  params: { locale: string; blogID: string };
+}) {
+  const { t } = await initTranslations(locale, ["homepage"]);
+  const settings = await ClientAPI.getSettings(locale);
+  const seo = settings.data[0].setting.seo["blogs"];
+  const {data} = await ClientAPI.getSingleBlog(blogID,locale);
+console.log(data,"data Blog");
+
+  return {
+    title: data.meta_title || "Home Hellers",
+    description: data.meta_description || "Home Hellers app",
+    keywords: seo.keywords || "Home Hellers, services, healthcare, clinics", // customize if needed
+    alternates: {
+      canonical: seo.canonical || `https://home-hellers.com/${locale}`,
+    },
+    icons: {
+      icon: "/assets/images/favicon.ico",
+    },
+    openGraph: {
+      title: seo.og_title || "Home Hellers",
+      description: seo.og_description || "Home Hellers app",
+      url: seo.canonical || `https://home-hellers.com/${locale}`,
+      images: [
+        {
+          url: seo.og_image || "/assets/images/favicon.ico",
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seo.twitter_title || "Home Hellers",
+      description: seo.twitter_description || "Home Hellers app",
+      images: [seo.twitter_image || "/assets/images/favicon.ico"],
+    },
+  };
+}
 async function page({
   params: { locale, blogID },
 }: {

@@ -2,38 +2,15 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useState } from "react";
-import parse from "html-react-parser"; // Import html-react-parser
+import parse from "html-react-parser";
 import { FaEnvelope, FaFacebook, FaInstagram, FaLink, FaTwitter } from "react-icons/fa";
 import { toast } from "sonner";
-
-// Mock related posts (can be replaced with dynamic data if available)
-const relatedPosts = [
-  {
-    title: "تأهيل مابعد العمليات الجراحية",
-    date: "3 ديسمبر 2025",
-    image: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/DcZcfg1h8D.png",
-  },
-  {
-    title: "تأهيل مابعد العمليات الجراحية",
-    date: "3 ديسمبر 2025",
-    image: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/DcZcfg1h8D.png",
-  },
-  {
-    title: "تأهيل مابعد العمليات الجراحية",
-    date: "3 ديسمبر 2025",
-    image: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/DcZcfg1h8D.png",
-  },
-];
-
-// Mock tags (can be replaced with dynamic data if available)
-const tags = ["معلومات طبية", "صحة وطب", "معلومات ثقافة طبية"];
+import Link from "next/link";
 
 export default function BlogRelatedSection({ data, locale }: { data: any, locale: string }) {
   console.log("BlogRelatedSection Data:", data);
 
-  // Format date function
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Format date function
   const formatDate = (dateString: string) => {
@@ -45,11 +22,22 @@ export default function BlogRelatedSection({ data, locale }: { data: any, locale
     });
   };
 
+  // Use dynamic related blogs from data
+  const relatedBlogs = data.related_blogs?.map((blog: any) => ({
+    title: blog.name?.ar || blog.name || "عنوان غير متوفر",
+    date: formatDate(blog.date),
+    image: blog.image?.[0]?.thumbnail || "/assets/images/placeholder.jpg",
+    slug: blog.slug?.ar,
+  })) || [];
+
+  // Use dynamic tags from data
+  const blogTags = data.tags || [];
+
   // Share data
   const shareData = {
     title: data.name || "مقال جديد",
-    text: data.description || "تحقق من هذا المقال الرائع!",
-    url: window.location.href,
+    text: data.description ? parse(data.description).toString() : "تحقق من هذا المقال الرائع!",
+    url: typeof window !== "undefined" ? window.location.href : "",
   };
 
   // Share handlers
@@ -68,10 +56,8 @@ export default function BlogRelatedSection({ data, locale }: { data: any, locale
   };
 
   const handleInstagramShare = () => {
-    setToastMessage("للمشاركة عبر إنستغرام، انسخ الرابط وشاركه في قصتك!");
-    setTimeout(() => setToastMessage(null), 3000);
     setIsPopupOpen(false);
-    toast.success("تم مشاركة المقال على إنستغرام!", { duration: 3000 });
+    toast.success("انسخ الرابط لمشاركته في قصة إنستغرام!", { duration: 3000 });
   };
 
   const handleEmailShare = () => {
@@ -84,11 +70,10 @@ export default function BlogRelatedSection({ data, locale }: { data: any, locale
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(shareData.url);
-toast.success("تم نسخ الرابط إلى الحافظة!", { duration: 3000 });
+      toast.success("تم نسخ الرابط إلى الحافظة!", { duration: 3000 });
     } catch (err) {
       console.error("Error copying link:", err);
-      setToastMessage("حدث خطأ أثناء نسخ الرابط.");
-      setTimeout(() => setToastMessage(null), 3000);
+      toast.error("حدث خطأ أثناء نسخ الرابط.", { duration: 3000 });
     }
     setIsPopupOpen(false);
   };
@@ -107,6 +92,7 @@ toast.success("تم نسخ الرابط إلى الحافظة!", { duration: 300
           transition: { staggerChildren: 0.15, ease: "easeOut" },
         },
       }}
+      dir="rtl"
     >
       {/* Left Column */}
       <motion.div
@@ -120,42 +106,55 @@ toast.success("تم نسخ الرابط إلى الحافظة!", { duration: 300
           مواضيع <span className="text-[#62a0f6]">متعلقة</span>
         </h3>
 
-        {relatedPosts.map(({ title, date, image }, index) => (
-          <motion.div
-            key={index}
-            className="flex gap-4 items-center border-b border-[#d0d5dd] pb-5 cursor-pointer"
-            whileHover={{ scale: 1.03, boxShadow: "0 8px 15px rgba(0,0,0,0.1)" }}
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0 },
-            }}
-            transition={{ delay: index * 0.15 }}
-          >
-            <div
-              className="w-[104px] h-[104px] rounded-md bg-cover bg-no-repeat"
-              style={{ backgroundImage: `url(${image})` }}
-            />
-            <div className="flex flex-col items-start gap-1">
-              <p className="text-right text-lg text-[#1e1e1e] leading-[30px]">{title}</p>
-              <span className="text-xs text-[#62a0f6]">{date}</span>
-            </div>
-          </motion.div>
-        ))}
+        {relatedBlogs.length > 0 ? (
+          relatedBlogs.map(({ title, date, image,slug }: { title: string; date: string; image: string,slug: string }, index: number) => (
+                       <Link href={`/${locale}/blogs/${slug}`} key={slug}>
+
+            <motion.div
+              className="flex gap-4 items-center border-b border-[#d0d5dd] pb-5 cursor-pointer"
+              whileHover={{ scale: 1.03, boxShadow: "0 8px 15px rgba(0,0,0,0.1)" }}
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              transition={{ delay: index * 0.15 }}
+            >
+              <div
+                className="w-[104px] h-[104px] rounded-md bg-cover bg-no-repeat"
+                style={{ backgroundImage: `url(${image})` }}
+                role="img"
+                aria-label={`صورة للمقال ${title}`}
+              />
+              <div className="flex flex-col items-start gap-1">
+                <p className="text-right text-lg text-[#1e1e1e] leading-[30px]">{title}</p>
+                <span className="text-xs text-[#62a0f6]">{date}</span>
+              </div>
+            </motion.div>
+            </Link>
+          ))
+        ) : (
+          <p className="text-right text-gray-600">لا توجد مواضيع متعلقة متاحة.</p>
+        )}
 
         <h3 className="text-right text-[30px] font-medium text-[#1e1e1e] mt-8">هاشتجات</h3>
 
         <div className="flex flex-wrap justify-start gap-4">
-          {tags.map((tag, i) => (
-            <motion.div
-              key={i}
-              className="border border-[#d0d5dd] rounded-md px-2 py-1 cursor-pointer"
-              whileHover={{ scale: 1.1, backgroundColor: "#62a0f6", borderColor: "#62a0f6" }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-            >
-              <span className="text-[#736b7a] text-lg hover:text-white">{tag}</span>
-            </motion.div>
-          ))}
+          {blogTags.length > 0 ? (
+            blogTags.map((tag: string, i: number) => (
+              <motion.div
+                key={i}
+                className="border border-[#d0d5dd] rounded-md px-2 py-1 cursor-pointer"
+                whileHover={{ scale: 1.1, backgroundColor: "#62a0f6", borderColor: "#62a0f6" }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                aria-label={`هاشتاج ${tag}`}
+              >
+                <span className="text-[#736b7a] text-lg hover:text-white">{tag}</span>
+              </motion.div>
+            ))
+          ) : (
+            <p className="text-right text-gray-600">لا توجد هاشتجات متاحة.</p>
+          )}
         </div>
       </motion.div>
 
@@ -175,6 +174,8 @@ toast.success("تم نسخ الرابط إلى الحافظة!", { duration: 300
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
+          role="img"
+          aria-label={`صورة المقال ${data.name}`}
         />
 
         <div className="flex flex-col gap-2 items-start">
@@ -209,7 +210,8 @@ toast.success("تم نسخ الرابط إلى الحافظة!", { duration: 300
           </div>
         </motion.span>
       </motion.div>
-            {/* Popup Modal */}
+
+      {/* Popup Modal */}
       <AnimatePresence>
         {isPopupOpen && (
           <motion.div
@@ -234,6 +236,7 @@ toast.success("تم نسخ الرابط إلى الحافظة!", { duration: 300
                   onClick={handleFacebookShare}
                   whileHover={{ scale: 1.05, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
                   whileTap={{ scale: 0.95 }}
+                  aria-label="مشاركة عبر فيسبوك"
                 >
                   <FaFacebook className="text-xl" />
                   <span className="flex-1">مشاركة عبر فيسبوك</span>
@@ -243,6 +246,7 @@ toast.success("تم نسخ الرابط إلى الحافظة!", { duration: 300
                   onClick={handleTwitterShare}
                   whileHover={{ scale: 1.05, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
                   whileTap={{ scale: 0.95 }}
+                  aria-label="مشاركة عبر تويتر"
                 >
                   <FaTwitter className="text-xl" />
                   <span className="flex-1">مشاركة عبر تويتر</span>
@@ -252,6 +256,7 @@ toast.success("تم نسخ الرابط إلى الحافظة!", { duration: 300
                   onClick={handleInstagramShare}
                   whileHover={{ scale: 1.05, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
                   whileTap={{ scale: 0.95 }}
+                  aria-label="مشاركة عبر إنستغرام"
                 >
                   <FaInstagram className="text-xl" />
                   <span className="flex-1">مشاركة عبر إنستغرام</span>
@@ -261,6 +266,7 @@ toast.success("تم نسخ الرابط إلى الحافظة!", { duration: 300
                   onClick={handleEmailShare}
                   whileHover={{ scale: 1.05, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
                   whileTap={{ scale: 0.95 }}
+                  aria-label="مشاركة عبر البريد الإلكتروني"
                 >
                   <FaEnvelope className="text-xl" />
                   <span className="flex-1">مشاركة عبر البريد الإلكتروني</span>
@@ -270,6 +276,7 @@ toast.success("تم نسخ الرابط إلى الحافظة!", { duration: 300
                   onClick={handleCopyLink}
                   whileHover={{ scale: 1.05, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
                   whileTap={{ scale: 0.95 }}
+                  aria-label="نسخ الرابط"
                 >
                   <FaLink className="text-xl" />
                   <span className="flex-1">نسخ الرابط</span>
@@ -280,6 +287,7 @@ toast.success("تم نسخ الرابط إلى الحافظة!", { duration: 300
                 onClick={() => setIsPopupOpen(false)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                aria-label="إغلاق نافذة المشاركة"
               >
                 إغلاق
               </motion.button>
@@ -287,8 +295,6 @@ toast.success("تم نسخ الرابط إلى الحافظة!", { duration: 300
           </motion.div>
         )}
       </AnimatePresence>
-
-
     </motion.div>
   );
 }
