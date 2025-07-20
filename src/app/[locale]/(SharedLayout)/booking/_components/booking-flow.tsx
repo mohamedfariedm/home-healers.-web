@@ -379,17 +379,10 @@ const completePayment = async () => {
       console.log("responceTelr", responceTelr);
       
       route.push(responceTelr.redirect_url);
-
-      localStorage.removeItem("bookingData");
-      toast.success("تم تأكيد الدفع بنجاح عبر Telr!");
-      setCurrentStep(6); // Proceed to confirmation
     } else {
       // Default payment (Apple Pay or others)
       const responceTap = await ClientAPI.payReservation(reservationId, "ar");
       route.push(responceTap.data.redirect_url);
-      localStorage.removeItem("bookingData");
-      toast.success("تم تأكيد الدفع بنجاح!");
-      setCurrentStep(6); // Proceed to confirmation
     }
   } catch (error: any) {
     console.error("Payment Error:", error);
