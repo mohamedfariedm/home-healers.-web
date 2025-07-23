@@ -219,7 +219,7 @@ function Footer({ locale, section }: FooterProps) {
                     </span>
                   </motion.div>
                 </Link>
-                <Link href={`/${locale}/services`}>
+                <Link href={`/${locale}/our-services/all`}>
                   <motion.div
                     className="flex w-[76px] gap-[10px] justify-center items-center flex-nowrap relative z-[68]"
                     variants={linkVariants}

@@ -1,24 +1,40 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
 import parse from "html-react-parser";
 
 const AnimatedServicesSection = ({
   locale,
   data,
+  serviceBySlug,
 }: {
   locale: string;
   data: any;
+  serviceBySlug: any;
 }) => {
+  const pathname = usePathname();
   const [activeIndex, setActiveIndex] = useState(0);
-  console.log("Data in AnimatedServicesSection:", data);
 
-  // Use provided data or fallback to empty array
   const services = data || [];
   const activeService = services[activeIndex] || {};
+
+  // Extract slug from pathname
+  useEffect(() => {
+    const pathParts = pathname.split("/");
+    const currentSlug = pathParts[pathParts.length - 1];
+
+    const foundIndex = services.findIndex(
+      (service: any) => service.slug?.[locale] === currentSlug
+    );
+
+    if (foundIndex !== -1) {
+      setActiveIndex(foundIndex);
+    }
+  }, [pathname, locale, services]);
 
   return (
     <motion.div
@@ -36,54 +52,59 @@ const AnimatedServicesSection = ({
       }}
     >
       {/* Side Services */}
+<motion.div
+  className="w-full lg:w-[380px] flex flex-col gap-4"
+  variants={{
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.15 } },
+  }}
+>
+  {services.map((service: any, idx: number) => {
+    const isActive = idx === activeIndex;
+    const href = `/${locale}/our-services/${service.slug[locale]}`;
+
+    return (
       <motion.div
-        className="w-full lg:w-[380px] flex flex-col gap-4"
-        variants={{
-          hidden: {},
-          visible: { transition: { staggerChildren: 0.15 } },
+        key={idx}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: idx * 0.15 }}
+        whileHover={{
+          scale: 1.05,
+          boxShadow: "0 4px 10px rgba(98, 160, 246, 0.4)",
         }}
       >
-        {services.map((service: any, idx: number) => {
-          const isActive = idx === activeIndex;
-          return (
-            <motion.button
-              key={idx}
-              className={`flex items-center gap-[10px] p-3 border rounded-md focus:outline-none transition-transform ${
-                isActive ? "bg-[#EFF6FE] border-[#62A0F6]" : "border-[#62A0F6]"
-              }`}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: idx * 0.15 }}
-              whileHover={{
-                scale: 1.05,
-                boxShadow: "0 4px 10px rgba(98, 160, 246, 0.4)",
-              }}
-              onClick={() => setActiveIndex(idx)}
-              aria-pressed={isActive}
-            >
-              <div
-                className={`w-10 h-10 flex items-center justify-center rounded-full ${
-                  isActive ? "bg-[#62A0F6]" : ""
-                }`}
-              >
-                <img
-                  src="/assets/images/homehellers/Injury.svg"
-                  className="w-5 h-5 object-contain"
-                  alt={service.name[locale]}
-                />
-              </div>
-              <span className="text-[#62A0F6] text-base font-medium text-right">
-                {service.name[locale]}
-              </span>
-            </motion.button>
-          );
-        })}
+        <Link
+          href={href}
+          className={`flex items-center gap-[10px] p-3 border rounded-md focus:outline-none transition-transform ${
+            isActive ? "bg-[#EFF6FE] border-[#62A0F6]" : "border-[#62A0F6]"
+          }`}
+        >
+          <div
+            className={`w-10 h-10 flex items-center justify-center rounded-full ${
+              isActive ? "bg-[#62A0F6]" : ""
+            }`}
+          >
+            <img
+              src="/assets/images/homehellers/Injury.svg"
+              className="w-5 h-5 object-contain"
+              alt={service.name[locale]}
+            />
+          </div>
+          <span className="text-[#62A0F6] text-base font-medium text-right">
+            {service.name[locale]}
+          </span>
+        </Link>
       </motion.div>
+    );
+  })}
+</motion.div>
+
 
       {/* Main Service */}
       <motion.div
         className="flex-1 flex flex-col gap-8"
-        key={activeService.id || activeIndex} // force re-render/animate on active change
+        key={activeService.id || activeIndex}
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}

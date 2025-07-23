@@ -170,7 +170,8 @@ payReservationWithTelr: (reservationId: number, locale: string) =>
 
   getAllServices: (locale: string, params?: { page?: number; limit?: number; type?: string; show_home?: boolean }) =>
     fetchData('client/services', locale),
-
+  getAllServicesSlug: (locale: string,slug: string, params?: { page?: number; limit?: number; type?: string; show_home?: boolean }) =>
+    fetchData(`client/services-slug/${slug}`, locale),
   getSingleService: (id: string | number, locale: string) =>
     fetchData(`client/services/${id}`, locale),
 
