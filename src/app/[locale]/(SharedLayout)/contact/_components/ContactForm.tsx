@@ -70,7 +70,6 @@ export default function ContactSection() {
               onChange={handleChange}
               className="bg-white w-full border border-[#d0d5dd] rounded-md px-4 py-3 text-sm text-start"
               placeholder="ادخل البريد الالكتروني"
-              required
             />
           </div>
 

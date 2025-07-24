@@ -24,7 +24,10 @@ interface NavigationArrowProps {
   buttonRef: React.RefObject<HTMLDivElement>;
 }
 
-const NavigationArrow: React.FC<NavigationArrowProps> = ({ direction, buttonRef }) => {
+const NavigationArrow: React.FC<NavigationArrowProps> = ({
+  direction,
+  buttonRef,
+}) => {
   const Icon = direction === "next" ? ChevronRight : ChevronLeft;
 
   return (
@@ -38,12 +41,11 @@ const NavigationArrow: React.FC<NavigationArrowProps> = ({ direction, buttonRef 
   );
 };
 
-const PartnersSection= ({data,locale}:{data:any,locale:string}) => {
-
+const PartnersSection = ({ data, locale }: { data: any; locale: string }) => {
   console.log("PartnersSection data:", data, "locale:", locale);
-  
-const partnerLogos: string[] = data?.Posts?.[0]?.attachment?.map((att: any) => att.thumbnail) || [];
 
+  const partnerLogos: string[] =
+    data?.Posts?.[0]?.attachment?.map((att: any) => att.original) || [];
 
   const prevRef = useRef<HTMLDivElement>(null);
   const nextRef = useRef<HTMLDivElement>(null);
@@ -53,10 +55,11 @@ const partnerLogos: string[] = data?.Posts?.[0]?.attachment?.map((att: any) => a
       {/* Heading */}
       <div className="flex flex-col items-center text-center gap-3">
         <span className="text-[#62a0f6] text-base font-medium leading-6">
-{data?.title}        </span>
+          {data?.title}{" "}
+        </span>
         <h2 className="text-[28px] sm:text-[30px] font-semibold leading-10 text-[#1e1e1e]">
-{data?.Posts[0].title} 
-       </h2>
+          {data?.Posts[0].title}
+        </h2>
       </div>
 
       {/* Partner Logos Slider */}

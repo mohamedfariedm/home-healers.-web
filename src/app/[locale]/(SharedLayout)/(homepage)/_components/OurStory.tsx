@@ -9,7 +9,7 @@ import parse from "html-react-parser"; // Import html-react-parser
 function OurStory({ locale, data }: { locale: string; data: any }) {
   // Refs for different sections
   console.log("Data in OurStory:", data);
-console.log(data);
+  console.log(data);
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -125,7 +125,10 @@ console.log(data);
   };
 
   return (
-    <div ref={sectionRef} className="main-container ltr:rtl rtl:ltr w-full max-w-[1280px] mt-[80px] mx-auto my-0 px-4 py-6">
+    <div
+      ref={sectionRef}
+      className="main-container ltr:rtl rtl:ltr w-full max-w-[1280px] mt-[80px] mx-auto my-0 px-4 py-6"
+    >
       {/* Header Section */}
       <motion.div
         ref={headerRef}
@@ -142,19 +145,34 @@ console.log(data);
             whileTap={{ scale: 0.95 }}
           >
             <ArrowLeft className="w-6 h-6" />
-            <span className="text-[18px] font-medium leading-[28px]">{locale === "ar" ? "جميع المقالات" : "All Articles"}</span>
+            <span className="text-[18px] font-medium leading-[28px]">
+              {locale === "ar" ? "جميع المقالات" : "All Articles"}
+            </span>
           </motion.div>
         </Link>
 
-        <motion.div className="flex flex-col gap-2 items-end" variants={headerItemVariants}>
-          <motion.span className="text-[16px] font-medium text-[#62a0f6]" variants={headerItemVariants}>
-{locale === "ar" ? "استشكف اخر المقالات الطبية" : "Explore the Latest Medical Articles"}
+        <motion.div
+          className="flex flex-col gap-2 items-end"
+          variants={headerItemVariants}
+        >
+          <motion.span
+            className="text-[16px] font-medium text-[#62a0f6]"
+            variants={headerItemVariants}
+          >
+            {locale === "ar"
+              ? "استشكف اخر المقالات الطبية"
+              : "Explore the Latest Medical Articles"}
           </motion.span>
           <motion.h2
             className="text-[30px] font-semibold leading-[40px] text-[#1e1e1e] text-end"
             variants={headerItemVariants}
           >
-            {locale === "ar" ? "استشكف اخر " : "Explore the latest "}<span className="text-[#62a0f6]">{locale === "ar" ? "المقالات " : "Medical Articles"}</span>{locale === "ar" ? "الطبية" :" in Medicine" }          </motion.h2>
+            {locale === "ar" ? "استشكف اخر " : "Explore the latest "}
+            <span className="text-[#62a0f6]">
+              {locale === "ar" ? "المقالات " : "Medical Articles"}
+            </span>
+            {locale === "ar" ? "الطبية" : " in Medicine"}{" "}
+          </motion.h2>
         </motion.div>
       </motion.div>
 
@@ -167,7 +185,10 @@ console.log(data);
         animate={isArticlesInView ? "visible" : "hidden"}
       >
         {/* Left Column */}
-        <motion.div className="flex flex-col gap-8 flex-1" variants={leftColumnVariants}>
+        <motion.div
+          className="flex flex-col gap-8 flex-1"
+          variants={leftColumnVariants}
+        >
           {data.slice(0, 2).map((article: any, i: number) => (
             <Link href={`/${locale}/blogs/${article.slug}`} key={article.id}>
               <motion.div
@@ -182,7 +203,9 @@ console.log(data);
                       {formatDate(article.date)}
                     </span>
                     <div>
-                      <h3 className="text-[20px] font-semibold text-[#1e1e1e] mb-2">{article.name}</h3>
+                      <h3 className="text-[20px] font-semibold text-[#1e1e1e] mb-2">
+                        {article.name}
+                      </h3>
                       <div className="text-[16px] font-light text-[#1e1e1e] leading-[32px] line-clamp-2">
                         {parse(article.description)}
                       </div>
@@ -193,7 +216,10 @@ console.log(data);
                   <motion.div
                     className="w-[219px] h-[268px] bg-cover bg-no-repeat rounded-[20px]"
                     style={{
-                      backgroundImage: `url(${article.image[0]?.thumbnail || "/assets/images/placeholder.jpg"})`,
+                      backgroundImage: `url(${
+                        article.image[0]?.original ||
+                        "/assets/images/placeholder.jpg"
+                      })`,
                     }}
                     variants={imageVariants}
                     whileHover={{ scale: 1.05 }}
@@ -206,7 +232,7 @@ console.log(data);
 
         {/* Right Column */}
         {data[2] && (
-          <Link href={`/${locale}/blogs/${data[2].id}`}>
+          <Link href={`/${locale}/blogs/${data[2].slug}`}>
             <motion.div
               className="flex flex-col items-end bg-[#eff6fe] rounded-[24px] p-6 w-full xl:max-w-[612px] cursor-pointer relative"
               variants={rightColumnVariants}
@@ -215,7 +241,10 @@ console.log(data);
               <motion.div
                 className="w-full h-[370px] bg-cover bg-no-repeat rounded-[20px] mb-6"
                 style={{
-                  backgroundImage: `url(${data[2].image[0]?.thumbnail || "/assets/images/placeholder.jpg"})`,
+                  backgroundImage: `url(${
+                    data[2].image[0]?.original ||
+                    "/assets/images/placeholder.jpg"
+                  })`,
                 }}
                 variants={imageVariants}
                 whileHover={{ scale: 1.03 }}
@@ -223,7 +252,9 @@ console.log(data);
               <span className="text-[16px] font-medium text-[#62a0f6] mb-2 text-end">
                 {formatDate(data[2].date)}
               </span>
-              <h3 className="text-[20px] font-semibold text-[#1e1e1e] text-end mb-2">{data[2].name}</h3>
+              <h3 className="text-[20px] font-semibold text-[#1e1e1e] text-end mb-2">
+                {data[2].name}
+              </h3>
               <div className="text-[16px] font-light text-[#1e1e1e] leading-[32px] text-end mb-[75px] line-clamp-2">
                 {parse(data[2].description)}
               </div>

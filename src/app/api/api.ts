@@ -41,13 +41,13 @@ const fetchData = async (endpoint: string, locale: string, params: Record<string
 
     if (!response.ok) {
       console.log("API Fetch Error:", response);
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      // throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
     return await response.json();
   } catch (error) {
     console.error("API Fetch Error:", error);
-    throw error;
+    // throw error;
   }
 };
 

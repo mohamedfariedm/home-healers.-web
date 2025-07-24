@@ -41,7 +41,12 @@ const containerVariants = {
 const arrowVariants = {
   rest: { scale: 1, boxShadow: "0px 0px 0px rgba(0,0,0,0)" },
   hover: { scale: 1.15, boxShadow: "0px 5px 10px rgba(0,0,0,0.15)" },
-  disabled: { scale: 1, boxShadow: "none", opacity: 0.4, pointerEvents: "none" },
+  disabled: {
+    scale: 1,
+    boxShadow: "none",
+    opacity: 0.4,
+    pointerEvents: "none",
+  },
 };
 
 const pageVariants = {
@@ -54,7 +59,13 @@ const pageVariants = {
   hover: { scale: 1.2, color: "#4287f5" },
 };
 
-const BlogAnimationSection = ({ locale, data }: { locale: string; data: any }) => {
+const BlogAnimationSection = ({
+  locale,
+  data,
+}: {
+  locale: string;
+  data: any;
+}) => {
   const [activePage, setActivePage] = useState(1); // Start at page 1
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE); // Calculate total pages based on data length
 
@@ -84,7 +95,9 @@ const BlogAnimationSection = ({ locale, data }: { locale: string; data: any }) =
   // Truncate description to avoid overly long text
   const truncateDescription = (html: string, maxLength: number = 100) => {
     const text = html.replace(/<[^>]+>/g, ""); // Strip HTML tags
-    return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + "..."
+      : text;
   };
 
   return (
@@ -111,14 +124,19 @@ const BlogAnimationSection = ({ locale, data }: { locale: string; data: any }) =
                 <div
                   className="h-[268px] bg-cover bg-no-repeat rounded-[20px] m-4"
                   style={{
-                    backgroundImage: `url(${card.image[0]?.thumbnail || "/assets/images/placeholder.jpg"})`,
+                    backgroundImage: `url(${
+                      card.image[0]?.original ||
+                      "/assets/images/placeholder.jpg"
+                    })`,
                     transformStyle: "preserve-3d",
                   }}
                 />
 
                 {/* Content */}
                 <div className="flex flex-col gap-5 px-6 pt-4 text-right">
-                  <span className="text-[#62a0f6] text-sm font-medium">{formatDate(card.date)}</span>
+                  <span className="text-[#62a0f6] text-sm font-medium">
+                    {formatDate(card.date)}
+                  </span>
                   <h3 className="text-xl font-semibold text-[#1e1e1e] whitespace-wrap">
                     {card.name}
                   </h3>
@@ -183,40 +201,45 @@ const BlogAnimationSection = ({ locale, data }: { locale: string; data: any }) =
                     >
                       {page}
                     </motion.button>
-                    );
-                  } else if (
-                    (page === activePage - 2 && activePage > 3) ||
-                    (page === activePage + 2 && activePage < totalPages - 2)
-                  ) {
-                    return (
-                      <span key={page} className="text-xs font-medium cursor-default select-none">
-                        ...
-                      </span>
-                    );
-                  }
-                  return null;
-                })}
-              </div>
-
-              {/* Next Arrow */}
-              <motion.button
-                onClick={goNext}
-                disabled={activePage === totalPages}
-                aria-label="Next Page"
-                aria-disabled={activePage === totalPages}
-                initial="rest"
-                animate={activePage === totalPages ? "disabled" : "rest"}
-                whileHover={activePage !== totalPages ? "hover" : undefined}
-                className="p-2 rounded-full text-[#143087]"
-                style={{ cursor: activePage === totalPages ? "not-allowed" : "pointer" }}
-              >
-                <ChevronRight size={28} strokeWidth={2} />
-              </motion.button>
+                  );
+                } else if (
+                  (page === activePage - 2 && activePage > 3) ||
+                  (page === activePage + 2 && activePage < totalPages - 2)
+                ) {
+                  return (
+                    <span
+                      key={page}
+                      className="text-xs font-medium cursor-default select-none"
+                    >
+                      ...
+                    </span>
+                  );
+                }
+                return null;
+              })}
             </div>
-          </motion.div>
-        )}
-      </>
-    );
-  };
-  
-  export default BlogAnimationSection;
+
+            {/* Next Arrow */}
+            <motion.button
+              onClick={goNext}
+              disabled={activePage === totalPages}
+              aria-label="Next Page"
+              aria-disabled={activePage === totalPages}
+              initial="rest"
+              animate={activePage === totalPages ? "disabled" : "rest"}
+              whileHover={activePage !== totalPages ? "hover" : undefined}
+              className="p-2 rounded-full text-[#143087]"
+              style={{
+                cursor: activePage === totalPages ? "not-allowed" : "pointer",
+              }}
+            >
+              <ChevronRight size={28} strokeWidth={2} />
+            </motion.button>
+          </div>
+        </motion.div>
+      )}
+    </>
+  );
+};
+
+export default BlogAnimationSection;

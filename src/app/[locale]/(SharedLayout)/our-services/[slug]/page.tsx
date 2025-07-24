@@ -45,7 +45,8 @@ export async function generateMetadata({
 async function page({ params: { locale , slug } }: props) {
   const { t } = await initTranslations(locale, ["aboutUs"]);
   const servicesData = await ClientAPI.getAllServices(locale);
-  const servicesBySlugData = await ClientAPI.getAllServicesSlug(locale, slug==="all" ? servicesData.data[0].slug[locale] : slug);
+  
+  const servicesBySlugData = await ClientAPI.getAllServicesSlug(locale, slug==="all" ? servicesData?.data[0]?.slug[locale] : slug);
   const settings = await ClientAPI.getSettings(locale);
 
   const seo = settings.data[0].setting.seo["contact"];
@@ -140,7 +141,7 @@ console.log("slug", slug);
           </div>
         </div>
 
-        <AnimatedServicesSection data={servicesData.data} serviceBySlug={servicesBySlugData.data} locale={locale} />
+<AnimatedServicesSection data={servicesData.data} serviceBySlug={servicesBySlugData?.data} locale={locale} />
 
         {homeBanners.length > 0 &&
           homeBanners.map((banner: any, index: number) => (

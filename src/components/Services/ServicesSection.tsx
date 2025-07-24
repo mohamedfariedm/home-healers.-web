@@ -52,54 +52,55 @@ const AnimatedServicesSection = ({
       }}
     >
       {/* Side Services */}
-<motion.div
-  className="w-full lg:w-[380px] flex flex-col gap-4"
-  variants={{
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.15 } },
-  }}
->
-  {services.map((service: any, idx: number) => {
-    const isActive = idx === activeIndex;
-    const href = `/${locale}/our-services/${service.slug[locale]}`;
-
-    return (
       <motion.div
-        key={idx}
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: idx * 0.15 }}
-        whileHover={{
-          scale: 1.05,
-          boxShadow: "0 4px 10px rgba(98, 160, 246, 0.4)",
+        className="w-full lg:w-[380px] flex flex-col gap-4"
+        variants={{
+          hidden: {},
+          visible: { transition: { staggerChildren: 0.15 } },
         }}
       >
-        <Link
-          href={href}
-          className={`flex items-center gap-[10px] p-3 border rounded-md focus:outline-none transition-transform ${
-            isActive ? "bg-[#EFF6FE] border-[#62A0F6]" : "border-[#62A0F6]"
-          }`}
-        >
-          <div
-            className={`w-10 h-10 flex items-center justify-center rounded-full ${
-              isActive ? "bg-[#62A0F6]" : ""
-            }`}
-          >
-            <img
-              src="/assets/images/homehellers/Injury.svg"
-              className="w-5 h-5 object-contain"
-              alt={service.name[locale]}
-            />
-          </div>
-          <span className="text-[#62A0F6] text-base font-medium text-right">
-            {service.name[locale]}
-          </span>
-        </Link>
-      </motion.div>
-    );
-  })}
-</motion.div>
+        {services.map((service: any, idx: number) => {
+          const isActive = idx === activeIndex;
+          const href = `/${locale}/our-services/${service.slug[locale]}`;
 
+          return (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: idx * 0.15 }}
+              whileHover={{
+                scale: 1.05,
+                boxShadow: "0 4px 10px rgba(98, 160, 246, 0.4)",
+              }}
+            >
+              <Link
+                href={href}
+                className={`flex items-center gap-[10px] p-3 border rounded-md focus:outline-none transition-transform ${
+                  isActive
+                    ? "bg-[#EFF6FE] border-[#62A0F6]"
+                    : "border-[#62A0F6]"
+                }`}
+              >
+                <div
+                  className={`w-10 h-10 flex items-center justify-center rounded-full ${
+                    isActive ? "bg-[#62A0F6]" : ""
+                  }`}
+                >
+                  <img
+                    src="/assets/images/homehellers/Injury.svg"
+                    className="w-5 h-5 object-contain"
+                    alt={service.name[locale]}
+                  />
+                </div>
+                <span className="text-[#62A0F6] text-base font-medium text-right">
+                  {service.name[locale]}
+                </span>
+              </Link>
+            </motion.div>
+          );
+        })}
+      </motion.div>
 
       {/* Main Service */}
       <motion.div
@@ -113,7 +114,7 @@ const AnimatedServicesSection = ({
           className="h-72 lg:h-[456px] bg-cover bg-no-repeat rounded-2xl"
           style={{
             backgroundImage: `url(${
-              activeService.image?.[0]?.thumbnail ||
+              activeService.image?.[0]?.original ||
               "/assets/images/homehellers/Injury.svg"
             })`,
           }}

@@ -6,7 +6,13 @@ import { ArrowLeft } from "lucide-react";
 import { ShowMore } from "@/components/Animations/ShowMore";
 import parse from "html-react-parser";
 
-function AboutApp({ locale, aboutHomeSection }: { locale: string, aboutHomeSection?: any }) {
+function AboutApp({
+  locale,
+  aboutHomeSection,
+}: {
+  locale: string;
+  aboutHomeSection?: any;
+}) {
   const icons = [
     "/assets/images/homehellers/elements.svg",
     "/assets/images/homehellers/elements-1.svg",
@@ -46,7 +52,8 @@ function AboutApp({ locale, aboutHomeSection }: { locale: string, aboutHomeSecti
           className="relative w-full xl:w-[597px] h-[531px] bg-contain bg-no-repeat"
           style={{
             backgroundImage: `url(${
-              aboutHomeSection?.Posts?.[0]?.attachment?.[0]?.thumbnail || "/assets/images/homehellers/about.svg"
+              aboutHomeSection?.Posts?.[0]?.attachment?.[0]?.original ||
+              "/assets/images/homehellers/about.svg"
             })`,
           }}
           initial={{ opacity: 0, x: -50 }}
@@ -68,7 +75,7 @@ function AboutApp({ locale, aboutHomeSection }: { locale: string, aboutHomeSecti
               {locale === "ar" ? "عن هوم هيليرز" : "About Home Healers"}
             </span>
             <h2 className="text-2xl xl:text-[30px] font-semibold text-[#1e1e1e]">
-              {aboutHomeSection?.Posts?.[0]?.title ||""}
+              {aboutHomeSection?.Posts?.[0]?.title || ""}
             </h2>
             <div className="text-lg leading-8 text-[#1e1e1e]">
               {aboutHomeSection?.Posts?.[0]?.description
@@ -79,25 +86,26 @@ function AboutApp({ locale, aboutHomeSection }: { locale: string, aboutHomeSecti
 
           <div className="flex flex-col items-end gap-4 text-end">
             {
-            //@ts-ignore
-            listItems[locale]?.map((text:any, i:any) => (
-              <motion.div
-                key={i}
-                className="flex items-center gap-3"
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + i * 0.2 }}
-                viewport={{ once: false, amount: 0.5 }}
-              >
-                <span className="text-base xl:text-lg font-light text-[#1e1e1e]">
-                  {text}
-                </span>
-                <div
-                  className="w-6 h-6 bg-cover bg-center bg-no-repeat"
-                  style={{ backgroundImage: `url(${icons[i]})` }}
-                />
-              </motion.div>
-            ))}
+              //@ts-ignore
+              listItems[locale]?.map((text: any, i: any) => (
+                <motion.div
+                  key={i}
+                  className="flex items-center gap-3"
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 + i * 0.2 }}
+                  viewport={{ once: false, amount: 0.5 }}
+                >
+                  <span className="text-base xl:text-lg font-light text-[#1e1e1e]">
+                    {text}
+                  </span>
+                  <div
+                    className="w-6 h-6 bg-cover bg-center bg-no-repeat"
+                    style={{ backgroundImage: `url(${icons[i]})` }}
+                  />
+                </motion.div>
+              ))
+            }
           </div>
 
           <div className="flex items-center gap-6 mt-4">
@@ -115,7 +123,10 @@ function AboutApp({ locale, aboutHomeSection }: { locale: string, aboutHomeSecti
             >
               <div
                 className="w-8 h-8 bg-cover bg-center bg-no-repeat"
-                style={{ backgroundImage: "url('/assets/images/homehellers/vedio.svg')" }}
+                style={{
+                  backgroundImage:
+                    "url('/assets/images/homehellers/vedio.svg')",
+                }}
               />
             </motion.div>
             <motion.button

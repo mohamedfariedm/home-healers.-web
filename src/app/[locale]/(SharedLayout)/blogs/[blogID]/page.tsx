@@ -14,7 +14,6 @@ export async function generateMetadata({
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings.data[0].setting.seo["blogs"];
   const {data} = await ClientAPI.getSingleBlog(blogID,locale);
-console.log(data,"data Blog");
 
   return {
     title: data.meta_title || "Home Hellers",

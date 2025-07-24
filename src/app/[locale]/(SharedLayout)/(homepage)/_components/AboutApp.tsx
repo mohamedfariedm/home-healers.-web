@@ -12,7 +12,17 @@ import parse from "html-react-parser";
 import "swiper/css";
 import "swiper/css/pagination";
 
-function AboutApp({ locale, section, data,aboutHomeSection }: { locale: string, section: any, data?: any, aboutHomeSection?: any }) {
+function AboutApp({
+  locale,
+  section,
+  data,
+  aboutHomeSection,
+}: {
+  locale: string;
+  section: any;
+  data?: any;
+  aboutHomeSection?: any;
+}) {
   const [activeDot, setActiveDot] = useState(0);
   console.log(data);
 
@@ -36,11 +46,13 @@ function AboutApp({ locale, section, data,aboutHomeSection }: { locale: string, 
           <h2 className="text-2xl sm:text-3xl font-semibold leading-10 text-gray-900">
             {locale === "ar" ? (
               <>
-                مجموعة من <span className="text-primary">الخدمات</span> الطبية المتنوعة
+                مجموعة من <span className="text-primary">الخدمات</span> الطبية
+                المتنوعة
               </>
             ) : (
               <>
-                A range of <span className="text-primary">medical services</span>
+                A range of{" "}
+                <span className="text-primary">medical services</span>
               </>
             )}
           </h2>
@@ -77,7 +89,8 @@ function AboutApp({ locale, section, data,aboutHomeSection }: { locale: string, 
                       className="w-16 h-16 bg-contain bg-no-repeat"
                       style={{
                         backgroundImage: `url(${
-                          service.image?.[0]?.thumbnail || "/assets/images/homehellers/Injury.svg"
+                          service.image?.[0]?.original ||
+                          "/assets/images/homehellers/Injury.svg"
                         })`,
                       }}
                     />

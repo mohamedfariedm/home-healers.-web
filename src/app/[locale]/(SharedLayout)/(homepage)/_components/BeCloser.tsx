@@ -68,7 +68,7 @@ function BeCloser({ locale, section }: { locale: string; section: any }) {
                 className="absolute top-0 end-0 w-[141px] h-full bg-cover bg-no-repeat rounded-[24px] z-20"
                 style={{
                   backgroundImage: `url(${
-                    post.attachment?.[0]?.thumbnail || "/default-image.svg"
+                    post.attachment?.[0]?.original || "/default-image.svg"
                   })`,
                 }}
               />
