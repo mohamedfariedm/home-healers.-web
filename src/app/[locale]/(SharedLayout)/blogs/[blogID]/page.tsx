@@ -52,6 +52,7 @@ async function page({
 }) {
 
   const {data} = await ClientAPI.getSingleBlog(blogID,locale);
+console.log("Blog Data:", data);
 
 
   return (

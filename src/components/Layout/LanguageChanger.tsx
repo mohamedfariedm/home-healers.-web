@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
+import ClientAPI from "@/app/api/api";
 
 export default function LanguageChanger() {
   const { i18n } = useTranslation();
@@ -13,21 +14,62 @@ export default function LanguageChanger() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const handleChange = (newLocale: string) => {
-    if (newLocale === currentLocale) return;
+const handleChange = async (newLocale: string) => {
+  if (newLocale === currentLocale) return;
 
-    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${30 * 24 * 60 * 60}`;
-    let newPath = currentPathname;
-    if (currentPathname.startsWith(`/${currentLocale}`)) {
-      newPath = currentPathname.replace(`/${currentLocale}`, `/${newLocale}`);
-    } else {
-      newPath = `/${newLocale}${currentPathname}`;
+  document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${30 * 24 * 60 * 60}`;
+
+  const pathParts = currentPathname.split("/").filter(Boolean);
+  const currentSlug = pathParts[pathParts.length - 1];
+  const section = pathParts[pathParts.length - 2] || "";
+
+  console.log("🔍 currentPathname:", currentPathname);
+  console.log("📍 section:", section, "slug:", currentSlug);
+
+  let translatedSlug = currentSlug;
+
+  // Only attempt translation if we're on a slug-based page
+  if (["our-services", "blogs"].includes(section)) {
+    try {
+      let allData = [];
+
+      if (section === "our-services") {
+        const res = await ClientAPI.getAllServices(newLocale);
+        allData = res?.data || [];
+      } else if (section === "blogs") {
+        const res = await ClientAPI.getAllBlogs?.(newLocale); // adjust if needed
+        allData = res?.data || [];
+      }
+
+      const matched = allData.find(
+        (item: any) => item.slug?.[currentLocale] === currentSlug
+      );
+
+      if (matched && matched.slug?.[newLocale]) {
+        translatedSlug = matched.slug[newLocale];
+        console.log("✅ Found translated slug:", translatedSlug);
+      } else {
+        console.warn("⚠️ No translated slug found for:", currentSlug);
+      }
+    } catch (err) {
+      console.error("❌ Failed to fetch translated slugs:", err);
     }
+  }
 
-    i18n.changeLanguage(newLocale);
-    router.push(newPath);
-    setDropdownOpen(false);
-  };
+  // Replace locale in path
+  let newPath = currentPathname.replace(`/${currentLocale}`, `/${newLocale}`);
+
+  // If slug changed, replace it too
+  if (translatedSlug !== currentSlug) {
+    newPath = newPath.replace(currentSlug, translatedSlug);
+  }
+
+  console.log("🚀 Redirecting to:", newPath);
+  i18n.changeLanguage(newLocale);
+  router.push(newPath);
+  setDropdownOpen(false);
+};
+
 
   // Close dropdown when clicking outside
   useEffect(() => {
