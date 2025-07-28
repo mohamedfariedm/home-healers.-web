@@ -190,7 +190,7 @@ function OurStory({ locale, data }: { locale: string; data: any }) {
           variants={leftColumnVariants}
         >
           {data.slice(0, 2).map((article: any, i: number) => (
-            <Link href={`/${locale}/blogs/${article.slug}`} key={article.id}>
+            <Link href={`/${locale}/blogs/${article.slug[locale]}`} key={article.id}>
               <motion.div
                 className="relative bg-[#eff6fe] rounded-[24px] p-5 cursor-pointer"
                 variants={articleCardVariants}
@@ -232,7 +232,7 @@ function OurStory({ locale, data }: { locale: string; data: any }) {
 
         {/* Right Column */}
         {data[2] && (
-          <Link href={`/${locale}/blogs/${data[2].slug}`}>
+          <Link href={`/${locale}/blogs/${data[2].slug[locale]}`}>
             <motion.div
               className="flex flex-col items-end bg-[#eff6fe] rounded-[24px] p-6 w-full xl:max-w-[612px] cursor-pointer relative"
               variants={rightColumnVariants}

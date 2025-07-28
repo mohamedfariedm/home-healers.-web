@@ -28,38 +28,24 @@ const handleChange = async (newLocale: string) => {
 
   let translatedSlug = currentSlug;
 
-  // Only attempt translation if we're on a slug-based page
-  if (["our-services", "blogs"].includes(section)) {
-    try {
-      let allData = [];
-
-      if (section === "our-services") {
-        const res = await ClientAPI.getAllServices(newLocale);
-        allData = res?.data || [];
-      } else if (section === "blogs") {
-        const res = await ClientAPI.getAllBlogs?.(newLocale); // adjust if needed
-        allData = res?.data || [];
-      }
-
-      const matched = allData.find(
-        (item: any) => item.slug?.[currentLocale] === currentSlug
-      );
-
-      if (matched && matched.slug?.[newLocale]) {
-        translatedSlug = matched.slug[newLocale];
-        console.log("✅ Found translated slug:", translatedSlug);
-      } else {
-        console.warn("⚠️ No translated slug found for:", currentSlug);
-      }
-    } catch (err) {
-      console.error("❌ Failed to fetch translated slugs:", err);
+  try {
+    if (section === "blogs") {
+      const res = await ClientAPI.getSingleBlog(currentSlug, currentLocale);
+      const blog = res?.data;
+      translatedSlug = blog?.slug?.[newLocale] || currentSlug;
+    } else if (section === "our-services") {
+      const res = await ClientAPI.getAllServicesSlug(currentLocale,currentSlug);
+      const service = res?.data;
+      translatedSlug = service?.slug?.[newLocale] || currentSlug;
+      console.log("🔄 Translated slug:", translatedSlug);
+      console.log("🔄 services", service);
+      
     }
+  } catch (err) {
+    console.error("❌ Failed to fetch translated slug:", err);
   }
 
-  // Replace locale in path
   let newPath = currentPathname.replace(`/${currentLocale}`, `/${newLocale}`);
-
-  // If slug changed, replace it too
   if (translatedSlug !== currentSlug) {
     newPath = newPath.replace(currentSlug, translatedSlug);
   }
@@ -69,6 +55,8 @@ const handleChange = async (newLocale: string) => {
   router.push(newPath);
   setDropdownOpen(false);
 };
+
+
 
 
   // Close dropdown when clicking outside

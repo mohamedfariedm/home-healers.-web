@@ -110,7 +110,7 @@ const BlogAnimationSection = ({
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10">
           {currentCards.map((card: any, i: number) => (
-            <Link href={`/${locale}/blogs/${card.slug}`} key={card.id}>
+            <Link href={`/${locale}/blogs/${card.slug[locale]}`} key={card.id}>
               <motion.div
                 className="relative w-full max-w-[400px] h-[550px] bg-[#eff6fe] rounded-[24px] overflow-hidden mx-auto cursor-pointer shadow-md"
                 variants={cardVariants}
