@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +17,7 @@ interface InvoiceViewProps {
     service_code: string;
     session_price: number;
     session_count: number;
+    national_id: string;
     discount: number;
     total_before_tax: number;
     tax_total: number;
@@ -67,7 +67,7 @@ const qrValue = `https://home-healers-web.vercel.app/invoice/${invoiceData.id}`;
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white" dir="rtl">
       <div className='flex justify-center items-center mb-4'>
-      <button
+           <button
   onClick={handleDownloadPDF}
   className="mb-4 inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-white shadow transition duration-200 hover:bg-blue-700 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500"
 >
@@ -96,7 +96,7 @@ const qrValue = `https://home-healers-web.vercel.app/invoice/${invoiceData.id}`;
           <div className="text-right">
             <h3 className="font-bold mb-4">المشتريات</h3>
             <p className="font-medium">{invoiceData.customer_name}</p>
-            <p className="text-sm text-muted-foreground">رقم العميل: {invoiceData.client_id}</p>
+            <p className="text-sm text-muted-foreground">الهوية الوطنية: {invoiceData.national_id}</p>
           </div>
           <div className="space-y-3">
             <div className="flex justify-between">
