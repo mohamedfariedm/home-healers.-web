@@ -86,6 +86,8 @@ const ClientAPI = {
 
   getClientReview: (id: string | number, locale: string) =>
     fetchData(`client/ClientReview/${id}`, locale),
+  getInvoices: (id: string | number, locale: string) =>
+    fetchData(`client/invoice/${id}`, locale),
 
   // Reservations
   createReservation: (payload: any, locale: string) =>
