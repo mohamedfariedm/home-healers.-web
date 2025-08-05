@@ -21,7 +21,7 @@ export async function generateMetadata({
 }) {
   const { t } = await initTranslations(locale, ["homepage"]);
   const settings = await ClientAPI.getSettings(locale);
-  const seo = settings.data[0].setting.seo["specialty"];
+  const seo = settings?.data[0]?.setting?.seo["specialty"];
 
   return {
     title: seo.title || "Home Hellers",
@@ -48,25 +48,24 @@ export async function generateMetadata({
   };
 }
 
-
 async function Page({ params: { locale } }: PageProps) {
   const { t } = await initTranslations(locale, ["contactUs"]);
-    const doctorsData = await ClientAPI.getDoctors(locale);
-    const packagesData = await ClientAPI.getPackages(locale);
-    const categoriesData = await ClientAPI.getCategories(locale);
-    const countriesData = await ClientAPI.getCountries(locale);
-    const statesData = await ClientAPI.getStates(locale);
+  const doctorsData = await ClientAPI.getDoctors(locale);
+  const packagesData = await ClientAPI.getPackages(locale);
+  const categoriesData = await ClientAPI.getCategories(locale);
+  const countriesData = await ClientAPI.getCountries(locale);
+  const statesData = await ClientAPI.getStates(locale);
   const servicesData = await ClientAPI.getAllServices(locale);
 
   return (
-<BookingFlow
-        doctorsData={doctorsData}
-        servicesData={servicesData}
-        packagesData={packagesData}
-        categoriesData={categoriesData}
-        countriesData={countriesData}
-        statesData={statesData}
-      />
+    <BookingFlow
+      doctorsData={doctorsData}
+      servicesData={servicesData}
+      packagesData={packagesData}
+      categoriesData={categoriesData}
+      countriesData={countriesData}
+      statesData={statesData}
+    />
   );
 }
 

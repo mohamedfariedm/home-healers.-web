@@ -5,7 +5,7 @@ import { Bannar } from "../../(homepage)/_components";
 export const dynamic = "force-dynamic";
 
 type props = {
-  params: { locale: string, slug: string };
+  params: { locale: string; slug: string };
 };
 
 export async function generateMetadata({
@@ -15,7 +15,7 @@ export async function generateMetadata({
 }) {
   const { t } = await initTranslations(locale, ["homepage"]);
   const settings = await ClientAPI.getSettings(locale);
-  const seo = settings.data[0].setting.seo["services"];
+  const seo = settings?.data[0]?.setting?.seo["services"];
 
   return {
     title: seo.title || "Home Hellers",
@@ -42,15 +42,18 @@ export async function generateMetadata({
   };
 }
 
-async function page({ params: { locale , slug } }: props) {
+async function page({ params: { locale, slug } }: props) {
   const { t } = await initTranslations(locale, ["aboutUs"]);
   const servicesData = await ClientAPI.getAllServices(locale);
-  
-  const servicesBySlugData = await ClientAPI.getAllServicesSlug(locale, slug==="all" ? servicesData?.data[0]?.slug[locale] : slug);
+
+  const servicesBySlugData = await ClientAPI.getAllServicesSlug(
+    locale,
+    slug === "all" ? servicesData?.data[0]?.slug[locale] : slug
+  );
   const settings = await ClientAPI.getSettings(locale);
 
-  const seo = settings.data[0].setting.seo["contact"];
-console.log("slug", slug);
+  const seo = settings?.data[0]?.setting?.seo["contact"];
+  console.log("slug", slug);
 
   const homeBanners = settings.data[0].setting.banners.filter(
     (banner: any) => banner.page === "services"
@@ -141,7 +144,11 @@ console.log("slug", slug);
           </div>
         </div>
 
-<AnimatedServicesSection data={servicesData.data} serviceBySlug={servicesBySlugData?.data} locale={locale} />
+        <AnimatedServicesSection
+          data={servicesData.data}
+          serviceBySlug={servicesBySlugData?.data}
+          locale={locale}
+        />
 
         {homeBanners.length > 0 &&
           homeBanners.map((banner: any, index: number) => (

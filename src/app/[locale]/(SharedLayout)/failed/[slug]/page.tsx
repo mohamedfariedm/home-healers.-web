@@ -14,7 +14,7 @@ export async function generateMetadata({
 }) {
   const { t } = await initTranslations(locale, ["homepage"]);
   const settings = await ClientAPI.getSettings(locale);
-  const seo = settings.data[0].setting.seo["services"];
+  const seo = settings?.data[0]?.setting?.seo["services"];
 
   return {
     title: seo.title || "Home Hellers",
@@ -41,19 +41,15 @@ export async function generateMetadata({
   };
 }
 
-
 async function page({ params: { locale } }: props) {
   const { t } = await initTranslations(locale, ["aboutUs"]);
   const servicesData = await ClientAPI.getAllServices(locale);
   const settings = await ClientAPI.getSettings(locale);
 
-
-    const homeBanners = settings.data[0].setting.banners.filter(
-  (banner: any) => banner.page === 'services'
-);
-  return (
-<PaymentFail/>
+  const homeBanners = settings.data[0].setting.banners.filter(
+    (banner: any) => banner.page === "services"
   );
+  return <PaymentFail />;
 }
 
 export default page;
