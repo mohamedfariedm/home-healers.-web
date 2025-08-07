@@ -36,23 +36,23 @@ export default function BlogRelatedSection({
 
   // Use dynamic related blogs from data
   const relatedBlogs =
-    data.related_blogs?.map((blog: any) => ({
+    data?.related_blogs?.map((blog: any) => ({
       title: blog.name?.ar || blog.name || "عنوان غير متوفر",
       date: formatDate(blog.date),
       image: blog.image?.[0]?.original || "/assets/images/placeholder.jpg",
       slug: blog.slug[locale],
     })) || [];
 
-    console.log("Related Blogs:", data.related_blogs);
-    
+  console.log("Related Blogs:", data?.related_blogs);
+
   // Use dynamic tags from data
-  const blogTags = data.tags || [];
+  const blogTags = data?.tags || [];
 
   // Share data
   const shareData = {
-    title: data.name || "مقال جديد",
-    text: data.description
-      ? parse(data.description).toString()
+    title: data?.name || "مقال جديد",
+    text: data?.description
+      ? parse(data?.description).toString()
       : "تحقق من هذا المقال الرائع!",
     url: typeof window !== "undefined" ? window.location.href : "",
   };
@@ -60,7 +60,7 @@ export default function BlogRelatedSection({
   // Share handlers
   const handleFacebookShare = () => {
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-      shareData.url
+      shareData?.url
     )}`;
     window.open(facebookUrl, "_blank");
     setIsPopupOpen(false);
@@ -69,8 +69,8 @@ export default function BlogRelatedSection({
 
   const handleTwitterShare = () => {
     const twitterUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(
-      shareData.text
-    )}&url=${encodeURIComponent(shareData.url)}`;
+      shareData?.text
+    )}&url=${encodeURIComponent(shareData?.url)}`;
     window.open(twitterUrl, "_blank");
     setIsPopupOpen(false);
     toast.success("تم مشاركة المقال على تويتر!", { duration: 3000 });
@@ -83,8 +83,8 @@ export default function BlogRelatedSection({
 
   const handleEmailShare = () => {
     const emailUrl = `mailto:?subject=${encodeURIComponent(
-      shareData.title
-    )}&body=${encodeURIComponent(shareData.text + "\n" + shareData.url)}`;
+      shareData?.title
+    )}&body=${encodeURIComponent(shareData?.text + "\n" + shareData?.url)}`;
     window.open(emailUrl, "_blank");
     setIsPopupOpen(false);
     toast.success("تم مشاركة المقال عبر البريد الإلكتروني!", {
@@ -94,7 +94,7 @@ export default function BlogRelatedSection({
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(shareData.url);
+      await navigator.clipboard.writeText(shareData?.url);
       toast.success("تم نسخ الرابط إلى الحافظة!", { duration: 3000 });
     } catch (err) {
       console.error("Error copying link:", err);
@@ -219,27 +219,27 @@ export default function BlogRelatedSection({
           className="rounded-[24px] bg-cover bg-no-repeat h-[300px] md:h-[456px] w-full"
           style={{
             backgroundImage: `url(${
-              data.image[0]?.original || "/assets/images/placeholder.jpg"
+              data?.image[0]?.original || "/assets/images/placeholder.jpg"
             })`,
           }}
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
           role="img"
-          aria-label={`صورة المقال ${data.name}`}
+          aria-label={`صورة المقال ${data?.name}`}
         />
 
         <div className="flex flex-col gap-2 items-start">
           <span className="text-[#62a0f6] text-sm font-medium">
-            {formatDate(data.date)}
+            {formatDate(data?.date)}
           </span>
 
           <div className="flex flex-col gap-6 items-start">
             <h2 className="text-2xl md:text-[30px] font-medium text-right text-[#1e1e1e]">
-              {data.name}
+              {data?.name}
             </h2>
             <div className="text-right text-[#475467] text-base md:text-xl leading-loose">
-              {parse(data.description)}
+              {parse(data?.description)}
             </div>
           </div>
         </div>

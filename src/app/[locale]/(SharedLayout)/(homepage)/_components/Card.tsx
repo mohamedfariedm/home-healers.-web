@@ -1,8 +1,8 @@
-"use client"
-import { useRef } from "react"
-import { motion, useInView } from "framer-motion"
-import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
+"use client";
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 interface Post {
   id: number;
@@ -34,76 +34,94 @@ interface CardProps {
 function Card({ locale, section }: CardProps) {
   // Refs for different sections
   console.log("Card Section Data:", section);
-  
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const cardsRef = useRef<HTMLDivElement>(null)
-  const cardImageRef = useRef<HTMLDivElement>(null)
+
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<HTMLDivElement>(null);
+  const cardImageRef = useRef<HTMLDivElement>(null);
 
   // Check if sections are in view
-  const isSectionInView = useInView(sectionRef, { once: false, amount: 0.2 })
-  const isCardsInView = useInView(cardsRef, { once: false, amount: 0.3 })
-  const isCardImageInView = useInView(cardImageRef, { once: false, amount: 0.3 })
+  const isSectionInView = useInView(sectionRef, { once: false, amount: 0.2 });
+  const isCardsInView = useInView(cardsRef, { once: false, amount: 0.3 });
+  const isCardImageInView = useInView(cardImageRef, {
+    once: false,
+    amount: 0.3,
+  });
 
   // Extract data from section
-  const mainPost = section.Posts.find(post => post.description) || section.Posts[0];
-  const cardPosts = section.Posts.filter(post => !post.description && post.id !== mainPost?.id).slice(0, 3);
+  const mainPost =
+    section?.Posts.find((post) => post.description) || section?.Posts[0];
+  const cardPosts = section?.Posts.filter(
+    (post) => !post.description && post.id !== mainPost?.id
+  ).slice(0, 3);
 
   // Card styling data - keeping the visual design but making content dynamic
   const cardStyles = [
     {
       bgColor: "#00b5b4",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/oyagdjg0Uw.png",
-      bgUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/MYzDAtQX71.png",
+      iconUrl:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/oyagdjg0Uw.png",
+      bgUrl:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/MYzDAtQX71.png",
     },
     {
       bgColor: "#62a0f6",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/rLXfmB2tP2.png",
-      bgUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/KFeLeCb3fU.png",
+      iconUrl:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/rLXfmB2tP2.png",
+      bgUrl:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/KFeLeCb3fU.png",
     },
     {
       bgColor: "#5ad0ae",
-      iconUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/vqOoD1wwb0.png",
-      bgUrl: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/TzRKwKqjBT.png",
+      iconUrl:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/vqOoD1wwb0.png",
+      bgUrl:
+        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/TzRKwKqjBT.png",
     },
   ];
 
   // Combine posts with styling
-  const cards = cardPosts.map((post, index) => ({
+  const cards = cardPosts?.map((post, index) => ({
     id: post.id,
     text: post.title,
-    ...cardStyles[index]
+    ...cardStyles[index],
   }));
 
   // Parse the main title to highlight specific parts
   const parseTitle = (title: string) => {
-    const parts = title.split(' ');
+    const parts = title.split(" ");
     return parts.map((part, index) => {
-      const isHighlighted = part.includes('الطبي') || part.includes('هيلرز');
+      const isHighlighted = part.includes("الطبي") || part.includes("هيلرز");
       return (
         <span
           key={index}
           className={`text-[30px] font-semibold leading-[40px] relative text-start ${
-            isHighlighted ? 'text-[#62a0f6]' : 'text-[#1e1e1e]'
+            isHighlighted ? "text-[#62a0f6]" : "text-[#1e1e1e]"
           }`}
         >
-          {part}{index < parts.length - 1 ? ' ' : ''}
+          {part}
+          {index < parts.length - 1 ? " " : ""}
         </span>
       );
     });
   };
 
   return (
-    <div ref={sectionRef} className="main-container w-full max-w-[1280px] xl:h-[913px] relative mx-auto my-0">
+    <div
+      ref={sectionRef}
+      className="main-container w-full max-w-[1280px] xl:h-[913px] relative mx-auto my-0"
+    >
       {/* Header Section */}
       <motion.div
         className="flex w-full max-w-[610px] flex-col gap-[16px] items-end relative z-[24] mt-[60px] mx-auto"
         initial={{ opacity: 0, y: -20 }}
-        animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
+        animate={
+          isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }
+        }
         transition={{ duration: 0.5 }}
       >
         <div className="flex gap-[10px] justify-center items-center self-stretch relative z-[25]">
-          <div className="w-[610px] text-[30px] font-semibold leading-[40px] relative text-center xl:text-start z-[26]">
-            {parseTitle(mainPost?.title || section.title)}
+          <div className="w-[610px] text-[30px] font-semibold leading-[40px] relative text-center xl:text-center z-[26]">
+            {parseTitle(mainPost?.title || section?.title)}
           </div>
         </div>
         {mainPost?.description && (
@@ -178,20 +196,22 @@ function Card({ locale, section }: CardProps) {
           ref={cardImageRef}
           className="flex w-full max-w-[480px] flex-col gap-[32px] items-center relative z-[21]"
           initial={{ opacity: 0, y: 30 }}
-          animate={isCardImageInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          animate={
+            isCardImageInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }
+          }
           transition={{ duration: 0.6 }}
         >
-          <div className="holographic-card w-[480px] h-[290px] flex justify-center items-center relative overflow-hidden rounded-[15px] transition-all duration-500 ease-in-out bg-cover bg-center"
+          <div
+            className="holographic-card w-[480px] h-[290px] flex justify-center items-center relative overflow-hidden rounded-[15px] transition-all duration-500 ease-in-out bg-cover bg-center"
             style={{
-              backgroundImage: "url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/Z6UVEmXVtZ.png)",
+              backgroundImage:
+                "url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/Z6UVEmXVtZ.png)",
               backgroundPosition: "center center",
               backgroundSize: "cover",
             }}
           >
             {/* Holographic shine effect */}
-            <div
-              className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-gradient-to-t from-transparent to-[rgba(0, 255, 255, 0.3)] rotate-[-45deg] opacity-0 transition-all duration-500 ease-in-out"
-            ></div>
+            <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-gradient-to-t from-transparent to-[rgba(0, 255, 255, 0.3)] rotate-[-45deg] opacity-0 transition-all duration-500 ease-in-out"></div>
           </div>
         </motion.div>
       </div>
@@ -203,22 +223,23 @@ function Card({ locale, section }: CardProps) {
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
         <Link
-          className="flex rtl:w-[255px] ltr:w-[400px] h-[56px] pt-[8px] pr-[16px] pb-[8px] pl-[16px] gap-[10px] justify-center items-center bg-[#143087] rounded-[8px] border-solid border border-[#143087] relative z-[29] mt-[56px] mx-auto cursor-pointer"
+          className="flex rtl:w-[255px] ltr:w-[400px] h-[56px] pt-[8px] pr-[16px] pb-[8px] pl-[16px] gap-[10px] justify-center items-center bg-[#143087] rounded-[8px] border-solid border border-[#143087] relative z-[29] mt-[56px] mx-auto cursor-pointer hover:scale-110 transition-all duration-500"
           href={`/${locale}/contact`}
         >
           <span className="h-[28px] shrink-0 basis-auto text-[18px] font-medium leading-[28px] text-[#fff] relative text-start z-[32]">
-          {locale === "ar" ? "اطلب الكارت الطبي الان" : "Request Your Medical Card"}
+            {locale === "ar"
+              ? "اطلب الكارت الطبي الان"
+              : "Request Your Medical Card"}
           </span>
           <div className="w-[24px] h-[24px] relative overflow-hidden z-30">
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-6 h-6 text-white" />
           </div>
         </Link>
       </motion.div>
 
       {/* Background container */}
-      <div className="w-[1280px] h-[913px] rounded-[32px] absolute top-0 start-1/2 translate-x-[-50%] translate-y-0" />
     </div>
-  )
+  );
 }
 
-export default Card
+export default Card;

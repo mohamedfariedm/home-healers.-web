@@ -34,7 +34,7 @@ function AboutApp({
       {/* Section Header */}
       <motion.div
         className="flex flex-col items-center gap-8 w-full relative"
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: .3, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         viewport={{ once: false, amount: 0.5 }}
@@ -80,27 +80,26 @@ function AboutApp({
           {services.map((service: any, i: number) => (
             <SwiperSlide key={i}>
               <Link
-                href={`/${locale}/services?id=${service.id}`}
+                href={`/${locale}/services?id=${service.slug?.[locale]}`}
                 className="relative bg-[#0077b7] rounded-3xl w-[299px] h-[352px] px-2 py-10 hover:shadow-2xl hover:scale-105 transition-all duration-300 block mx-auto"
               >
                 <div className="absolute top-6 left-2 flex flex-col items-start gap-4 px-2">
-                  <div className="bg-white rounded-full w-24 h-24 flex items-center justify-center">
-                    <div
-                      className="w-16 h-16 bg-contain bg-no-repeat"
-                      style={{
+                  <div
+                  style={{
                         backgroundImage: `url(${
                           service.image?.[0]?.original ||
                           "/assets/images/homehellers/Injury.svg"
                         })`,
                       }}
-                    />
+                  className="bg-cover bg-center bg-no-repeat rounded-full w-24 h-24 flex items-center justify-center">
+
                   </div>
                   <div className="text-white">
                     <h3 className="text-lg font-semibold leading-7">
                       {service.name[locale]}
                     </h3>
                     <div className="text-sm font-light leading-8 mt-1 max-h-[96px] overflow-hidden text-ellipsis">
-                      {parse(service.description[locale])}
+                      {parse(service?.description[locale]||"")}
                     </div>
                   </div>
                 </div>
@@ -130,7 +129,7 @@ function AboutApp({
         >
           <Link
             href={`/${locale}/services`}
-            className="flex items-center gap-2 px-4 py-2 bg-[#143087] text-white rounded-md text-lg font-medium border border-[#143087]"
+            className="flex items-center gap-2 px-4 py-2 bg-[#143087] text-white rounded-xl text-lg font-medium border border-[#143087]"
           >
             {locale === "ar" ? "جميع الخدمات" : "All Services"}
             <ArrowLeft className="w-6 h-6 text-white" />

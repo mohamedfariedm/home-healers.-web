@@ -1,6 +1,14 @@
 import { TFunction } from "i18next";
 
-function Testimonials({ t,homeData,ClientReview }: { t: TFunction,homeData:any,ClientReview:any }) {
+function Testimonials({
+  t,
+  homeData,
+  ClientReview,
+}: {
+  t: TFunction;
+  homeData: any;
+  ClientReview: any;
+}) {
   return (
     <div className="main-container flex w-full xl:w-[1440px] flex-col gap-[48px] items-center flex-nowrap relative mx-auto my-0">
       <div className="flex w-full xl:w-[712px] flex-col gap-[16px] justify-center items-center shrink-0 flex-nowrap relative">
@@ -12,7 +20,7 @@ function Testimonials({ t,homeData,ClientReview }: { t: TFunction,homeData:any,C
         </span>
       </div>
       <div className="flex w-full xl:w-[1114px] gap-[32px] items-center justify-center shrink-0 flex-wrap xl:flex-nowrap relative z-[3]">
-        {ClientReview?.data.map((review:any, index:any) => (
+        {ClientReview?.data?.map((review: any, index: any) => (
           <div
             key={index}
             className="flex w-full md:w-[350px] flex-col gap-[16px] items-center shrink-0 flex-nowrap relative z-[4]"

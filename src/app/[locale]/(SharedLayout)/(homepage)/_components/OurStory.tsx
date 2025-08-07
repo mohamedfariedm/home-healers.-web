@@ -1,270 +1,135 @@
 "use client";
+
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
-import { ShowMore } from "@/components/Animations/ShowMore";
 import Link from "next/link";
-import parse from "html-react-parser"; // Import html-react-parser
+import parse from "html-react-parser";
+import { ShowMore } from "@/components/Animations/ShowMore";
 
-function OurStory({ locale, data }: { locale: string; data: any }) {
-  // Refs for different sections
-  console.log("Data in OurStory:", data);
-  console.log(data);
-
+export default function OurStory({ locale, data }: { locale: string; data: any[] }) {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const articlesRef = useRef<HTMLDivElement>(null);
+  const isSectionInView = useInView(sectionRef, { once: true, amount: 0.2 });
 
-  // Check if sections are in view
-  const isSectionInView = useInView(sectionRef, { once: false, amount: 0.1 });
-  const isHeaderInView = useInView(headerRef, { once: false, amount: 0.5 });
-  const isArticlesInView = useInView(articlesRef, { once: false, amount: 0.2 });
-
-  // Animation variants
-  const headerVariants = {
-    hidden: { opacity: 0, y: -20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        when: "beforeChildren",
-        staggerChildren: 0.2,
-      },
-    },
-  };
-
-  const headerItemVariants = {
-    hidden: { opacity: 0, y: -20 },
-    visible: { opacity: 1, y: 0 },
-  };
-
-  const articlesContainerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        when: "beforeChildren",
-        staggerChildren: 0.3,
-      },
-    },
-  };
-
-  const leftColumnVariants = {
-    hidden: { opacity: 0, x: -50 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
-        when: "beforeChildren",
-        staggerChildren: 0.2,
-      },
-    },
-  };
-
-  const rightColumnVariants = {
-    hidden: { opacity: 0, x: 20 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
-      },
-    },
-  };
-
-  const articleCardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
-      },
-    },
-    hover: {
-      y: -10,
-      boxShadow: "0 10px 25px rgba(20, 48, 135, 0.1)",
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 20,
-      },
-    },
-  };
-
-  const imageVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
-        delay: 0.1,
-      },
-    },
-  };
-
-  // Format date function (optional, customize as needed)
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("ar-EG", {
+    return date.toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US", {
       day: "numeric",
       month: "long",
       year: "numeric",
     });
   };
 
-  return (
-    <div
-      ref={sectionRef}
-      className="main-container ltr:rtl rtl:ltr w-full max-w-[1280px] mt-[80px] mx-auto my-0 px-4 py-6"
-    >
-      {/* Header Section */}
-      <motion.div
-        ref={headerRef}
-        className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6"
-        variants={headerVariants}
-        initial="hidden"
-        animate={isHeaderInView ? "visible" : "hidden"}
-      >
-        <Link href={`/${locale}/blogs`}>
-          <motion.div
-            className="flex items-center gap-3 bg-[#143087] text-white px-4 py-2 rounded-[8px] border border-[#143087]"
-            variants={headerItemVariants}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <ArrowLeft className="w-6 h-6" />
-            <span className="text-[18px] font-medium leading-[28px]">
-              {locale === "ar" ? "جميع المقالات" : "All Articles"}
-            </span>
-          </motion.div>
-        </Link>
+  const featuredArticle = data[0];
+  const otherArticles = data.slice(1);
 
-        <motion.div
-          className="flex flex-col gap-2 items-end"
-          variants={headerItemVariants}
-        >
-          <motion.span
-            className="text-[16px] font-medium text-[#62a0f6]"
-            variants={headerItemVariants}
-          >
+  return (
+    <section
+      ref={sectionRef}
+      className="main-container w-full max-w-[1280px] mx-auto px-4 py-10"
+      dir={locale === "ar" ? "rtl" : "ltr"}
+    >
+      {/* Header */}
+      <motion.div
+        className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={isSectionInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.6 }}
+      >
+
+         <div className="text-start">
+          <span className="text-sm text-[#62a0f6] font-medium block mb-1">
             {locale === "ar"
               ? "استشكف اخر المقالات الطبية"
               : "Explore the Latest Medical Articles"}
-          </motion.span>
-          <motion.h2
-            className="text-[30px] font-semibold leading-[40px] text-[#1e1e1e] text-end"
-            variants={headerItemVariants}
-          >
-            {locale === "ar" ? "استشكف اخر " : "Explore the latest "}
+          </span>
+          <h2 className="text-2xl lg:text-3xl font-semibold text-[#1e1e1e] leading-snug">
+            {locale === "ar" ? "استكشف آخر " : "Explore the latest "}
             <span className="text-[#62a0f6]">
-              {locale === "ar" ? "المقالات " : "Medical Articles"}
+              {locale === "ar" ? "المقالات الطبية" : "Medical Articles"}
             </span>
-            {locale === "ar" ? "الطبية" : " in Medicine"}{" "}
-          </motion.h2>
-        </motion.div>
+          </h2>
+        </div>
+        <Link href={`/${locale}/blogs`}>
+          <motion.div className="flex items-center gap-3 hover:scale-105 transition-all duration-500  rounded-xl bg-[#143087] text-white px-4 py-2 ">
+            <span className="text-base font-medium">
+              {locale === "ar" ? "جميع المقالات" : "All Articles"}
+            </span>
+                        <ArrowLeft className="w-5 h-5" />
+
+          </motion.div>
+        </Link>
+
+       
       </motion.div>
 
-      {/* Articles Section */}
-      <motion.div
-        ref={articlesRef}
-        className="flex flex-col lg:flex-row gap-8 mt-12"
-        variants={articlesContainerVariants}
-        initial="hidden"
-        animate={isArticlesInView ? "visible" : "hidden"}
-      >
-        {/* Left Column */}
-        <motion.div
-          className="flex flex-col gap-8 flex-1"
-          variants={leftColumnVariants}
-        >
-          {data.slice(0, 2).map((article: any, i: number) => (
-            <Link href={`/${locale}/blogs/${article.slug[locale]}`} key={article.id}>
-              <motion.div
-                className="relative bg-[#eff6fe] rounded-[24px] p-5 cursor-pointer"
-                variants={articleCardVariants}
-                whileHover="hover"
-              >
-                <div className="flex flex-col md:flex-row items-center gap-5">
-                  {/* Article Text */}
-                  <div className="flex flex-col gap-5 text-end items-end max-w-[353px]">
-                    <span className="text-[16px] font-medium text-[#62a0f6]">
-                      {formatDate(article.date)}
-                    </span>
-                    <div>
-                      <h3 className="text-[20px] font-semibold text-[#1e1e1e] mb-2">
-                        {article.name}
-                      </h3>
-                      <div className="text-[16px] font-light text-[#1e1e1e] leading-[32px] line-clamp-2">
-                        {parse(article.description)}
-                      </div>
-                    </div>
-                    <ShowMore />
-                  </div>
-                  {/* Image */}
-                  <motion.div
-                    className="w-[219px] h-[268px] bg-cover bg-no-repeat rounded-[20px]"
-                    style={{
-                      backgroundImage: `url(${
-                        article.image[0]?.original ||
-                        "/assets/images/placeholder.jpg"
-                      })`,
-                    }}
-                    variants={imageVariants}
-                    whileHover={{ scale: 1.05 }}
-                  />
-                </div>
-              </motion.div>
-            </Link>
-          ))}
-        </motion.div>
+      {/* Featured Article */}
+      {featuredArticle && (
+        <Link className="hover:scale-105 transition-all duration-500 block" href={`/${locale}/blogs/${featuredArticle.slug[locale]}`} >
+          <motion.div
+            className="mt-12 bg-[#eff6fe] rounded-3xl overflow-hidden flex flex-col lg:flex-row gap-6 p-6 cursor-pointer hover:shadow-xl transition"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={isSectionInView ? { opacity: 1, scale: 1 } : {}}
+            transition={{ duration: 0.5 }}
+          >
+            {/* Image */}
+            <div
+              className="w-full lg:w-[360px] h-[260px] lg:h-[360px] bg-cover bg-center rounded-2xl"
+              style={{
+                backgroundImage: `url(${
+                  featuredArticle.image?.[0]?.original || "/assets/images/placeholder.jpg"
+                })`,
+              }}
+            />
 
-        {/* Right Column */}
-        {data[2] && (
-          <Link href={`/${locale}/blogs/${data[2].slug[locale]}`}>
+            {/* Text */}
+            <div className="flex flex-col  gap-6 text-start flex-1">
+              <span className="text-sm text-[#62a0f6] font-medium w-full text-end">
+                {formatDate(featuredArticle.date)}
+              </span>
+              <h3 className="text-xl font-bold text-[#1e1e1e]">{featuredArticle.name}</h3>
+              <div className="text-[#1e1e1e] text-base font-light leading-[28px] ">
+                {parse(featuredArticle.description)}
+              </div>
+              
+            </div>
+          </motion.div>
+        </Link>
+      )}
+
+      {/* Other Articles Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+        {otherArticles.map((article, index) => (
+          <Link className="hover:scale-105 transition-all duration-500" key={article.id} href={`/${locale}/blogs/${article.slug[locale]}`}>
             <motion.div
-              className="flex flex-col items-end bg-[#eff6fe] rounded-[24px] p-6 w-full xl:max-w-[612px] cursor-pointer relative"
-              variants={rightColumnVariants}
-              whileHover="hover"
+              className="bg-[#eff6fe] rounded-2xl p-5 h-full flex flex-col justify-between hover:shadow-md hover:scale-105 transition-all duration-500 "
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
             >
-              <motion.div
-                className="w-full h-[370px] bg-cover bg-no-repeat rounded-[20px] mb-6"
+              <div
+                className="w-full h-[200px] bg-cover bg-center rounded-xl mb-4"
                 style={{
                   backgroundImage: `url(${
-                    data[2].image[0]?.original ||
-                    "/assets/images/placeholder.jpg"
+                    article.image?.[0]?.original || "/assets/images/placeholder.jpg"
                   })`,
                 }}
-                variants={imageVariants}
-                whileHover={{ scale: 1.03 }}
               />
-              <span className="text-[16px] font-medium text-[#62a0f6] mb-2 text-end">
-                {formatDate(data[2].date)}
-              </span>
-              <h3 className="text-[20px] font-semibold text-[#1e1e1e] text-end mb-2">
-                {data[2].name}
-              </h3>
-              <div className="text-[16px] font-light text-[#1e1e1e] leading-[32px] text-end mb-[75px] line-clamp-2">
-                {parse(data[2].description)}
+              <div className="flex flex-col gap-3 text-start">
+                <span className="text-sm text-[#62a0f6] font-medium w-full text-end">
+                  {formatDate(article.date)}
+                </span>
+                <h4 className="text-lg font-semibold text-[#1e1e1e]">{article.name}</h4>
+                <div className="text-sm text-[#1e1e1e] leading-6 font-light line-clamp-4">
+                  {parse(article.description)}
+                </div>
+                
               </div>
-              <ShowMore />
             </motion.div>
           </Link>
-        )}
-      </motion.div>
-    </div>
+        ))}
+      </div>
+    </section>
   );
 }
-
-export default OurStory;

@@ -24,26 +24,26 @@ export async function generateMetadata({
   const seo = settings?.data[0]?.setting?.seo["specialty"];
 
   return {
-    title: seo.title || "Home Hellers",
-    description: seo.description || "Home Hellers app",
-    keywords: seo.keywords || "Home Hellers, services, healthcare, clinics", // customize if needed
+    title: seo?.title || "Home Hellers",
+    description: seo?.description || "Home Hellers app",
+    keywords: seo?.keywords || "Home Hellers, services, healthcare, clinics", // customize if needed
     alternates: {
-      canonical: seo.canonical || `https://home-hellers.com/${locale}`,
+      canonical: seo?.canonical || `https://home-hellers.com/${locale}`,
     },
     icons: {
       icon: "/assets/images/favicon.ico",
     },
     openGraph: {
-      title: seo.og_title || "Home Hellers",
-      description: seo.og_description || "Home Hellers app",
-      url: seo.canonical || `https://home-hellers.com/${locale}`,
-      images: [seo.og_image || "/assets/images/favicon.ico"],
+      title: seo?.og_title || "Home Hellers",
+      description: seo?.og_description || "Home Hellers app",
+      url: seo?.canonical || `https://home-hellers.com/${locale}`,
+      images: [seo?.og_image || "/assets/images/favicon.ico"],
     },
     twitter: {
       card: "summary_large_image",
-      title: seo.twitter_title || "Home Hellers",
-      description: seo.twitter_description || "Home Hellers app",
-      images: [seo.twitter_image || "/assets/images/favicon.ico"],
+      title: seo?.twitter_title || "Home Hellers",
+      description: seo?.twitter_description || "Home Hellers app",
+      images: [seo?.twitter_image || "/assets/images/favicon.ico"],
     },
   };
 }

@@ -65,11 +65,11 @@ function Features() {
           {/* Description */}
           {statsData?.data && (
             <span className="w-full max-w-[1100px] text-[16px] sm:text-[18px] font-medium leading-[28px] sm:leading-[32.76px] text-[#fff] text-start z-[1] mt-[32px]">
-              {/* {statsData.data.name} */}
+              {/* {statsdata?.data?.name} */}
               <br />
               <strong
                 dangerouslySetInnerHTML={{
-                  __html: statsData.data.description || "",
+                  __html: statsData?.data?.description || "",
                 }}
               ></strong>
               <br />

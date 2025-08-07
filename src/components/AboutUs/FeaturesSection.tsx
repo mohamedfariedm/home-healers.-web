@@ -9,7 +9,11 @@ interface FeatureCardProps {
   description: string;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => {
+const FeatureCard: React.FC<FeatureCardProps> = ({
+  icon,
+  title,
+  description,
+}) => {
   return (
     <motion.div
       className="flex items-center gap-6 cursor-pointer"
@@ -28,23 +32,29 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) =
       </div>
       <div className="flex flex-col items-start text-start">
         <span className="text-white text-lg font-semibold">{title}</span>
-        <span className="text-white text-base font-light leading-7">{description}</span>
+        <span className="text-white text-base font-light leading-7">
+          {description}
+        </span>
       </div>
     </motion.div>
   );
 };
 
 const FeaturesSection = ({ data, locale }: { data: any; locale: string }) => {
-
   // Map the Posts array to the features structure
-  const features = data.Posts.filter((post: any) => post.id !== 12).map((post: any) => ({
-    icon: post.attachment[0]?.image || "https://via.placeholder.com/52", // Fallback image if none provided
-    title: post.title,
-    description: post.description,
-  }));
+  console.log(data?.Posts);
+  
+  const features = data?.Posts.filter((post: any) => post.id !== 12).map(
+    (post: any) => ({
+      icon: post.attachment[0]?.original || "https://via.placeholder.com/52", // Fallback image if none provided
+      title: post.title,
+      description: post.description,
+    })
+  );
 
-    const subtitlePost = data.Posts.find((post: any) => post.id === 12);
-  const subtitle = subtitlePost?.title || "مزايا تجعل هوم هيليرز الخيار الأول في الوطن العربي";
+  const subtitlePost = data?.Posts.find((post: any) => post.id === 12);
+  const subtitle =
+    subtitlePost?.title || "مزايا تجعل هوم هيليرز الخيار الأول في الوطن العربي";
 
   // Split the subtitle into words
   const words = subtitle.split(" ");
@@ -55,12 +65,13 @@ const FeaturesSection = ({ data, locale }: { data: any; locale: string }) => {
     after: words.slice(4).join(" ") || "", // Remaining words
   };
 
-
   return (
     <div className="flex flex-col items-center gap-14 mt-24 w-full mx-auto">
       {/* Section Heading */}
-     <div className="flex flex-col items-center gap-3 text-center">
-        <span className="text-[#62a0f6] text-base font-medium">{data?.title}</span>
+      <div className="flex flex-col items-center gap-3 text-center">
+        <span className="text-[#62a0f6] text-base font-medium">
+          {data?.title}
+        </span>
         <h2 className="text-[28px] sm:text-[30px] font-semibold leading-[1.4] text-[#1e1e1e]">
           <span>{subtitleParts.before}</span>
           <span className="text-[#62a0f6]">{subtitleParts.highlight}</span>

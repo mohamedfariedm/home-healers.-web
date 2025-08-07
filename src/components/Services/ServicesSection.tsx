@@ -124,8 +124,8 @@ const AnimatedServicesSection = ({
             {activeService.name?.[locale] || "خدمة غير متوفرة"}
           </h3>
           <div className="text-lg leading-8 text-[#475467] max-h-[200px] overflow-hidden">
-            {activeService.description?.[locale]
-              ? parse(activeService.description[locale])
+            {activeService?.description?.[locale]
+              ? parse(activeService?.description[locale]|| "")
               : "وصف الخدمة غير متوفر حالياً."}
           </div>
           <Link

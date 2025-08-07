@@ -2,7 +2,15 @@ import { Arrow } from "@/components/Animations/arrowDown";
 import { TFunction } from "i18next";
 import React from "react";
 
-const ButtonCard = ({ value, description, image1 }: { value: string; description: string; image1: string }) => (
+const ButtonCard = ({
+  value,
+  description,
+  image1,
+}: {
+  value: string;
+  description: string;
+  image1: string;
+}) => (
   <div className="w-[270px] h-[120px] justify-center items-center flex shrink-0 border-none relative cursor-pointer group">
     <div className="flex gap-[18px] items-center flex-nowrap relative justify-center z-10 group">
       <div
@@ -55,8 +63,13 @@ function Numbers({ t }: { t: TFunction }) {
         style={{ backgroundImage: "url(/assets/images/numbers/frame.svg)" }}
       />
       <div className="flex gap-[24px] items-center justify-center self-stretch shrink-0 flex-wrap xl:flex-nowrap relative">
-        {data.map((item, index) => (
-          <ButtonCard key={index} value={item.value} description={item.description} image1={item.image1} />
+        {data?.map((item, index) => (
+          <ButtonCard
+            key={index}
+            value={item.value}
+            description={item.description}
+            image1={item.image1}
+          />
         ))}
       </div>
     </div>

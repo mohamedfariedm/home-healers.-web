@@ -58,7 +58,7 @@ function Hero({ locale, section }: { locale: string; section: any }) {
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           <motion.div
-            className="text-[#1e1e1e] text-2xl sm:text-3xl lg:text-4xl font-semibold leading-snug text-start xl:text-right relative z-10"
+            className="text-[#1e1e1e] text-2xl sm:text-3xl lg:text-4xl font-semibold leading-snug text-start  relative z-10"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ delay: 0.3 }}
@@ -68,7 +68,7 @@ function Hero({ locale, section }: { locale: string; section: any }) {
           </motion.div>
 
           <motion.div
-            className="text-[#1e1e1e] text-base sm:text-lg leading-relaxed text-start xl:text-right"
+            className="text-[#1e1e1e] text-base sm:text-lg leading-relaxed text-start"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ delay: 0.4 }}
@@ -113,11 +113,11 @@ function Hero({ locale, section }: { locale: string; section: any }) {
             </div>
           </motion.div>
 
-          <Link href={`/${locale}/booking`}>
+          <Link className="rounded-md" href={`/${locale}/booking`}>
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-3 px-5 py-3 bg-[#143087] rounded-md w-fit hover:bg-[#0f245f] transition z-10 relative"
+              className="flex items-center gap-3 px-5 py-3 bg-[#143087] rounded-2xl w-fit hover:bg-[#0f245f] transition z-10 relative"
             >
               <span className="text-white text-base sm:text-lg font-medium">
                 {locale === "ar" ? "احجز جلستك الان" : " Book Your Session Now"}{" "}

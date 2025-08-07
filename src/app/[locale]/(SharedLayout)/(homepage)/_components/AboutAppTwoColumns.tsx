@@ -13,35 +13,8 @@ function AboutApp({
   locale: string;
   aboutHomeSection?: any;
 }) {
-  const icons = [
-    "/assets/images/homehellers/elements.svg",
-    "/assets/images/homehellers/elements-1.svg",
-    "/assets/images/homehellers/guidance_physical-therapy.svg",
-  ];
-
-  // Static list items (since JSON description doesn't provide them)
-  const listItems = {
-    ar: [
-      "خدمة طوال الـ 24 ساعة",
-      "تقدم منصة هوميلرز الطبية أكثر من 60 خدمة طبية",
-      "أكثر من 100 أخصائي علاج طبيعي",
-    ],
-    en: [
-      "24/7 Service",
-      "Home Healers platform offers over 60 medical services",
-      "More than 100 physical therapy specialists",
-    ],
-  };
-
-  // Fallback translations for Arabic
-  const fallbackTitle = {
-    ar: "خدمات العلاج الطبيعي والتأهيل الطبي المنزلي",
-    en: "In-Home Physical Therapy and Medical Rehabilitation Services",
-  };
-  const fallbackDescription = {
-    ar: "منصة سعودية متخصصة في توفير خدمة العلاج الطبيعي والتأهيل الطبي المنزلي للعملاء في منازلهم بواسطة اختصاصيين مصنفين ومتميزين بكفاءة عالية طوال أيام الأسبوع وعلي مدار ٢٤ ساعة",
-    en: "Home Healers is a Saudi platform specialized in providing in-home physical therapy and medical rehabilitation services to clients in their homes through highly qualified and distinguished specialists, available throughout the week and 24/7.",
-  };
+  // Extract the latest three posts for list items and icons
+  const latestPosts = aboutHomeSection?.Posts?.slice(1, 4) || [];
 
   return (
     <>
@@ -85,27 +58,24 @@ function AboutApp({
           </div>
 
           <div className="flex flex-col items-end gap-4 text-end">
-            {
-              //@ts-ignore
-              listItems[locale]?.map((text: any, i: any) => (
-                <motion.div
-                  key={i}
-                  className="flex items-center gap-3"
-                  initial={{ opacity: 0, x: 20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 + i * 0.2 }}
-                  viewport={{ once: false, amount: 0.5 }}
-                >
-                  <span className="text-base xl:text-lg font-light text-[#1e1e1e]">
-                    {text}
-                  </span>
-                  <div
-                    className="w-6 h-6 bg-cover bg-center bg-no-repeat"
-                    style={{ backgroundImage: `url(${icons[i]})` }}
-                  />
-                </motion.div>
-              ))
-            }
+            {latestPosts.map((post: any, i: number) => (
+              <motion.div
+                key={i}
+                className="flex items-center gap-3"
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 + i * 0.2 }}
+                viewport={{ once: false, amount: 0.5 }}
+              >
+                <span className="text-base xl:text-lg font-light text-[#1e1e1e]">
+                  {post.title}
+                </span>
+                <div
+                  className="w-6 h-6 bg-cover bg-center bg-no-repeat"
+                  style={{ backgroundImage: `url(${post.attachment?.[0]?.original})` }}
+                />
+              </motion.div>
+            ))}
           </div>
 
           <div className="flex items-center gap-6 mt-4">
@@ -130,7 +100,7 @@ function AboutApp({
               />
             </motion.div>
             <motion.button
-              className="flex items-center gap-3 px-4 py-2 bg-[#143087] text-white rounded-md text-lg font-medium"
+              className="flex items-center gap-3 px-4 py-2 bg-[#143087] text-white rounded-xl text-lg font-medium"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}

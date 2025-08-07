@@ -67,12 +67,12 @@ const BlogAnimationSection = ({
   data: any;
 }) => {
   const [activePage, setActivePage] = useState(1); // Start at page 1
-  const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE); // Calculate total pages based on data length
+  const totalPages = Math.ceil(data?.length / ITEMS_PER_PAGE); // Calculate total pages based on data length
 
   // Get the cards for the current page
   const startIndex = (activePage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentCards = data.slice(startIndex, endIndex);
+  const currentCards = data?.slice(startIndex, endIndex);
 
   const goPrev = () => {
     if (activePage > 1) setActivePage(activePage - 1);

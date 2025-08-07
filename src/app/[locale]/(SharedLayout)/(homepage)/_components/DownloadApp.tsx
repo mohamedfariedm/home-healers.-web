@@ -6,15 +6,15 @@ import AppHeader from "./AppHeader";
 import AppRating from "./AppRating";
 import DownloadButtons from "./DownloadButtons";
 
-function DownloadApp({ section,locale }: { section: any,locale: string }) {
+function DownloadApp({ section, locale }: { section: any; locale: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, {
     once: false,
     amount: 0.3,
   });
-console.log("DownloadApp Section Data:", section);
+  console.log("DownloadApp Section Data:", section);
 
-  const post = section.Posts?.[0]; // safely get the first post
+  const post = section?.Posts?.[0]; // safely get the first post
 
   return (
     <div className="w-full max-w-7xl mx-auto my-16 relative overflow-hidden bg-[#eff6fe] rounded-[32px] shadow-lg">

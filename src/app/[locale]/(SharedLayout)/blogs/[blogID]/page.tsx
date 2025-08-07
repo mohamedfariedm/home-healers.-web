@@ -15,22 +15,22 @@ export async function generateMetadata({
   const { data } = await ClientAPI.getSingleBlog(blogID, locale);
 
   return {
-    title: data.meta_title || "Home Hellers",
-    description: data.meta_description || "Home Hellers app",
-    keywords: seo.keywords || "Home Hellers, services, healthcare, clinics", // customize if needed
+    title: data?.meta_title || "Home Hellers",
+    description: data?.meta_description || "Home Hellers app",
+    keywords: seo?.keywords || "Home Hellers, services, healthcare, clinics", // customize if needed
     alternates: {
-      canonical: seo.canonical || `https://home-hellers.com/${locale}`,
+      canonical: seo?.canonical || `https://home-hellers.com/${locale}`,
     },
     icons: {
       icon: "/assets/images/favicon.ico",
     },
     openGraph: {
-      title: seo.og_title || "Home Hellers",
-      description: seo.og_description || "Home Hellers app",
-      url: seo.canonical || `https://home-hellers.com/${locale}`,
+      title: seo?.og_title || "Home Hellers",
+      description: seo?.og_description || "Home Hellers app",
+      url: seo?.canonical || `https://home-hellers.com/${locale}`,
       images: [
         {
-          url: seo.og_image || "/assets/images/favicon.ico",
+          url: seo?.og_image || "/assets/images/favicon.ico",
           width: 1200,
           height: 630,
         },
@@ -38,9 +38,9 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: seo.twitter_title || "Home Hellers",
-      description: seo.twitter_description || "Home Hellers app",
-      images: [seo.twitter_image || "/assets/images/favicon.ico"],
+      title: seo?.twitter_title || "Home Hellers",
+      description: seo?.twitter_description || "Home Hellers app",
+      images: [seo?.twitter_image || "/assets/images/favicon.ico"],
     },
   };
 }
