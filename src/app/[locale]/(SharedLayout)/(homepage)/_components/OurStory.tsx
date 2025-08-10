@@ -88,7 +88,7 @@ export default function OurStory({ locale, data }: { locale: string; data: any[]
                 {formatDate(featuredArticle.date)}
               </span>
               <h3 className="text-xl font-bold text-[#1e1e1e]">{featuredArticle.name}</h3>
-              <div className="text-[#1e1e1e] text-base font-light leading-[28px] ">
+              <div className="text-[#1e1e1e] text-base font-light leading-[28px] line-clamp-6 ">
                 {parse(featuredArticle.description)}
               </div>
               
