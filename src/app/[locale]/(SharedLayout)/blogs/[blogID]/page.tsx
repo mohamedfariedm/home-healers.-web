@@ -47,7 +47,7 @@ export async function generateMetadata({
 async function page({
   params: { locale, blogID },
 }: {
-  params: { locale: string; blogID: string };
+  params: { locale: "ar" | "en"; blogID: string };
 }) {
   const { data } = await ClientAPI.getSingleBlog(blogID, locale);
   console.log("Blog Data:", data);

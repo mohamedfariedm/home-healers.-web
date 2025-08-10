@@ -83,7 +83,7 @@ function AboutApp({
                 href={`/${locale}/our-services/${service.slug?.[locale]}`}
                 className="relative bg-[#0077b7] rounded-3xl w-[299px] h-[352px] px-2 py-10 hover:shadow-2xl hover:scale-105 transition-all duration-300 block mx-auto"
               >
-                <div className="absolute top-6 left-2 flex flex-col items-start gap-4 px-2">
+                <div className="absolute top-6 start-2 flex flex-col items-start w-full gap-4 px-2">
                   <div
                   style={{
                         backgroundImage: `url(${
