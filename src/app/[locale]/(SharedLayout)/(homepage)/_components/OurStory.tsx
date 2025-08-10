@@ -19,9 +19,12 @@ export default function OurStory({ locale, data }: { locale: string; data: any[]
       year: "numeric",
     });
   };
+console.log("Data:", data);
 
-  const featuredArticle = data[0];
-  const otherArticles = data.slice(1);
+const visibleArticles = data?.filter(article => article.show_in_home_page);
+
+const featuredArticle = visibleArticles[0];
+const otherArticles = visibleArticles.slice(1);
 
   return (
     <section

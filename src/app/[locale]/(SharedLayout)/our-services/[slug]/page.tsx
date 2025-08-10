@@ -146,7 +146,6 @@ async function page({ params: { locale, slug } }: props) {
 
         <AnimatedServicesSection
           data={servicesData?.data}
-          serviceBySlug={servicesBySlugData?.data}
           locale={locale}
         />
 

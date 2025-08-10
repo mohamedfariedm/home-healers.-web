@@ -80,7 +80,7 @@ function AboutApp({
           {services.map((service: any, i: number) => (
             <SwiperSlide key={i}>
               <Link
-                href={`/${locale}/services?id=${service.slug?.[locale]}`}
+                href={`/${locale}/our-services/${service.slug?.[locale]}`}
                 className="relative bg-[#0077b7] rounded-3xl w-[299px] h-[352px] px-2 py-10 hover:shadow-2xl hover:scale-105 transition-all duration-300 block mx-auto"
               >
                 <div className="absolute top-6 left-2 flex flex-col items-start gap-4 px-2">
@@ -96,14 +96,14 @@ function AboutApp({
                   </div>
                   <div className="text-white">
                     <h3 className="text-lg font-semibold leading-7">
-                      {service.name[locale]}
+                      {service.name}
                     </h3>
                     <div className="text-sm font-light leading-8 mt-1 max-h-[96px] overflow-hidden text-ellipsis">
-                      {parse(service?.description[locale]||"")}
+                      {parse(service?.description||"")}
                     </div>
                   </div>
                 </div>
-                <ShowMore />
+                <ShowMore locale={locale} />
               </Link>
             </SwiperSlide>
           ))}

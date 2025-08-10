@@ -1,21 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { ShowMore } from "../Animations/ShowMore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import parse from "html-react-parser"; // Import html-react-parser
 
-const ITEMS_PER_PAGE = 9; // Number of cards per page (based on the grid layout)
+// ===== Settings =====
+const ITEMS_PER_PAGE = 9;
 
+// ===== Animations =====
 const cardVariants = {
   hidden: { opacity: 0, y: 40 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: "easeOut" },
-  },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
   hover: {
     scale: 1.06,
     boxShadow: "0 15px 25px rgba(0,0,0,0.2)",
@@ -31,74 +28,55 @@ const containerVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      staggerChildren: 0.15,
-      ease: [0.4, 0, 0.2, 1], // smooth cubic-bezier easeOut
-    },
-  },
-};
-
-const arrowVariants = {
-  rest: { scale: 1, boxShadow: "0px 0px 0px rgba(0,0,0,0)" },
-  hover: { scale: 1.15, boxShadow: "0px 5px 10px rgba(0,0,0,0.15)" },
-  disabled: {
-    scale: 1,
-    boxShadow: "none",
-    opacity: 0.4,
-    pointerEvents: "none",
+    transition: { staggerChildren: 0.15, ease: [0.4, 0, 0.2, 1] },
   },
 };
 
 const pageVariants = {
   initial: { scale: 1, color: "#1e1e1e" },
-  active: {
-    scale: 1.3,
-    color: "#62a0f6",
-    transition: { type: "spring", stiffness: 300, damping: 20 },
-  },
+  active: { scale: 1.3, color: "#62a0f6", transition: { type: "spring", stiffness: 300, damping: 20 } },
   hover: { scale: 1.2, color: "#4287f5" },
 };
 
-const BlogAnimationSection = ({
-  locale,
-  data,
-}: {
+type BlogAnimationSectionProps = {
   locale: string;
-  data: any;
-}) => {
-  const [activePage, setActivePage] = useState(1); // Start at page 1
-  const totalPages = Math.ceil(data?.length / ITEMS_PER_PAGE); // Calculate total pages based on data length
+  data: any[];
+};
 
-  // Get the cards for the current page
+const BlogAnimationSection = ({ locale, data = [] }: BlogAnimationSectionProps) => {
+  const isRTL = locale === "ar";
+  const [activePage, setActivePage] = useState(1);
+
+  const totalPages = useMemo(() => Math.max(1, Math.ceil((data?.length || 0) / ITEMS_PER_PAGE)), [data]);
   const startIndex = (activePage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentCards = data?.slice(startIndex, endIndex);
+  const currentCards = useMemo(() => data?.slice(startIndex, startIndex + ITEMS_PER_PAGE) || [], [data, startIndex]);
 
-  const goPrev = () => {
-    if (activePage > 1) setActivePage(activePage - 1);
-  };
+  const goPrev = () => setActivePage(p => Math.max(1, p - 1));
+  const goNext = () => setActivePage(p => Math.min(totalPages, p + 1));
 
-  const goNext = () => {
-    if (activePage < totalPages) setActivePage(activePage + 1);
-  };
-
-  // Format date function
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("ar-EG", {
+    return date.toLocaleDateString(isRTL ? "ar-EG" : "en-US", {
       day: "numeric",
       month: "long",
       year: "numeric",
     });
   };
 
-  // Truncate description to avoid overly long text
-  const truncateDescription = (html: string, maxLength: number = 100) => {
-    const text = html.replace(/<[^>]+>/g, ""); // Strip HTML tags
-    return text.length > maxLength
-      ? text.substring(0, maxLength) + "..."
-      : text;
+  // Strip HTML for teaser text
+  const truncateDescription = (html: string, maxLength: number = 120) => {
+    if (!html) return "";
+    const text = html.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+    return text.length > maxLength ? text.slice(0, maxLength) + "…" : text;
   };
+
+  // Localized strings
+  const t = {
+    prev: isRTL ? "الصفحة السابقة" : "Previous Page",
+    next: isRTL ? "الصفحة التالية" : "Next Page",
+  };
+
+  if (!data || data.length === 0) return null;
 
   return (
     <>
@@ -107,49 +85,45 @@ const BlogAnimationSection = ({
         initial="hidden"
         animate="visible"
         variants={containerVariants}
+        dir={isRTL ? "rtl" : "ltr"}
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10">
-          {currentCards.map((card: any, i: number) => (
-            <Link href={`/${locale}/blogs/${card.slug[locale]}`} key={card.id}>
-              <motion.div
-                className="relative w-full max-w-[400px] h-[550px] bg-[#eff6fe] rounded-[24px] overflow-hidden mx-auto cursor-pointer shadow-md"
-                variants={cardVariants}
-                initial="hidden"
-                animate="visible"
-                whileHover="hover"
-                whileTap="tap"
-                style={{ transformStyle: "preserve-3d" }}
-              >
-                {/* Image */}
-                <div
-                  className="h-[268px] bg-cover bg-no-repeat rounded-[20px] m-4"
-                  style={{
-                    backgroundImage: `url(${
-                      card.image[0]?.original ||
-                      "/assets/images/placeholder.jpg"
-                    })`,
-                    transformStyle: "preserve-3d",
-                  }}
-                />
+        <div className={`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10 ${isRTL ? "text-right" : "text-left"}`}>
+          {currentCards.map((card: any) => {
+            const href = `/${locale}/blogs/${card?.slug?.[locale] || card?.slug?.en || ""}`;
+            const img = card?.image?.[0]?.original || "/assets/images/placeholder.jpg";
+            return (
+              <Link href={href} key={card.id} className="focus:outline-none focus:ring-2 focus:ring-[#62a0f6] rounded-[24px]">
+                <motion.div
+                  className="relative w-full max-w-[400px] h-[550px] bg-[#eff6fe] rounded-[24px] overflow-hidden mx-auto cursor-pointer shadow-md"
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate="visible"
+                  whileHover="hover"
+                  whileTap="tap"
+                  style={{ transformStyle: "preserve-3d" }}
+                >
+                  {/* Image */}
+                  <div
+                    className="h-[268px] bg-cover bg-no-repeat rounded-[20px] m-4"
+                    style={{ backgroundImage: `url(${img})`, transformStyle: "preserve-3d" }}
+                    aria-label={card?.name}
+                  />
 
-                {/* Content */}
-                <div className="flex flex-col gap-5 px-6 pt-4 text-right">
-                  <span className="text-[#62a0f6] text-sm font-medium">
-                    {formatDate(card.date)}
-                  </span>
-                  <h3 className="text-xl font-semibold text-[#1e1e1e] whitespace-wrap">
-                    {card.name}
-                  </h3>
-                  <p className="text-sm text-[#1e1e1e] leading-8 font-light">
-                    {truncateDescription(card.description)}
-                  </p>
-                </div>
+                  {/* Content */}
+                  <div className={`flex flex-col gap-5 px-6 pt-4 ${isRTL ? "text-right" : "text-left"}`}>
+                    <span className="text-[#62a0f6] text-sm font-medium">{formatDate(card?.date)}</span>
+                    <h3 className="text-xl font-semibold text-[#1e1e1e]">{card?.name}</h3>
+                    <p className="text-sm text-[#1e1e1e] leading-8 font-light">
+                      {truncateDescription(card?.description)}
+                    </p>
+                  </div>
 
-                {/* Button */}
-                <ShowMore />
-              </motion.div>
-            </Link>
-          ))}
+                  {/* Button */}
+                  <ShowMore locale={locale}  />
+                </motion.div>
+              </Link>
+            );
+          })}
         </div>
       </motion.div>
 
@@ -160,34 +134,37 @@ const BlogAnimationSection = ({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
+          dir={isRTL ? "rtl" : "ltr"}
         >
-          <div className="flex items-center gap-6 select-none">
-            {/* Previous Arrow */}
+          <div className={`flex items-center gap-6 select-none ${isRTL ? "flex-row-reverse" : ""}`}>
+            {/* Prev */}
             <motion.button
               onClick={goPrev}
               disabled={activePage === 1}
-              aria-label="Previous Page"
+              aria-label={t.prev}
               aria-disabled={activePage === 1}
-              initial="rest"
-              animate={activePage === 1 ? "disabled" : "rest"}
-              whileHover={activePage !== 1 ? "hover" : undefined}
-              className="p-2 rounded-full text-[#143087]"
-              style={{ cursor: activePage === 1 ? "not-allowed" : "pointer" }}
+              className={`p-2 rounded-full text-[#143087] disabled:opacity-40 disabled:cursor-not-allowed 
+                          hover:scale-110 transition-transform`}
+              type="button"
             >
-              <ChevronLeft size={28} strokeWidth={2} />
+              {/* For RTL, previous means pointing right */}
+              {isRTL ? <ChevronRight size={28} strokeWidth={2} /> : <ChevronLeft size={28} strokeWidth={2} />}
             </motion.button>
 
             {/* Page Numbers */}
-            <div className="flex gap-6 items-center rounded-full">
-              {[...Array(totalPages)].map((_, idx) => {
-                const page = idx + 1;
+            <div className={`flex items-center rounded-full ${isRTL ? "flex-row-reverse" : ""} gap-6`}>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
                 const isActive = page === activePage;
-                // Show only a subset of page numbers for brevity
-                if (
+                // show first, last, and neighbors
+                const withinWindow =
                   page === 1 ||
                   page === totalPages ||
-                  (page >= activePage - 1 && page <= activePage + 1)
-                ) {
+                  (page >= activePage - 1 && page <= activePage + 1);
+
+                const showEllipsisLeft = page === activePage - 2 && activePage > 3;
+                const showEllipsisRight = page === activePage + 2 && activePage < totalPages - 2;
+
+                if (withinWindow) {
                   return (
                     <motion.button
                       key={page}
@@ -198,20 +175,15 @@ const BlogAnimationSection = ({
                       animate={isActive ? "active" : "initial"}
                       whileHover={!isActive ? "hover" : undefined}
                       className="text-xs font-medium cursor-pointer"
+                      type="button"
                     >
                       {page}
                     </motion.button>
                   );
-                } else if (
-                  (page === activePage - 2 && activePage > 3) ||
-                  (page === activePage + 2 && activePage < totalPages - 2)
-                ) {
+                } else if (showEllipsisLeft || showEllipsisRight) {
                   return (
-                    <span
-                      key={page}
-                      className="text-xs font-medium cursor-default select-none"
-                    >
-                      ...
+                    <span key={`ellipsis-${page}`} className="text-xs font-medium select-none">
+                      …
                     </span>
                   );
                 }
@@ -219,21 +191,18 @@ const BlogAnimationSection = ({
               })}
             </div>
 
-            {/* Next Arrow */}
+            {/* Next */}
             <motion.button
               onClick={goNext}
               disabled={activePage === totalPages}
-              aria-label="Next Page"
+              aria-label={t.next}
               aria-disabled={activePage === totalPages}
-              initial="rest"
-              animate={activePage === totalPages ? "disabled" : "rest"}
-              whileHover={activePage !== totalPages ? "hover" : undefined}
-              className="p-2 rounded-full text-[#143087]"
-              style={{
-                cursor: activePage === totalPages ? "not-allowed" : "pointer",
-              }}
+              className={`p-2 rounded-full text-[#143087] disabled:opacity-40 disabled:cursor-not-allowed 
+                          hover:scale-110 transition-transform`}
+              type="button"
             >
-              <ChevronRight size={28} strokeWidth={2} />
+              {/* For RTL, next means pointing left */}
+              {isRTL ? <ChevronLeft size={28} strokeWidth={2} /> : <ChevronRight size={28} strokeWidth={2} />}
             </motion.button>
           </div>
         </motion.div>
