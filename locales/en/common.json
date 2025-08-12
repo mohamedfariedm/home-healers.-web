@@ -19,6 +19,13 @@
   "expo": "Expo",
   "book_consultation": "Book Consultation",
   "book_session": "Book Session",
-  "language": "Language"
-
+  "language": "Language",
+  "cta": {
+    "book_consultation": "Book a Consultation",
+    "doctor_registration": "Doctor Registration"
+  },
+  "a11y": {
+    "open_menu": "Open menu",
+    "close_menu": "Close menu"
+  }
 }

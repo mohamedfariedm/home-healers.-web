@@ -1,0 +1,184 @@
+{
+  "seo": {
+    "title": "انضم إلى الفريق الطبي في Home Hellers",
+    "description": "قدّم طلبك لتصبح طبيبًا ضمن شبكتنا الطبية العالمية المتميزة",
+    "keywords": "Home Hellers، تقديم طلب طبيب، رعاية صحية، متخصصون طبيون",
+    "og_title": "انضم إلى الفريق الطبي في Home Hellers",
+    "og_description": "قدّم طلبك لتصبح طبيبًا ضمن شبكتنا الطبية العالمية المتميزة",
+    "twitter_title": "انضم إلى الفريق الطبي في Home Hellers",
+    "twitter_description": "قدّم طلبك لتصبح طبيبًا ضمن شبكتنا الطبية العالمية المتميزة"
+  },
+  "hero": {
+    "title": "انضم إلى فريقنا الطبي",
+    "subtitle": "قدّم طلبك لتصبح جزءًا من شبكتنا الطبية العالمية المتميزة. خبرتك يمكن أن تُحدث فرقًا في حياة المرضى.",
+    "cta": "ابدأ طلبك الآن"
+  },
+  "form": {
+    "options": {
+      "roles": {
+        "consultant": "استشاري",
+        "specialist": "أخصائي",
+        "resident": "مقيم",
+        "intern": "متدرب"
+      },
+      "gender": {
+        "male": "ذكر",
+        "female": "أنثى"
+      },
+      "classification": {
+        "senior_specialist": "أخصائي أول",
+        "specialist": "أخصائي",
+        "senior_consultant": "استشاري أول",
+        "consultant": "استشاري",
+        "registrar": "مسجل"
+      },
+      "department": {
+        "cardiology": "طب القلب",
+        "neurology": "طب الأعصاب",
+        "orthopedics": "طب العظام",
+        "pediatrics": "طب الأطفال",
+        "internal_medicine": "الطب الباطني",
+        "surgery": "الجراحة",
+        "dermatology": "الأمراض الجلدية",
+        "psychiatry": "الطب النفسي",
+        "radiology": "الأشعة",
+        "emergency_medicine": "طب الطوارئ"
+      },
+      "service": {
+        "general_consultation": "استشارة عامة",
+        "specialist_consultation": "استشارة تخصصية",
+        "emergency_services": "خدمات الطوارئ",
+        "surgical_services": "الخدمات الجراحية",
+        "diagnostic_services": "الخدمات التشخيصية"
+      }
+    },
+    "upload": {
+      "helper_text": "قم برفع رخصة الطب، الشهادات، وأي مستندات أخرى (PDF, JPG, PNG, DOC)",
+      "list_title": "الملفات المرفوعة:"
+    },
+    "stepper": {
+      "step_of_total": "الخطوة {{current}} من {{total}}: {{title}}",
+      "percent_complete": "{{percent}}٪ مكتمل"
+    },
+    "title": "نموذج تقديم طلب طبيب",
+    "subtitle": "يرجى ملء النموذج أدناه بدقة للانضمام إلى فريقنا الطبي.",
+    "steps": {
+      "1": "المعلومات الشخصية",
+      "2": "التفاصيل المهنية",
+      "3": "التعليم والشهادات",
+      "4": "التسجيل الطبي",
+      "5": "معلومات العيادة",
+      "6": "المستندات والمراجعة"
+    },
+    "labels": {
+      "doctor_role": "دور الطبيب",
+      "gender": "الجنس",
+      "name_en": "الاسم الكامل (بالإنجليزية)",
+      "name_ar": "الاسم الكامل (بالعربية)",
+      "email": "البريد الإلكتروني",
+      "national_id": "الرقم القومي",
+      "country_code": "كود الدولة",
+      "mobile_number": "رقم الجوال",
+      "date_of_birth": "تاريخ الميلاد",
+      "blood_group": "فصيلة الدم",
+      "nationality_id": "معرّف الجنسية",
+      "degree": "الدرجة العلمية الطبية",
+      "classification": "التصنيف",
+      "department": "القسم",
+      "experience": "سنوات الخبرة",
+      "specialized_in": "التخصص",
+      "languages_spoken": "اللغات التي تتحدثها",
+      "memberships": "العضويات المهنية",
+      "awards": "الجوائز والتكريم",
+      "medical_school": "الكلية الطبية",
+      "certification": "الشهادة الرئيسية",
+      "medical_registration_number": "رقم التسجيل الطبي",
+      "medical_license_expiry": "تاريخ انتهاء الرخصة الطبية",
+      "specialist": "مجال التخصص",
+      "sub_specialist": "التخصص الفرعي",
+      "clinic_name": "اسم العيادة",
+      "service_id": "نوع الخدمة",
+      "from": "متاح من",
+      "to": "إلى",
+      "upload_attachments": "رفع المستندات"
+    },
+    "placeholders": {
+      "doctor_role": "اختر الدور",
+      "gender": "اختر الجنس",
+      "name_en": "أدخل الاسم بالإنجليزية (مثال: Dr. John Doe)",
+      "name_ar": "أدخل الاسم بالعربية (مثال: د. محمد علي)",
+      "email": "أدخل البريد الإلكتروني (مثال: doctor@example.com)",
+      "national_id": "أدخل الرقم القومي (مثال: A123456789)",
+      "mobile_number": "أدخل رقم الجوال (مثال: 1234567890)",
+      "blood_group": "اختر فصيلة الدم",
+      "nationality_id": "أدخل معرّف الجنسية (مثال: 1)",
+      "degree": "أدخل الدرجة العلمية (مثال: MD، MBBS، DO)",
+      "classification": "اختر التصنيف",
+      "department": "اختر القسم",
+      "experience": "أدخل عدد السنوات (مثال: 10)",
+      "specialized_in": "أدخل التخصص (مثال: طب القلب، أمراض القلب)",
+      "languages_spoken": "أدخل اللغات (مثال: العربية، الإنجليزية، الفرنسية)",
+      "memberships": "أدخل العضويات (مثال: الجمعية الأمريكية للقلب)",
+      "awards": "أدخل الجوائز (مثال: أفضل طبيب قلب 2020)",
+      "medical_school": "أدخل الكلية الطبية (مثال: جامعة القاهرة)",
+      "certification": "أدخل الشهادة (مثال: شهادة أمراض القلب)",
+      "medical_registration_number": "أدخل رقم التسجيل (مثال: REG12345678)",
+      "specialist": "أدخل مجال التخصص (مثال: أمراض القلب)",
+      "sub_specialist": "أدخل التخصص الفرعي (مثال: ارتفاع ضغط الدم)",
+      "clinic_name": "أدخل اسم العيادة (مثال: عيادة هيلث كير)",
+      "service_id": "اختر نوع الخدمة"
+    },
+    "buttons": {
+      "previous": "السابق",
+      "next": "التالي",
+      "submit": "إرسال الطلب",
+      "choose_files": "اختيار الملفات",
+      "remove": "حذف"
+    },
+    "messages": {
+      "success_title": "تم إرسال الطلب!",
+      "success_description": "تم إرسال طلب تسجيلك كطبيب بنجاح.",
+      "error_title": "فشل الإرسال",
+      "error_description": "حدث خطأ أثناء إرسال طلبك."
+    },
+    "validation": {
+      "doctor_role_required": "دور الطبيب مطلوب",
+      "name_en_required": "الاسم بالإنجليزية مطلوب",
+      "name_ar_required": "الاسم بالعربية مطلوب",
+      "email_required": "البريد الإلكتروني مطلوب",
+      "national_id_required": "الرقم القومي مطلوب",
+      "mobile_number_required": "رقم الجوال مطلوب",
+      "date_of_birth_required": "تاريخ الميلاد مطلوب",
+      "gender_required": "الجنس مطلوب",
+      "degree_required": "الدرجة العلمية مطلوبة",
+      "classification_required": "التصنيف مطلوب",
+      "department_required": "القسم مطلوب",
+      "experience_required": "الخبرة مطلوبة",
+      "specialized_in_required": "التخصص مطلوب",
+      "medical_school_required": "الكلية الطبية مطلوبة",
+      "certification_required": "الشهادة مطلوبة",
+      "medical_registration_number_required": "رقم التسجيل مطلوب",
+      "medical_license_expiry_required": "تاريخ انتهاء الرخصة مطلوب",
+      "specialist_required": "مجال التخصص مطلوب",
+      "clinic_name_required": "اسم العيادة مطلوب",
+      "service_id_required": "الخدمة مطلوبة"
+    },
+    "review": {
+      "title": "مراجعة معلوماتك",
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "role": "الدور",
+      "department": "القسم",
+      "specialization": "التخصص",
+      "experience": "الخبرة",
+      "clinic": "العيادة",
+      "registration": "التسجيل",
+      "not_provided": "غير متوفر",
+      "years": "سنة"
+    }
+  },
+  "footer": {
+    "text": "© 2025 Home Hellers. جميع الحقوق محفوظة.",
+    "contact": "تواصل معنا عبر support@home-hellers.com للمساعدة."
+  }
+}

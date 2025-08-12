@@ -1,0 +1,177 @@
+{
+  "seo": {
+    "title": "Join Home Hellers Medical Team",
+    "description": "Apply to become a doctor in our world-class healthcare network",
+    "keywords": "Home Hellers, doctor application, healthcare, medical professionals",
+    "og_title": "Join Home Hellers Medical Team",
+    "og_description": "Apply to become a doctor in our world-class healthcare network",
+    "twitter_title": "Join Home Hellers Medical Team",
+    "twitter_description": "Apply to become a doctor in our world-class healthcare network"
+  },
+  "hero": {
+    "title": "Join Our Medical Team",
+    "subtitle": "Apply to become part of our world-class healthcare network. Your expertise can make a difference in patients' lives.",
+    "cta": "Start Your Application"
+  },
+  "form": {
+     "options": {
+    "roles": { "consultant": "Consultant", "specialist": "Specialist", "resident": "Resident", "intern": "Intern" },
+    "gender": { "male": "Male", "female": "Female" },
+    "classification": {
+      "senior_specialist": "Senior Specialist",
+      "specialist": "Specialist",
+      "senior_consultant": "Senior Consultant",
+      "consultant": "Consultant",
+      "registrar": "Registrar"
+    },
+    "department": {
+      "cardiology": "Cardiology",
+      "neurology": "Neurology",
+      "orthopedics": "Orthopedics",
+      "pediatrics": "Pediatrics",
+      "internal_medicine": "Internal Medicine",
+      "surgery": "Surgery",
+      "dermatology": "Dermatology",
+      "psychiatry": "Psychiatry",
+      "radiology": "Radiology",
+      "emergency_medicine": "Emergency Medicine"
+    },
+    "service": {
+      "general_consultation": "General Consultation",
+      "specialist_consultation": "Specialist Consultation",
+      "emergency_services": "Emergency Services",
+      "surgical_services": "Surgical Services",
+      "diagnostic_services": "Diagnostic Services"
+    }
+  },
+  "upload": {
+    "helper_text": "Upload medical license, certificates, and other documents (PDF, JPG, PNG, DOC)",
+    "list_title": "Uploaded Files:"
+  },
+  "stepper": {
+    "step_of_total": "Step {{current}} of {{total}}: {{title}}",
+    "percent_complete": "{{percent}}% Complete"
+  },
+
+    "title": "Doctor Application Form",
+    "subtitle": "Please fill out the form below with accurate details to join our medical team.",
+    "steps": {
+      "1": "Personal Information",
+      "2": "Professional Details",
+      "3": "Education & Certification",
+      "4": "Medical Registration",
+      "5": "Clinic Information",
+      "6": "Documents & Review"
+    },
+    "labels": {
+      "doctor_role": "Doctor Role",
+      "gender": "Gender",
+      "name_en": "Full Name (English)",
+      "name_ar": "Full Name (Arabic)",
+      "email": "Email Address",
+      "national_id": "National ID",
+      "country_code": "Country Code",
+      "mobile_number": "Mobile Number",
+      "date_of_birth": "Date of Birth",
+      "blood_group": "Blood Group",
+      "nationality_id": "Nationality ID",
+      "degree": "Medical Degree",
+      "classification": "Classification",
+      "department": "Department",
+      "experience": "Years of Experience",
+      "specialized_in": "Specialized In",
+      "languages_spoken": "Languages Spoken",
+      "memberships": "Professional Memberships",
+      "awards": "Awards & Recognition",
+      "medical_school": "Medical School",
+      "certification": "Primary Certification",
+      "medical_registration_number": "Medical Registration Number",
+      "medical_license_expiry": "Medical License Expiry",
+      "specialist": "Specialist Field",
+      "sub_specialist": "Sub-Specialist Field",
+      "clinic_name": "Clinic Name",
+      "service_id": "Service Type",
+      "from": "Available From",
+      "to": "Available To",
+      "upload_attachments": "Upload Documents"
+    },
+    "placeholders": {
+      "doctor_role": "Select your role",
+      "gender": "Select gender",
+      "name_en": "Enter name in English (e.g., Dr. John Doe)",
+      "name_ar": "أدخل الاسم بالعربية (مثال: د. جون دو)",
+      "email": "Enter email (e.g., doctor@example.com)",
+      "national_id": "Enter national ID (e.g., A123456789)",
+      "mobile_number": "Enter mobile number (e.g., 1234567890)",
+      "blood_group": "Select blood group",
+      "nationality_id": "Enter nationality ID (e.g., 1)",
+      "degree": "Enter degree (e.g., MD, MBBS, DO)",
+      "classification": "Select classification",
+      "department": "Select department",
+      "experience": "Enter years (e.g., 10)",
+      "specialized_in": "Enter specialization (e.g., Cardiology, Heart Disease)",
+      "languages_spoken": "Enter languages (e.g., English, Arabic, French)",
+      "memberships": "Enter memberships (e.g., American Heart Association)",
+      "awards": "Enter awards (e.g., Best Cardiologist 2020)",
+      "medical_school": "Enter medical school (e.g., Harvard Medical School)",
+      "certification": "Enter certification (e.g., Certified in Cardiovascular Disease)",
+      "medical_registration_number": "Enter registration number (e.g., REG12345678)",
+      "specialist": "Enter specialist field (e.g., Heart Disease)",
+      "sub_specialist": "Enter sub-specialist field (e.g., Hypertension)",
+      "clinic_name": "Enter clinic name (e.g., HeartCare Clinic)",
+      "service_id": "Select service type"
+    },
+    "buttons": {
+      "previous": "Previous",
+      "next": "Next",
+      "submit": "Submit Registration",
+      "choose_files": "Choose Files",
+      "remove": "Remove"
+    },
+    "messages": {
+      "success_title": "Registration Submitted!",
+      "success_description": "Your doctor registration has been submitted successfully.",
+      "error_title": "Submission Failed",
+      "error_description": "There was an error submitting your registration."
+    },
+    "validation": {
+      "doctor_role_required": "Doctor role is required",
+      "name_en_required": "English name is required",
+      "name_ar_required": "Arabic name is required",
+      "email_required": "Email is required",
+      "national_id_required": "National ID is required",
+      "mobile_number_required": "Mobile number is required",
+      "date_of_birth_required": "Date of birth is required",
+      "gender_required": "Gender is required",
+      "degree_required": "Degree is required",
+      "classification_required": "Classification is required",
+      "department_required": "Department is required",
+      "experience_required": "Experience is required",
+      "specialized_in_required": "Specialization is required",
+      "medical_school_required": "Medical school is required",
+      "certification_required": "Certification is required",
+      "medical_registration_number_required": "Registration number is required",
+      "medical_license_expiry_required": "License expiry is required",
+      "specialist_required": "Specialist field is required",
+      "clinic_name_required": "Clinic name is required",
+      "service_id_required": "Service is required"
+    },
+    "review": {
+      "title": "Review Your Information",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "department": "Department",
+      "specialization": "Specialization",
+      "experience": "Experience",
+      "clinic": "Clinic",
+      "registration": "Registration",
+      "not_provided": "Not provided",
+          "years": "years"
+    }
+  },
+  "footer": {
+    "text": "© 2025 Home Hellers. All rights reserved.",
+    "contact": "Contact us at support@home-hellers.com for assistance."
+  }
+}

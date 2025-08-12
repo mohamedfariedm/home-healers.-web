@@ -17,7 +17,15 @@
   "blogs": "المدونة",
   "contact": "تواصل معنا",
   "expo": "المعرض",
-  "book_consultation": "احجز استشارة",
+  "book_consultation": "احجز جلستك",
   "book_session": "احجز جلستك",
-  "language": "اللغة"
+  "language": "اللغة",
+  "cta": {
+    "book_consultation": "احجز جلستك",
+    "doctor_registration": "تسجيل الأطباء"
+  },
+  "a11y": {
+    "open_menu": "فتح القائمة",
+    "close_menu": "إغلاق القائمة"
+  }
 }

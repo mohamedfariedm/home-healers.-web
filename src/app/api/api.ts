@@ -136,6 +136,12 @@ payReservationWithTelr: (reservationId: number, locale: string) =>
       isFormData: true,
     }),
 
+  doctorApplayment: (formData: FormData, locale: string) =>
+    fetchData('client/doctors-apply-registration', locale, {
+      method: 'POST',
+      body: formData,
+    }),
+
   deleteAttachment: (id: string | number, locale: string) =>
     fetchData(`attachments/${id}`, locale, {
       method: 'DELETE',
