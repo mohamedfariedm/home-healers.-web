@@ -19,7 +19,7 @@ interface FormData {
   name: { en: string; ar: string }
   email: string
   national_id: string
-  country_code: string
+  nationality_id: number | ""
   mobile_number: string
   date_of_birth: string
   blood_group: string
@@ -50,7 +50,7 @@ const initialFormData: FormData = {
   name: { en: "", ar: "" },
   email: "",
   national_id: "",
-  country_code: "+1",
+  nationality_id: "",
   mobile_number: "",
   date_of_birth: "",
   blood_group: "",
@@ -85,18 +85,19 @@ const stepDefs = [
   { id: 6, icon: Upload },
 ] as const
 
-export default function DoctorRegistrationForm() {
+export default function DoctorRegistrationForm({ nationalityOptions }: { nationalityOptions: { id: number; name: string }[] }) {
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
   const { t } = useTranslation("doctor-apply")
   const locale = "ar"
+  console.log("nationalityOptions", nationalityOptions)
 
   const tr = (key: string, def?: string, opts?: Record<string, any>) =>
     t(key, { defaultValue: def, ...opts })
 
-  const updateFormData = (field: keyof FormData | "name.en" | "name.ar", value: string | File[] | number[]) => {
+  const updateFormData = (field: keyof FormData | "name.en" | "name.ar", value: string | File[] | number[] | number) => {
     if (field === "name.en" || field === "name.ar") {
       const [key, subKey] = field.split(".")
       setFormData((prev) => ({
@@ -121,6 +122,7 @@ export default function DoctorRegistrationForm() {
         if (!formData.name.ar) newErrors["name.ar"] = tr("form.validation.name_ar_required")
         if (!formData.email) newErrors.email = tr("form.validation.email_required")
         if (!formData.national_id) newErrors.national_id = tr("form.validation.national_id_required")
+        if (!formData.nationality_id) newErrors.nationality_id = tr("form.validation.nationality_id_required")
         if (!formData.mobile_number) newErrors.mobile_number = tr("form.validation.mobile_number_required")
         if (!formData.date_of_birth) newErrors.date_of_birth = tr("form.validation.date_of_birth_required")
         if (!formData.gender) newErrors.gender = tr("form.validation.gender_required")
@@ -227,25 +229,19 @@ export default function DoctorRegistrationForm() {
       const submissionData = {
         ...formData,
         upload_attachments: formData.attachment_ids.join(", "), // Convert to comma-separated string
+        nationality_id: formData.nationality_id === "" ? undefined : Number(formData.nationality_id),
       }
       //@ts-ignore
       delete submissionData.attachment_ids // Remove attachment_ids as it's not in the request body
       const response = await ClientAPI.doctorApplayment(submissionData, locale)
       console.log("response", response)
-      //@ts-ignore
-      if(response?.ok){
-        toast.success(
+        toast(
           tr("form.messages.success_title", "تم إرسال الطلب بنجاح"),
           { description: tr("form.messages.success", "Your application has been submitted successfully") }
         )
-      }else{
-        toast.error(
-        tr("form.messages.error_title", "فشل في إرسال الطلب"),
-        { description: tr("form.messages.error", "Failed to submit application") }
-      )
-      }
-      // setFormData(initialFormData)
-      // setCurrentStep(1)
+        setFormData(initialFormData)
+        setCurrentStep(1)
+
     } catch (error: any) {
       console.error(error)
       toast(
@@ -344,23 +340,27 @@ export default function DoctorRegistrationForm() {
                 {errors.national_id && <p className="text-red-500 text-xs mt-1">{errors.national_id}</p>}
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="country_code" className="text-sm font-semibold text-gray-700">{tr("form.labels.country_code")}</Label>
-                <Select value={formData.country_code} onValueChange={(value) => updateFormData("country_code", value)}>
-                  <SelectTrigger className="mt-1 h-12 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500">
-                    <SelectValue />
+                <Label htmlFor="nationality_id" className="text-sm font-semibold text-gray-700">{tr("form.labels.nationality")} *</Label>
+                <Select
+                  value={formData.nationality_id?.toString()}
+                  onValueChange={(value) => updateFormData("nationality_id", value === "" ? "" : Number(value))}
+                >
+                  <SelectTrigger className={`mt-1 h-12 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 ${errors.nationality_id ? "border-red-500" : ""}`}>
+                    <SelectValue placeholder={tr("form.placeholders.nationality")} />
                   </SelectTrigger>
                   <SelectContent className="bg-white rounded-xl shadow-lg">
-                    <SelectItem value="+1">+1 (US/CA)</SelectItem>
-                    <SelectItem value="+44">+44 (UK)</SelectItem>
-                    <SelectItem value="+971">+971 (UAE)</SelectItem>
-                    <SelectItem value="+966">+966 (SA)</SelectItem>
-                    <SelectItem value="+20">+20 (EG)</SelectItem>
+                    {nationalityOptions?.map((option) => (
+                      <SelectItem key={option.id} value={option.id.toString()}>
+                        {option.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
+                {errors.nationality_id && <p className="text-red-500 text-xs mt-1">{errors.nationality_id}</p>}
               </div>
-              <div className="md:col-span-2">
+              <div>
                 <Label htmlFor="mobile_number" className="text-sm font-semibold text-gray-700">{tr("form.labels.mobile_number")} *</Label>
                 <Input
                   id="mobile_number"

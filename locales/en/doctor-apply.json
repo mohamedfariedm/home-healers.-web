@@ -66,6 +66,7 @@
     "labels": {
       "doctor_role": "Doctor Role",
       "gender": "Gender",
+      "nationality": "Nationality",
       "name_en": "Full Name (English)",
       "name_ar": "Full Name (Arabic)",
       "email": "Email Address",
@@ -96,6 +97,7 @@
       "upload_attachments": "Upload Documents"
     },
     "placeholders": {
+            "nationality": "Nationality",
       "doctor_role": "Select your role",
       "gender": "Select gender",
       "name_en": "Enter name in English (e.g., Dr. John Doe)",

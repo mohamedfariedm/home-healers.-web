@@ -46,7 +46,7 @@ export async function generateMetadata({
 
 async function DoctorApplyPage({ params: { locale } }: { params: { locale: string } }) {
   const { t } = await initTranslations(locale, ["doctor-apply"]);
-
+ const nationalities = await ClientAPI.getNationalities(locale);
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50">
       {/* Hero Section */}
@@ -78,7 +78,9 @@ async function DoctorApplyPage({ params: { locale } }: { params: { locale: strin
             <p className="text-gray-600 text-center mb-8 max-w-2xl mx-auto">
               {t("form.subtitle", { defaultValue: "Please fill out the form below with accurate details to join our medical team." })}
             </p>
-            <DoctorRegistrationForm />
+            {nationalities&&
+            <DoctorRegistrationForm nationalityOptions={nationalities?.data} />
+            }
           </div>
         </div>
       </main>

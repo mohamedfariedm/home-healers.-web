@@ -92,6 +92,7 @@
       "awards": "الجوائز والتكريم",
       "medical_school": "الكلية الطبية",
       "certification": "الشهادة الرئيسية",
+      "nationality": "الجنسية",
       "medical_registration_number": "رقم التسجيل الطبي",
       "medical_license_expiry": "تاريخ انتهاء الرخصة الطبية",
       "specialist": "مجال التخصص",
@@ -105,6 +106,7 @@
     "placeholders": {
       "doctor_role": "اختر الدور",
       "gender": "اختر الجنس",
+            "nationality": "الجنسية",
       "name_en": "أدخل الاسم بالإنجليزية (مثال: Dr. John Doe)",
       "name_ar": "أدخل الاسم بالعربية (مثال: د. محمد علي)",
       "email": "أدخل البريد الإلكتروني (مثال: doctor@example.com)",
