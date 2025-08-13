@@ -10,15 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
 import { ChevronLeft, ChevronRight, Upload, User, Briefcase, GraduationCap, FileText, MapPin, CheckCircle } from "lucide-react"
-import { useToast } from "@/Hooks/use-toast"
 import { useTranslation } from "react-i18next"
+import ClientAPI from "@/app/api/api"
+import { toast } from "sonner"
 
 interface FormData {
   doctor_role: string
-  name_en: string
-  name_ar: string
+  name: { en: string; ar: string }
   email: string
-  nationality_id: string
   national_id: string
   country_code: string
   mobile_number: string
@@ -39,19 +38,17 @@ interface FormData {
   medical_license_expiry: string
   specialist: string
   sub_specialist: string
-  service_id: string
   clinic_name: string
   from: string
   to: string
   upload_attachments: File[]
+  attachment_ids: number[]
 }
 
 const initialFormData: FormData = {
   doctor_role: "",
-  name_en: "",
-  name_ar: "",
+  name: { en: "", ar: "" },
   email: "",
-  nationality_id: "",
   national_id: "",
   country_code: "+1",
   mobile_number: "",
@@ -72,14 +69,13 @@ const initialFormData: FormData = {
   medical_license_expiry: "",
   specialist: "",
   sub_specialist: "",
-  service_id: "",
   clinic_name: "",
   from: "",
   to: "",
   upload_attachments: [],
+  attachment_ids: [],
 }
 
-// keep only ids/icons; titles come from i18n
 const stepDefs = [
   { id: 1, icon: User },
   { id: 2, icon: Briefcase },
@@ -93,14 +89,24 @@ export default function DoctorRegistrationForm() {
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isLoading, setIsLoading] = useState(false)
   const { t } = useTranslation("doctor-apply")
-  const { toast } = useToast()
+  const locale = "ar"
 
   const tr = (key: string, def?: string, opts?: Record<string, any>) =>
     t(key, { defaultValue: def, ...opts })
 
-  const updateFormData = (field: keyof FormData, value: string | File[]) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+  const updateFormData = (field: keyof FormData | "name.en" | "name.ar", value: string | File[] | number[]) => {
+    if (field === "name.en" || field === "name.ar") {
+      const [key, subKey] = field.split(".")
+      setFormData((prev) => ({
+        ...prev,
+        // @ts-ignore
+        [key]: { ...prev[key as keyof FormData], [subKey]: value as string },
+      }))
+    } else {
+      setFormData((prev) => ({ ...prev, [field]: value }))
+    }
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }))
     }
@@ -111,8 +117,8 @@ export default function DoctorRegistrationForm() {
     switch (step) {
       case 1:
         if (!formData.doctor_role) newErrors.doctor_role = tr("form.validation.doctor_role_required")
-        if (!formData.name_en) newErrors.name_en = tr("form.validation.name_en_required")
-        if (!formData.name_ar) newErrors.name_ar = tr("form.validation.name_ar_required")
+        if (!formData.name.en) newErrors["name.en"] = tr("form.validation.name_en_required")
+        if (!formData.name.ar) newErrors["name.ar"] = tr("form.validation.name_ar_required")
         if (!formData.email) newErrors.email = tr("form.validation.email_required")
         if (!formData.national_id) newErrors.national_id = tr("form.validation.national_id_required")
         if (!formData.mobile_number) newErrors.mobile_number = tr("form.validation.mobile_number_required")
@@ -138,7 +144,6 @@ export default function DoctorRegistrationForm() {
         break
       case 5:
         if (!formData.clinic_name) newErrors.clinic_name = tr("form.validation.clinic_name_required")
-        if (!formData.service_id) newErrors.service_id = tr("form.validation.service_id_required")
         break
     }
     setErrors(newErrors)
@@ -155,66 +160,101 @@ export default function DoctorRegistrationForm() {
     setCurrentStep((prev) => Math.max(prev - 1, 1))
   }
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || [])
+    if (files.length === 0) return
+
+    setIsLoading(true)
+    const newAttachmentIds: number[] = []
+    for (const file of files) {
+      const attachmentFormData = new FormData()
+      attachmentFormData.append("attachment[]", file)
+      try {
+        const response = await ClientAPI.uploadAttachment(attachmentFormData, locale)
+        if (response && response.data && response.data[0]?.original) {
+          newAttachmentIds.push(response.data[0].original)
+          toast(
+            tr("form.messages.upload_success_title", "File Uploaded"),
+            { description: tr("form.messages.upload_success", "File uploaded successfully") }
+          )
+        } else {
+          throw new Error("No attachment ID returned")
+        }
+      } catch (error) {
+        toast(
+          tr("form.messages.upload_error_title", "Upload Failed"),
+          { description: tr("form.messages.upload_error", "Failed to upload file") }
+        )
+      }
+    }
+    updateFormData("upload_attachments", [...formData.upload_attachments, ...files])
+    updateFormData("attachment_ids", [...formData.attachment_ids, ...newAttachmentIds])
+    setIsLoading(false)
+  }
+
+  const removeFile = async (index: number) => {
+    const fileToRemove = formData.upload_attachments[index]
+    const attachmentId = formData.attachment_ids[index]
+    if (attachmentId) {
+      setIsLoading(true)
+      try {
+        await ClientAPI.deleteAttachment(attachmentId, locale)
+        toast(
+          tr("form.messages.delete_success_title", "File Removed"),
+          { description: tr("form.messages.delete_success", "File removed successfully") }
+        )
+      } catch (error) {
+        toast(
+          tr("form.messages.delete_error_title", "Removal Failed"),
+          { description: tr("form.messages.delete_error", "Failed to remove file") }
+        )
+        setIsLoading(false)
+        return
+      }
+      setIsLoading(false)
+    }
+    const newFiles = formData.upload_attachments.filter((_, i) => i !== index)
+    const newAttachmentIds = formData.attachment_ids.filter((_, i) => i !== index)
+    updateFormData("upload_attachments", newFiles)
+    updateFormData("attachment_ids", newAttachmentIds)
+  }
+
   const handleSubmit = async () => {
     if (!validateStep(currentStep)) return
+
+    setIsLoading(true)
     try {
       const submissionData = {
-        doctor_role: formData.doctor_role,
-        name: { en: formData.name_en, ar: formData.name_ar },
-        email: formData.email,
-        nationality_id: Number.parseInt(formData.nationality_id) || 1,
-        service_id: Number.parseInt(formData.service_id) || 4,
-        national_id: formData.national_id,
-        country_code: formData.country_code,
-        mobile_number: formData.mobile_number,
-        date_of_birth: formData.date_of_birth,
-        blood_group: formData.blood_group,
-        gender: formData.gender,
-        degree: formData.degree,
-        languages_spoken: formData.languages_spoken,
-        classification: formData.classification,
-        department: formData.department,
-        experience: Number.parseInt(formData.experience) || 0,
-        medical_school: formData.medical_school,
-        memberships: formData.memberships,
-        specialized_in: formData.specialized_in,
-        awards: formData.awards,
-        certification: formData.certification,
-        upload_attachments: formData.upload_attachments.map((file) => file.name).join(", "),
-        medical_registration_number: formData.medical_registration_number,
-        medical_license_expiry: formData.medical_license_expiry,
-        specialist: formData.specialist,
-        sub_specialist: formData.sub_specialist,
-        clinic_name: formData.clinic_name,
-        from: formData.from,
-        to: formData.to,
+        ...formData,
+        upload_attachments: formData.attachment_ids.join(", "), // Convert to comma-separated string
       }
-      console.log("Submitting doctor registration:", submissionData)
-      toast({
-        title: tr("form.messages.success_title"),
-        description: tr("form.messages.success_description"),
-        className: "bg-green-100 border-green-500 text-green-900",
-      })
-      setFormData(initialFormData)
-      setCurrentStep(1)
-    } catch (error) {
-      toast({
-        title: tr("form.messages.error_title"),
-        description: tr("form.messages.error_description"),
-        variant: "destructive",
-        className: "bg-red-100 border-red-500 text-red-900",
-      })
+      //@ts-ignore
+      delete submissionData.attachment_ids // Remove attachment_ids as it's not in the request body
+      const response = await ClientAPI.doctorApplayment(submissionData, locale)
+      console.log("response", response)
+      //@ts-ignore
+      if(response?.ok){
+        toast.success(
+          tr("form.messages.success_title", "تم إرسال الطلب بنجاح"),
+          { description: tr("form.messages.success", "Your application has been submitted successfully") }
+        )
+      }else{
+        toast.error(
+        tr("form.messages.error_title", "فشل في إرسال الطلب"),
+        { description: tr("form.messages.error", "Failed to submit application") }
+      )
+      }
+      // setFormData(initialFormData)
+      // setCurrentStep(1)
+    } catch (error: any) {
+      console.error(error)
+      toast(
+        tr("form.messages.error_title", "فشل في إرسال الطلب"),
+        { description: tr("form.messages.error", "Failed to submit application") }
+      )
+    } finally {
+      setIsLoading(false)
     }
-  }
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || [])
-    updateFormData("upload_attachments", [...formData.upload_attachments, ...files])
-  }
-
-  const removeFile = (index: number) => {
-    const newFiles = formData.upload_attachments.filter((_, i) => i !== index)
-    updateFormData("upload_attachments", newFiles)
   }
 
   const renderStepTitle = (id: number) => tr(`form.steps.${id}`, `Step ${id}`)
@@ -259,24 +299,24 @@ export default function DoctorRegistrationForm() {
                 <Label htmlFor="name_en" className="text-sm font-semibold text-gray-700">{tr("form.labels.name_en")} *</Label>
                 <Input
                   id="name_en"
-                  value={formData.name_en}
-                  onChange={(e) => updateFormData("name_en", e.target.value)}
+                  value={formData.name.en}
+                  onChange={(e) => updateFormData("name.en", e.target.value)}
                   placeholder={tr("form.placeholders.name_en")}
-                  className={`mt-1 h-12 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400 ${errors.name_en ? "border-red-500" : ""}`}
+                  className={`mt-1 h-12 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400 ${errors["name.en"] ? "border-red-500" : ""}`}
                 />
-                {errors.name_en && <p className="text-red-500 text-xs mt-1">{errors.name_en}</p>}
+                {errors["name.en"] && <p className="text-red-500 text-xs mt-1">{errors["name.en"]}</p>}
               </div>
               <div>
                 <Label htmlFor="name_ar" className="text-sm font-semibold text-gray-700">{tr("form.labels.name_ar")} *</Label>
                 <Input
                   id="name_ar"
-                  value={formData.name_ar}
-                  onChange={(e) => updateFormData("name_ar", e.target.value)}
+                  value={formData.name.ar}
+                  onChange={(e) => updateFormData("name.ar", e.target.value)}
                   placeholder={tr("form.placeholders.name_ar")}
-                  className={`mt-1 h-12 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400 ${errors.name_ar ? "border-red-500" : ""}`}
+                  className={`mt-1 h-12 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400 ${errors["name.ar"] ? "border-red-500" : ""}`}
                   dir="rtl"
                 />
-                {errors.name_ar && <p className="text-red-500 text-xs mt-1">{errors.name_ar}</p>}
+                {errors["name.ar"] && <p className="text-red-500 text-xs mt-1">{errors["name.ar"]}</p>}
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -332,7 +372,7 @@ export default function DoctorRegistrationForm() {
                 {errors.mobile_number && <p className="text-red-500 text-xs mt-1">{errors.mobile_number}</p>}
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label htmlFor="date_of_birth" className="text-sm font-semibold text-gray-700">{tr("form.labels.date_of_birth")} *</Label>
                 <Input
@@ -362,16 +402,6 @@ export default function DoctorRegistrationForm() {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label htmlFor="nationality_id" className="text-sm font-semibold text-gray-700">{tr("form.labels.nationality_id")}</Label>
-                <Input
-                  id="nationality_id"
-                  value={formData.nationality_id}
-                  onChange={(e) => updateFormData("nationality_id", e.target.value)}
-                  placeholder={tr("form.placeholders.nationality_id")}
-                  className="mt-1 h-12 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400"
-                />
-              </div>
             </div>
           </div>
         )
@@ -397,11 +427,11 @@ export default function DoctorRegistrationForm() {
                     <SelectValue placeholder={tr("form.placeholders.classification")} />
                   </SelectTrigger>
                   <SelectContent className="bg-white rounded-xl shadow-lg">
-                    <SelectItem value="Senior Specialist">{tr("form.options.classification.senior_specialist","Senior Specialist")}</SelectItem>
-                    <SelectItem value="Specialist">{tr("form.options.classification.specialist","Specialist")}</SelectItem>
-                    <SelectItem value="Senior Consultant">{tr("form.options.classification.senior_consultant","Senior Consultant")}</SelectItem>
-                    <SelectItem value="Consultant">{tr("form.options.classification.consultant","Consultant")}</SelectItem>
-                    <SelectItem value="Registrar">{tr("form.options.classification.registrar","Registrar")}</SelectItem>
+                    <SelectItem value="Senior Specialist">{tr("form.options.classification.senior_specialist", "Senior Specialist")}</SelectItem>
+                    <SelectItem value="Specialist">{tr("form.options.classification.specialist", "Specialist")}</SelectItem>
+                    <SelectItem value="Senior Consultant">{tr("form.options.classification.senior_consultant", "Senior Consultant")}</SelectItem>
+                    <SelectItem value="Consultant">{tr("form.options.classification.consultant", "Consultant")}</SelectItem>
+                    <SelectItem value="Registrar">{tr("form.options.classification.registrar", "Registrar")}</SelectItem>
                   </SelectContent>
                 </Select>
                 {errors.classification && <p className="text-red-500 text-xs mt-1">{errors.classification}</p>}
@@ -415,16 +445,16 @@ export default function DoctorRegistrationForm() {
                     <SelectValue placeholder={tr("form.placeholders.department")} />
                   </SelectTrigger>
                   <SelectContent className="bg-white rounded-xl shadow-lg">
-                    <SelectItem value="Cardiology">{tr("form.options.department.cardiology","Cardiology")}</SelectItem>
-                    <SelectItem value="Neurology">{tr("form.options.department.neurology","Neurology")}</SelectItem>
-                    <SelectItem value="Orthopedics">{tr("form.options.department.orthopedics","Orthopedics")}</SelectItem>
-                    <SelectItem value="Pediatrics">{tr("form.options.department.pediatrics","Pediatrics")}</SelectItem>
-                    <SelectItem value="Internal Medicine">{tr("form.options.department.internal_medicine","Internal Medicine")}</SelectItem>
-                    <SelectItem value="Surgery">{tr("form.options.department.surgery","Surgery")}</SelectItem>
-                    <SelectItem value="Dermatology">{tr("form.options.department.dermatology","Dermatology")}</SelectItem>
-                    <SelectItem value="Psychiatry">{tr("form.options.department.psychiatry","Psychiatry")}</SelectItem>
-                    <SelectItem value="Radiology">{tr("form.options.department.radiology","Radiology")}</SelectItem>
-                    <SelectItem value="Emergency Medicine">{tr("form.options.department.emergency_medicine","Emergency Medicine")}</SelectItem>
+                    <SelectItem value="Cardiology">{tr("form.options.department.cardiology", "Cardiology")}</SelectItem>
+                    <SelectItem value="Neurology">{tr("form.options.department.neurology", "Neurology")}</SelectItem>
+                    <SelectItem value="Orthopedics">{tr("form.options.department.orthopedics", "Orthopedics")}</SelectItem>
+                    <SelectItem value="Pediatrics">{tr("form.options.department.pediatrics", "Pediatrics")}</SelectItem>
+                    <SelectItem value="Internal Medicine">{tr("form.options.department.internal_medicine", "Internal Medicine")}</SelectItem>
+                    <SelectItem value="Surgery">{tr("form.options.department.surgery", "Surgery")}</SelectItem>
+                    <SelectItem value="Dermatology">{tr("form.options.department.dermatology", "Dermatology")}</SelectItem>
+                    <SelectItem value="Psychiatry">{tr("form.options.department.psychiatry", "Psychiatry")}</SelectItem>
+                    <SelectItem value="Radiology">{tr("form.options.department.radiology", "Radiology")}</SelectItem>
+                    <SelectItem value="Emergency Medicine">{tr("form.options.department.emergency_medicine", "Emergency Medicine")}</SelectItem>
                   </SelectContent>
                 </Select>
                 {errors.department && <p className="text-red-500 text-xs mt-1">{errors.department}</p>}
@@ -570,34 +600,16 @@ export default function DoctorRegistrationForm() {
       case 5:
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Label htmlFor="clinic_name" className="text-sm font-semibold text-gray-700">{tr("form.labels.clinic_name")} *</Label>
-                <Input
-                  id="clinic_name"
-                  value={formData.clinic_name}
-                  onChange={(e) => updateFormData("clinic_name", e.target.value)}
-                  placeholder={tr("form.placeholders.clinic_name")}
-                  className={`mt-1 h-12 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400 ${errors.clinic_name ? "border-red-500" : ""}`}
-                />
-                {errors.clinic_name && <p className="text-red-500 text-xs mt-1">{errors.clinic_name}</p>}
-              </div>
-              <div>
-                <Label htmlFor="service_id" className="text-sm font-semibold text-gray-700">{tr("form.labels.service_id")} *</Label>
-                <Select value={formData.service_id} onValueChange={(value) => updateFormData("service_id", value)}>
-                  <SelectTrigger className={`mt-1 h-12 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 ${errors.service_id ? "border-red-500" : ""}`}>
-                    <SelectValue placeholder={tr("form.placeholders.service_id")} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white rounded-xl shadow-lg">
-                    <SelectItem value="1">{tr("form.options.service.general_consultation","General Consultation")}</SelectItem>
-                    <SelectItem value="2">{tr("form.options.service.specialist_consultation","Specialist Consultation")}</SelectItem>
-                    <SelectItem value="3">{tr("form.options.service.emergency_services","Emergency Services")}</SelectItem>
-                    <SelectItem value="4">{tr("form.options.service.surgical_services","Surgical Services")}</SelectItem>
-                    <SelectItem value="5">{tr("form.options.service.diagnostic_services","Diagnostic Services")}</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.service_id && <p className="text-red-500 text-xs mt-1">{errors.service_id}</p>}
-              </div>
+            <div>
+              <Label htmlFor="clinic_name" className="text-sm font-semibold text-gray-700">{tr("form.labels.clinic_name")} *</Label>
+              <Input
+                id="clinic_name"
+                value={formData.clinic_name}
+                onChange={(e) => updateFormData("clinic_name", e.target.value)}
+                placeholder={tr("form.placeholders.clinic_name")}
+                className={`mt-1 h-12 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400 ${errors.clinic_name ? "border-red-500" : ""}`}
+              />
+              {errors.clinic_name && <p className="text-red-500 text-xs mt-1">{errors.clinic_name}</p>}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -631,7 +643,7 @@ export default function DoctorRegistrationForm() {
               <div className="mt-1 border-2 border-dashed border-gray-200 rounded-xl p-8 text-center bg-gray-50 hover:bg-gray-100 transition-colors">
                 <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                 <p className="text-sm text-gray-600 mb-4">
-                  {tr("form.upload.helper_text","Upload medical license, certificates, and other documents (PDF, JPG, PNG, DOC)")}
+                  {tr("form.upload.helper_text", "Upload medical license, certificates, and other documents (PDF, JPG, PNG, DOC)")}
                 </p>
                 <input
                   type="file"
@@ -640,19 +652,21 @@ export default function DoctorRegistrationForm() {
                   onChange={handleFileUpload}
                   className="hidden"
                   id="file-upload"
+                  disabled={isLoading}
                 />
                 <Button
                   type="button"
                   variant="outline"
                   className="h-10 rounded-xl border-gray-300 text-blue-600 hover:bg-blue-50"
                   onClick={() => document.getElementById("file-upload")?.click()}
+                  disabled={isLoading}
                 >
                   {tr("form.buttons.choose_files")}
                 </Button>
               </div>
               {formData.upload_attachments.length > 0 && (
                 <div className="mt-4">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">{tr("form.upload.list_title","Uploaded Files:")}</h4>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">{tr("form.upload.list_title", "Uploaded Files:")}</h4>
                   <div className="space-y-2">
                     {formData.upload_attachments.map((file, index) => (
                       <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-xl">
@@ -663,6 +677,7 @@ export default function DoctorRegistrationForm() {
                           size="sm"
                           className="text-red-500 hover:text-red-700"
                           onClick={() => removeFile(index)}
+                          disabled={isLoading}
                         >
                           {tr("form.buttons.remove")}
                         </Button>
@@ -679,14 +694,14 @@ export default function DoctorRegistrationForm() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-700">
                 <div className="space-y-2">
-                  <p><strong className="font-semibold">{tr("form.review.name")}:</strong> {formData.name_en || tr("form.review.not_provided")}</p>
+                  <p><strong className="font-semibold">{tr("form.review.name")}:</strong> {formData.name.en || tr("form.review.not_provided")}</p>
                   <p><strong className="font-semibold">{tr("form.review.email")}:</strong> {formData.email || tr("form.review.not_provided")}</p>
                   <p><strong className="font-semibold">{tr("form.review.role")}:</strong> {formData.doctor_role || tr("form.review.not_provided")}</p>
                   <p><strong className="font-semibold">{tr("form.review.department")}:</strong> {formData.department || tr("form.review.not_provided")}</p>
                 </div>
                 <div className="space-y-2">
                   <p><strong className="font-semibold">{tr("form.review.specialization")}:</strong> {formData.specialized_in || tr("form.review.not_provided")}</p>
-                  <p><strong className="font-semibold">{tr("form.review.experience")}:</strong> {formData.experience ? `${formData.experience} ${tr("form.review.years","years")}` : tr("form.review.not_provided")}</p>
+                  <p><strong className="font-semibold">{tr("form.review.experience")}:</strong> {formData.experience ? `${formData.experience} ${tr("form.review.years", "years")}` : tr("form.review.not_provided")}</p>
                   <p><strong className="font-semibold">{tr("form.review.clinic")}:</strong> {formData.clinic_name || tr("form.review.not_provided")}</p>
                   <p><strong className="font-semibold">{tr("form.review.registration")}:</strong> {formData.medical_registration_number || tr("form.review.not_provided")}</p>
                 </div>
@@ -755,7 +770,7 @@ export default function DoctorRegistrationForm() {
             type="button"
             variant="outline"
             onClick={prevStep}
-            disabled={currentStep === 1}
+            disabled={currentStep === 1 || isLoading}
             className="h-10 rounded-xl border-gray-300 text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -765,6 +780,7 @@ export default function DoctorRegistrationForm() {
             <Button
               type="button"
               onClick={handleSubmit}
+              disabled={isLoading}
               className="h-10 rounded-xl bg-green-600 hover:bg-green-700 text-white flex items-center space-x-2"
             >
               <span>{tr("form.buttons.submit")}</span>
@@ -774,6 +790,7 @@ export default function DoctorRegistrationForm() {
             <Button
               type="button"
               onClick={nextStep}
+              disabled={isLoading}
               className="h-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-2"
             >
               <span>{tr("form.buttons.next")}</span>
