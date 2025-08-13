@@ -96,7 +96,7 @@ export default function Step5Payment({
             {bookingData.selectedPackage && (
               <div className="flex justify-between">
                 <span className="font-medium">
-                  {bookingData.selectedPackage.name.ar}
+                  {bookingData.selectedPackage.name || "غير محدد"}
                 </span>
                 <span className="text-gray-600">الباقة المختارة</span>
               </div>

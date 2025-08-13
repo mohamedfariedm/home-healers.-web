@@ -30,8 +30,8 @@ export default function Step1SpecialtySelection({
   const filteredCategories =
     categoriesData?.data?.filter(
       (category: Category) =>
-        category.name.ar.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        category.name.en.toLowerCase().includes(searchQuery.toLowerCase())
+        category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        category.name.toLowerCase().includes(searchQuery.toLowerCase())
     ) || [];
 
   // Filter services, limited to the selected category if applicable
@@ -41,9 +41,9 @@ export default function Step1SpecialtySelection({
         (bookingData.selectedCategory
           ? service.category?.id === bookingData.selectedCategory.id
           : true) &&
-        (service.name.ar.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          service.name.en.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          service.description.ar
+        (service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          service.description
             .replace(/<[^>]*>/g, "")
             .toLowerCase()
             .includes(searchQuery.toLowerCase()))
@@ -66,12 +66,12 @@ export default function Step1SpecialtySelection({
       setSelectedType("service");
       setSearchQuery(""); // Reset search query for service selection
       toast.success(
-        `تم اختيار التخصص: ${category.name.ar}. الآن اختر الخدمة المناسبة.`
+        `تم اختيار التخصص: ${category.name}. الآن اختر الخدمة المناسبة.`
       );
     } else {
       // No services available, proceed to next step
       toast.success(
-        `تم اختيار التخصص: ${category.name.ar}. لا توجد خدمات متاحة لهذا التخصص.`
+        `تم اختيار التخصص: ${category.name}. لا توجد خدمات متاحة لهذا التخصص.`
       );
       onNext();
     }
@@ -232,13 +232,13 @@ export default function Step1SpecialtySelection({
                           category.image?.[0]?.original ||
                           "/default-category.png"
                         }
-                        alt={category.name.ar}
+                        alt={category.name}
                         className="w-8 h-8 object-cover"
                       />
                     </div>
                     <div className="text-center">
                       <h3 className="font-semibold text-[#1e1e1e] mb-1">
-                        {category.name.ar}
+                        {category.name}
                       </h3>
                       <p className="text-sm text-gray-600">
                         {category.services?.length || 0} خدمة
@@ -266,23 +266,23 @@ export default function Step1SpecialtySelection({
                         src={
                           service.image?.[0]?.original || "/default-service.png"
                         }
-                        alt={service.name.ar}
+                        alt={service.name}
                         className="w-6 h-6 object-cover"
                       />
                     </div>
                     <div>
                       <h3 className="font-semibold text-[#1e1e1e] mb-2">
-                        {service.name.ar}
-                        {service.name.en !== service.name.ar
-                          ? ` (${service.name.en})`
+                        {service.name}
+                        {service.name !== service.name
+                          ? ` (${service.name})`
                           : ""}
                       </h3>
                       <p className="text-sm text-gray-600 line-clamp-3">
-                        {service.description.ar.replace(/<[^>]*>/g, "")}
+                        {service.description.replace(/<[^>]*>/g, "")}
                       </p>
                       {service.category && (
                         <p className="text-xs text-[#62a0f6] mt-2">
-                          {service.category.name.ar}
+                          {service.category.name}
                         </p>
                       )}
                     </div>
@@ -300,17 +300,17 @@ export default function Step1SpecialtySelection({
           <p className="text-green-800 font-medium">
             تم اختيار:{" "}
             {bookingData.selectedCategory && !bookingData.selectedService ? (
-              <>{bookingData.selectedCategory.name.ar} (تخصص)</>
+              <>{bookingData.selectedCategory.name} (تخصص)</>
             ) : (
               <>
-                {bookingData.selectedService?.name.ar}
-                {bookingData.selectedService?.name.en !==
-                bookingData.selectedService?.name.ar
-                  ? ` (${bookingData.selectedService?.name.en})`
+                {bookingData.selectedService?.name}
+                {bookingData.selectedService?.name !==
+                bookingData.selectedService?.name
+                  ? ` (${bookingData.selectedService?.name})`
                   : ""}{" "}
                 (خدمة)
                 {bookingData.selectedService?.category && (
-                  <> - التخصص: {bookingData.selectedService.category.name.ar}</>
+                  <> - التخصص: {bookingData.selectedService.category.name}</>
                 )}
               </>
             )}

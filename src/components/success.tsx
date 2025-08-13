@@ -147,7 +147,7 @@ const ReceiptDocument = ({ bookingData, reservationId }: { bookingData: BookingD
         </View>
         {bookingData.selectedPackage && (
           <View style={styles.row}>
-            <Text style={styles.value}>{bookingData.selectedPackage.name.ar || "غير محدد"}</Text>
+            <Text style={styles.value}>{bookingData.selectedPackage.name || "غير محدد"}</Text>
             <Text style={styles.label}>الباقة المختارة:</Text>
           </View>
         )}
@@ -325,7 +325,7 @@ export default function PaymentSuccess() {
             {bookingData.selectedPackage && (
               <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
                 <span className="font-medium text-blue-800">
-                  {bookingData.selectedPackage.name.ar || "غير محدد"}
+                  {bookingData.selectedPackage.name || "غير محدد"}
                 </span>
                 <span className="text-blue-600">الباقة المختارة</span>
               </div>

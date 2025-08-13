@@ -169,8 +169,8 @@ export default function DoctorProfileModal({
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">🎁</span>
                     <div>
-                      <p className="font-semibold text-teal-800">{offer.name.ar}</p>
-                      <p className="text-sm text-teal-600">{offer.description.ar}</p>
+                      <p className="font-semibold text-teal-800">{offer.name}</p>
+                      <p className="text-sm text-teal-600">{offer.description}</p>
                       <p className="text-sm text-teal-600">عدد الجلسات: {offer.sessions_count}</p>
                       <p className="text-sm font-semibold text-teal-800">
                         السعر: {offer.price} ريال {offer.discount ? `(خصم ${offer.discount} ريال)` : ""}
@@ -180,10 +180,10 @@ export default function DoctorProfileModal({
                   <button
                     onClick={() => {
                       updateBookingData({ selectedPackage: { ...offer, type: offer.type || "offer" } })
-                      toast.success(`تم اختيار العرض: ${offer.name.ar}`)
+                      toast.success(`تم اختيار العرض: ${offer.name}`)
                     }}
                     className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
-                    aria-label={`الاستفادة من عرض ${offer.name.ar}`}
+                    aria-label={`الاستفادة من عرض ${offer.name}`}
                   >
                     الاستفادة من العرض
                   </button>
@@ -302,8 +302,8 @@ export default function DoctorProfileModal({
                   </h3>
                 </div>
                 <div className="bg-[#eff6fe] rounded-xl rounded-tr-none p-4">
-                  <p className="text-[#1e1e1e] font-semibold">{doctor.service.name.ar}</p>
-                  <p className="text-[#1e1e1e]" dangerouslySetInnerHTML={{ __html: doctor.service.description.ar }} />
+                  <p className="text-[#1e1e1e] font-semibold">{doctor.service.name}</p>
+                  <p className="text-[#1e1e1e]" dangerouslySetInnerHTML={{ __html: doctor.service.description }} />
                 </div>
               </div>
             )}

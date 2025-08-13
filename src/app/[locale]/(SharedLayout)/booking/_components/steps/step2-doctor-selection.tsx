@@ -71,8 +71,8 @@ export default function Step2DoctorSelection({
         bookingData.selectedService
           ? doctor.service?.id === bookingData.selectedService.id
           : bookingData.selectedCategory
-          ? doctor.specialist === bookingData.selectedCategory.name.ar ||
-            doctor.department === bookingData.selectedCategory.name.ar
+          ? doctor.specialist === bookingData.selectedCategory.name ||
+            doctor.department === bookingData.selectedCategory.name
           : true
 
       return matchesSearch && matchesFilters && matchesStep1
@@ -115,7 +115,7 @@ export default function Step2DoctorSelection({
 
   const handlePackageSelect = (pkg: Package) => {
     updateBookingData({ selectedPackage: pkg })
-    toast.success(`تم اختيار الباقة: ${pkg.name.ar}`)
+    toast.success(`تم اختيار الباقة: ${pkg.name}`)
   }
 
   // Handle empty state
@@ -171,8 +171,8 @@ export default function Step2DoctorSelection({
             >
               <option value="">جميع التخصصات</option>
               {bookingData.selectedCategory ? (
-                <option value={bookingData.selectedCategory.name.ar}>
-                  {bookingData.selectedCategory.name.ar}
+                <option value={bookingData.selectedCategory.name}>
+                  {bookingData.selectedCategory.name}
                 </option>
               ) : (
                 <>
@@ -277,10 +277,10 @@ export default function Step2DoctorSelection({
                         ? "border-[#62a0f6] bg-[#eff6fe]"
                         : "border-gray-200 hover:border-[#62a0f6]"
                     }`}
-                    aria-label={`اختيار الباقة ${pkg.name.ar}`}
+                    aria-label={`اختيار الباقة ${pkg.name}`}
                   >
-                    <div className="font-semibold text-[#1e1e1e] mb-1">{pkg.name.ar}</div>
-                    <div className="text-sm text-gray-600 mb-2">{pkg.description.ar}</div>
+                    <div className="font-semibold text-[#1e1e1e] mb-1">{pkg.name}</div>
+                    <div className="text-sm text-gray-600 mb-2">{pkg.description}</div>
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-bold text-[#62a0f6]">{pkg.price} ريال</span>
                       {pkg.discount && (

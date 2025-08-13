@@ -5,10 +5,7 @@ export interface Doctor {
   email: string
   nationality: {
     id: number
-    name: {
-      en: string
-      ar: string
-    }
+    name: string
   }
   mobile_number: string
   gender: string
@@ -39,14 +36,8 @@ export interface Doctor {
   specialized_in: string // Added from data
   offers: Array<{
     id: number
-    name: {
-      en: string
-      ar: string
-    }
-    description: {
-      en: string
-      ar: string
-    }
+    name: string
+    description: string
     price: string
     discount: string
     sessions_count: number
@@ -58,14 +49,9 @@ export interface Doctor {
   }> // Added from data
   service: {
     id: number
-    name: {
-      en: string
-      ar: string
-    }
-    description: {
-      en: string
-      ar: string
-    }
+    name: string
+    description: string
+    
     image: Array<{
       thumbnail: string
       original: string
@@ -81,10 +67,7 @@ export interface Doctor {
 
 export interface Category {
   id: number
-  name: {
-    en: string
-    ar: string
-  }
+  name: string
   image: any
   services: Service[]
 }
@@ -96,33 +79,18 @@ export interface Service {
     original: string
     id: number
   }>
-  name: {
-    en: string
-    ar: string
-  }
-  description: {
-    en: string
-    ar: string
-  }
+  name:string
+  description:string
   category: {
     id: number
-    name: {
-      en: string
-      ar: string
-    }
+    name:string
   }
 }
 
 export interface Package {
   id: number
-  name: {
-    en: string
-    ar: string
-  }
-  description: {
-    en: string
-    ar: string
-  }
+  name:string
+  description: string
   price: string
   discount: string
   type: string
