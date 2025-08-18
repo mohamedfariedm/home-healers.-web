@@ -1,6 +1,7 @@
 import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
 import InvoiceView from "@/components/invoiceView";
+import { log } from "console";
 export const dynamic = "force-dynamic";
 
 type Props = {
@@ -44,7 +45,7 @@ export async function generateMetadata({ params: { locale, slug } }: Props) {
 async function page({ params: { locale, slug } }: Props) {
   const { t } = await initTranslations(locale, ["invoice"]);
   const data = await ClientAPI.getInvoices(slug, locale);
-
+log("Invoice Data:", data);
   return <InvoiceView invoiceData={data?.data[0]} />;
 }
 
