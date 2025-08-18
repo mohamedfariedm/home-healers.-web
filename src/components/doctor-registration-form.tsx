@@ -175,7 +175,7 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
         const response = await ClientAPI.uploadAttachment(attachmentFormData, locale)
         if (response && response.data && response.data[0]?.original) {
           newAttachmentIds.push(response.data[0].original)
-          toast(
+          toast.success(
             tr("form.messages.upload_success_title", "File Uploaded"),
             { description: tr("form.messages.upload_success", "File uploaded successfully") }
           )
@@ -183,7 +183,7 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
           throw new Error("No attachment ID returned")
         }
       } catch (error) {
-        toast(
+        toast.error(
           tr("form.messages.upload_error_title", "Upload Failed"),
           { description: tr("form.messages.upload_error", "Failed to upload file") }
         )
@@ -235,7 +235,7 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
       delete submissionData.attachment_ids // Remove attachment_ids as it's not in the request body
       const response = await ClientAPI.doctorApplayment(submissionData, locale)
       console.log("response", response)
-        toast(
+        toast.success(
           tr("form.messages.success_title", "تم إرسال الطلب بنجاح"),
           { description: tr("form.messages.success", "Your application has been submitted successfully") }
         )
@@ -244,7 +244,7 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
 
     } catch (error: any) {
       console.error(error)
-      toast(
+      toast.error(
         tr("form.messages.error_title", "فشل في إرسال الطلب"),
         { description: tr("form.messages.error", "Failed to submit application") }
       )

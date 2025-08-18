@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import GlobalProvider from "../../Providers";
 import "../../styles/globals.css";
 import { Alexandria } from 'next/font/google';
+import { Toaster } from "sonner";
 
 const alexandria = Alexandria({
   subsets: ['arabic'],
@@ -38,6 +39,7 @@ export default async function RootLayout({
       <body className={alexandria.className}>
         <main className="w-full">
           <GlobalProvider locale={locale}>{children}</GlobalProvider>
+           
         </main>
       </body>
     </html>
