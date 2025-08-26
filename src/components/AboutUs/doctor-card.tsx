@@ -93,7 +93,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
               />
             ))}
           </div>
-          <span className="text-sm font-medium">{rating.toFixed(1)}</span>
+          <span className="text-sm font-medium">{rating}</span>
         </div>
       </div>
 

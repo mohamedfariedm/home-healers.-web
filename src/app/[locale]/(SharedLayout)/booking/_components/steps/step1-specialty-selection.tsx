@@ -25,6 +25,8 @@ export default function Step1SpecialtySelection({
   const [selectedType, setSelectedType] = useState<"category" | "service">(
     "category"
   );
+console.log("servicesData", servicesData);
+console.log("categoriesData", categoriesData);
 
   // Filter categories
   const filteredCategories =

@@ -122,7 +122,7 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
                     </div>
                     <div className="flex items-center gap-2">
                       <Star size={16} className="text-yellow-400 fill-yellow-400" />
-                      <span>{rating.toFixed(1)} {translations.rating}</span>
+                      <span>{rating} {translations.rating}</span>
                     </div>
                     <div className="bg-white/20 px-3 py-1 rounded-full">
                       <span className="font-medium">{doctor.session_price} {translations.currency}</span>
