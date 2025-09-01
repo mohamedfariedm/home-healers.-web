@@ -20,6 +20,7 @@ const AnimatedServicesSection = ({
   // Ensure services is an array, fallback to empty array if undefined
   const services = Array.isArray(data) ? data : [];
   const activeService = services[activeIndex] || {};
+console.log("Active Service:", activeService);
 
   // Helper to get localized value
   const getLocalized = (value: any, loc: string) => {
@@ -144,7 +145,7 @@ const AnimatedServicesSection = ({
           <h3 className="text-2xl font-medium text-[#1e1e1e]">
             {getLocalized(activeService.name, locale) || "خدمة غير متوفرة"}
           </h3>
-          <div className="text-lg leading-8 text-[#475467] max-h-[200px] overflow-hidden">
+          <div className="text-lg leading-8 text-[#475467] overflow-hidden">
             {activeService.description
               ? parse(activeService.description)
               : "وصف الخدمة غير متوفر حالياً."}

@@ -330,13 +330,13 @@ export default function Step2DoctorSelection({
                   <div className="flex flex-col md:flex-row gap-6">
                     {/* Doctor Image */}
                     <div className="w-full md:w-48 h-40 rounded-lg overflow-hidden">
-                      {/* <Image
+                      <Image
                         src={getDoctorImage(doctor)}
                         alt={`صورة الطبيب ${doctor.name}`}
                         width={192}
                         height={160}
                         className="w-full h-full object-cover"
-                      /> */}
+                      />
                     </div>
 
                     {/* Doctor Info */}
