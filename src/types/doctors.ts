@@ -56,7 +56,7 @@ export interface Doctor {
   from: string;
   to: string;
   addresses: any[];
-  image?: string;
+  image?: any;
   created_at: string;
   updated_at: string;
 }

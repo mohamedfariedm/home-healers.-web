@@ -3,7 +3,7 @@ import type { Doctor, DoctorNationality } from "@/types/doctors";
 export const getDoctorImage = (doctor: Doctor): string => {
     console.log("Doctor Image:", doctor);
     
-  return doctor?.image || "https://www.google.com/url?sa=i&url=https%3A%2F%2Fpngtree.com%2Ffree-png-vectors%2Fdoctor&psig=AOvVaw0GBbm-13F9GHjedbpp1sDP&ust=1754681016562000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCMjnsaq2-Y4DFQAAAAAdAAAAABAE";
+  return doctor?.image?.[0]?.original || "https://www.google.com/url?sa=i&url=https%3A%2F%2Fpngtree.com%2Ffree-png-vectors%2Fdoctor&psig=AOvVaw0GBbm-13F9GHjedbpp1sDP&ust=1754681016562000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCMjnsaq2-Y4DFQAAAAAdAAAAABAE";
 };
 
 export const getNationalityName = (
