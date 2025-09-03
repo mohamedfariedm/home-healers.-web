@@ -9,7 +9,7 @@ cmds = ["yarn install --frozen-lockfile"]
 cmds = []
 
 [start]
-cmd = "yarn dev -p 3000"
+cmd = "yarn dev -p 3000 -H 0.0.0.0"
 
 [healthcheck]
 path = "/"
