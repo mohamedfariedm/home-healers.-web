@@ -5,8 +5,15 @@ nixPkgs = ["nodejs", "yarn"]
 cmds = ["yarn install --frozen-lockfile"]
 
 [phases.build]
-cmds = ["yarn build"]
-
+# Skip build in dev mode
+cmds = []
 
 [start]
-cmd = "next dev -p 3000"
+cmd = "yarn dev -p 3000"
+
+[healthcheck]
+path = "/"
+port = 3000
+interval = 10
+timeout = 5
+retries = 5
