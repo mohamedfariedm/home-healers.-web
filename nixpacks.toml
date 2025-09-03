@@ -1,11 +1,12 @@
 [phases.setup]
-nixPkgs = ["nodejs", "pnpm"]
+nixPkgs = ["nodejs", "yarn"]
 
 [phases.install]
-cmds = ["pnpm install --no-frozen-lockfile"]
+cmds = ["yarn install --frozen-lockfile"]
 
 [phases.build]
-cmds = []
+cmds = ["yarn build"]
+
 
 [start]
 cmd = "next dev -p 3000"
