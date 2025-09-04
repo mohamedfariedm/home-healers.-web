@@ -12,8 +12,9 @@ cmds = []
 cmd = "yarn dev -p 3000 -H 0.0.0.0"
 
 [healthcheck]
+# You can change path to /api/health if you add a route
 path = "/"
 port = 3000
-interval = 10
-timeout = 5
-retries = 5
+interval = 15
+timeout = 10
+retries = 10
