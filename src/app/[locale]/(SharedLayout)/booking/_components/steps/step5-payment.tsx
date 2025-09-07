@@ -23,7 +23,7 @@ export default function Step5Payment({
   const [couponError, setCouponError] = useState("");
 
   const paymentMethods = [
-    { id: "cash_on_delivery", name: "الدفع عند الاستلام", icon: <FaCashRegister className="w-6 h-6" /> },
+    // { id: "cash_on_delivery", name: "الدفع عند الاستلام", icon: <FaCashRegister className="w-6 h-6" /> },
     { id: "apple_pay", name: "Apple Pay", icon: "🍎" },
     { id: "telr", name: "Telr Payment", icon: "💳" },
   ];

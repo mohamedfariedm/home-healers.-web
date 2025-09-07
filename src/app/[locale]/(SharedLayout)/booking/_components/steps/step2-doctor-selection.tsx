@@ -1,19 +1,45 @@
-"use client"
-import { useState, useMemo } from "react"
-import { Search, Star, Clock, User, Filter, MapPin } from "lucide-react"
-import Image from "next/image"
-import { toast } from "sonner"
-import type { BookingData, Doctor, Package } from "@/types/booking"
+"use client";
+import { useState, useMemo } from "react";
+import { Search, Star, Clock, User, Filter, MapPin } from "lucide-react";
+import Image from "next/image";
+import { toast } from "sonner";
+import type { BookingData, Doctor, Package } from "@/types/booking";
+
+// ===== Helpers for the new data shape =====
+const isImageUrl = (url?: string | null) =>
+  !!url && /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(url);
+
+const pickFirstImageFromServices = (services?: any[]) => {
+  if (!Array.isArray(services)) return null;
+  for (const srv of services) {
+    const original = srv?.image?.[0]?.original as string | undefined;
+    if (isImageUrl(original)) return original!;
+  }
+  return null;
+};
+
+const pickFirstImageFromAttachments = (attachments?: string | null) => {
+  if (!attachments) return null;
+  // attachments may be: "url1, url2, file.pdf"
+  const parts = attachments.split(",").map((s) => s.trim());
+  const firstImg = parts.find((p) => isImageUrl(p));
+  return firstImg ?? null;
+};
+
+const toNum = (val: any, fallback = 0) => {
+  const n = Number(val);
+  return Number.isFinite(n) ? n : fallback;
+};
 
 interface Step2Props {
-  doctorsData: any
-  packagesData: any
-  bookingData: BookingData
-  updateBookingData: (updates: Partial<BookingData>) => void
-  onNext: () => void
-  onPrev: () => void
-  onOpenProfile: (doctor: Doctor) => void
-  isLoading: boolean
+  doctorsData: any;
+  packagesData: any;
+  bookingData: BookingData;
+  updateBookingData: (updates: Partial<BookingData>) => void;
+  onNext: () => void;
+  onPrev: () => void;
+  onOpenProfile: (doctor: Doctor) => void;
+  isLoading: boolean;
 }
 
 export default function Step2DoctorSelection({
@@ -26,108 +52,151 @@ export default function Step2DoctorSelection({
   onOpenProfile,
   isLoading,
 }: Step2Props) {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [showFilters, setShowFilters] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
 
-  // Validate image URL
-  const isValidImage = (attachment: string) => /\.(jpg|jpeg|png|gif)$/i.test(attachment)
-  const getDoctorImage = (doctor: Doctor) =>
-    doctor.upload_attachments && isValidImage(doctor.upload_attachments)
-      ? doctor.upload_attachments
-      : doctor.service?.image?.[0]?.original && isValidImage(doctor.service.image[0].original)
-      ? doctor.service.image[0].original
-      : "/default-doctor.png"
+  // Build a robust image picker for the doctor
+  const getDoctorImage = (doctor: any) => {
+    // 1) doctor.image
+    const doctorOriginal = doctor?.image?.[0]?.original as string | undefined;
+    if (isImageUrl(doctorOriginal)) return doctorOriginal!;
 
-  // Filter doctors based on search and Step 1 selection
-  const filteredDoctors = useMemo(() => {
-    if (!doctorsData?.data) return []
+    // 2) any service image
+    const fromService = pickFirstImageFromServices(doctor?.services);
+    if (fromService) return fromService;
 
-    return doctorsData.data.filter((doctor: Doctor) => {
-      const matchesSearch =
-        doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doctor.clinic_name.toLowerCase().includes(searchQuery.toLowerCase())
+    // 3) upload_attachments (first imageish URL)
+    const fromAttachments = pickFirstImageFromAttachments(doctor?.upload_attachments);
+    if (fromAttachments) return fromAttachments;
 
-      const matchesFilters = [
-        bookingData.searchFilters.city
-          ? doctor.addresses.some((addr: any) => addr.city === bookingData.searchFilters.city)
-          : true,
-        bookingData.searchFilters.specialty
-          ? doctor.specialist === bookingData.searchFilters.specialty
-          : true,
-        bookingData.searchFilters.experience
-          ? doctor.experience >= parseInt(bookingData.searchFilters.experience)
-          : true,
-        bookingData.searchFilters.rating
-          ? (doctor.rate ?? 4) >= bookingData.searchFilters.rating
-          : true,
-        bookingData.searchFilters.priceRange
-          ? doctor.session_price >= bookingData.searchFilters.priceRange[0] &&
-            doctor.session_price <= bookingData.searchFilters.priceRange[1]
-          : true,
-      ].every(Boolean)
-
-      // Filter by selected category or service from Step 1
-      const matchesStep1 =
-        bookingData.selectedService
-          ? doctor.service?.id === bookingData.selectedService.id
-          : bookingData.selectedCategory
-          ? doctor.specialist === bookingData.selectedCategory.name ||
-            doctor.department === bookingData.selectedCategory.name
-          : true
-
-      return matchesSearch && matchesFilters && matchesStep1
-    })
-  }, [
-    doctorsData,
-    searchQuery,
-    bookingData.searchFilters,
-    bookingData.selectedCategory,
-    bookingData.selectedService,
-  ])
+    // 4) fallback
+    return "/default-doctor.png";
+  };
 
   const handleSearch = (query: string) => {
-    setSearchQuery(query)
+    setSearchQuery(query);
     updateBookingData({
       searchFilters: {
         ...bookingData.searchFilters,
-
       },
-    })
-  }
+    });
+  };
 
   const handleFilterChange = (key: string, value: any) => {
+    const currentRange = bookingData.searchFilters?.priceRange ?? [0, 1000];
     updateBookingData({
       searchFilters: {
         ...bookingData.searchFilters,
+        priceRange: currentRange,
         [key]: value,
       },
-    })
-    toast.info("تم تحديث الفلاتر")
-  }
+    });
+    toast.info("تم تحديث الفلاتر");
+  };
 
-  const handleDoctorSelect = (doctor: Doctor) => {
-    console.log("Selected doctor:", doctor);
-    
-    updateBookingData({ selectedDoctor: doctor })
-    toast.success(`تم اختيار الطبيب: ${doctor.name}`)
-    onNext()
-  }
+  const handleDoctorSelect = (doctor: any) => {
+    updateBookingData({ selectedDoctor: doctor });
+    toast.success(`تم اختيار الطبيب: ${doctor?.name ?? ""}`);
+    onNext();
+  };
 
   const handlePackageSelect = (pkg: Package) => {
-    updateBookingData({ selectedPackage: pkg })
-    toast.success(`تم اختيار الباقة: ${pkg.name}`)
-  }
+    updateBookingData({ selectedPackage: pkg });
+    toast.success(`تم اختيار الباقة: ${pkg.name}`);
+  };
 
-  // Handle empty state
-  const isDoctorsEmpty = !doctorsData?.data?.length || !filteredDoctors.length
-  const isPackagesEmpty = !packagesData?.data?.length
+  // Main filtering
+  const filteredDoctors = useMemo(() => {
+    const list: any[] = doctorsData?.data ?? [];
+    if (!Array.isArray(list)) return [];
+
+    const q = searchQuery.trim().toLowerCase();
+
+    const selectedServiceId = bookingData?.selectedService?.id;
+    const selectedCategory = bookingData?.selectedCategory; // might have name or id
+
+    const cityFilter = bookingData?.searchFilters?.city || "";
+    const specialtyFilter = bookingData?.searchFilters?.specialty || "";
+    const expFilter = bookingData?.searchFilters?.experience
+      ? parseInt(String(bookingData.searchFilters.experience))
+      : null;
+    const ratingFilter = bookingData?.searchFilters?.rating ?? null;
+    const priceRange = bookingData?.searchFilters?.priceRange ?? [0, 100000];
+
+    return list.filter((doc) => {
+      // --- Text search (name / clinic_name) ---
+      const name = String(doc?.name ?? "").toLowerCase();
+      const clinic = String(doc?.clinic_name ?? "").toLowerCase();
+      const matchesSearch = q === "" || name.includes(q) || clinic.includes(q);
+
+      // --- City filter (addresses[].city exact match) ---
+      const matchesCity =
+        !cityFilter ||
+        (Array.isArray(doc?.addresses) &&
+          doc.addresses.some((a: any) => String(a?.city ?? "").toLowerCase() === String(cityFilter).toLowerCase()));
+
+      // --- Specialty filter (specialist exact match) ---
+      const matchesSpecialty =
+        !specialtyFilter ||
+        String(doc?.specialist ?? doc?.department ?? "").toLowerCase() ===
+          String(specialtyFilter).toLowerCase();
+
+      // --- Experience filter (>= expFilter) ---
+      const exp = toNum(doc?.experience, 0);
+      const matchesExp = !expFilter || exp >= expFilter;
+
+      // --- Rating filter (>= rating) ---
+      const rateNum = toNum(doc?.rate, 4);
+      const matchesRating = !ratingFilter || rateNum >= ratingFilter;
+
+      // --- Price range filter ---
+      const price = toNum(doc?.session_price, 0);
+      const matchesPrice = price >= toNum(priceRange[0], 0) && price <= toNum(priceRange[1], 100000);
+
+      // --- Step 1 selection (by service OR category) ---
+      let matchesStep1 = true;
+
+      // If a service is selected, doc must have ANY service with same id
+      if (selectedServiceId) {
+        const hasSrv =
+          Array.isArray(doc?.services) &&
+          doc.services.some((s: any) => String(s?.id) === String(selectedServiceId));
+        matchesStep1 = hasSrv;
+      } else if (selectedCategory) {
+        // Match by category id if present, else by name vs specialist/department
+        const byCategoryId =
+          selectedCategory?.id != null &&
+          Array.isArray(doc?.services) &&
+          doc.services.some((s: any) => String(s?.category_id) === String(selectedCategory.id));
+
+        const byCategoryName =
+          !!selectedCategory?.name &&
+          (String(doc?.specialist ?? "").toLowerCase() === String(selectedCategory.name).toLowerCase() ||
+            String(doc?.department ?? "").toLowerCase() === String(selectedCategory.name).toLowerCase());
+
+        matchesStep1 = byCategoryId || byCategoryName || !selectedCategory;
+      }
+
+      return (
+        matchesSearch &&
+        matchesCity &&
+        matchesSpecialty &&
+        matchesExp &&
+        matchesRating &&
+        matchesPrice &&
+        matchesStep1
+      );
+    });
+  }, [doctorsData, searchQuery, bookingData]);
+
+  const isDoctorsEmpty = !doctorsData?.data?.length || !filteredDoctors.length;
+  const isPackagesEmpty = !packagesData?.data?.length;
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Search and Filters */}
+      {/* Search & Filters */}
       <div className="bg-white rounded-2xl shadow-md p-6">
         <div className="flex flex-col gap-4">
-          {/* Search Bar */}
           <div className="relative">
             <input
               type="text"
@@ -137,13 +206,12 @@ export default function Step2DoctorSelection({
               className="w-full p-4 pr-12 border border-gray-300 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6]"
               aria-label="البحث عن طبيب أو عيادة"
             />
-            <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           </div>
 
-          {/* Quick Filters */}
           <div className="flex flex-wrap gap-4 items-center">
             <button
-              onClick={() => setShowFilters(!showFilters)}
+              onClick={() => setShowFilters((s) => !s)}
               className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               aria-label="فتح أو إغلاق الفلاتر"
             >
@@ -176,10 +244,10 @@ export default function Step2DoctorSelection({
                 </option>
               ) : (
                 <>
-                  <option value="رعاية الأسنان">رعاية الأسنان</option>
-                  <option value="طب الأسرة">طب الأسرة</option>
-                  <option value="الباطنة">الباطنة</option>
-                  <option value="الأطفال">الأطفال</option>
+                  <option value="علاج طبيعي">علاج طبيعي</option>
+                  <option value="عظام">عظام</option>
+                  <option value="أعصاب">أعصاب</option>
+                  <option value="أطفال">أطفال</option>
                 </>
               )}
             </select>
@@ -197,7 +265,6 @@ export default function Step2DoctorSelection({
             </select>
           </div>
 
-          {/* Advanced Filters */}
           {showFilters && (
             <div className="p-4 bg-gray-50 rounded-lg">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -228,11 +295,11 @@ export default function Step2DoctorSelection({
                     <input
                       type="number"
                       placeholder="من"
-                      value={bookingData.searchFilters.priceRange[0]}
+                      value={(bookingData.searchFilters.priceRange ?? [0, 1000])[0]}
                       onChange={(e) =>
                         handleFilterChange("priceRange", [
                           Number.parseInt(e.target.value) || 0,
-                          bookingData.searchFilters.priceRange[1],
+                          (bookingData.searchFilters.priceRange ?? [0, 1000])[1],
                         ])
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -241,10 +308,10 @@ export default function Step2DoctorSelection({
                     <input
                       type="number"
                       placeholder="إلى"
-                      value={bookingData.searchFilters.priceRange[1]}
+                      value={(bookingData.searchFilters.priceRange ?? [0, 1000])[1]}
                       onChange={(e) =>
                         handleFilterChange("priceRange", [
-                          bookingData.searchFilters.priceRange[0],
+                          (bookingData.searchFilters.priceRange ?? [0, 1000])[0],
                           Number.parseInt(e.target.value) || 1000,
                         ])
                       }
@@ -317,101 +384,112 @@ export default function Step2DoctorSelection({
             </div>
           ) : (
             <div className="space-y-6">
-              {filteredDoctors.map((doctor: Doctor) => (
-                <div
-                  key={doctor.id}
-                  className={`bg-white rounded-2xl shadow-md p-6 transition-all ${
-                    bookingData.selectedDoctor?.id === doctor.id
-                      ? "shadow-[0_0_10px_rgba(98,160,246,0.5)] bg-[#eff6fe] border-2 border-[#62a0f6]"
-                      : "hover:shadow-lg cursor-pointer"
-                  }`}
-                  aria-selected={bookingData.selectedDoctor?.id === doctor.id}
-                >
-                  <div className="flex flex-col md:flex-row gap-6">
-                    {/* Doctor Image */}
-                    <div className="w-full md:w-48 h-40 rounded-lg overflow-hidden">
-                      <Image
-                        src={getDoctorImage(doctor)}
-                        alt={`صورة الطبيب ${doctor.name}`}
-                        width={192}
-                        height={160}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+              {filteredDoctors.map((doctor: any) => {
+                const img = getDoctorImage(doctor);
+                const rateNum = toNum(doctor?.rate, 4);
 
-                    {/* Doctor Info */}
-                    <div className="flex-1">
-                      <div className="flex flex-col gap-3">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="text-xl font-semibold text-[#1e1e1e]">{doctor.name}</h3>
-                            <p className="text-sm text-gray-600">
-                              {doctor.doctor_role !== "atque" ? doctor.doctor_role : doctor.specialist}
-                            </p>
-                          </div>
-                          <div className="flex">
-                            {Array.from({ length: doctor.rate ?? 4 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                className="w-5 h-5 text-yellow-400 fill-yellow-400"
-                                aria-hidden="true"
-                              />
-                            ))}
-                          </div>
-                        </div>
+                return (
+                  <div
+                    key={doctor.id}
+                    className={`bg-white rounded-2xl shadow-md p-6 transition-all ${
+                      bookingData.selectedDoctor?.id === doctor.id
+                        ? "shadow-[0_0_10px_rgba(98,160,246,0.5)] bg-[#eff6fe] border-2 border-[#62a0f6]"
+                        : "hover:shadow-lg cursor-pointer"
+                    }`}
+                    aria-selected={bookingData.selectedDoctor?.id === doctor.id}
+                  >
+                    <div className="flex flex-col md:flex-row gap-6">
+                      {/* Doctor Image */}
+                      <div className="w-full md:w-48 h-40 rounded-lg overflow-hidden">
+                        <Image
+                          src={img}
+                          alt={`صورة الطبيب ${doctor?.name ?? ""}`}
+                          width={192}
+                          height={160}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-gray-400" />
-                            <span className="text-sm">الخبرة: {doctor.experience} سنوات</span>
+                      {/* Doctor Info */}
+                      <div className="flex-1">
+                        <div className="flex flex-col gap-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="text-xl font-semibold text-[#1e1e1e]">
+                                {doctor?.name}
+                              </h3>
+                              <p className="text-sm text-gray-600">
+                                {doctor?.doctor_role ?? doctor?.specialist ?? "غير محدد"}
+                              </p>
+                            </div>
+                            <div className="flex">
+                              {Array.from({ length: Math.max(1, Math.min(5, rateNum)) }).map(
+                                (_, i) => (
+                                  <Star
+                                    key={i}
+                                    className="w-5 h-5 text-yellow-400 fill-yellow-400"
+                                    aria-hidden="true"
+                                  />
+                                )
+                              )}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <User className="w-4 h-4 text-gray-400" />
-                            <span className="text-sm">
-                              التخصص: {doctor.specialist !== "doloremque" ? doctor.specialist : "غير محدد"}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-gray-400" />
-                            <span className="text-sm">العيادة: {doctor.clinic_name}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-gray-400" />
-                            <span className="text-sm">
-                              المواعيد: {doctor.from} - {doctor.to}
-                            </span>
-                          </div>
-                        </div>
 
-                        <div className="flex justify-between items-center mt-4">
-                          <div className="text-right">
-                            <span className="text-sm text-gray-600">السعر: </span>
-                            <span className="text-lg font-bold text-[#62a0f6]">
-                              {doctor.session_price} ريال
-                            </span>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-gray-400" />
+                              <span className="text-sm">
+                                الخبرة: {toNum(doctor?.experience, 0)} سنوات
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <User className="w-4 h-4 text-gray-400" />
+                              <span className="text-sm">
+                                التخصص: {doctor?.specialist ?? doctor?.department ?? "غير محدد"}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-4 h-4 text-gray-400" />
+                              <span className="text-sm">العيادة: {doctor?.clinic_name ?? "-"}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-gray-400" />
+                              <span className="text-sm">
+                                المواعيد: {doctor?.from ?? "--:--"} - {doctor?.to ?? "--:--"}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex gap-3">
-                            <button
-                              onClick={() => onOpenProfile(doctor)}
-                              className="px-4 py-2 border border-[#62a0f6] text-[#62a0f6] rounded-lg hover:bg-[#eff6fe] transition-colors"
-                              aria-label={`عرض ملف الطبيب ${doctor.name}`}
-                            >
-                              عرض الملف
-                            </button>
-                            <button
-                              onClick={() => handleDoctorSelect(doctor)}
-                              className="px-6 py-2 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] transition-colors"
-                              aria-label={`اختيار الطبيب ${doctor.name}`}
-                            >
-                              اختيار الطبيب
-                            </button>
+
+                          <div className="flex justify-between items-center mt-4">
+                            <div className="text-right">
+                              <span className="text-sm text-gray-600">السعر: </span>
+                              <span className="text-lg font-bold text-[#62a0f6]">
+                                {toNum(doctor?.session_price, 0)} ريال
+                              </span>
+                            </div>
+                            <div className="flex gap-3">
+                              <button
+                                onClick={() => onOpenProfile(doctor)}
+                                className="px-4 py-2 border border-[#62a0f6] text-[#62a0f6] rounded-lg hover:bg-[#eff6fe] transition-colors"
+                                aria-label={`عرض ملف الطبيب ${doctor?.name ?? ""}`}
+                              >
+                                عرض الملف
+                              </button>
+                              <button
+                                onClick={() => handleDoctorSelect(doctor)}
+                                className="px-6 py-2 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] transition-colors"
+                                aria-label={`اختيار الطبيب ${doctor?.name ?? ""}`}
+                              >
+                                اختيار الطبيب
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -429,10 +507,10 @@ export default function Step2DoctorSelection({
         <button
           onClick={() => {
             if (!bookingData.selectedDoctor) {
-              toast.error("يرجى اختيار طبيب للمتابعة")
-              return
+              toast.error("يرجى اختيار طبيب للمتابعة");
+              return;
             }
-            onNext()
+            onNext();
           }}
           className="px-6 py-3 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] disabled:bg-gray-400 disabled:cursor-not-allowed"
           disabled={!bookingData.selectedDoctor}
@@ -442,5 +520,5 @@ export default function Step2DoctorSelection({
         </button>
       </div>
     </div>
-  )
+  );
 }
