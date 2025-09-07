@@ -1,0 +1,20 @@
+[phases.setup]
+nixPkgs = ["nodejs", "yarn"]
+
+[phases.install]
+cmds = ["yarn install --frozen-lockfile"]
+
+[phases.build]
+# Skip build in dev mode
+cmds = []
+
+[start]
+cmd = "yarn dev -p 3000 -H 0.0.0.0"
+
+[healthcheck]
+# You can change path to /api/health if you add a route
+path = "/"
+port = 3000
+interval = 30
+timeout = 15
+retries = 10
