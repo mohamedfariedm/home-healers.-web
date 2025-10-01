@@ -23,7 +23,7 @@ export default function MenuItemsDesktop({
     { label: t("about"), href: "/about", width: "w-[118px]" },
     { label: t("services"), href: "/our-services/all", width: "w-[64px]" },
     // { label: t("products"), href: "/products", width: "w-[121px]" },
-    { label: t("blogs"), href: "/blogs", width: "w-[67px]" },
+    { label: t("blogs"), href: "/blog", width: "w-[67px]" },
     { label: t("contact"), href: "/contact", width: "w-[99px]" },
   ];
 

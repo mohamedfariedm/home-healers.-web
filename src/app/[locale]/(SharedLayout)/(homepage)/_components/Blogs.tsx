@@ -17,7 +17,7 @@ function Blogs({ t,data }: {t: TFunction,data:ArticleData[] }) {
         {
         data?.map((article, index) => (
           <Link
-            href={`/blogs/${article?.id}`}
+            href={`/blog/${article?.id}`}
             key={index}
             className="flex w-full xs:w-[368px] xs:h-[465px] flex-col overflow-hidden items-start shrink-0 flex-nowrap relative z-[5] group"
           >

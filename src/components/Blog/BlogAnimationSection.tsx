@@ -89,7 +89,7 @@ const BlogAnimationSection = ({ locale, data = [] }: BlogAnimationSectionProps) 
       >
         <div className={`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10 ${isRTL ? "text-right" : "text-left"}`}>
           {currentCards.map((card: any) => {
-            const href = `/${locale}/blogs/${card?.slug?.[locale] || card?.slug?.en || ""}`;
+            const href = `/${locale}/blog/${card?.slug?.[locale] || card?.slug?.en || ""}`;
             const img = card?.image?.[0]?.original || "/assets/images/placeholder.jpg";
             return (
               <Link href={href} key={card.id} className="focus:outline-none focus:ring-2 focus:ring-[#62a0f6] rounded-[24px]">

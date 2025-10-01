@@ -53,7 +53,7 @@ const otherArticles = visibleArticles.slice(1);
             </span>
           </h2>
         </div>
-        <Link href={`/${locale}/blogs`}>
+        <Link href={`/${locale}/blog`}>
           <motion.div className="flex items-center gap-3 hover:scale-105 transition-all duration-500  rounded-xl bg-[#143087] text-white px-4 py-2 ">
             <span className="text-base font-medium">
               {locale === "ar" ? "جميع المقالات" : "All Articles"}
@@ -68,7 +68,7 @@ const otherArticles = visibleArticles.slice(1);
 
       {/* Featured Article */}
       {featuredArticle && (
-        <Link className="hover:scale-105 transition-all duration-500 block" href={`/${locale}/blogs/${featuredArticle.slug[locale]}`} >
+        <Link className="hover:scale-105 transition-all duration-500 block" href={`/${locale}/blog/${featuredArticle.slug[locale]}`} >
           <motion.div
             className="mt-12 bg-[#eff6fe] rounded-3xl overflow-hidden flex flex-col lg:flex-row gap-6 p-6 cursor-pointer hover:shadow-xl transition"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -103,7 +103,7 @@ const otherArticles = visibleArticles.slice(1);
       {/* Other Articles Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
         {otherArticles.map((article, index) => (
-          <Link className="hover:scale-105 transition-all duration-500" key={article.id} href={`/${locale}/blogs/${article.slug[locale]}`}>
+          <Link className="hover:scale-105 transition-all duration-500" key={article.id} href={`/${locale}/blog/${article.slug[locale]}`}>
             <motion.div
               className="bg-[#eff6fe] rounded-2xl p-5 h-full flex flex-col justify-between hover:shadow-md hover:scale-105 transition-all duration-500 "
               initial={{ opacity: 0, y: 20 }}

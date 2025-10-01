@@ -7,6 +7,15 @@ const nextConfig = {
       "development.home-healers.com",
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/booking-session',
+        destination: '/booking',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

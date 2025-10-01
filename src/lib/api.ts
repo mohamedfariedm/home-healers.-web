@@ -28,7 +28,7 @@ export async function getBlogs(
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
   try {
-    const response = await axios.get(`${baseUrl}/api/blogs?${params}`);
+    const response = await axios.get(`${baseUrl}/api/blog?${params}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -44,7 +44,7 @@ export async function getBlogs(
 export async function getBlogById(blogID: string): Promise<IBlog> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
   try {
-    const response = await axios.get(`${baseUrl}/api/blogs/${blogID}`);
+    const response = await axios.get(`${baseUrl}/api/blog/${blogID}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {

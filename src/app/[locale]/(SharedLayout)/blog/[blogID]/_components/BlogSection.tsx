@@ -229,7 +229,7 @@ export default function BlogRelatedSection({
               }: { title: string; date: string; image: string; slug: string },
               index: number
             ) => (
-              <Link href={`/${locale}/blogs/${slug}`} key={`${slug}-${index}`}>
+              <Link href={`/${locale}/blog/${slug}`} key={`${slug}-${index}`}>
                 <motion.div
                   className="flex gap-4 items-center border-b border-[#d0d5dd] pb-5 cursor-pointer"
                   whileHover={{
