@@ -188,6 +188,7 @@ export default function BlogRelatedSection({
   const textDir = isRTL ? "text-right" : "text-left";
   const justifyStart = isRTL ? "items-start" : "items-start"; // same, but kept for clarity
   const tagContainerJustify = isRTL ? "justify-start" : "justify-start"; // both fine
+console.log(data?.description);
 
   return (
     <motion.div
@@ -329,9 +330,8 @@ export default function BlogRelatedSection({
               {getLocalized(data?.name, locale)}
             </h2>
 
-            {/* If you prefer HTML parsing with sanitation, plug your sanitizer here */}
             <div
-              className={`${textDir} text-[#475467] text-base md:text-xl leading-loose`}
+            className="editor-content"
               dangerouslySetInnerHTML={{
                 __html: data?.description || "",
               }}

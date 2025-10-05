@@ -73,7 +73,7 @@ const FaqItem: React.FC<FaqItemProps> = ({
                   <div className="text-[#4a5568] leading-relaxed">
                     <div 
                       dangerouslySetInnerHTML={{ __html: displayAnswer }}
-                      className="prose prose-sm max-w-none"
+                      className="editor-content"
                     />
                     
                     {/* Read More/Less Button */}

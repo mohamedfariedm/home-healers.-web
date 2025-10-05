@@ -331,7 +331,7 @@ export default function BlogRelatedSection({
 
             {/* If you prefer HTML parsing with sanitation, plug your sanitizer here */}
             <div
-              className={`${textDir} text-[#475467] text-base md:text-xl leading-loose`}
+className="editor-content"
               dangerouslySetInnerHTML={{
                 __html: data?.description || "",
               }}

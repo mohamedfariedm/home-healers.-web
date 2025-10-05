@@ -54,16 +54,10 @@ console.log("Active Service:", activeService);
   return (
     <motion.div
       className="max-w-screen-xl mx-auto px-4 mt-12 flex flex-col lg:flex-row gap-8"
-      initial="hidden"
       whileInView="visible"
       viewport={{ once: false, amount: 0.3 }}
       variants={{
         hidden: { opacity: 0, y: 30 },
-        visible: {
-          opacity: 1,
-          y: 0,
-          transition: { staggerChildren: 0.15, when: "beforeChildren" },
-        },
       }}
     >
       {/* Side Services */}

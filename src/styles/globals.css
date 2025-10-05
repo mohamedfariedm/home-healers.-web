@@ -218,3 +218,59 @@ html {
   opacity: 1;
   transform: rotate(-45deg) translateY(100%);
 }
+
+.editor-content {
+  direction: rtl;
+  text-align: right;
+  font-family: "Tajawal", sans-serif; /* or your editor's font */
+  color: #1e1e1e;
+  line-height: 1.8;
+}
+
+.editor-content h1,
+.editor-content h2,
+.editor-content h3,
+.editor-content h4 {
+  font-weight: 600;
+  color: #1e1e1e;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.editor-content p {
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.editor-content strong {
+  font-weight: bold;
+  color: #111;
+}
+
+.editor-content ul,
+.editor-content ol {
+  padding-right: 1.5rem;
+  margin-bottom: 1rem;
+  list-style-position: inside;
+}
+
+.editor-content li {
+  margin-bottom: 0.5rem;
+}
+
+.editor-content a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.editor-content img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.editor-content blockquote {
+  border-right: 4px solid #ddd;
+  padding-right: 1rem;
+  color: #555;
+  font-style: italic;
+}

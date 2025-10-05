@@ -50,10 +50,13 @@ async function page({
   params: { locale: "ar" | "en"; blogID: string };
 }) {
   const { data } = await ClientAPI.getSingleBlog(blogID, locale);
-  console.log("Blog Data:", data);
+
 
   return (
     <div className="main-container w-full  mx-auto relative">
+      <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
+          {data?.meta_title}
+        </h1>
       <div
         className="w-full h-[250px] relative bg-no-repeat bg-cover bg-center"
         style={{

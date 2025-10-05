@@ -68,6 +68,7 @@ function Features() {
               {/* {statsdata?.data?.name} */}
               <br />
               <strong
+              className="editor-content"
                 dangerouslySetInnerHTML={{
                   __html: statsData?.data?.description || "",
                 }}

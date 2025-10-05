@@ -303,7 +303,9 @@ export default function DoctorProfileModal({
                 </div>
                 <div className="bg-[#eff6fe] rounded-xl rounded-tr-none p-4">
                   <p className="text-[#1e1e1e] font-semibold">{doctor.service.name}</p>
-                  <p className="text-[#1e1e1e]" dangerouslySetInnerHTML={{ __html: doctor.service.description }} />
+                  <p 
+                  className="editor-content"
+                  dangerouslySetInnerHTML={{ __html: doctor.service.description }} />
                 </div>
               </div>
             )}
