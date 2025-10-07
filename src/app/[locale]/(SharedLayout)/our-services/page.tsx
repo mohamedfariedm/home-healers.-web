@@ -1,104 +1,53 @@
 import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
 import { AnimatedServicesSection } from "@/components/Services";
-import { Bannar } from "../../(homepage)/_components";
+import { Bannar } from "../(homepage)/_components";
+
+
 export const dynamic = "force-dynamic";
 
-type props = {
-  params: { locale: string; slug: string };
-};
-
-export async function generateMetadata({
-  params: { locale, slug },
-}: {
-  params: { locale: string; slug: string };
-}) {
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }) {
   const { t } = await initTranslations(locale, ["homepage"]);
-
-  // Global SEO fallback
   const settings = await ClientAPI.getSettings(locale);
-  const globalSeo = settings?.data?.[0]?.setting?.seo?.["services"];
-
-  // Try to fetch single service data for custom meta info
-  let serviceData: any = null;
-  try {
-    const res = await ClientAPI.getAllServicesSlug(locale, slug);
-    serviceData = res?.data ?? null;
-  } catch (err) {
-    console.warn("Failed to fetch service slug data:", err);
-  }
-
-  const title =
-    serviceData?.meta_title?.[locale] ||
-    globalSeo?.title ||
-    serviceData?.name?.[locale] ||
-    "Home Healers";
-
-  const description =
-    serviceData?.meta_description?.[locale] ||
-    globalSeo?.description ||
-    "Home Healers app";
-
-  const image =
-    serviceData?.image?.[0]?.original ||
-    globalSeo?.og_image ||
-    "/assets/images/favicon.ico";
+  const seo = settings?.data[0]?.setting?.seo?.["services"];
 
   return {
-    title,
-    description,
-    keywords:
-      globalSeo?.keywords || "Home Healers, services, healthcare, clinics",
+    title: seo?.title || "Home Healers | Services",
+    description: seo?.description || "Discover our medical and therapeutic services",
+    keywords: seo?.keywords || "Home Healers, healthcare, therapy, services",
     alternates: {
-      canonical: `https://home-healers.com/${locale}/our-services/${slug}`,
+      canonical: seo?.canonical || `https://home-healers.com/${locale}/our-services`,
     },
     icons: { icon: "/assets/images/favicon.ico" },
     openGraph: {
-      title,
-      description,
-      url: `https://home-healers.com/${locale}/our-services/${slug}`,
-      images: [image],
+      title: seo?.og_title || "Home Healers Services",
+      description: seo?.og_description || "Explore our wide range of healthcare services",
+      url: seo?.canonical || `https://home-healers.com/${locale}/our-services`,
+      images: [seo?.og_image || "/assets/images/favicon.ico"],
     },
     twitter: {
       card: "summary_large_image",
-      title,
-      description,
-      images: [image],
+      title: seo?.twitter_title || "Home Healers Services",
+      description: seo?.twitter_description || "Discover Home Healers Services",
+      images: [seo?.twitter_image || "/assets/images/favicon.ico"],
     },
   };
 }
 
-async function page({ params: { locale, slug } }: props) {
+export default async function ServicesPage({ params: { locale } }: { params: { locale: string } }) {
   const { t } = await initTranslations(locale, ["aboutUs"]);
   const servicesData = await ClientAPI.getAllServices(locale);
-
   const settings = await ClientAPI.getSettings(locale);
-console.log("servicesData", servicesData);
+  const seo = settings?.data[0]?.setting?.seo["services"];
 
-  console.log("slug", slug);
- // Try to fetch single service data for custom meta info
-  let serviceData: any = null;
-  try {
-    const res = await ClientAPI.getAllServicesSlug(locale, slug);
-    serviceData = res?.data ?? null;
-  } catch (err) {
-    console.warn("Failed to fetch service slug data:", err);
-  }
-
-  const title =
-    serviceData?.meta_title?.[locale] ||
-    serviceData?.name?.[locale] ||
-    "Home Healers";
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
-    (banner: any) => banner.page === "services"
+    (b: any) => b.page === "services"
   );
 
-  
   return (
-    <>
-      <div className="main-container w-full  bg-[#fff] relative overflow-hidden mx-auto my-0">
+    <div className="main-container w-full  bg-[#fff] relative overflow-hidden mx-auto my-0">
         <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-          {title}
+          {seo?.title}
         </h1>
 
         <div
@@ -180,18 +129,12 @@ console.log("servicesData", servicesData);
           </div>
         </div>
 
-        <AnimatedServicesSection
-          data={servicesData?.data}
-          locale={locale}
-        />
+      {/* Services Section */}
+      <AnimatedServicesSection data={servicesData?.data} locale={locale} />
 
-        {homeBanners?.length > 0 &&
-          homeBanners.map((banner: any, index: number) => (
-            <Bannar key={index} banner={banner} />
-          ))}
-      </div>
-    </>
+      {/* Optional Banners */}
+      {homeBanners?.length > 0 &&
+        homeBanners.map((banner: any, i: number) => <Bannar key={i} banner={banner} />)}
+    </div>
   );
 }
-
-export default page;

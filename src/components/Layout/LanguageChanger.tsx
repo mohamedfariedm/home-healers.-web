@@ -29,7 +29,7 @@ const handleChange = async (newLocale: string) => {
   let translatedSlug = currentSlug;
 
   try {
-    if (section === "blogs") {
+    if (section === "blog") {
       const res = await ClientAPI.getSingleBlog(currentSlug, currentLocale);
       const blog = res?.data;
       translatedSlug = blog?.slug?.[newLocale] || currentSlug;

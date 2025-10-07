@@ -277,7 +277,7 @@ function Footer({ locale = "ar", section }: FooterProps) {
                 {[
                   { href: `/${locale}`, text: t.navigation.home },
                   { href: `/${locale}/about`, text: t.navigation.about },
-                  { href: `/${locale}/our-services/all`, text: t.navigation.services },
+                  { href: `/${locale}/our-services`, text: t.navigation.services },
                   { href: `/${locale}/blog`, text: t.navigation.blog },
                   { href: `/${locale}/contact`, text: t.navigation.contact }
                 ].map((link) => (
