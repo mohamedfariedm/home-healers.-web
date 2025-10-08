@@ -19,7 +19,9 @@ export async function generateMetadata({
     description: data?.meta_description || "Home Hellers app",
     keywords: seo?.keywords || "Home Hellers, services, healthcare, clinics", // customize if needed
     alternates: {
-      canonical: seo?.canonical || `https://home-hellers.com/${locale}`,
+      canonical:
+        seo?.canonical ||
+        `https://home-hellers.com${locale === "ar" ? "" : "/en"}`,
     },
     icons: {
       icon: "/assets/images/favicon.ico",
@@ -27,7 +29,9 @@ export async function generateMetadata({
     openGraph: {
       title: seo?.og_title || "Home Hellers",
       description: seo?.og_description || "Home Hellers app",
-      url: seo?.canonical || `https://home-hellers.com/${locale}`,
+      url:
+        seo?.canonical ||
+        `https://home-hellers.com${locale === "ar" ? "" : "/en"}`,
       images: [
         {
           url: seo?.og_image || "/assets/images/favicon.ico",
@@ -51,12 +55,11 @@ async function page({
 }) {
   const { data } = await ClientAPI.getSingleBlog(blogID, locale);
 
-
   return (
     <div className="main-container w-full  mx-auto relative">
       <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-          {data?.meta_title}
-        </h1>
+        {data?.meta_title}
+      </h1>
       <div
         className="w-full h-[250px] relative bg-no-repeat bg-cover bg-center"
         style={{

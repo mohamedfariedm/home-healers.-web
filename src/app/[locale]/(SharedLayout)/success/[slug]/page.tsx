@@ -22,7 +22,9 @@ export async function generateMetadata({
     description: seo?.description || "Home Hellers app",
     keywords: seo?.keywords || "Home Hellers, services, healthcare, clinics", // customize if needed
     alternates: {
-      canonical: seo?.canonical || `https://home-hellers.com/${locale}`,
+      canonical:
+        seo?.canonical ||
+        `https://home-hellers.com${locale === "ar" ? "" : "/en"}`,
     },
     icons: {
       icon: "/assets/images/favicon.ico",
@@ -30,7 +32,9 @@ export async function generateMetadata({
     openGraph: {
       title: seo?.og_title || "Home Hellers",
       description: seo?.og_description || "Home Hellers app",
-      url: seo?.canonical || `https://home-hellers.com/${locale}`,
+      url:
+        seo?.canonical ||
+        `https://home-hellers.com${locale === "ar" ? "" : "/en"}`,
       images: [seo?.og_image || "/assets/images/favicon.ico"],
     },
     twitter: {

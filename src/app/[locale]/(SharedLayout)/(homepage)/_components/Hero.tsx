@@ -113,7 +113,10 @@ function Hero({ locale, section }: { locale: string; section: any }) {
             </div>
           </motion.div>
 
-          <Link className="rounded-md" href={`/${locale}/booking`}>
+          <Link
+            className="rounded-md"
+            href={`${locale === "ar" ? "" : "/en"}/booking`}
+          >
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

@@ -34,7 +34,11 @@ const containerVariants = {
 
 const pageVariants = {
   initial: { scale: 1, color: "#1e1e1e" },
-  active: { scale: 1.3, color: "#62a0f6", transition: { type: "spring", stiffness: 300, damping: 20 } },
+  active: {
+    scale: 1.3,
+    color: "#62a0f6",
+    transition: { type: "spring", stiffness: 300, damping: 20 },
+  },
   hover: { scale: 1.2, color: "#4287f5" },
 };
 
@@ -43,16 +47,25 @@ type BlogAnimationSectionProps = {
   data: any[];
 };
 
-const BlogAnimationSection = ({ locale, data = [] }: BlogAnimationSectionProps) => {
+const BlogAnimationSection = ({
+  locale,
+  data = [],
+}: BlogAnimationSectionProps) => {
   const isRTL = locale === "ar";
   const [activePage, setActivePage] = useState(1);
 
-  const totalPages = useMemo(() => Math.max(1, Math.ceil((data?.length || 0) / ITEMS_PER_PAGE)), [data]);
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil((data?.length || 0) / ITEMS_PER_PAGE)),
+    [data]
+  );
   const startIndex = (activePage - 1) * ITEMS_PER_PAGE;
-  const currentCards = useMemo(() => data?.slice(startIndex, startIndex + ITEMS_PER_PAGE) || [], [data, startIndex]);
+  const currentCards = useMemo(
+    () => data?.slice(startIndex, startIndex + ITEMS_PER_PAGE) || [],
+    [data, startIndex]
+  );
 
-  const goPrev = () => setActivePage(p => Math.max(1, p - 1));
-  const goNext = () => setActivePage(p => Math.min(totalPages, p + 1));
+  const goPrev = () => setActivePage((p) => Math.max(1, p - 1));
+  const goNext = () => setActivePage((p) => Math.min(totalPages, p + 1));
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -66,7 +79,10 @@ const BlogAnimationSection = ({ locale, data = [] }: BlogAnimationSectionProps) 
   // Strip HTML for teaser text
   const truncateDescription = (html: string, maxLength: number = 120) => {
     if (!html) return "";
-    const text = html.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+    const text = html
+      .replace(/<[^>]+>/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
     return text.length > maxLength ? text.slice(0, maxLength) + "…" : text;
   };
 
@@ -87,12 +103,23 @@ const BlogAnimationSection = ({ locale, data = [] }: BlogAnimationSectionProps) 
         variants={containerVariants}
         dir={isRTL ? "rtl" : "ltr"}
       >
-        <div className={`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10 ${isRTL ? "text-right" : "text-left"}`}>
+        <div
+          className={`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10 ${
+            isRTL ? "text-right" : "text-left"
+          }`}
+        >
           {currentCards.map((card: any) => {
-            const href = `/${locale}/blog/${card?.slug?.[locale] || card?.slug?.en || ""}`;
-            const img = card?.image?.[0]?.original || "/assets/images/placeholder.jpg";
+            const href = `${locale === "ar" ? "" : "/en"}/blog/${
+              card?.slug?.[locale] || card?.slug?.en || ""
+            }`;
+            const img =
+              card?.image?.[0]?.original || "/assets/images/placeholder.jpg";
             return (
-              <Link href={href} key={card.id} className="focus:outline-none focus:ring-2 focus:ring-[#62a0f6] rounded-[24px]">
+              <Link
+                href={href}
+                key={card.id}
+                className="focus:outline-none focus:ring-2 focus:ring-[#62a0f6] rounded-[24px]"
+              >
                 <motion.div
                   className="relative w-full max-w-[400px] h-[550px] bg-[#eff6fe] rounded-[24px] overflow-hidden mx-auto cursor-pointer shadow-md"
                   variants={cardVariants}
@@ -105,21 +132,32 @@ const BlogAnimationSection = ({ locale, data = [] }: BlogAnimationSectionProps) 
                   {/* Image */}
                   <div
                     className="h-[268px] bg-cover bg-no-repeat rounded-[20px] m-4"
-                    style={{ backgroundImage: `url(${img})`, transformStyle: "preserve-3d" }}
+                    style={{
+                      backgroundImage: `url(${img})`,
+                      transformStyle: "preserve-3d",
+                    }}
                     aria-label={card?.name}
                   />
 
                   {/* Content */}
-                  <div className={`flex flex-col gap-5 px-6 pt-4 ${isRTL ? "text-right" : "text-left"}`}>
-                    <span className="text-[#62a0f6] text-sm font-medium">{formatDate(card?.date)}</span>
-                    <h3 className="text-xl font-semibold text-[#1e1e1e]">{card?.name}</h3>
+                  <div
+                    className={`flex flex-col gap-5 px-6 pt-4 ${
+                      isRTL ? "text-right" : "text-left"
+                    }`}
+                  >
+                    <span className="text-[#62a0f6] text-sm font-medium">
+                      {formatDate(card?.date)}
+                    </span>
+                    <h3 className="text-xl font-semibold text-[#1e1e1e]">
+                      {card?.name}
+                    </h3>
                     <p className="text-sm text-[#1e1e1e] leading-8 font-light">
                       {truncateDescription(card?.description)}
                     </p>
                   </div>
 
                   {/* Button */}
-                  <ShowMore locale={locale}  />
+                  <ShowMore locale={locale} />
                 </motion.div>
               </Link>
             );
@@ -136,7 +174,11 @@ const BlogAnimationSection = ({ locale, data = [] }: BlogAnimationSectionProps) 
           transition={{ duration: 0.6, ease: "easeOut" }}
           dir={isRTL ? "rtl" : "ltr"}
         >
-          <div className={`flex items-center gap-6 select-none ${isRTL ? "flex-row-reverse" : ""}`}>
+          <div
+            className={`flex items-center gap-6 select-none ${
+              isRTL ? "flex-row-reverse" : ""
+            }`}
+          >
             {/* Prev */}
             <motion.button
               onClick={goPrev}
@@ -148,47 +190,62 @@ const BlogAnimationSection = ({ locale, data = [] }: BlogAnimationSectionProps) 
               type="button"
             >
               {/* For RTL, previous means pointing right */}
-              {isRTL ? <ChevronRight size={28} strokeWidth={2} /> : <ChevronLeft size={28} strokeWidth={2} />}
+              {isRTL ? (
+                <ChevronRight size={28} strokeWidth={2} />
+              ) : (
+                <ChevronLeft size={28} strokeWidth={2} />
+              )}
             </motion.button>
 
             {/* Page Numbers */}
-            <div className={`flex items-center rounded-full ${isRTL ? "flex-row-reverse" : ""} gap-6`}>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                const isActive = page === activePage;
-                // show first, last, and neighbors
-                const withinWindow =
-                  page === 1 ||
-                  page === totalPages ||
-                  (page >= activePage - 1 && page <= activePage + 1);
+            <div
+              className={`flex items-center rounded-full ${
+                isRTL ? "flex-row-reverse" : ""
+              } gap-6`}
+            >
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => {
+                  const isActive = page === activePage;
+                  // show first, last, and neighbors
+                  const withinWindow =
+                    page === 1 ||
+                    page === totalPages ||
+                    (page >= activePage - 1 && page <= activePage + 1);
 
-                const showEllipsisLeft = page === activePage - 2 && activePage > 3;
-                const showEllipsisRight = page === activePage + 2 && activePage < totalPages - 2;
+                  const showEllipsisLeft =
+                    page === activePage - 2 && activePage > 3;
+                  const showEllipsisRight =
+                    page === activePage + 2 && activePage < totalPages - 2;
 
-                if (withinWindow) {
-                  return (
-                    <motion.button
-                      key={page}
-                      onClick={() => setActivePage(page)}
-                      aria-current={isActive ? "page" : undefined}
-                      variants={pageVariants}
-                      initial="initial"
-                      animate={isActive ? "active" : "initial"}
-                      whileHover={!isActive ? "hover" : undefined}
-                      className="text-xs font-medium cursor-pointer"
-                      type="button"
-                    >
-                      {page}
-                    </motion.button>
-                  );
-                } else if (showEllipsisLeft || showEllipsisRight) {
-                  return (
-                    <span key={`ellipsis-${page}`} className="text-xs font-medium select-none">
-                      …
-                    </span>
-                  );
+                  if (withinWindow) {
+                    return (
+                      <motion.button
+                        key={page}
+                        onClick={() => setActivePage(page)}
+                        aria-current={isActive ? "page" : undefined}
+                        variants={pageVariants}
+                        initial="initial"
+                        animate={isActive ? "active" : "initial"}
+                        whileHover={!isActive ? "hover" : undefined}
+                        className="text-xs font-medium cursor-pointer"
+                        type="button"
+                      >
+                        {page}
+                      </motion.button>
+                    );
+                  } else if (showEllipsisLeft || showEllipsisRight) {
+                    return (
+                      <span
+                        key={`ellipsis-${page}`}
+                        className="text-xs font-medium select-none"
+                      >
+                        …
+                      </span>
+                    );
+                  }
+                  return null;
                 }
-                return null;
-              })}
+              )}
             </div>
 
             {/* Next */}
@@ -202,7 +259,11 @@ const BlogAnimationSection = ({ locale, data = [] }: BlogAnimationSectionProps) 
               type="button"
             >
               {/* For RTL, next means pointing left */}
-              {isRTL ? <ChevronLeft size={28} strokeWidth={2} /> : <ChevronRight size={28} strokeWidth={2} />}
+              {isRTL ? (
+                <ChevronLeft size={28} strokeWidth={2} />
+              ) : (
+                <ChevronRight size={28} strokeWidth={2} />
+              )}
             </motion.button>
           </div>
         </motion.div>

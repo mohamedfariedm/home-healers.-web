@@ -120,7 +120,9 @@ export default function BlogRelatedSection({
   // Related blogs from data
   const relatedBlogs =
     data?.related_blogs?.map((blog: any) => ({
-      title: getLocalized(blog.name, locale) || (isRTL ? "عنوان غير متوفر" : "Untitled"),
+      title:
+        getLocalized(blog.name, locale) ||
+        (isRTL ? "عنوان غير متوفر" : "Untitled"),
       date: formatDate(blog.date),
       image: blog.image?.[0]?.original || "/assets/images/placeholder.jpg",
       slug: getLocalized(blog.slug, locale),
@@ -135,7 +137,9 @@ export default function BlogRelatedSection({
   // Share payload
   const shareData = useMemo(() => {
     const title = getLocalized(data?.name, locale) || t.fallbackTitle;
-    const text = data?.description ? stripHtml(data.description) : t.fallbackDesc;
+    const text = data?.description
+      ? stripHtml(data.description)
+      : t.fallbackDesc;
     const url = typeof window !== "undefined" ? window.location.href : "";
     return { title, text, url };
   }, [data?.name, data?.description, locale, t]);
@@ -188,7 +192,7 @@ export default function BlogRelatedSection({
   const textDir = isRTL ? "text-right" : "text-left";
   const justifyStart = isRTL ? "items-start" : "items-start"; // same, but kept for clarity
   const tagContainerJustify = isRTL ? "justify-start" : "justify-start"; // both fine
-console.log(data?.description);
+  console.log(data?.description);
 
   return (
     <motion.div
@@ -230,7 +234,10 @@ console.log(data?.description);
               }: { title: string; date: string; image: string; slug: string },
               index: number
             ) => (
-              <Link href={`/${locale}/blog/${slug}`} key={`${slug}-${index}`}>
+              <Link
+                href={`${locale === "ar" ? "" : "/en"}/blog/${slug}`}
+                key={`${slug}-${index}`}
+              >
                 <motion.div
                   className="flex gap-4 items-center border-b border-[#d0d5dd] pb-5 cursor-pointer"
                   whileHover={{
@@ -247,10 +254,14 @@ console.log(data?.description);
                     className="w-[104px] h-[104px] rounded-md bg-cover bg-no-repeat"
                     style={{ backgroundImage: `url(${image})` }}
                     role="img"
-                    aria-label={(isRTL ? "صورة للمقال " : "Thumbnail for ") + title}
+                    aria-label={
+                      (isRTL ? "صورة للمقال " : "Thumbnail for ") + title
+                    }
                   />
                   <div className={`flex flex-col ${justifyStart} gap-1`}>
-                    <p className={`${textDir} text-lg text-[#1e1e1e] leading-[30px]`}>
+                    <p
+                      className={`${textDir} text-lg text-[#1e1e1e] leading-[30px]`}
+                    >
                       {title}
                     </p>
                     <span className="text-xs text-[#62a0f6]">{date}</span>
@@ -263,7 +274,9 @@ console.log(data?.description);
           <p className={`${textDir} text-gray-600`}>{t.noRelated}</p>
         )}
 
-        <h3 className={`${textDir} text-[30px] font-medium text-[#1e1e1e] mt-8`}>
+        <h3
+          className={`${textDir} text-[30px] font-medium text-[#1e1e1e] mt-8`}
+        >
           {t.tags}
         </h3>
 
@@ -297,7 +310,7 @@ console.log(data?.description);
       <motion.div
         className="flex-1 flex items-start flex-col gap-6"
         variants={{
-          hidden: { opacity: 1,  },
+          hidden: { opacity: 1 },
           visible: { opacity: 1, x: 0, transition: { duration: 0.6 } },
         }}
       >
@@ -331,7 +344,7 @@ console.log(data?.description);
             </h2>
 
             <div
-            className="editor-content"
+              className="editor-content"
               dangerouslySetInnerHTML={{
                 __html: data?.description || "",
               }}
@@ -340,7 +353,9 @@ console.log(data?.description);
         </div>
 
         <motion.span
-          className={`flex ${isRTL ? "justify-end" : "justify-start"} w-fit cursor-pointer`}
+          className={`flex ${
+            isRTL ? "justify-end" : "justify-start"
+          } w-fit cursor-pointer`}
           onClick={() => setIsPopupOpen(true)}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}

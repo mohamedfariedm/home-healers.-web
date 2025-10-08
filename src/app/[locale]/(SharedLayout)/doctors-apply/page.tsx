@@ -14,19 +14,39 @@ export async function generateMetadata({
   const seo = settings?.data[0]?.setting?.seo["doctor-apply"] || {};
 
   return {
-    title: t("seo.title", { defaultValue: seo?.title || "Join Home Hellers Medical Team" }),
-    description: t("seo.description", { defaultValue: seo?.description || "Apply to become a doctor in our world-class healthcare network" }),
-    keywords: t("seo.keywords", { defaultValue: seo?.keywords || "Home Hellers, doctor application, healthcare, medical professionals" }),
+    title: t("seo.title", {
+      defaultValue: seo?.title || "Join Home Hellers Medical Team",
+    }),
+    description: t("seo.description", {
+      defaultValue:
+        seo?.description ||
+        "Apply to become a doctor in our world-class healthcare network",
+    }),
+    keywords: t("seo.keywords", {
+      defaultValue:
+        seo?.keywords ||
+        "Home Hellers, doctor application, healthcare, medical professionals",
+    }),
     alternates: {
-      canonical: seo?.canonical || `https://home-hellers.com/${locale}/doctor-apply`,
+      canonical:
+        seo?.canonical ||
+        `https://home-hellers.com${locale === "ar" ? "" : "/en"}/doctor-apply`,
     },
     icons: {
       icon: "/assets/images/favicon.ico",
     },
     openGraph: {
-      title: t("seo.og_title", { defaultValue: seo?.og_title || "Join Home Hellers Medical Team" }),
-      description: t("seo.og_description", { defaultValue: seo?.og_description || "Apply to become a doctor in our world-class healthcare network" }),
-      url: seo?.canonical || `https://home-hellers.com/${locale}/doctor-apply`,
+      title: t("seo.og_title", {
+        defaultValue: seo?.og_title || "Join Home Hellers Medical Team",
+      }),
+      description: t("seo.og_description", {
+        defaultValue:
+          seo?.og_description ||
+          "Apply to become a doctor in our world-class healthcare network",
+      }),
+      url:
+        seo?.canonical ||
+        `https://home-hellers.com${locale === "ar" ? "" : "/en"}/doctor-apply`,
       images: [
         {
           url: seo?.og_image || "/assets/images/doctor-apply-og.jpg",
@@ -37,16 +57,26 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: t("seo.twitter_title", { defaultValue: seo?.twitter_title || "Join Home Hellers Medical Team" }),
-      description: t("seo.twitter_description", { defaultValue: seo?.twitter_description || "Apply to become a doctor in our world-class healthcare network" }),
+      title: t("seo.twitter_title", {
+        defaultValue: seo?.twitter_title || "Join Home Hellers Medical Team",
+      }),
+      description: t("seo.twitter_description", {
+        defaultValue:
+          seo?.twitter_description ||
+          "Apply to become a doctor in our world-class healthcare network",
+      }),
       images: [seo?.twitter_image || "/assets/images/doctor-apply-og.jpg"],
     },
   };
 }
 
-async function DoctorApplyPage({ params: { locale } }: { params: { locale: string } }) {
+async function DoctorApplyPage({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
   const { t } = await initTranslations(locale, ["doctor-apply"]);
- const nationalities = await ClientAPI.getNationalities(locale);
+  const nationalities = await ClientAPI.getNationalities(locale);
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50">
       {/* Hero Section */}
@@ -57,7 +87,10 @@ async function DoctorApplyPage({ params: { locale } }: { params: { locale: strin
             {t("hero.title", { defaultValue: "Join Our Medical Team" })}
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto mb-8 animate-fade-in-up animation-delay-200">
-            {t("hero.subtitle", { defaultValue: "Apply to become part of our world-class healthcare network. Your expertise can make a difference in patients' lives." })}
+            {t("hero.subtitle", {
+              defaultValue:
+                "Apply to become part of our world-class healthcare network. Your expertise can make a difference in patients' lives.",
+            })}
           </p>
           <a
             href="#apply-form"
@@ -76,15 +109,19 @@ async function DoctorApplyPage({ params: { locale } }: { params: { locale: strin
               {t("form.title", { defaultValue: "Doctor Application Form" })}
             </h2>
             <p className="text-gray-600 text-center mb-8 max-w-2xl mx-auto">
-              {t("form.subtitle", { defaultValue: "Please fill out the form below with accurate details to join our medical team." })}
+              {t("form.subtitle", {
+                defaultValue:
+                  "Please fill out the form below with accurate details to join our medical team.",
+              })}
             </p>
-            {nationalities&&
-            <DoctorRegistrationForm nationalityOptions={nationalities?.data} />
-            }
+            {nationalities && (
+              <DoctorRegistrationForm
+                nationalityOptions={nationalities?.data}
+              />
+            )}
           </div>
         </div>
       </main>
-
     </div>
   );
 }

@@ -15,7 +15,9 @@ export async function generateMetadata({ params: { locale, slug } }: Props) {
   const title = t("invoice_page.title", { invoiceId: slug });
   const description = t("invoice_page.description");
   const keywords = t("invoice_page.keywords");
-  const canonical = `https://home-hellers.com/${locale}/invoice/${slug}`;
+  const canonical = `https://home-hellers.com/${
+    locale === "ar" ? "" : "en"
+  }/invoice/${slug}`;
 
   return {
     title,
@@ -45,7 +47,7 @@ export async function generateMetadata({ params: { locale, slug } }: Props) {
 async function page({ params: { locale, slug } }: Props) {
   const { t } = await initTranslations(locale, ["invoice"]);
   const data = await ClientAPI.getInvoices(slug, locale);
-log("Invoice Data:", data);
+  log("Invoice Data:", data);
   return <InvoiceView invoiceData={data?.data[0]} />;
 }
 

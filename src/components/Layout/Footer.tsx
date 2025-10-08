@@ -39,7 +39,8 @@ const translations = {
     whatsappButton: "التواصل عبر الواتساب",
     whatsappMessage: "مرحبا، لدي استفسار",
     brandRegistration: "العلامة التجارية Home Healers مسجل بمعروف برقم 217470",
-    description: "تطبيق وموقع إلكتروني متخصص في تقديم خدمات العلاج الطبيعي والتأهيل الطبي للعملاء في منازلهم",
+    description:
+      "تطبيق وموقع إلكتروني متخصص في تقديم خدمات العلاج الطبيعي والتأهيل الطبي للعملاء في منازلهم",
     quickLinks: "روابط سريعة",
     downloadApp: "حمل التطبيق",
     contactUs: "تواصل معنا",
@@ -49,30 +50,33 @@ const translations = {
       about: "عن هوم هيليرز",
       services: "خدماتنا",
       blog: "المدونة",
-      contact: "تواصل معنا"
+      contact: "تواصل معنا",
     },
     contact: {
       address: "الرياض - شارع الامير عبدالعزيز بن مساعد بن جلوي",
       email: "customer.service@home-healers.com",
-      phone: "0551172232"
+      phone: "0551172232",
     },
     legal: {
       terms: "الشروط والاحكام",
-      privacy: "السياسة الخصوصية"
+      privacy: "السياسة الخصوصية",
     },
     appDownload: {
       text: "حمل التطبيق",
       googlePlay: "Google Play",
-      appStore: "App Store"
-    }
+      appStore: "App Store",
+    },
   },
   en: {
     contactTitle: "If you have any questions, don't hesitate!",
-    contactDescription: "Contact us and we will respond to you as soon as possible",
+    contactDescription:
+      "Contact us and we will respond to you as soon as possible",
     whatsappButton: "Contact via WhatsApp",
     whatsappMessage: "Hello, I have a question",
-    brandRegistration: "Home Healers brand is registered with Maroof number 217470",
-    description: "An application and website specialized in providing physiotherapy and medical rehabilitation services to clients in their homes",
+    brandRegistration:
+      "Home Healers brand is registered with Maroof number 217470",
+    description:
+      "An application and website specialized in providing physiotherapy and medical rehabilitation services to clients in their homes",
     quickLinks: "Quick Links",
     downloadApp: "Download App",
     contactUs: "Contact Us",
@@ -82,23 +86,23 @@ const translations = {
       about: "About Home Healers",
       services: "Our Services",
       blog: "Blog",
-      contact: "Contact Us"
+      contact: "Contact Us",
     },
     contact: {
       address: "Riyadh - Prince Abdulaziz bin Musaed bin Jalawi Street",
       email: "customer.service@home-healers.com",
-      phone: "0551172232"
+      phone: "0551172232",
     },
     legal: {
       terms: "Terms & Conditions",
-      privacy: "Privacy Policy"
+      privacy: "Privacy Policy",
     },
     appDownload: {
       text: "Download App",
       googlePlay: "Google Play",
-      appStore: "App Store"
-    }
-  }
+      appStore: "App Store",
+    },
+  },
 };
 
 // Animation variants
@@ -133,24 +137,25 @@ const socialLinks = [
     name: "Twitter",
     url: "https://twitter.com/homehealers_sa",
     icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/xbofKUrvfM.png",
-    ariaLabel: { ar: "تابعنا على تويتر", en: "Follow us on Twitter" }
+    ariaLabel: { ar: "تابعنا على تويتر", en: "Follow us on Twitter" },
   },
   {
-    name: "Facebook", 
+    name: "Facebook",
     url: "https://facebook.com/homehealers.sa",
     icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/ejCSBuhAsH.png",
-    ariaLabel: { ar: "تابعنا على فيسبوك", en: "Follow us on Facebook" }
+    ariaLabel: { ar: "تابعنا على فيسبوك", en: "Follow us on Facebook" },
   },
   {
     name: "Instagram",
-    url: "https://instagram.com/homehealers.sa", 
+    url: "https://instagram.com/homehealers.sa",
     icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/Mok2MoGDLG.png",
-    ariaLabel: { ar: "تابعنا على انستغرام", en: "Follow us on Instagram" }
-  }
+    ariaLabel: { ar: "تابعنا على انستغرام", en: "Follow us on Instagram" },
+  },
 ];
 
 function Footer({ locale = "ar", section }: FooterProps) {
-  const t = translations[locale as keyof typeof translations] || translations.ar;
+  const t =
+    translations[locale as keyof typeof translations] || translations.ar;
   const isRTL = locale === "ar";
 
   // Extract dynamic content from section data
@@ -167,7 +172,7 @@ function Footer({ locale = "ar", section }: FooterProps) {
             <div className="flex w-full gap-4 sm:gap-6 justify-center items-center">
               {/* Icon */}
               <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-06-25/jrXCqZ0F4w.png)] bg-cover bg-no-repeat flex-shrink-0" />
-              
+
               {/* Text Content */}
               <div className="flex flex-col w-full gap-3">
                 <h2 className="text-lg sm:text-xl font-semibold leading-7 sm:leading-8 text-[#1e1e1e] text-start">
@@ -189,14 +194,20 @@ function Footer({ locale = "ar", section }: FooterProps) {
 
           {/* WhatsApp Button */}
           <motion.a
-            href={`https://wa.me/966551172232?text=${encodeURIComponent(t.whatsappMessage)}`}
+            href={`https://wa.me/966551172232?text=${encodeURIComponent(
+              t.whatsappMessage
+            )}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex w-full sm:w-auto min-w-[200px] h-14 px-4 py-2 gap-2 justify-center items-center bg-[#12b669] rounded-xl text-white hover:bg-[#0ea55c] transition-colors"
             variants={animationVariants.button}
             whileHover="hover"
             whileTap="tap"
-            aria-label={locale === "ar" ? "تواصل معنا عبر الواتساب" : "Contact us via WhatsApp"}
+            aria-label={
+              locale === "ar"
+                ? "تواصل معنا عبر الواتساب"
+                : "Contact us via WhatsApp"
+            }
           >
             <div className="w-6 h-6 relative overflow-hidden">
               <div className="w-5 h-5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-06-25/nc3zMu9Qh4.png)] bg-cover bg-no-repeat mt-0.5 ml-0.5" />
@@ -230,7 +241,7 @@ function Footer({ locale = "ar", section }: FooterProps) {
                 <p className="text-xs font-medium leading-6 text-[#1e1e1e] text-center max-w-[380px]">
                   {t.description}
                 </p>
-                
+
                 {/* Social Media Icons */}
                 <div className="flex gap-7 items-center">
                   {socialLinks.map((social) => (
@@ -243,15 +254,20 @@ function Footer({ locale = "ar", section }: FooterProps) {
                       variants={animationVariants.button}
                       whileHover="hover"
                       whileTap="tap"
-                      aria-label={social.ariaLabel[locale as keyof typeof social.ariaLabel]}
+                      aria-label={
+                        social.ariaLabel[
+                          locale as keyof typeof social.ariaLabel
+                        ]
+                      }
                     >
                       <div className="w-6 h-6 flex justify-center items-center">
-                        <div 
+                        <div
                           className="bg-cover bg-no-repeat"
                           style={{
                             backgroundImage: `url(${social.icon})`,
-                            width: social.name === "Instagram" ? "14px" : "20px",
-                            height: "20px"
+                            width:
+                              social.name === "Instagram" ? "14px" : "20px",
+                            height: "20px",
                           }}
                         />
                       </div>
@@ -272,14 +288,29 @@ function Footer({ locale = "ar", section }: FooterProps) {
                 </h3>
                 <div className="w-10 h-1.5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/1tXT90JNoT.png)] bg-cover bg-no-repeat" />
               </div>
-              
+
               <ul className="flex flex-col gap-4 items-start">
                 {[
-                  { href: `/${locale}`, text: t.navigation.home },
-                  { href: `/${locale}/about`, text: t.navigation.about },
-                  { href: `/${locale}/our-services`, text: t.navigation.services },
-                  { href: `/${locale}/blog`, text: t.navigation.blog },
-                  { href: `/${locale}/contact`, text: t.navigation.contact }
+                  {
+                    href: `${locale === "ar" ? "" : "/en"}`,
+                    text: t.navigation.home,
+                  },
+                  {
+                    href: `${locale === "ar" ? "" : "/en"}/about`,
+                    text: t.navigation.about,
+                  },
+                  {
+                    href: `${locale === "ar" ? "" : "/en"}/our-services`,
+                    text: t.navigation.services,
+                  },
+                  {
+                    href: `${locale === "ar" ? "" : "/en"}/blog`,
+                    text: t.navigation.blog,
+                  },
+                  {
+                    href: `${locale === "ar" ? "" : "/en"}/contact`,
+                    text: t.navigation.contact,
+                  },
                 ].map((link) => (
                   <li key={link.href}>
                     <Link href={link.href}>
@@ -304,7 +335,7 @@ function Footer({ locale = "ar", section }: FooterProps) {
                 </h3>
                 <div className="w-10 h-1.5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/Q6CctxZby4.png)] bg-cover bg-no-repeat" />
               </div>
-              
+
               <div className="flex flex-col gap-3 items-start">
                 {/* Google Play Button */}
                 <motion.a
@@ -360,7 +391,7 @@ function Footer({ locale = "ar", section }: FooterProps) {
                 </h3>
                 <div className="w-10 h-1.5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/JsXDV3xffp.png)] bg-cover bg-no-repeat" />
               </div>
-              
+
               <address className="flex flex-col gap-6 items-start not-italic">
                 {/* Address */}
                 <motion.a
@@ -423,11 +454,41 @@ function Footer({ locale = "ar", section }: FooterProps) {
         <div className="w-full py-4 ">
           <div className="flex flex-wrap justify-center items-center gap-6 max-w-[1200px] mx-auto px-4">
             {[
-              {image: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/EGBeNfjh4v.png", width: "56px", height: "17px", label: "Twitter" },
-              {image: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/ZcLPTdQTEC.png", width: "44px", height: "44px", label: "Facebook" },
-              {image: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/2uanR5T9Rg.png", width: "30px", height: "36px", label: "Instagram" },
-              {image: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/Lqu4Zva9bZ.png", width: "72px", height: "32px", label: "LinkedIn" },
-              {image: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/jNgEQAgqyw.png", width: "40px", height: "24px", label: "YouTube" }
+              {
+                image:
+                  "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/EGBeNfjh4v.png",
+                width: "56px",
+                height: "17px",
+                label: "Twitter",
+              },
+              {
+                image:
+                  "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/ZcLPTdQTEC.png",
+                width: "44px",
+                height: "44px",
+                label: "Facebook",
+              },
+              {
+                image:
+                  "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/2uanR5T9Rg.png",
+                width: "30px",
+                height: "36px",
+                label: "Instagram",
+              },
+              {
+                image:
+                  "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/Lqu4Zva9bZ.png",
+                width: "72px",
+                height: "32px",
+                label: "LinkedIn",
+              },
+              {
+                image:
+                  "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/jNgEQAgqyw.png",
+                width: "40px",
+                height: "24px",
+                label: "YouTube",
+              },
             ].map((social) => (
               <motion.span
                 key={social.label}
@@ -438,7 +499,7 @@ function Footer({ locale = "ar", section }: FooterProps) {
                   height: social.height,
                   backgroundImage: `url(${social.image})`,
                   backgroundSize: "cover",
-                  backgroundRepeat: "no-repeat"
+                  backgroundRepeat: "no-repeat",
                 }}
                 variants={animationVariants.button}
                 whileHover="hover"
@@ -453,7 +514,7 @@ function Footer({ locale = "ar", section }: FooterProps) {
         <div className="w-full border-t border-b border-[#1a191a] py-4">
           <div className="flex flex-col lg:flex-row justify-between items-center gap-4 max-w-7xl mx-auto px-4">
             <nav className="flex flex-col sm:flex-row gap-4 items-center">
-              <Link href={`/${locale}/terms`}>
+              <Link href={`${locale === "ar" ? "" : "/en"}/terms`}>
                 <motion.span
                   className="text-base font-medium leading-6 text-[#1e1e1e] cursor-pointer hover:text-[#62a0f6] transition-colors"
                   variants={animationVariants.link}
@@ -462,7 +523,7 @@ function Footer({ locale = "ar", section }: FooterProps) {
                   {t.legal.terms}
                 </motion.span>
               </Link>
-              <Link href={`/${locale}/privacy`}>
+              <Link href={`${locale === "ar" ? "" : "/en"}/privacy`}>
                 <motion.span
                   className="text-base font-medium leading-6 text-[#1e1e1e] cursor-pointer hover:text-[#62a0f6] transition-colors"
                   variants={animationVariants.link}

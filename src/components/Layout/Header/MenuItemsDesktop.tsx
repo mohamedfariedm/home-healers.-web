@@ -42,7 +42,7 @@ export default function MenuItemsDesktop({
           return (
             <Link
               key={index}
-              href={`/${locale}${item.href}`}
+              href={`${locale === "ar" ? "" : "/en"}${item.href}`}
               onClick={onLinkClick}
               className={cn(
                 "flex h-[48px] pt-[8px] pr-[4px] pb-[8px] pl-[4px] gap-[10px] justify-center items-center shrink-0 ltr:flex-nowrap rtl:flex-wrap relative",

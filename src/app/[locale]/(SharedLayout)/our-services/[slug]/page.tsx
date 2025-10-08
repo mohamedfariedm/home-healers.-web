@@ -50,13 +50,17 @@ export async function generateMetadata({
     keywords:
       globalSeo?.keywords || "Home Healers, services, healthcare, clinics",
     alternates: {
-      canonical: `https://home-healers.com/${locale}/our-services/${slug}`,
+      canonical: `https://home-healers.com/${
+        locale === "ar" ? "" : "en"
+      }/our-services/${slug}`,
     },
     icons: { icon: "/assets/images/favicon.ico" },
     openGraph: {
       title,
       description,
-      url: `https://home-healers.com/${locale}/our-services/${slug}`,
+      url: `https://home-healers.com/${
+        locale === "ar" ? "" : "en"
+      }/our-services/${slug}`,
       images: [image],
     },
     twitter: {
@@ -73,10 +77,10 @@ async function page({ params: { locale, slug } }: props) {
   const servicesData = await ClientAPI.getAllServices(locale);
 
   const settings = await ClientAPI.getSettings(locale);
-console.log("servicesData", servicesData);
+  console.log("servicesData", servicesData);
 
   console.log("slug", slug);
- // Try to fetch single service data for custom meta info
+  // Try to fetch single service data for custom meta info
   let serviceData: any = null;
   try {
     const res = await ClientAPI.getAllServicesSlug(locale, slug);
@@ -93,7 +97,6 @@ console.log("servicesData", servicesData);
     (banner: any) => banner.page === "services"
   );
 
-  
   return (
     <>
       <div className="main-container w-full  bg-[#fff] relative overflow-hidden mx-auto my-0">
@@ -180,10 +183,7 @@ console.log("servicesData", servicesData);
           </div>
         </div>
 
-        <AnimatedServicesSection
-          data={servicesData?.data}
-          locale={locale}
-        />
+        <AnimatedServicesSection data={servicesData?.data} locale={locale} />
 
         {homeBanners?.length > 0 &&
           homeBanners.map((banner: any, index: number) => (

@@ -39,28 +39,38 @@ function MobileMenu({ locale }: { locale: string }) {
               {/* Booking CTA */}
               <Link
                 className="hover:scale-105 transition-all duration-300"
-                href={`/${locale}/booking`}
+                href={`${locale === "ar" ? "" : "/en"}/booking`}
                 onClick={handleLinkClick}
               >
                 <div className="flex  h-[40px] px-[8px] py-[9px] gap-[10px] justify-center items-center bg-[#62a0f6] rounded-[8px] z-[13]">
                   <span className="text-white whitespace-nowrap text-[14px] font-medium leading-[20px]">
                     {t("cta.book_consultation")}
                   </span>
-                  <ArrowLeft className={clsx("w-[16px] h-[16px] text-white", !isRTL && "rotate-180")} />
+                  <ArrowLeft
+                    className={clsx(
+                      "w-[16px] h-[16px] text-white",
+                      !isRTL && "rotate-180"
+                    )}
+                  />
                 </div>
               </Link>
 
               {/* Doctor Registration CTA */}
               <Link
                 className="hover:scale-105 transition-all duration-300"
-                href={`/${locale}/doctors-apply`}
+                href={`${locale === "ar" ? "" : "/en"}/doctors-apply`}
                 onClick={handleLinkClick}
               >
                 <div className="flex  h-[40px] px-[8px] py-[9px] gap-[10px] justify-center items-center bg-[#143087] rounded-[8px] z-[9]">
                   <span className="text-white whitespace-nowrap text-[14px] font-medium leading-[20px]">
                     {t("cta.doctor_registration")}
                   </span>
-                  <ArrowLeft className={clsx("w-[16px] h-[16px] text-white", !isRTL && "rotate-180")} />
+                  <ArrowLeft
+                    className={clsx(
+                      "w-[16px] h-[16px] text-white",
+                      !isRTL && "rotate-180"
+                    )}
+                  />
                 </div>
               </Link>
             </div>
@@ -103,28 +113,38 @@ function MobileMenu({ locale }: { locale: string }) {
                 {/* Booking */}
                 <Link
                   className="hover:scale-105 transition-all duration-300 w-full"
-                  href={`/${locale}/booking`}
+                  href={`${locale === "ar" ? "" : "/en"}/booking`}
                   onClick={handleLinkClick}
                 >
                   <div className="flex  h-[40px] px-[8px] py-[9px] gap-[80px] justify-center items-center bg-[#62a0f6] rounded-[8px] z-[13]">
                     <span className="text-white text-[14px] whitespace-nowrap font-medium leading-[20px]">
                       {t("cta.book_consultation")}
                     </span>
-                    <ArrowLeft className={clsx("w-[16px] h-[16px] text-white", !isRTL && "rotate-180")} />
+                    <ArrowLeft
+                      className={clsx(
+                        "w-[16px] h-[16px] text-white",
+                        !isRTL && "rotate-180"
+                      )}
+                    />
                   </div>
                 </Link>
 
                 {/* Doctor Registration */}
                 <Link
                   className="hover:scale-105 transition-all duration-300 w-full"
-                  href={`/${locale}/doctors-apply`}
+                  href={`${locale === "ar" ? "" : "/en"}/doctors-apply`}
                   onClick={handleLinkClick}
                 >
                   <div className="flex w-full h-[40px] px-[8px] py-[9px] gap-[80px] justify-center items-center bg-[#143087] rounded-[8px] z-[9]">
                     <span className="text-white whitespace-nowrap text-[14px] font-medium leading-[20px]">
                       {t("cta.doctor_registration")}
                     </span>
-                    <ArrowLeft className={clsx("w-[16px] h-[16px] text-white", !isRTL && "rotate-180")} />
+                    <ArrowLeft
+                      className={clsx(
+                        "w-[16px] h-[16px] text-white",
+                        !isRTL && "rotate-180"
+                      )}
+                    />
                   </div>
                 </Link>
               </div>

@@ -2,15 +2,28 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, MapPin, Clock, Award, Languages, Phone, Mail, GraduationCap, Building, Calendar, Star, Stethoscope } from 'lucide-react';
+import {
+  X,
+  MapPin,
+  Clock,
+  Award,
+  Languages,
+  Phone,
+  Mail,
+  GraduationCap,
+  Building,
+  Calendar,
+  Star,
+  Stethoscope,
+} from "lucide-react";
 import type { Doctor } from "@/types/doctors";
-import { 
-  getDoctorImage, 
-  getNationalityName, 
-  formatWorkingHours, 
+import {
+  getDoctorImage,
+  getNationalityName,
+  formatWorkingHours,
   formatDate,
   getExperienceText,
-  getDoctorRating
+  getDoctorRating,
 } from "@/utils/doctor-helpers";
 import type { DoctorsTranslations } from "@/translations/doctors";
 
@@ -38,30 +51,39 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
   const experienceText = getExperienceText(doctor.experience, locale);
   const rating = getDoctorRating(doctor);
 
-  const InfoItem = ({ 
-    icon: Icon, 
-    label, 
-    value, 
-    href 
-  }: { 
-    icon: any; 
-    label: string; 
-    value: string; 
+  const InfoItem = ({
+    icon: Icon,
+    label,
+    value,
+    href,
+  }: {
+    icon: any;
+    label: string;
+    value: string;
     href?: string;
   }) => {
     const content = (
       <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
         <Icon size={18} className="text-[#62a0f6] mt-0.5 flex-shrink-0" />
         <div className="min-w-0 flex-1">
-          <span className="text-sm font-medium text-gray-600 block">{label}:</span>
-          <span className="text-gray-800 break-words">{value || translations.notSpecified}</span>
+          <span className="text-sm font-medium text-gray-600 block">
+            {label}:
+          </span>
+          <span className="text-gray-800 break-words">
+            {value || translations.notSpecified}
+          </span>
         </div>
       </div>
     );
 
     if (href) {
       return (
-        <a href={href} className="block hover:no-underline" target="_blank" rel="noopener noreferrer">
+        <a
+          href={href}
+          className="block hover:no-underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           {content}
         </a>
       );
@@ -114,18 +136,25 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
                     {doctor.specialist || doctor.department}
                   </p>
                   <p className="opacity-80 mb-3">{doctor.clinic_name}</p>
-                  
+
                   <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-sm">
                     <div className="flex items-center gap-2">
                       <Award size={16} />
                       <span>{experienceText}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Star size={16} className="text-yellow-400 fill-yellow-400" />
-                      <span>{rating} {translations.rating}</span>
+                      <Star
+                        size={16}
+                        className="text-yellow-400 fill-yellow-400"
+                      />
+                      <span>
+                        {rating} {translations.rating}
+                      </span>
                     </div>
                     <div className="bg-white/20 px-3 py-1 rounded-full">
-                      <span className="font-medium">{doctor.session_price} {translations.currency}</span>
+                      <span className="font-medium">
+                        {doctor.session_price} {translations.currency}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -211,7 +240,9 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
                       <span className="font-semibold text-gray-700 block mb-1">
                         {translations.specializedIn}:
                       </span>
-                      <p className="text-gray-800">{doctor.specialized_in || translations.notSpecified}</p>
+                      <p className="text-gray-800">
+                        {doctor.specialized_in || translations.notSpecified}
+                      </p>
                     </div>
                     {doctor.sub_specialist && (
                       <div className="bg-gray-50 p-4 rounded-lg">
@@ -233,7 +264,9 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg">
                     <div className="flex items-center gap-3">
                       <Clock size={18} className="text-[#62a0f6]" />
-                      <span className="text-lg font-medium text-gray-800">{workingHours}</span>
+                      <span className="text-lg font-medium text-gray-800">
+                        {workingHours}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -271,14 +304,15 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
               <div className="sticky bottom-0 bg-white border-t p-6">
                 <div className="flex flex-col sm:flex-row gap-4">
                   <motion.a
-                  href={`/${locale}/booking?doctorId=${doctor.id}`}
+                    href={`${locale === "ar" ? "" : "/en"}/booking?doctorId=${
+                      doctor.id
+                    }`}
                     className="flex-1 text-center bg-gradient-to-r from-[#62a0f6] to-[#4f8ae8] text-white py-4 px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     {translations.bookAppointment}
                   </motion.a>
-                  
                 </div>
               </div>
             </div>

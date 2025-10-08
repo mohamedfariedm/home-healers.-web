@@ -72,7 +72,9 @@ function AboutApp({
                 </span>
                 <div
                   className="w-6 h-6 bg-cover bg-center bg-no-repeat"
-                  style={{ backgroundImage: `url(${post.attachment?.[0]?.original})` }}
+                  style={{
+                    backgroundImage: `url(${post.attachment?.[0]?.original})`,
+                  }}
                 />
               </motion.div>
             ))}
@@ -107,7 +109,7 @@ function AboutApp({
             >
               <Link
                 className="flex items-center gap-3 bg-[#143087] text-white rounded-md text-lg font-medium"
-                href={`/${locale}/about`}
+                href={`${locale === "ar" ? "" : "/en"}/about`}
               >
                 <ArrowLeft className="w-6 h-6 ml-2 text-white" />
                 {locale === "ar" ? "اكتشف المزيد" : "Discover More"}

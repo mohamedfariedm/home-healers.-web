@@ -1,11 +1,6 @@
-export const i18nRouterConfig: {
-  locales: string[];
-  defaultLocale: string;
-  prefixDefault: boolean;
-  serverSetCookie:"if-empty";
-} = {
+export const i18nRouterConfig = {
   locales: ["ar", "en"],
   defaultLocale: "ar",
-  prefixDefault: false,
+  prefixDefault: false, // ⬅️ Arabic will NOT have /ar prefix
   serverSetCookie: "if-empty",
-};
+} as const;

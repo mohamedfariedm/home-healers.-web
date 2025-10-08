@@ -20,7 +20,7 @@ const AnimatedServicesSection = ({
   // Ensure services is an array, fallback to empty array if undefined
   const services = Array.isArray(data) ? data : [];
   const activeService = services[activeIndex] || {};
-console.log("Active Service:", activeService);
+  console.log("Active Service:", activeService);
 
   // Helper to get localized value
   const getLocalized = (value: any, loc: string) => {
@@ -71,7 +71,9 @@ console.log("Active Service:", activeService);
         {services.length > 0 ? (
           services.map((service: any, idx: number) => {
             const isActive = idx === activeIndex;
-            const href = `/${locale}/our-services/${getLocalized(service.slug, locale)}`;
+            const href = `${
+              locale === "ar" ? "" : "/en"
+            }/our-services/${getLocalized(service.slug, locale)}`;
             const serviceName = getLocalized(service.name, locale);
 
             return (
@@ -99,7 +101,10 @@ console.log("Active Service:", activeService);
                     }`}
                   >
                     <img
-                      src={service.image?.[0]?.thumbnail || "/assets/images/homehellers/Injury.svg"}
+                      src={
+                        service.image?.[0]?.thumbnail ||
+                        "/assets/images/homehellers/Injury.svg"
+                      }
                       className="w-10 h-10 rounded-full object-cover"
                       alt={serviceName}
                     />

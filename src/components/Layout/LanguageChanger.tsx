@@ -45,7 +45,7 @@ const handleChange = async (newLocale: string) => {
     console.error("❌ Failed to fetch translated slug:", err);
   }
 
-  let newPath = currentPathname.replace(`/${currentLocale}`, `/${newLocale}`);
+  let newPath = currentPathname.replace(`/${currentLocale}`, `${newLocale=== "ar" ? "" : "/en"}`);
   if (translatedSlug !== currentSlug) {
     newPath = newPath.replace(currentSlug, translatedSlug);
   }
