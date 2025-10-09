@@ -176,7 +176,7 @@ function Footer({ locale = "ar", section }: FooterProps) {
               {/* Text Content */}
               <div className="flex flex-col w-full gap-3">
                 <h2 className="text-lg sm:text-xl font-semibold leading-7 sm:leading-8 text-[#1e1e1e] text-start">
-                  {contactTitle.includes("استفسار") ? (
+                  {contactTitle?.includes("استفسار") ? (
                     <>
                       اذا كان لديك أي{" "}
                       <span className="text-[#1e1e1e]">استفسار</span> فلا تردد!

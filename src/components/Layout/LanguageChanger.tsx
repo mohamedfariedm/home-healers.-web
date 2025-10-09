@@ -1,74 +1,87 @@
-"use client";
+"use client"
 
-import React, { useState, useRef, useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { useTranslation } from "react-i18next";
-import { motion } from "framer-motion";
-import ClientAPI from "@/app/api/api";
+import { useState, useRef, useEffect } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import { useTranslation } from "react-i18next"
+import { motion } from "framer-motion"
+import ClientAPI from "@/app/api/api"
 
 export default function LanguageChanger() {
-  const { i18n } = useTranslation();
-  const currentLocale = i18n.language;
-  const router = useRouter();
-  const currentPathname = usePathname();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { i18n } = useTranslation()
+  const currentLocale = i18n.language
+  const router = useRouter()
+  const currentPathname = usePathname()
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
-const handleChange = async (newLocale: string) => {
-  if (newLocale === currentLocale) return;
+  const handleChange = async (newLocale: string) => {
+    if (newLocale === currentLocale) return
 
-  document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${30 * 24 * 60 * 60}`;
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${30 * 24 * 60 * 60}`
 
-  const pathParts = currentPathname.split("/").filter(Boolean);
-  const currentSlug = pathParts[pathParts.length - 1];
-  const section = pathParts[pathParts.length - 2] || "";
+    let pathWithoutLocale = currentPathname
 
-  console.log("🔍 currentPathname:", currentPathname);
-  console.log("📍 section:", section, "slug:", currentSlug);
-
-  let translatedSlug = currentSlug;
-
-  try {
-    if (section === "blog") {
-      const res = await ClientAPI.getSingleBlog(currentSlug, currentLocale);
-      const blog = res?.data;
-      translatedSlug = blog?.slug?.[newLocale] || currentSlug;
-    } else if (section === "our-services") {
-      const res = await ClientAPI.getAllServicesSlug(currentLocale,currentSlug);
-      const service = res?.data;
-      translatedSlug = service?.slug?.[newLocale] || currentSlug;
-      console.log("🔄 Translated slug:", translatedSlug);
-      console.log("🔄 services", service);
-      
+    // Remove /en prefix if present (for English pages)
+    if (currentPathname.startsWith("/en/") || currentPathname === "/en") {
+      pathWithoutLocale = currentPathname.replace(/^\/en/, "") || "/"
     }
-  } catch (err) {
-    console.error("❌ Failed to fetch translated slug:", err);
+
+    const pathParts = pathWithoutLocale.split("/").filter(Boolean)
+    const currentSlug = pathParts[pathParts.length - 1]
+    const section = pathParts[pathParts.length - 2] || ""
+
+    console.log("🔍 currentPathname:", currentPathname)
+    console.log("📍 pathWithoutLocale:", pathWithoutLocale)
+    console.log("📍 section:", section, "slug:", currentSlug)
+
+    let translatedSlug = currentSlug
+
+    try {
+      if (section === "blog" && currentSlug) {
+        const res = await ClientAPI.getSingleBlog(currentSlug, currentLocale)
+        const blog = res?.data
+        translatedSlug = blog?.slug?.[newLocale] || currentSlug
+        console.log("🔄 Blog translated slug:", translatedSlug)
+      } else if (section === "our-services" && currentSlug) {
+        const res = await ClientAPI.getAllServicesSlug(currentLocale, currentSlug)
+        const service = res?.data
+        translatedSlug = service?.slug?.[newLocale] || currentSlug
+        console.log("🔄 Service translated slug:", translatedSlug)
+      }
+    } catch (err) {
+      console.error("❌ Failed to fetch translated slug:", err)
+    }
+
+    let newPath = pathWithoutLocale
+
+    // Replace slug if it was translated
+    if (translatedSlug && currentSlug && translatedSlug !== currentSlug) {
+      newPath = newPath.replace(currentSlug, translatedSlug)
+    }
+
+    // Add /en prefix for English, no prefix for Arabic
+    if (newLocale === "en") {
+      newPath = `/en${newPath}`
+    }
+    // For Arabic, newPath already has no prefix
+
+    console.log("🚀 Redirecting to:", newPath)
+
+    i18n.changeLanguage(newLocale)
+    router.push(newPath)
+    setDropdownOpen(false)
   }
-
-  let newPath = currentPathname.replace(`/${currentLocale}`, `${newLocale=== "ar" ? "" : "/en"}`);
-  if (translatedSlug !== currentSlug) {
-    newPath = newPath.replace(currentSlug, translatedSlug);
-  }
-
-  console.log("🚀 Redirecting to:", newPath);
-  i18n.changeLanguage(newLocale);
-  router.push(newPath);
-  setDropdownOpen(false);
-};
-
-
-
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false);
+        setDropdownOpen(false)
       }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   return (
     <div
@@ -105,5 +118,5 @@ const handleChange = async (newLocale: string) => {
         </motion.div>
       )}
     </div>
-  );
+  )
 }
