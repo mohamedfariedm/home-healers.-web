@@ -24,6 +24,13 @@ export function middleware(request: NextRequest) {
     return response
   }
 
+  if (!localeCookie && !hasEnPrefix) {
+    console.log("🔄 Removing /en → Redirect to Arabic")
+    const response = NextResponse.redirect(request.nextUrl)
+    response.cookies.set("NEXT_LOCALE", "ar", { path: "/" })
+    return response
+  }
+
   console.log("🌍 No prefix → Arabic mode (default)")
   const response = i18nRouter(request, i18nRouterConfig)
   response.cookies.set("NEXT_LOCALE", "ar", { path: "/" })
