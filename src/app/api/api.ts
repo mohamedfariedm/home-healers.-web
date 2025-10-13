@@ -192,6 +192,34 @@ payReservationWithTelr: (reservationId: number, locale: string) =>
 
   getSettings: (locale: string) =>
     fetchData('client/settings', locale),
+  getSiteMap: async (endpoint: string, locale: string = "en") => {
+    try {
+      const url = new URL(`${API_BASE_URL}/${endpoint}`);
+
+      const headers: HeadersInit = {
+        "Accept-Language": locale,
+        "Accept": "application/xml",
+      };
+
+      const response = await fetch(url.toString(), {
+        method: "GET",
+        headers,
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        console.error("Sitemap Fetch Error:", response.status, response.statusText);
+        throw new Error(`Failed to fetch sitemap: ${response.status}`);
+      }
+
+      return await response.text();
+    } catch (error) {
+      console.error("Error fetching sitemap:", error);
+      return "<error>Failed to fetch sitemap</error>";
+    }
+  },
 };
+
+
 
 export default ClientAPI;
