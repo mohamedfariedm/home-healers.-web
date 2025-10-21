@@ -100,10 +100,17 @@ export default function Step2DoctorSelection({
     onNext();
   };
 
-  const handlePackageSelect = (pkg: Package) => {
+const handlePackageSelect = (pkg: Package) => {
+  if (bookingData.selectedPackage?.id === pkg.id) {
+    // If already selected → unselect it
+    updateBookingData({ selectedPackage: null });
+    toast.info(`تم إلغاء اختيار الباقة: ${pkg.name}`);
+  } else {
+    // Otherwise → select it
     updateBookingData({ selectedPackage: pkg });
     toast.success(`تم اختيار الباقة: ${pkg.name}`);
-  };
+  }
+};
 
   // Main filtering
   const filteredDoctors = useMemo(() => {
@@ -191,6 +198,7 @@ export default function Step2DoctorSelection({
 
   const isDoctorsEmpty = !doctorsData?.data?.length || !filteredDoctors.length;
   const isPackagesEmpty = !packagesData?.data?.length;
+console.log("packagesData",packagesData?.data);
 
   return (
     <div className="flex flex-col gap-6">
@@ -336,26 +344,39 @@ export default function Step2DoctorSelection({
             ) : (
               <div className="space-y-3">
                 {packagesData?.data?.map((pkg: Package) => (
-                  <button
-                    key={pkg.id}
-                    onClick={() => handlePackageSelect(pkg)}
-                    className={`w-full p-4 rounded-lg border-2 text-right transition-all ${
-                      bookingData.selectedPackage?.id === pkg.id
-                        ? "border-[#62a0f6] bg-[#eff6fe]"
-                        : "border-gray-200 hover:border-[#62a0f6]"
-                    }`}
-                    aria-label={`اختيار الباقة ${pkg.name}`}
-                  >
-                    <div className="font-semibold text-[#1e1e1e] mb-1">{pkg.name}</div>
-                    <div className="text-sm text-gray-600 mb-2">{pkg.description}</div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-[#62a0f6]">{pkg.price} ريال</span>
-                      {pkg.discount && (
-                        <span className="text-sm text-green-600">خصم {pkg.discount} ريال</span>
-                      )}
-                    </div>
-                  </button>
-                ))}
+  <button
+    key={pkg.id}
+    onClick={() => handlePackageSelect(pkg)}
+    className={`w-full p-4 rounded-lg border-2 text-right transition-all ${
+      bookingData.selectedPackage?.id === pkg.id
+        ? "border-[#62a0f6] bg-[#eff6fe]"
+        : "border-gray-200 hover:border-[#62a0f6]"
+    }`}
+    aria-label={`اختيار الباقة ${pkg.name}`}
+  >
+    {/* Image */}
+    {pkg.image?.length > 0 && (
+      <img
+        src={pkg.image[0]?.thumbnail || pkg.image[0]?.original}
+        alt={pkg.name}
+        className="w-full h-40 object-cover rounded-md mb-3"
+      />
+    )}
+
+    {/* Text Info */}
+    <div className="font-semibold text-[#1e1e1e] mb-1">{pkg.name}</div>
+    <div className="text-sm text-gray-600 mb-2">{pkg.description}</div>
+
+    {/* Price Section */}
+    <div className="flex justify-between items-center">
+      <span className="text-lg font-bold text-[#62a0f6]">{pkg.price} ريال</span>
+      {pkg.discount && (
+        <span className="text-sm text-green-600">خصم {pkg.discount} ريال</span>
+      )}
+    </div>
+  </button>
+))}
+
               </div>
             )}
           </div>
