@@ -93,7 +93,7 @@ export interface Package {
   description: string
   price: string
   discount: string
-  image: any
+  image?: any
   type: string
   sessions_count?: number // Added to align with offers
 }
