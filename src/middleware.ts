@@ -38,5 +38,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: "/((?!api|static|.*\\..*|_next).*)",
+  matcher: "/((?!api|static|.*\\..*|_next|google8cb9aef7afb925eb.html).*)",
 }

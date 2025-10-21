@@ -1,0 +1,10 @@
+
+ssh root@72.60.47.206
+2.RmicXzEPzEf@M
+
+cd ../var/www/shop
+cd ../var/www/dashboard
+
+
+yarn install
+yarn build 
