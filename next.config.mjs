@@ -23,6 +23,10 @@ return [
       destination: '/api/sitemap', // not /api/:slug
     },
     {
+      source: '/google8cb9aef7afb925eb.html',
+      destination: '/api/google8cb9aef7afb925eb', // not /api/:slug
+    },
+    {
       source: '/robots.txt',
       destination: '/api/robots',
     },
