@@ -6,6 +6,11 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const localeCookie = request.cookies.get("NEXT_LOCALE")?.value
 
+  // Skip middleware for Google verification file
+  if (pathname === "/google8cb9aef7afb925eb.html") {
+    return NextResponse.next()
+  }
+
   const hasEnPrefix = pathname.startsWith("/en/") || pathname === "/en"
 
   console.log("➡️ Incoming:", pathname, "| Cookie:", localeCookie)
@@ -38,5 +43,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: "/((?!api|static|.*\\..*|_next|google8cb9aef7afb925eb.html).*)",
+  matcher: "/((?!api|static|.*\\..*|_next).*)",
 }
