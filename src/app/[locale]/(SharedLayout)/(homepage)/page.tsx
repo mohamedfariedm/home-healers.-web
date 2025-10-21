@@ -52,6 +52,10 @@ export async function generateMetadata({
       description: seo?.twitter_description || "Home Hellers app",
       images: [seo?.twitter_image || "/assets/images/favicon.ico"],
     },
+    // ✅ Add this block:
+    verification: {
+      google: "_QFU5kvSg5D_PwOQiVeYRCiIFurcYE4sSBo7HSLX0D4",
+    },
   };
 }
 const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
