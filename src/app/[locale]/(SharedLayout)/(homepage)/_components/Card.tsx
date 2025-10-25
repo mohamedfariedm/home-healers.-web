@@ -88,8 +88,8 @@ function Card({ locale, section }: CardProps) {
 
   // Parse the main title to highlight specific parts
   const parseTitle = (title: string) => {
-    const parts = title.split(" ");
-    return parts.map((part, index) => {
+    const parts = title?.split(" ");
+    return parts?.map((part, index) => {
       const isHighlighted = part.includes("الطبي") || part.includes("هيلرز");
       return (
         <span
@@ -99,7 +99,7 @@ function Card({ locale, section }: CardProps) {
           }`}
         >
           {part}
-          {index < parts.length - 1 ? " " : ""}
+          {index < parts?.length - 1 ? " " : ""}
         </span>
       );
     });
@@ -144,7 +144,7 @@ function Card({ locale, section }: CardProps) {
           animate={isCardsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6, staggerChildren: 0.2 }}
         >
-          {cards.map((card, index) => (
+          {cards?.map((card, index) => (
             <motion.div
               key={card.id}
               className="w-[301px] h-[227px] flex justify-center relative z-[15] cursor-pointer"

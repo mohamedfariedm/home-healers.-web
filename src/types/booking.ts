@@ -99,15 +99,17 @@ export interface Package {
 }
 
 export interface Location {
-  id: number
-  country: string
-  title: string
-  address: string
-  latitude?: number
-  longitude?: number
-  city: string
-  district?: string
+  id: number;
+  title: string;
+  address: string;
+  city: string;
+  state?: string;       // new: administrative area / region
+  country: string;
+  latitude?: number;
+  longitude?: number;
+  link?: string;        // new: Google Maps link
 }
+
 
 export interface Patient {
   id: number

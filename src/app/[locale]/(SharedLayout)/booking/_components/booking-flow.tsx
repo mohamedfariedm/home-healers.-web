@@ -78,7 +78,7 @@ export default function BookingFlow({
     couponCode: "",
     pricing: {
       subTotal: 0,
-      fees: 50,
+      fees: 0,
       tax: 0,
       discount: 0,
       total: 0,
@@ -121,8 +121,8 @@ export default function BookingFlow({
       subTotal = 300 * bookingData.sessionsCount
     }
 
-    const fees = 50
-    const tax = Math.round(subTotal * 0.15)
+    const fees = 0
+    const tax = 0
     let discount = 0
 
     if (bookingData.selectedPackage && bookingData.selectedPackage.discount) {
@@ -326,6 +326,7 @@ if (bookingData.selectedPackage) {
         address: bookingData.selectedLocation?.address || "N/A",
         city: bookingData.selectedLocation?.city || "N/A",
         country: bookingData.selectedLocation?.country || "N/A",
+
         nationality: guest.nationality,
         date_of_birth: guest.birthDate,
         gender: guest.gender,
@@ -333,6 +334,11 @@ if (bookingData.selectedPackage) {
         blood_group: guest.bloodType,
         languages_spoken: "ar", // or dynamically set from user input
       }
+    reservationData.address_city = bookingData.selectedLocation?.city || "N/A"
+    reservationData.address_country = bookingData.selectedLocation?.country || "N/A"
+    reservationData.address_state = bookingData.selectedLocation?.state || "N/A"
+    reservationData.address_link = bookingData.selectedLocation?.link || "N/A"
+
     } else {
       // Handle registered user
       reservationData.client_id = bookingData.clientId

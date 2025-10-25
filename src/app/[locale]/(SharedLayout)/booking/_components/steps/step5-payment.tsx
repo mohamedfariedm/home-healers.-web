@@ -136,7 +136,61 @@ export default function Step5Payment({
 
       {/* Right Column - Pricing & Coupon */}
       <div className="space-y-6">
-
+        {/* Coupon Section */}
+        {/* <div className="bg-white rounded-2xl shadow-md p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <Tag className="w-6 h-6 text-[#62a0f6]" />
+            <h2 className="text-xl font-bold">كوبون الخصم</h2>
+          </div>
+          {bookingData.couponCode ? (
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium text-green-800">
+                    تم تطبيق كود الخصم
+                  </p>
+                  <p className="text-sm text-green-600">
+                    {bookingData.couponCode}
+                  </p>
+                </div>
+                <button
+                  onClick={removeCoupon}
+                  className="text-red-600 hover:text-red-800 text-sm"
+                >
+                  إزالة
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex gap-2">
+                <input
+                     type="text"
+                     value={couponInput}
+                     onChange={(e) => setCouponInput(e.target.value)}
+                     placeholder="أدخل كود الخصم"
+                     className="flex-1 p-3 border border-gray-300 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6]"
+                   />
+                   <button
+                     onClick={applyCoupon}
+                     className="px-6 py-3 bg-[#62a0f6] text-white rounded-lg hover:bg-[#5090e6]"
+                   >
+                     تطبيق
+                   </button>
+                 </div>
+                 {couponError && (
+                   <p className="text-red-600 text-sm">{couponError}</p>
+                 )}
+                 <div className="text-sm text-gray-600">
+                   <p>أكواد الخصم المتاحة:</p>
+                   <ul className="list-disc list-inside mt-1 space-y-1">
+                     <li>SAVE20 - خصم 20%</li>
+                     <li>FIRST10 - خصم 10% للعملاء الجد ب</li>
+                   </ul>
+                 </div>
+               </div>
+             )}
+           </div> */}
    
            {/* Pricing Summary */}
            <div className="bg-white rounded-2xl shadow-md p-6">
@@ -151,7 +205,7 @@ export default function Step5Payment({
                  </span>
                  <span className="text-gray-600">المبلغ الأساسي</span>
                </div>
-               <div className="flex justify-between">
+               {/* <div className="flex justify-between">
                  <span className="font-medium">
                    {bookingData.pricing.fees} ريال
                  </span>
@@ -162,7 +216,7 @@ export default function Step5Payment({
                    {bookingData.pricing.tax} ريال
                  </span>
                  <span className="text-gray-600">ضريبة القيمة المضافة (15%)</span>
-               </div>
+               </div> */}
                {bookingData.pricing.discount > 0 && (
                  <div className="flex justify-between text-green-600">
                    <span className="font-medium">
