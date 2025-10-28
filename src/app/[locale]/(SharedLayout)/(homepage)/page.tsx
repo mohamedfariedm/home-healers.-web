@@ -9,6 +9,7 @@ import {
   Card,
 } from "./_components";
 import ClientAPI from "../../../api/api";
+import PackagesSection from "./_components/PackagesSection";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
@@ -62,7 +63,11 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
   const { t } = await initTranslations(locale, ["homepage"]);
   const homeData = await ClientAPI.getHomeData(locale);
   const blogData = await ClientAPI.getAllBlogs(locale);
+  const packageData = await ClientAPI.getPackages(locale);
   const servicesData = await ClientAPI.getAllServices(locale);
+
+  console.log("packageData",packageData);
+  
   // Find sections by ID
   const heroSection = homeData?.data?.sections?.find(
     (section: any) => section?.id === 12
@@ -106,6 +111,9 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
         />
         <BeCloser locale={locale} section={beCloserSection} />
         <DownloadApp section={downloadAppSection} locale={locale} />
+        {packageData?.data && packageData?.data?.length > 0 && (
+          <PackagesSection locale={locale} data={packageData?.data} />
+        )}
         {homeBanners?.length > 0 &&
           homeBanners.map((banner: any, index: number) => (
             <Bannar key={index} banner={banner} />
