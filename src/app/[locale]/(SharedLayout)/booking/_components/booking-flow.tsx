@@ -379,17 +379,20 @@ const completePayment = async () => {
       localStorage.removeItem("bookingData");
       toast.success("تم تأكيد الحجز بنجاح! سيتم الدفع عند الاستلام.");
       setCurrentStep(6); // Proceed to confirmation
-    } else if (bookingData.paymentMethod === "telr") {
+    } else
+      //  if (bookingData.paymentMethod === "telr") 
+        {
       // Telr Payment
       const responceTelr = await ClientAPI.payReservationWithTelr(reservationId, "ar");
       console.log("responceTelr", responceTelr);
       
       route.push(responceTelr.redirect_url);
-    } else {
-      // Default payment (Apple Pay or others)
-      const responceTap = await ClientAPI.payReservation(reservationId, "ar");
-      route.push(responceTap.data.redirect_url);
     }
+    //  else {
+    //   // Default payment (Apple Pay or others)
+    //   const responceTap = await ClientAPI.payReservation(reservationId, "ar");
+    //   route.push(responceTap.data.redirect_url);
+    // }
   } catch (error: any) {
     console.error("Payment Error:", error);
     setError(error.message || "حدث خطأ أثناء تأكيد الدفع");
