@@ -40,6 +40,7 @@ export default function BookingFlow({
   statesData,
 }: BookingFlowProps) {
   const [currentStep, setCurrentStep] = useState<BookingStep>(1)
+  
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [profileDoctor, setProfileDoctor] = useState<Doctor | null>(null)
@@ -104,42 +105,60 @@ export default function BookingFlow({
     { step: "التأكيد", desc: "(تأكيد الحجز)", active: currentStep >= 6 },
   ]
 
-  useEffect(() => {
-    calculatePricing()
-  }, [bookingData.selectedPackage, bookingData.sessionsCount, bookingData.couponCode])
+useEffect(() => {
+  calculatePricing();
+}, [
+  bookingData.selectedPackage,
+  bookingData.sessionsCount,
+  bookingData.couponCode,
+  bookingData.selectedPatients, // Add this!
+]);
 
   useEffect(() => {
     handleDoctorSearch()
   }, [bookingData.searchFilters])
 
-  const calculatePricing = () => {
-    let subTotal = 0
+const calculatePricing = () => {
+  let subTotal = 0;
 
-    if (bookingData.selectedPackage) {
-      subTotal = Number.parseFloat(bookingData.selectedPackage.price)
-    } else {
-      subTotal = 300 * bookingData.sessionsCount
-    }
-
-    const fees = 0
-    const tax = 0
-    let discount = 0
-
-    if (bookingData.selectedPackage && bookingData.selectedPackage.discount) {
-      discount += Number.parseFloat(bookingData.selectedPackage.discount)
-    }
-
-    if (bookingData.couponCode === "SAVE20") {
-      discount += Math.round(subTotal * 0.2)
-    }
-
-    const total = subTotal + fees + tax - discount
-
-    setBookingData((prev) => ({
-      ...prev,
-      pricing: { subTotal, fees, tax, discount, total },
-    }))
+  // 1. Calculate base subtotal
+  if (bookingData.selectedPackage) {
+    subTotal = Number.parseFloat(bookingData.selectedPackage.price);
+  } else {
+    subTotal = 300 * bookingData.sessionsCount;
   }
+
+  // 2. Determine if patient is Saudi
+  const firstPatient = bookingData.selectedPatients?.[0];
+  const isSaudi = firstPatient?.nationality ==="السعودية";
+
+  // 3. Fees: 15% if NOT Saudi, else 0
+  const fees = isSaudi ? 0 : Math.round(subTotal * 0.15);
+
+  // 4. Tax: You can keep 0 or apply VAT if needed
+  const tax = 0; // or e.g., subTotal * 0.15 for 15% VAT
+
+  // 5. Discount from package + coupon
+  let discount = 0;
+
+  if (bookingData.selectedPackage && bookingData.selectedPackage.discount) {
+    discount += Number.parseFloat(bookingData.selectedPackage.discount);
+  }
+
+  if (bookingData.couponCode === "SAVE20") {
+    discount += Math.round(subTotal * 0.2);
+  } else if (bookingData.couponCode === "FIRST10") {
+    discount += Math.round(subTotal * 0.1);
+  }
+
+  // 6. Final total
+  const total = subTotal + fees + tax - discount;
+
+  setBookingData((prev) => ({
+    ...prev,
+    pricing: { subTotal, fees, tax, discount, total },
+  }));
+};
 
   const handleDoctorSearch = async () => {
     setFilteredDoctors(doctorsData?.data || [])
@@ -426,7 +445,6 @@ const completePayment = async () => {
             bookingData={bookingData}
             updateBookingData={updateBookingData}
             onNext={nextStep}
-            onOpenSymptoms={() => openModal("symptomsSearch")}
           />
         )
       case 2:
@@ -485,6 +503,10 @@ const completePayment = async () => {
     }
   }
 
+  useEffect(() => {
+  window.scrollTo({ top: 0, behavior: "smooth" })
+}, [currentStep])
+
   return (
     <div
       className="main-container w-full mx-auto flex flex-col items-center relative my-0 px-4 sm:px-6 lg:px-8"
@@ -513,11 +535,6 @@ const completePayment = async () => {
         </div>
       </div>
 
-      {error && (
-        <div className="w-full max-w-[1280px] mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-600 text-center">{error}</p>
-        </div>
-      )}
 
       <div className="w-full max-w-[1280px] mt-10">{renderStepContent()}</div>
 

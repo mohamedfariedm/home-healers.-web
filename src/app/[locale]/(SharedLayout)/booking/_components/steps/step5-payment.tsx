@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CreditCard, Receipt, Tag, Gift, Check } from "lucide-react";
 import type { BookingData } from "@/types/booking";
 import { FaCashRegister } from "react-icons/fa";
@@ -32,19 +32,8 @@ export default function Step5Payment({
     updateBookingData({ paymentMethod: method });
   };
 
-  const applyCoupon = () => {
-    setCouponError("");
-    if (couponInput === "SAVE20" || couponInput === "FIRST10") {
-      updateBookingData({ couponCode: couponInput });
-      setCouponInput("");
-    } else if (couponInput.trim()) {
-      setCouponError("كود الخصم غير صحيح");
-    }
-  };
 
-  const removeCoupon = () => {
-    updateBookingData({ couponCode: "" });
-  };
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -194,47 +183,47 @@ export default function Step5Payment({
    
            {/* Pricing Summary */}
            <div className="bg-white rounded-2xl shadow-md p-6">
-             <div className="flex items-center gap-3 mb-6">
-               <Gift className="w-6 h-6 text-[#62a0f6]" />
-               <h2 className="text-xl font-bold">ملخص الفاتورة</h2>
-             </div>
-             <div className="space-y-4 p-4 bg-[#eff6fe] rounded-lg">
-               <div className="flex justify-between">
-                 <span className="font-medium">
-                   {bookingData.pricing.subTotal} ريال
-                 </span>
-                 <span className="text-gray-600">المبلغ الأساسي</span>
-               </div>
-               {/* <div className="flex justify-between">
-                 <span className="font-medium">
-                   {bookingData.pricing.fees} ريال
-                 </span>
-                 <span className="text-gray-600">رسوم الزيارة</span>
-               </div>
-               <div className="flex justify-between">
-                 <span className="font-medium">
-                   {bookingData.pricing.tax} ريال
-                 </span>
-                 <span className="text-gray-600">ضريبة القيمة المضافة (15%)</span>
-               </div> */}
-               {bookingData.pricing.discount > 0 && (
-                 <div className="flex justify-between text-green-600">
-                   <span className="font-medium">
-                     -{bookingData.pricing.discount} ريال
-                   </span>
-                   <span>الخصم</span>
-                 </div>
-               )}
-               <div className="border-t border-gray-300 pt-4">
-                 <div className="flex justify-between text-lg font-bold">
-                   <span className="text-[#62a0f6]">
-                     {bookingData.pricing.total} ريال
-                   </span>
-                   <span>المبلغ الإجمالي</span>
-                 </div>
-               </div>
-             </div>
-           </div>
+        <div className="flex items-center gap-3 mb-6">
+          <Gift className="w-6 h-6 text-[#62a0f6]" />
+          <h2 className="text-xl font-bold">ملخص الفاتورة</h2>
+        </div>
+        <div className="space-y-4 p-4 bg-[#eff6fe] rounded-lg">
+          <div className="flex justify-between">
+            <span className="font-medium">
+              {bookingData.pricing.subTotal} ريال
+            </span>
+            <span className="text-gray-600">المبلغ الأساسي</span>
+          </div>
+
+          {/* رسوم الزيارة فقط للغير سعوديين */}
+          {bookingData.pricing.fees > 0 && (
+            <div className="flex justify-between">
+              <span className="font-medium">
+                {bookingData.pricing.fees} ريال
+              </span>
+              <span className="text-gray-600">رسوم الزيارة (للغير سعوديين)</span>
+            </div>
+          )}
+
+          {bookingData.pricing.discount > 0 && (
+            <div className="flex justify-between text-green-600">
+              <span className="font-medium">
+                -{bookingData.pricing.discount} ريال
+              </span>
+              <span>الخصم</span>
+            </div>
+          )}
+
+          <div className="border-t border-gray-300 pt-4">
+            <div className="flex justify-between text-lg font-bold">
+              <span className="text-[#62a0f6]">
+                {bookingData.pricing.total} ريال
+              </span>
+              <span>المبلغ الإجمالي</span>
+            </div>
+          </div>
+        </div>
+      </div>
    
            {/* Payment Button */}
            <button

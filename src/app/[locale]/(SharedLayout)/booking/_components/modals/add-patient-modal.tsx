@@ -8,7 +8,7 @@ interface AddPatientModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (patient: Patient, isEditing?: boolean) => void;
-  patient: Patient|null; // Optional for editing
+  patient: Patient | null;
 }
 
 export default function AddPatientModal({
@@ -32,31 +32,13 @@ export default function AddPatientModal({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const relationships = [
-    "الأب",
-    "الأم",
-    "الأخ",
-    "الأخت",
-    "الابن",
-    "الابنة",
-    "الزوج",
-    "الزوجة",
-    "الجد",
-    "الجدة",
-    "أخرى",
+    "الأب", "الأم", "الأخ", "الأخت", "الابن", "الابنة",
+    "الزوج", "الزوجة", "الجد", "الجدة", "أخرى"
   ];
 
   const nationalities = [
-    "السعودية",
-    "الإمارات",
-    "الكويت",
-    "قطر",
-    "البحرين",
-    "عمان",
-    "مصر",
-    "الأردن",
-    "لبنان",
-    "سوريا",
-    "أخرى",
+    "السعودية", "الإمارات", "الكويت", "قطر", "البحرين", "عمان",
+    "مصر", "الأردن", "لبنان", "سوريا", "أخرى"
   ];
 
   const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -93,18 +75,18 @@ export default function AddPatientModal({
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
+    // Required fields only
     if (!formData.name.trim()) newErrors.name = "الاسم مطلوب";
-    if (!formData.relationship) newErrors.relationship = "صلة القرابة مطلوبة";
     if (!formData.nationality) newErrors.nationality = "الجنسية مطلوبة";
-    if (!formData.idNumber.trim()) newErrors.idNumber = "رقم الهوية مطلوب";
     if (!formData.phone.trim()) newErrors.phone = "رقم الهاتف مطلوب";
-    if (!formData.email.trim()) newErrors.email = "البريد الإلكتروني مطلوب";
     if (!formData.birthDate) newErrors.birthDate = "تاريخ الميلاد مطلوب";
 
+    // Optional: Email format check (if provided)
     if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "البريد الإلكتروني غير صحيح";
     }
 
+    // Optional: Phone format check (if provided)
     if (formData.phone && !/^[0-9+\-\s()]+$/.test(formData.phone)) {
       newErrors.phone = "رقم الهاتف غير صحيح";
     }
@@ -169,6 +151,7 @@ export default function AddPatientModal({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Full Name - REQUIRED */}
           <div>
             <label className="block text-sm font-medium mb-2 text-red-500">
               * الاسم الكامل
@@ -187,30 +170,28 @@ export default function AddPatientModal({
             )}
           </div>
 
+          {/* Relationship & Nationality */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* صلة القرابة - NOT REQUIRED */}
             <div>
-              <label className="block text-sm font-medium mb-2 text-red-500">
-                * صلة القرابة
+              <label className="block text-sm font-medium mb-2">
+                صلة القرابة
               </label>
               <select
                 value={formData.relationship}
                 onChange={(e) => handleInputChange("relationship", e.target.value)}
-                className={`w-full p-3 border rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6] ${
-                  errors.relationship ? "border-red-500" : "border-gray-300"
-                }`}
+                className="w-full p-3 border border-gray-300 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6]"
               >
-                <option value="">اختر صلة القرابة</option>
+                <option value="">اختر صلة القرابة (اختياري)</option>
                 {relationships.map((rel) => (
                   <option key={rel} value={rel}>
                     {rel}
                   </option>
                 ))}
               </select>
-              {errors.relationship && (
-                <p className="text-red-500 text-sm mt-1">{errors.relationship}</p>
-              )}
             </div>
 
+            {/* الجنسية - REQUIRED */}
             <div>
               <label className="block text-sm font-medium mb-2 text-red-500">
                 * الجنسية
@@ -235,25 +216,23 @@ export default function AddPatientModal({
             </div>
           </div>
 
+          {/* رقم الهوية - NOT REQUIRED */}
           <div>
-            <label className="block text-sm font-medium mb-2 text-red-500">
-              * رقم الهوية
+            <label className="block text-sm font-medium mb-2">
+              رقم الهوية
             </label>
             <input
               type="text"
               value={formData.idNumber}
               onChange={(e) => handleInputChange("idNumber", e.target.value)}
-              placeholder="أدخل رقم الهوية"
-              className={`w-full p-3 border rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6] ${
-                errors.idNumber ? "border-red-500" : "border-gray-300"
-              }`}
+              placeholder="أدخل رقم الهوية (اختياري)"
+              className="w-full p-3 border border-gray-300 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6]"
             />
-            {errors.idNumber && (
-              <p className="text-red-500 text-sm mt-1">{errors.idNumber}</p>
-            )}
           </div>
 
+          {/* Phone & Email */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* رقم الهاتف - REQUIRED */}
             <div>
               <label className="block text-sm font-medium mb-2 text-red-500">
                 * رقم الهاتف
@@ -272,15 +251,16 @@ export default function AddPatientModal({
               )}
             </div>
 
+            {/* البريد الإلكتروني - NOT REQUIRED */}
             <div>
-              <label className="block text-sm font-medium mb-2 text-red-500">
-                * البريد الإلكتروني
+              <label className="block text-sm font-medium mb-2">
+                البريد الإلكتروني
               </label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
-                placeholder="أدخل البريد الإلكتروني"
+                placeholder="أدخل البريد الإلكتروني (اختياري)"
                 className={`w-full p-3 border rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6] ${
                   errors.email ? "border-red-500" : "border-gray-300"
                 }`}
@@ -291,6 +271,7 @@ export default function AddPatientModal({
             </div>
           </div>
 
+          {/* Gender */}
           <div>
             <label className="block text-sm font-medium mb-2">الجنس</label>
             <div className="flex gap-4">
@@ -319,6 +300,7 @@ export default function AddPatientModal({
             </div>
           </div>
 
+          {/* Birth Date & Blood Type */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium mb-2 text-red-500">
@@ -346,7 +328,7 @@ export default function AddPatientModal({
                 onChange={(e) => handleInputChange("bloodType", e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6]"
               >
-                <option value="">اختر فصيلة الدم</option>
+                <option value="">اختر فصيلة الدم (اختياري)</option>
                 {bloodTypes.map((type) => (
                   <option key={type} value={type}>
                     {type}
@@ -356,6 +338,7 @@ export default function AddPatientModal({
             </div>
           </div>
 
+          {/* Buttons */}
           <div className="flex gap-4 pt-6">
             <button
               type="button"

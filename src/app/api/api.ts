@@ -96,6 +96,12 @@ const ClientAPI = {
       body: payload,
       requiresAuth: true,
     }),
+  createQueiqReservation: (payload: any, locale: string) =>
+    fetchData('client/quick-booking', locale, {
+      method: 'POST',
+      body: payload,
+      requiresAuth: true,
+    }),
 
   createReservationWithPackage: (payload: any, locale: string) => {
     console.log("createReservationWithPackage", payload);

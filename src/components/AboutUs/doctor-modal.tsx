@@ -173,7 +173,7 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
                       {translations.basicInformation}
                     </h3>
                     <div className="space-y-2">
-                      <InfoItem
+                      {/* <InfoItem
                         icon={Mail}
                         label={translations.email}
                         value={doctor.email}
@@ -184,6 +184,11 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
                         label={translations.phone}
                         value={doctor.mobile_number}
                         href={`tel:${doctor.mobile_number}`}
+                      /> */}
+                      <InfoItem
+                        icon={GraduationCap}
+                        label={translations.degree}
+                        value={doctor.degree}
                       />
                       <InfoItem
                         icon={MapPin}
@@ -205,11 +210,7 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
                       {translations.professionalDetails}
                     </h3>
                     <div className="space-y-2">
-                      <InfoItem
-                        icon={GraduationCap}
-                        label={translations.degree}
-                        value={doctor.degree}
-                      />
+                      
                       <InfoItem
                         icon={Building}
                         label={translations.medicalSchool}
@@ -256,7 +257,7 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
                 </div>
 
                 {/* Working Hours */}
-                <div className="space-y-4">
+                {/* <div className="space-y-4">
                   <h3 className="text-xl font-bold text-gray-800 border-b-2 border-[#62a0f6] pb-2 flex items-center gap-2">
                     <Clock size={20} className="text-[#62a0f6]" />
                     {translations.workingHours}
@@ -269,7 +270,7 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
                       </span>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 {/* Awards & Memberships */}
                 {(doctor.awards || doctor.memberships) && (
