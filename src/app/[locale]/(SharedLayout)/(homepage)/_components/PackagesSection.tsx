@@ -8,6 +8,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import parse from "html-react-parser";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface PackageItem {
   id: number;
@@ -28,12 +29,17 @@ interface PackagesSectionProps {
 export default function PackagesSection({ locale, data }: PackagesSectionProps) {
   const [activeDot, setActiveDot] = useState(0);
   const packages = data || [];
+  const router = useRouter();
+
+  const handlePackageClick = (pkg: PackageItem) => {
+    router.push(`/${locale}/booking?packageId=${pkg.id}`);
+  };
 
   return (
-    <section className="w-full xl:w-[1280px] mx-auto mt-[100px] flex flex-col items-center relative z-[5]">
+    <section className="w-full xl:w-[1280px] mx-auto mt-16 flex flex-col items-center relative z-[5]">
       {/* Header */}
       <motion.div
-        className="text-center mb-12"
+        className="text-center mb-8"
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -82,7 +88,8 @@ export default function PackagesSection({ locale, data }: PackagesSectionProps) 
             <motion.div
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.3 }}
-              className={`relative bg-white shadow-lg rounded-3xl overflow-hidden w-[300px] h-[420px] flex flex-col mx-auto border border-gray-100`}
+              onClick={() => handlePackageClick(pkg)}
+              className={`relative bg-white shadow-lg rounded-3xl overflow-hidden w-[300px] h-[420px] flex flex-col mx-auto border border-gray-100 cursor-pointer hover:shadow-xl transition-shadow`}
             >
               {/* Image */}
               <div className="relative w-full h-[180px] bg-gray-100">
@@ -127,15 +134,15 @@ export default function PackagesSection({ locale, data }: PackagesSectionProps) 
                 <div className="mt-4 flex flex-col gap-2">
                   <div className="flex items-center justify-between">
                     <span className="text-primary font-bold text-xl">
-                      {pkg.discount && pkg.discount !== "0.00" ? (
+                      {pkg.price && pkg.price !== "0.00" ? (
                         <>
-                          {pkg.discount}{" "}
+                          {pkg.price}{" "}
                           <span className="text-sm text-gray-400 line-through ms-1">
-                            {pkg.price}
+                            {pkg.discount}
                           </span>
                         </>
                       ) : (
-                        pkg.price
+                        pkg.discount
                       )}{" "}
                       <span className="text-sm text-gray-500">
                         {locale === "ar" ? "ر.س" : "SAR"}
@@ -159,7 +166,7 @@ export default function PackagesSection({ locale, data }: PackagesSectionProps) 
       </Swiper>
 
       {/* Pagination Dots */}
-      <div className="flex gap-3 mt-8 packages-dots justify-center">
+      <div className="flex gap-3 mt-6 packages-dots justify-center">
         {packages.map((_, i) => (
           <div
             key={i}

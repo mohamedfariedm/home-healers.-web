@@ -4,6 +4,7 @@ const nextConfig = {
   images: {
     domains: [
       "placehold.co",
+      "backend.home-healers.com",
       "development.home-healers.com",
       "backend.home-healers.com"
     ],

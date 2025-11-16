@@ -120,9 +120,11 @@ useEffect(() => {
 
 const calculatePricing = () => {
   let subTotal = 0;
+  const hasPackage = !!bookingData.selectedPackage;
 
   // 1. Calculate base subtotal
-  if (bookingData.selectedPackage) {
+  if (hasPackage && bookingData.selectedPackage) {
+    // For packages, the price is already after discount
     subTotal = Number.parseFloat(bookingData.selectedPackage.price);
   } else {
     subTotal = 300 * bookingData.sessionsCount;
@@ -141,22 +143,41 @@ const calculatePricing = () => {
   // 5. Discount from package + coupon
   let discount = 0;
 
-  if (bookingData.selectedPackage && bookingData.selectedPackage.discount) {
+  // For packages: don't apply package discount again (price is already discounted)
+  // Only apply coupon discounts if any
+  if (!hasPackage && bookingData.selectedPackage?.discount) {
     discount += Number.parseFloat(bookingData.selectedPackage.discount);
   }
 
+  // Apply coupon discounts
   if (bookingData.couponCode === "SAVE20") {
     discount += Math.round(subTotal * 0.2);
   } else if (bookingData.couponCode === "FIRST10") {
     discount += Math.round(subTotal * 0.1);
   }
 
+  // For packages: show the discount amount for display purposes only
+  // but don't subtract it from total (price is already discounted)
+  const packageDiscount = hasPackage && bookingData.selectedPackage?.discount 
+    ? Number.parseFloat(bookingData.selectedPackage.discount) 
+    : 0;
+
   // 6. Final total
-  const total = subTotal + fees + tax - discount;
+  // For packages: total = price (already discounted) + fees + tax
+  // For non-packages: total = subtotal + fees + tax - discount
+  const total = hasPackage 
+    ? subTotal + fees + tax 
+    : subTotal + fees + tax - discount;
 
   setBookingData((prev) => ({
     ...prev,
-    pricing: { subTotal, fees, tax, discount, total },
+    pricing: { 
+      subTotal, 
+      fees, 
+      tax, 
+      discount: hasPackage ? packageDiscount : discount, // Show discount for display
+      total 
+    },
   }));
 };
 
