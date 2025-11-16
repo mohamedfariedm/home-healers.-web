@@ -1,8 +1,9 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Search, Star, Clock, User, Filter, MapPin } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 import type { BookingData, Doctor, Package } from "@/types/booking";
 
 // ===== Helpers for the new data shape =====
@@ -54,6 +55,69 @@ export default function Step2DoctorSelection({
 }: Step2Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const searchParams = useSearchParams();
+  const packageProcessedRef = useRef<string | null>(null);
+
+  // Auto-select package from URL parameter
+  useEffect(() => {
+    const packageId = searchParams.get("packageId") || searchParams.get("packageid");
+    
+    if (!packageId || !packagesData?.data || !Array.isArray(packagesData.data)) {
+      return;
+    }
+
+    // Skip if already processed this package ID
+    if (packageProcessedRef.current === packageId) {
+      return;
+    }
+
+    const pkgId = Number.parseInt(packageId, 10);
+    if (Number.isNaN(pkgId)) {
+      console.warn("Invalid package ID:", packageId);
+      return;
+    }
+
+    // Check if this package is already selected
+    const currentPkgId = bookingData.selectedPackage?.id ? Number(bookingData.selectedPackage.id) : null;
+    if (currentPkgId === pkgId) {
+      // Already selected, mark as processed
+      packageProcessedRef.current = packageId;
+      return;
+    }
+
+    console.log("🔍 Step2 - Looking for package ID:", pkgId);
+    console.log("📦 Step2 - Available packages:", packagesData.data.map((p: Package) => ({ id: p.id, name: p.name })));
+
+    // Find package with matching ID
+    const selectedPkg = packagesData.data.find((pkg: Package) => {
+      const pkgIdNum = Number(pkg.id);
+      const targetIdNum = Number(pkgId);
+      return pkgIdNum === targetIdNum;
+    });
+
+    if (selectedPkg) {
+      console.log("✅ Step2 - Found package:", { id: selectedPkg.id, name: selectedPkg.name });
+      
+      // Mark as processed
+      packageProcessedRef.current = packageId;
+      
+      // Update bookingData with the selected package and sessions count
+      updateBookingData({ 
+        selectedPackage: selectedPkg,
+        sessionsCount: selectedPkg.sessions_count || 1
+      });
+      console.log("💾 Step2 - Package saved to bookingData:", { 
+        id: selectedPkg.id, 
+        name: selectedPkg.name,
+        sessionsCount: selectedPkg.sessions_count 
+      });
+      
+      toast.success(`تم اختيار الباقة: ${selectedPkg.name}`);
+    } else {
+      console.warn("❌ Step2 - Package not found with ID:", pkgId, "Available IDs:", packagesData.data.map((p: Package) => p.id));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, packagesData]);
 
   // Build a robust image picker for the doctor
   const getDoctorImage = (doctor: any) => {
@@ -101,13 +165,22 @@ export default function Step2DoctorSelection({
   };
 
 const handlePackageSelect = (pkg: Package) => {
-  if (bookingData.selectedPackage?.id === pkg.id) {
+  const currentPkgId = bookingData.selectedPackage?.id ? Number(bookingData.selectedPackage.id) : null;
+  const pkgId = Number(pkg.id);
+  
+  if (currentPkgId === pkgId) {
     // If already selected → unselect it
-    updateBookingData({ selectedPackage: null });
+    updateBookingData({ 
+      selectedPackage: null,
+      sessionsCount: 1 // Reset to default
+    });
     toast.info(`تم إلغاء اختيار الباقة: ${pkg.name}`);
   } else {
-    // Otherwise → select it
-    updateBookingData({ selectedPackage: pkg });
+    // Otherwise → select it and update sessions count
+    updateBookingData({ 
+      selectedPackage: pkg,
+      sessionsCount: pkg.sessions_count || 1
+    });
     toast.success(`تم اختيار الباقة: ${pkg.name}`);
   }
 };
@@ -343,12 +416,17 @@ console.log("packagesData",packagesData?.data);
               <p className="text-gray-600 text-center">لا توجد باقات متاحة</p>
             ) : (
               <div className="space-y-3">
-                {packagesData?.data?.map((pkg: Package) => (
+                {packagesData?.data?.map((pkg: Package) => {
+                  const currentPkgId = bookingData.selectedPackage?.id ? Number(bookingData.selectedPackage.id) : null;
+                  const pkgId = Number(pkg.id);
+                  const isSelected = currentPkgId === pkgId;
+                  
+                  return (
   <button
     key={pkg.id}
     onClick={() => handlePackageSelect(pkg)}
     className={`w-full p-4 rounded-lg border-2 text-right transition-all ${
-      bookingData.selectedPackage?.id === pkg.id
+      isSelected
         ? "border-[#62a0f6] bg-[#eff6fe]"
         : "border-gray-200 hover:border-[#62a0f6]"
     }`}
@@ -375,7 +453,8 @@ console.log("packagesData",packagesData?.data);
       )}
     </div>
   </button>
-))}
+                  );
+                })}
 
               </div>
             )}
