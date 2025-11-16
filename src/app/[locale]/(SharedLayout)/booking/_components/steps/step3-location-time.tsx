@@ -93,10 +93,10 @@ export default function Step3LocationTime({
       toast.error("يرجى اختيار الموقع");
       return;
     }
-    if (bookingData.selectedDates.length !== sessionsCount) {
-      toast.error(`يرجى اختيار ${sessionsCount} موعد${sessionsCount > 1 ? "ات" : ""} لتتناسب مع عدد الجلسات`);
-      return;
-    }
+    if (bookingData.selectedDates.length < 1) {
+  toast.error("يرجى اختيار موعد واحد على الأقل");
+  return;
+}
     onNext();
   };
 
@@ -176,7 +176,7 @@ export default function Step3LocationTime({
             </p>
           ) : (
             <div className="flex gap-3">
-              {[1, 2, 3, 4, 5].map((count) => (
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((count) => (
                 <button
                   key={count}
                   onClick={() => handleSessionsCountChange(count)}
@@ -191,14 +191,12 @@ export default function Step3LocationTime({
               ))}
             </div>
           )}
-          {bookingData.selectedDates.length !== sessionsCount && (
-            <div className="mt-3 flex items-center gap-2 text-red-600">
-              <AlertCircle className="w-5 h-5" />
-              <p className="text-sm">
-                يجب اختيار {sessionsCount} موعد{sessionsCount > 1 ? "ات" : ""} لتتناسب مع عدد الجلسات
-              </p>
-            </div>
-          )}
+          {bookingData.selectedDates.length < 1 && (
+  <div className="mt-3 flex items-center gap-2 text-blue-600">
+    <AlertCircle className="w-5 h-5" />
+    <p className="text-sm">اختر موعدًا واحدًا على الأقل</p>
+  </div>
+)}
         </div>
 
         {/* Date Selection */}
@@ -282,7 +280,7 @@ export default function Step3LocationTime({
         </button>
         <button
           onClick={handleNext}
-          disabled={!bookingData.selectedLocation || bookingData.selectedDates.length !== sessionsCount}
+          disabled={!bookingData.selectedLocation || bookingData.selectedDates.length < 1}
           className="px-6 py-3 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           التالي

@@ -218,7 +218,12 @@ const calculatePricing = () => {
       updateBookingData({
         patients: [...bookingData.patients, newPatient],
       })
-      toast.success("تم إضافة المريض بنجاح")
+      // ⭐ التحديد التلقائي لأول مريض
+    if (bookingData.selectedPatients.length === 0) {
+      updateBookingData({
+        selectedPatients: [newPatient],
+      });
+    }
     }
     closeModal("addPatient")
   }
@@ -242,6 +247,8 @@ const calculatePricing = () => {
         break
       case 2:
         if (!bookingData.selectedDoctor) {
+          console.log(bookingData.selectedDoctor);
+          
           setError("يرجى اختيار الطبيب")
           toast.error("يرجى اختيار الطبيب")
           return false
@@ -253,10 +260,9 @@ const calculatePricing = () => {
           toast.error("يرجى اختيار الموقع")
           return false
         }
-        const sessionsCount = bookingData.selectedPackage?.sessions_count ?? bookingData.sessionsCount
-        if (bookingData.selectedDates.length !== sessionsCount) {
-          setError(`يرجى اختيار ${sessionsCount} موعد${sessionsCount > 1 ? "ات" : ""} لتتناسب مع عدد الجلسات`)
-          toast.error(`يرجى اختيار ${sessionsCount} موعد${sessionsCount > 1 ? "ات" : ""}`)
+       if (bookingData.selectedDates.length < 1) {
+          setError("يرجى اختيار موعد واحد على الأقل")
+          toast.error("يرجى اختيار موعد واحد على الأقل")
           return false
         }
         break
@@ -422,6 +428,11 @@ const completePayment = async () => {
 };
 
   const nextStep = () => {
+     if (currentStep === 2) {
+    // نتخطّى validateStep لأن اختيار الطبيب تم داخل Step2
+    setCurrentStep(3 as BookingStep);
+    return;
+  }
     if (currentStep === 4) {
       if (validateStep(currentStep)) {
         submitBooking() // Submit reservation after Step 4

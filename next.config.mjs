@@ -5,6 +5,7 @@ const nextConfig = {
     domains: [
       "placehold.co",
       "development.home-healers.com",
+      "backend.home-healers.com"
     ],
   },
   async redirects() {
