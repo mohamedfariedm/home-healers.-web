@@ -55,7 +55,7 @@ const translations = {
     contact: {
       address: "الرياض - شارع الامير عبدالعزيز بن مساعد بن جلوي",
       email: "customer.service@home-healers.com",
-      phone: "0551172232",
+      phone: "0118289771",
     },
     legal: {
       terms: "الشروط والاحكام",
@@ -91,7 +91,7 @@ const translations = {
     contact: {
       address: "Riyadh - Prince Abdulaziz bin Musaed bin Jalawi Street",
       email: "customer.service@home-healers.com",
-      phone: "0551172232",
+      phone: "0118289771",
     },
     legal: {
       terms: "Terms & Conditions",

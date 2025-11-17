@@ -138,7 +138,7 @@ export default function ContactSection() {
           {
             icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/pyxgUkH7d4.png",
             title: "قم بالاتصال بنا",
-            description: "0551172232",
+            description: "0118289771",
           },
         ].map(({ icon, title, description }, i) => (
           <motion.div
