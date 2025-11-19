@@ -24,7 +24,6 @@ function AboutApp({
   aboutHomeSection?: any;
 }) {
   const [activeDot, setActiveDot] = useState(0);
-  console.log(data);
 
   // Use provided data or fallback to empty array
   const services = data || [];

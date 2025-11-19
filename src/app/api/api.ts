@@ -224,6 +224,25 @@ payReservationWithTelr: (reservationId: number, locale: string) =>
       return "<error>Failed to fetch sitemap</error>";
     }
   },
+  getRobots: async () => {
+  try {
+    const url = new URL(`${API_BASE_URL}/sitemaps/robots.txt`);
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: { Accept: "text/plain" },
+      cache: "no-store",
+    });
+
+    if (!response.ok) throw new Error("Failed to fetch robots.txt");
+
+    return await response.text();
+  } catch (e) {
+    console.error("robots fetch error:", e);
+    return "User-agent: *\nDisallow:";
+  }
+}
+
 };
 
 

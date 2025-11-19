@@ -25,7 +25,6 @@ export default function OurStory({
       year: "numeric",
     });
   };
-  console.log("Data:", data);
 
   const visibleArticles = data?.filter((article) => article.show_in_home_page);
 

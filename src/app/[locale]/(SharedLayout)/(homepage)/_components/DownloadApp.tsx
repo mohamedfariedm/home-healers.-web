@@ -12,7 +12,6 @@ function DownloadApp({ section, locale }: { section: any; locale: string }) {
     once: false,
     amount: 0.3,
   });
-  console.log("DownloadApp Section Data:", section);
 
   const post = section?.Posts?.[0]; // safely get the first post
 

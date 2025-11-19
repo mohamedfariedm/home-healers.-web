@@ -19,8 +19,9 @@ export async function generateMetadata({
 }) {
   const { t } = await initTranslations(locale, ["homepage"]);
   const settings = await ClientAPI.getSettings(locale);
-  const seo = settings?.data[0]?.setting?.seo["about-us"];
-
+  const seo = settings?.data[0]?.setting?.seo;
+  console.log(seo);
+  
   return {
     title: seo?.title || "Home Hellers",
     description: seo?.description || "Home Hellers app",
