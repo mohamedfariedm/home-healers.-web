@@ -13,8 +13,6 @@ const alexandria = Alexandria({
 });
 
 export const metadata: Metadata = {
-  title: "Home Hellers",
-  description: "Home Hellers app",
   icons: {
     icon: "/assets/images/favicon.ico",
   },

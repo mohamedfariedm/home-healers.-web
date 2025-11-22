@@ -8,6 +8,7 @@ import {
   PartnersSection,
 } from "@/components/AboutUs";
 import ClientAPI from "@/app/api/api";
+import { createMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 type props = {
@@ -23,39 +24,9 @@ export async function generateMetadata({
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data[0]?.setting?.seo["about-us"];
 
-  return {
-    title: seo?.title || "Home Hellers",
-    description: seo?.description || "Home Hellers app",
-    keywords: seo?.keywords || "Home Hellers, services, healthcare, clinics", // customize if needed
-    alternates: {
-      canonical:
-        seo?.canonical ||
-        `https://home-hellers.com${locale === "ar" ? "" : "/en"}`,
-    },
-    icons: {
-      icon: "/assets/images/favicon.ico",
-    },
-    openGraph: {
-      title: seo?.og_title || "Home Hellers",
-      description: seo?.og_description || "Home Hellers app",
-      url:
-        seo?.canonical ||
-        `https://home-hellers.com${locale === "ar" ? "" : "/en"}`,
-      images: [
-        {
-          url: seo?.og_image || "/assets/images/favicon.ico",
-          width: 1200,
-          height: 630,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: seo?.twitter_title || "Home Hellers",
-      description: seo?.twitter_description || "Home Hellers app",
-      images: [seo?.twitter_image || "/assets/images/favicon.ico"],
-    },
-  };
+  return createMetadata(seo, locale, "/about-us", {
+    title: "Home Hellers",
+  });
 }
 
 async function page({ params: { locale } }: props) {

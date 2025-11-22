@@ -10,10 +10,11 @@ export async function generateMetadata({ params: { locale } }: Props) {
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data[0]?.setting?.seo["about-us"];
 
-  return {
-    title: seo?.title || "General Conditions",
-    description: seo?.description || "",
-  };
+  // Use shared helper so about/privacy/terms follow same structure
+  const { createMetadata } = await import("@/lib/seo");
+  return createMetadata(seo, locale, "/privacy", {
+    title: "General Conditions",
+  });
 }
 
 export default async function ConditionsPage({ params: { locale } }: Props) {
@@ -26,7 +27,6 @@ export default async function ConditionsPage({ params: { locale } }: Props) {
   return (
     <>
       <div className="min-h-screen bg-white">
-
         {/* Title behind hero */}
         <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
           {conditions?.title}
@@ -44,17 +44,15 @@ export default async function ConditionsPage({ params: { locale } }: Props) {
           ]}
         />
 
-{/* CONTENT BODY */}
-<div className="flex flex-col items-center gap-14 mt-24 w-full mx-auto px-4">
-  <div className="max-w-4xl w-full">
-
-
-    {/* Items list */}
-    <div className="space-y-10">
-      {conditions?.items?.map((item: any, index: number) => (
-        <div
-          key={index}
-          className="
+        {/* CONTENT BODY */}
+        <div className="flex flex-col items-center gap-14 mt-24 w-full mx-auto px-4">
+          <div className="max-w-4xl w-full">
+            {/* Items list */}
+            <div className="space-y-10">
+              {conditions?.items?.map((item: any, index: number) => (
+                <div
+                  key={index}
+                  className="
             group 
             bg-gradient-to-tr from-white to-blue-50/20 
             border border-gray-200 
@@ -63,10 +61,10 @@ export default async function ConditionsPage({ params: { locale } }: Props) {
             hover:shadow-lg 
             transition-all duration-300
           "
-        >
-          {/* Heading */}
-          <h2
-            className="
+                >
+                  {/* Heading */}
+                  <h2
+                    className="
               text-2xl 
               font-semibold 
               text-gray-900 
@@ -74,28 +72,25 @@ export default async function ConditionsPage({ params: { locale } }: Props) {
               group-hover:text-blue-700 
               transition
             "
-          >
-            {item.heading}
-          </h2>
+                  >
+                    {item.heading}
+                  </h2>
 
-          {/* Content */}
-          <div
-            className="
+                  {/* Content */}
+                  <div
+                    className="
               text-gray-700 
               leading-8 
               text-[15px]
               prose prose-blue max-w-none
             "
-            dangerouslySetInnerHTML={{ __html: item.content }}
-          />
+                    dangerouslySetInnerHTML={{ __html: item.content }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      ))}
-    </div>
-
-  </div>
-</div>
-
-
       </div>
     </>
   );

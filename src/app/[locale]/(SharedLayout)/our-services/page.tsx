@@ -2,6 +2,7 @@ import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
 import { AnimatedServicesSection } from "@/components/Services";
 import { Bannar } from "../(homepage)/_components";
+import { createMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -14,33 +15,10 @@ export async function generateMetadata({
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data[0]?.setting?.seo?.["services"];
 
-  return {
-    title: seo?.title || "Home Healers | Services",
-    description:
-      seo?.description || "Discover our medical and therapeutic services",
-    keywords: seo?.keywords || "Home Healers, healthcare, therapy, services",
-    alternates: {
-      canonical:
-        seo?.canonical ||
-        `https://home-healers.com${locale === "ar" ? "" : "/en"}/our-services`,
-    },
-    icons: { icon: "/assets/images/favicon.ico" },
-    openGraph: {
-      title: seo?.og_title || "Home Healers Services",
-      description:
-        seo?.og_description || "Explore our wide range of healthcare services",
-      url:
-        seo?.canonical ||
-        `https://home-healers.com${locale === "ar" ? "" : "/en"}/our-services`,
-      images: [seo?.og_image || "/assets/images/favicon.ico"],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: seo?.twitter_title || "Home Healers Services",
-      description: seo?.twitter_description || "Discover Home Healers Services",
-      images: [seo?.twitter_image || "/assets/images/favicon.ico"],
-    },
-  };
+  return createMetadata(seo, locale, "/our-services", {
+    title: "Home Hellers | Services",
+    description: "Discover our medical and therapeutic services",
+  });
 }
 
 export default async function ServicesPage({

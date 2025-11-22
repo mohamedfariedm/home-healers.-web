@@ -2,6 +2,7 @@ import initTranslations from "@/app/i18n";
 import Features from "@/components/Animations/features";
 import BlogRelatedSection from "./_components/BlogSection";
 import ClientAPI from "@/app/api/api";
+import { createMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
@@ -14,38 +15,15 @@ export async function generateMetadata({
   const seo = settings?.data[0]?.setting?.seo["blogs"];
   const { data } = await ClientAPI.getSingleBlog(blogID, locale);
 
-  return {
+  // Base metadata from global blogs seo then override with blog-specific meta
+  const baseMeta = createMetadata(seo, locale, "/blog", {
     title: data?.meta_title || "Home Hellers",
-    description: data?.meta_description || "Home Hellers app",
-    keywords: seo?.keywords || "Home Hellers, services, healthcare, clinics", // customize if needed
-    alternates: {
-      canonical:
-        seo?.canonical ||
-        `https://home-hellers.com${locale === "ar" ? "" : "/en"}`,
-    },
-    icons: {
-      icon: "/assets/images/favicon.ico",
-    },
-    openGraph: {
-      title: seo?.og_title || "Home Hellers",
-      description: seo?.og_description || "Home Hellers app",
-      url:
-        seo?.canonical ||
-        `https://home-hellers.com${locale === "ar" ? "" : "/en"}`,
-      images: [
-        {
-          url: seo?.og_image || "/assets/images/favicon.ico",
-          width: 1200,
-          height: 630,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: seo?.twitter_title || "Home Hellers",
-      description: seo?.twitter_description || "Home Hellers app",
-      images: [seo?.twitter_image || "/assets/images/favicon.ico"],
-    },
+  });
+
+  return {
+    ...baseMeta,
+    title: data?.meta_title || baseMeta.title,
+    description: data?.meta_description || baseMeta.description,
   };
 }
 async function page({
