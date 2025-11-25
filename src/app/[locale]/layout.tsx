@@ -47,8 +47,8 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} dir={dir(locale)}>
-      <head>
-        {/* Organization Schema */}
+      <body className={alexandria.className}>
+        {/* Organization Schema - JSON-LD can be placed in body per Schema.org spec */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: renderJsonLd(organizationSchema) }}
@@ -58,8 +58,6 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: renderJsonLd(websiteSchema) }}
         />
-      </head>
-      <body className={alexandria.className}>
         <main className="w-full">
           <GlobalProvider locale={locale}>{children}</GlobalProvider>
            
