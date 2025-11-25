@@ -14,6 +14,7 @@ export function middleware(request: NextRequest) {
     console.log("✅ EN prefix detected → English mode")
     const response = NextResponse.next()
     response.cookies.set("NEXT_LOCALE", "en", { path: "/" })
+    response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
     return response
   }
 
@@ -21,6 +22,7 @@ export function middleware(request: NextRequest) {
     console.log("🔄 Removing /en → Redirect to Arabic")
     const response = NextResponse.redirect(request.nextUrl)
     response.cookies.set("NEXT_LOCALE", "ar", { path: "/" })
+    response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
     return response
   }
 
@@ -30,6 +32,7 @@ export function middleware(request: NextRequest) {
   console.log("🌍 No prefix → Arabic mode (default)")
   const response = i18nRouter(request, i18nRouterConfig)
   response.cookies.set("NEXT_LOCALE", "ar", { path: "/" })
+  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
   return response
 }
 
