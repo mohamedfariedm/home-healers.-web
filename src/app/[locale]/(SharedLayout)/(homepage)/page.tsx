@@ -11,6 +11,7 @@ import {
 import ClientAPI from "../../../api/api";
 import { createMetadata } from "@/lib/seo";
 import PackagesSection from "./_components/PackagesSection";
+import { createBreadcrumbSchema, renderJsonLd } from "@/lib/structured-data";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
@@ -60,8 +61,21 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
   );
   const seo = settings?.data[0]?.setting?.seo["home"];
 
+  // Generate breadcrumb schema for homepage
+  const breadcrumbSchema = createBreadcrumbSchema([
+    {
+      name: "Home",
+      url: `https://home-healers.com${locale === "ar" ? "" : "/en"}`,
+    },
+  ]);
+
   return (
     <div className="main-container w-full xl:w-[1440px] bg-[#fff] relative overflow-hidden mx-auto my-0">
+      {/* Breadcrumb Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: renderJsonLd(breadcrumbSchema) }}
+      />
       <div className="w-full xl:w-[489.058px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-05/Xam6EEVohV.png)] bg-[length:100%_100%] bg-no-repeat relative" />
       <div>
         <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
