@@ -214,32 +214,67 @@ html {
   box-shadow: 0 0 20px rgba(0,255,255,0.5);
 }
 
-.holographic-card:hover::before {
-  opacity: 1;
-  transform: rotate(-45deg) translateY(100%);
-}
-
 .editor-content {
   direction: rtl;
   text-align: right;
-  font-family: "Tajawal", sans-serif; /* or your editor's font */
+  font-family: "Tajawal", sans-serif;
   color: #1e1e1e;
   line-height: 1.8;
 }
 
-.editor-content h1,
-.editor-content h2,
-.editor-content h3,
+.editor-content h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1e1e1e;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.editor-content h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e1e1e;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.editor-content h3 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1e1e1e;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
 .editor-content h4 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e1e1e;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.editor-content h5 {
+  font-size: 1.25rem;
   font-weight: 600;
   color: #1e1e1e;
   margin-top: 1rem;
   margin-bottom: 0.5rem;
+  line-height: 1.5;
 }
 
-.editor-content p {
-  margin-bottom: 0.75rem;
+.editor-content h6 {
   font-size: 1rem;
+  font-weight: 700;
+  color: #555;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .editor-content strong {
