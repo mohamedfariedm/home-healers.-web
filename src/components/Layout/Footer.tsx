@@ -3,6 +3,85 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import ClientAPI from "@/app/api/api";
+import { Twitter, Facebook, Instagram, Linkedin, Youtube, X,Ghost } from "lucide-react";
+
+// Custom Icons for TikTok and Snapchat since they might not be in all Lucide versions or for specific styling
+const TiktokIcon = ({ size = 20, strokeWidth = 1.5, color = "currentColor" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+  </svg>
+);
+
+const SnapchatIcon = ({ size = 20, strokeWidth = 1.5, color = "currentColor" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M10.65 21.32a8 8 0 0 1 2.7-20.51 4 4 0 0 0-6.4 6.4 8.88 8.88 0 0 1 3.7 14.11z" />
+    {/* This is a simplified representation, Snapchat logo is complex for simple stroke. 
+        Let's use a more accurate path or a bell/ghost shape if possible, 
+        but for now a generic path or the lucide 'Ghost' if available would be better. 
+        Actually, let's use a standard SVG path for Snapchat. */}
+    <path d="M16.88 20c.84-.24 1.6.5 2.12 1.15a.55.55 0 0 0 .78.09c.3-.23.68-.32 1.05-.24 1.12.24 1.17 1.95 1.17 2.25 0 .4-.32.75-.72.75h-18.56c-.4 0-.72-.35-.72-.75 0-.3.05-2.01 1.17-2.25.37-.08.75.01 1.05.24.24.18.57.15.78-.09.52-.65 1.28-1.39 2.12-1.15 1.17.33 1.91 1.65 2.7 2.65.16.21.48.23.67.05.6-.58 1.48-1.05 2.5-1.05s1.9.47 2.5 1.05c.19.18.51.16.67-.05.79-1 1.53-2.32 2.7-2.65z" />
+    <path d="M12 2a5 5 0 0 0-5 5v2a3 3 0 0 0-3 3v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1a3 3 0 0 0-3-3V7a5 5 0 0 0-5-5z" />
+  </svg>
+);
+
+// Better Snapchat Path (Ghost)
+const SnapchatGhostIcon = ({ size = 20, strokeWidth = 1.5, color = "currentColor" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 2.5c-2.5 0-4.5 1.8-4.5 4.5v1.5c0 1.1-.9 2-2 2h-1c-1.1 0-2 .9-2 2v1c0 1.1.9 2 2 2h1c.6 0 1.1.2 1.5.6.4.4.6.9.6 1.5v.5c0 1.1.9 2 2 2h1.5c.8 0 1.5.7 1.5 1.5v.5c0 .3.2.5.5.5s.5-.2.5-.5v-.5c0-.8.7-1.5 1.5-1.5h1.5c1.1 0 2-.9 2-2v-.5c0-.6.2-1.1.6-1.5.4-.4.9-.6 1.5-.6h1c1.1 0 2-.9 2-2v-1c0-1.1-.9-2-2-2h-1c-1.1 0-2-.9-2-2V7c0-2.7-2-4.5-4.5-4.5z" />
+  </svg>
+);
+// Actually, let's just use the Lucide 'Ghost' icon if we want a ghost, but standard Snapchat logo is specific.
+// I will use a simplified path for Snapchat that looks decent or just rely on text if icon is too hard, but user wants icons.
+// Let's use a simple path for Snapchat.
+const SimpleSnapchatIcon = ({ size = 20, strokeWidth = 1.5, color = "currentColor" }) => (
+   <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 2.5c-2.8 0-5 2.2-5 5v1.5a2.5 2.5 0 0 0-2.5 2.5v1a2.5 2.5 0 0 0 2.5 2.5h.5c.3 0 .5.2.5.5v.5c0 .3.2.5.5.5h7c.3 0 .5-.2.5-.5v-.5c0-.3.2-.5.5-.5h.5a2.5 2.5 0 0 0 2.5-2.5v-1a2.5 2.5 0 0 0-2.5-2.5v-1.5c0-2.8-2.2-5-5-5z" />
+    </svg>
+);
+// Wait, I should just use the standard icons if possible. I'll stick to the ones I can find or just use a generic one if I can't find a perfect match.
+// Actually, Lucide doesn't have Snapchat. I will use a custom SVG for it.
+
 
 interface Post {
   id: number;
@@ -29,6 +108,7 @@ interface Section {
 interface FooterProps {
   locale: string;
   section?: Section;
+  settings?: any;
 }
 
 // Translation object
@@ -131,32 +211,91 @@ const animationVariants = {
   },
 };
 
-// Social media links
-const socialLinks = [
-  {
-    name: "Twitter",
-    url: "https://twitter.com/homehealers_sa",
-    icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/xbofKUrvfM.png",
-    ariaLabel: { ar: "تابعنا على تويتر", en: "Follow us on Twitter" },
-  },
-  {
-    name: "Facebook",
-    url: "https://facebook.com/homehealers.sa",
-    icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/ejCSBuhAsH.png",
-    ariaLabel: { ar: "تابعنا على فيسبوك", en: "Follow us on Facebook" },
-  },
-  {
-    name: "Instagram",
-    url: "https://instagram.com/homehealers.sa",
-    icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/Mok2MoGDLG.png",
-    ariaLabel: { ar: "تابعنا على انستغرام", en: "Follow us on Instagram" },
-  },
-];
 
-function Footer({ locale = "ar", section }: FooterProps) {
+function Footer({ locale = "ar", section, settings }: FooterProps) {
   const t =
     translations[locale as keyof typeof translations] || translations.ar;
   const isRTL = locale === "ar";
+
+  // Extract dynamic content from settings
+  const settingsData = settings?.data?.[0]?.setting;
+  const socialMedia = settingsData?.social || {};
+  const iosLink = settingsData?.ios_link;
+  const androidLink = settingsData?.android_link;
+
+  // Helper to get URL from social object or string
+  const getSocialUrl = (social: any) => {
+    if (typeof social === "string") return social;
+    if (typeof social === "object" && social?.url) return social.url;
+    return "";
+  };
+
+  // Helper to check if social should be shown
+  const shouldShowSocial = (social: any) => {
+    if (typeof social === "string") return true;
+    if (typeof social === "object" && social?.show === false) return false;
+    return true;
+  };
+
+  // Create dynamic social links from settings
+  const dynamicSocialLinks = [
+    {
+      name: "X",
+      key: "x",
+      url: getSocialUrl(socialMedia.x),
+      show: shouldShowSocial(socialMedia.x),
+      icon: X, // Using X icon for X platform
+      ariaLabel: { ar: "تابعنا على إكس", en: "Follow us on X" },
+    },
+    {
+      name: "Facebook",
+      key: "facebook",
+      url: getSocialUrl(socialMedia.facebook),
+      show: shouldShowSocial(socialMedia.facebook),
+      icon: Facebook,
+      ariaLabel: { ar: "تابعنا على فيسبوك", en: "Follow us on Facebook" },
+    },
+    {
+      name: "Instagram",
+      key: "instgram",
+      url: getSocialUrl(socialMedia.instgram),
+      show: shouldShowSocial(socialMedia.instgram),
+      icon: Instagram,
+      ariaLabel: { ar: "تابعنا على انستغرام", en: "Follow us on Instagram" },
+    },
+    {
+      name: "LinkedIn",
+      key: "linked_in",
+      url: getSocialUrl(socialMedia.linked_in),
+      show: shouldShowSocial(socialMedia.linked_in),
+      icon: Linkedin,
+      ariaLabel: { ar: "تابعنا على لينكد إن", en: "Follow us on LinkedIn" },
+    },
+    {
+      name: "YouTube",
+      key: "youtube",
+      url: getSocialUrl(socialMedia.youtube),
+      show: shouldShowSocial(socialMedia.youtube),
+      icon: Youtube,
+      ariaLabel: { ar: "تابعنا على يوتيوب", en: "Follow us on YouTube" },
+    },
+    {
+      name: "TikTok",
+      key: "tiktok",
+      url: getSocialUrl(socialMedia.tiktok),
+      show: shouldShowSocial(socialMedia.tiktok),
+      icon: TiktokIcon,
+      ariaLabel: { ar: "تابعنا على تيك توك", en: "Follow us on TikTok" },
+    },
+    {
+      name: "Snapchat",
+      key: "snapchat",
+      url: getSocialUrl(socialMedia.snapchat),
+      show: shouldShowSocial(socialMedia.snapchat),
+      icon: Ghost,
+      ariaLabel: { ar: "تابعنا على سناب شات", en: "Follow us on Snapchat" },
+    },
+  ].filter(item => item.url && item.show);
 
   // Extract dynamic content from section data
   const contactTitle = section?.title || t.contactTitle;
@@ -243,14 +382,14 @@ function Footer({ locale = "ar", section }: FooterProps) {
                 </p>
 
                 {/* Social Media Icons */}
-                <div className="flex gap-7 items-center">
-                  {socialLinks.map((social) => (
+                <div className="flex gap-4 items-center flex-wrap justify-center">
+                  {dynamicSocialLinks.map((social) => (
                     <motion.a
                       key={social.name}
                       href={social.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex w-10 h-10 p-2 items-center justify-center bg-[#62a0f6] rounded-xl hover:bg-[#4f8ae8] transition-colors"
+                      className="flex w-10 h-10 items-center justify-center bg-[#62a0f6] rounded-xl hover:bg-[#4f8ae8] transition-colors text-white"
                       variants={animationVariants.button}
                       whileHover="hover"
                       whileTap="tap"
@@ -260,17 +399,7 @@ function Footer({ locale = "ar", section }: FooterProps) {
                         ]
                       }
                     >
-                      <div className="w-6 h-6 flex justify-center items-center">
-                        <div
-                          className="bg-cover bg-no-repeat"
-                          style={{
-                            backgroundImage: `url(${social.icon})`,
-                            width:
-                              social.name === "Instagram" ? "14px" : "20px",
-                            height: "20px",
-                          }}
-                        />
-                      </div>
+                      <social.icon size={20} strokeWidth={1.5} />
                     </motion.a>
                   ))}
                 </div>
@@ -339,7 +468,7 @@ function Footer({ locale = "ar", section }: FooterProps) {
               <div className="flex flex-col gap-3 items-start">
                 {/* Google Play Button */}
                 <motion.a
-                  href="https://play.google.com/store/apps/details?id=com.homehealers.app"
+                  href={androidLink || "https://play.google.com/store/apps/details?id=com.homehealers.app"}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex w-full sm:w-[172px] px-5 py-4 gap-4 justify-center items-center bg-[#143087] rounded-xl hover:bg-[#0f2666] transition-colors"
@@ -361,7 +490,7 @@ function Footer({ locale = "ar", section }: FooterProps) {
 
                 {/* App Store Button */}
                 <motion.a
-                  href="https://apps.apple.com/sa/app/home-healers/id123456789"
+                  href={iosLink || "https://apps.apple.com/sa/app/home-healers/id123456789"}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex w-full sm:w-[172px] px-5 py-4 gap-4 justify-center items-center bg-[#143087] rounded-xl hover:bg-[#0f2666] transition-colors"
@@ -451,64 +580,25 @@ function Footer({ locale = "ar", section }: FooterProps) {
       {/* Bottom Section */}
       <section className="w-full bg-[#eff6fe]">
         {/* Social Media Links */}
-        <div className="w-full py-4 ">
+        {/* <div className="w-full py-4 ">
           <div className="flex flex-wrap justify-center items-center gap-6 max-w-[1200px] mx-auto px-4">
-            {[
-              {
-                image:
-                  "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/EGBeNfjh4v.png",
-                width: "56px",
-                height: "17px",
-                label: "Twitter",
-              },
-              {
-                image:
-                  "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/ZcLPTdQTEC.png",
-                width: "44px",
-                height: "44px",
-                label: "Facebook",
-              },
-              {
-                image:
-                  "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/2uanR5T9Rg.png",
-                width: "30px",
-                height: "36px",
-                label: "Instagram",
-              },
-              {
-                image:
-                  "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/Lqu4Zva9bZ.png",
-                width: "72px",
-                height: "32px",
-                label: "LinkedIn",
-              },
-              {
-                image:
-                  "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/jNgEQAgqyw.png",
-                width: "40px",
-                height: "24px",
-                label: "YouTube",
-              },
-            ].map((social) => (
-              <motion.span
-                key={social.label}
+            {dynamicSocialLinks.map((social) => (
+              <motion.a
+                key={social.name}
+                href={social.url}
+                target="_blank"
                 rel="noopener noreferrer"
-                className="hover:opacity-80 transition-opacity"
-                style={{
-                  width: social.width,
-                  height: social.height,
-                  backgroundImage: `url(${social.image})`,
-                  backgroundSize: "cover",
-                  backgroundRepeat: "no-repeat",
-                }}
+                className="flex items-center justify-center w-10 h-10 bg-[#62a0f6] rounded-xl hover:bg-[#4f8ae8] transition-colors text-white"
                 variants={animationVariants.button}
                 whileHover="hover"
                 whileTap="tap"
-                aria-label={`تابعنا على ${social.label}`}
-              />
+                aria-label={`تابعنا على ${social.name}`}
+              >
+                <social.icon size={20} strokeWidth={1.5} />
+              </motion.a>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* Copyright and Legal Links */}
         <div className="w-full border-t border-b border-[#1a191a] py-4">

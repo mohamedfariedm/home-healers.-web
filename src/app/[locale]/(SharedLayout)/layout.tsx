@@ -13,12 +13,13 @@ export default async function Layout({
   const footerSection = homeData?.data?.sections.find(
     (section: any) => section?.id === 6
   );
+  const settings = await ClientAPI.getSettings(locale);
 
   return (
     <>
       <Header locale={locale} />
       {children}
-      <Footer section={footerSection} locale={locale} />
+      <Footer settings={settings} section={footerSection} locale={locale} />
       <FloatingContact /> {/* 👈 Add here */}
     </>
   );
