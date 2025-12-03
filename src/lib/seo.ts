@@ -1,7 +1,6 @@
 export function createMetadata(seo: any, locale: string, path = "", defaults: any = {}) {
     const base = `https://home-healers.com`;
-    const canonical = seo?.canonical || `${base}${locale === "ar" ? "" : "/en"}${path}`;
-
+    const canonical = seo?.[locale]?.canonical || `${base}${locale === "ar" ? "" : "/en"}${path}`;
     const title = seo?.[locale]?.title || defaults.title || "Home Hellers";
     const description = seo?.[locale]?.description || defaults.description || "Home Hellers app";
     const keywords = seo?.[locale]?.keywords || defaults.keywords || "Home Hellers, services, healthcare, clinics";
