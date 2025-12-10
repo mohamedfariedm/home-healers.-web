@@ -1,8 +1,8 @@
 "use client";
 // @ts-ignore
 import confetti from "canvas-confetti";
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import ClientAPI from "@/app/api/api";
@@ -322,32 +322,143 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
   const contactTitle = section?.title || t.contactTitle;
   const contactDescription = section?.Posts?.[0]?.title || t.contactDescription;
 
-
-
+  // Modal state management
+  const [showModal, setShowModal] = useState(false);
   const celebrationRef = React.useRef<HTMLDivElement | null>(null);
 
-React.useEffect(() => {
-  if (!celebrationRef.current) return;
+  // Show modal on mount (only once per session)
+  useEffect(() => {
+    const hasSeenModal = sessionStorage.getItem('hasSeenCertificationModal');
+    if (!hasSeenModal) {
+      setShowModal(true);
+      sessionStorage.setItem('hasSeenCertificationModal', 'true');
+      
+      // Auto close after 10 seconds
+      const timer = setTimeout(() => {
+        setShowModal(false);
+      }, 10000);
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          fireCelebration(); // Trigger animation
-        }
-      });
-    },
-    { threshold: 1 }
-  );
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
-  observer.observe(celebrationRef.current);
+  // Close modal when clicking outside
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      setShowModal(false);
+    }
+  };
 
-  return () => observer.disconnect();
-}, []);
+  // Confetti animation when modal is shown
+  useEffect(() => {
+    if (showModal) {
+      fireCelebration();
+    }
+  }, [showModal]);
+
+  // Original intersection observer for footer section
+  React.useEffect(() => {
+    if (!celebrationRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            fireCelebration(); // Trigger animation
+          }
+        });
+      },
+      { threshold: 1 }
+    );
+
+    observer.observe(celebrationRef.current);
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <footer className="w-full mt-20">
-      {/* Certification/Award Celebration Section */}
+    <>
+      {/* Certification Modal Popup */}
+      {showModal&&
+      <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] flex  items-center justify-center p-4"
+            onClick={handleBackdropClick}
+          >
+            {/* Backdrop with transparent background */}
+            <div className="absolute inset-0 flex  items-center justify-center bg-black/10 backdrop-blur-sm" />
+            
+            {/* Modal Content */}
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="relative z-10 w-full max-w-[70%] sm:max-w-[70%] bg-white rounded-2xl shadow-2xl overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setShowModal(false)}
+                className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white rounded-full shadow-lg transition-colors"
+                aria-label={locale === "ar" ? "إغلاق" : "Close"}
+              >
+                <X className="w-5 h-5 text-[#143087]" />
+              </button>
+
+              {/* Modal Content */}
+              <div className="p-6 flex flex-col md:flex-row  items-center justify-center sm:p-8">
+                {/* Celebration Message */}
+                <div className="text-center mb-6">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#143087] mb-3">
+                    {locale === "ar" ? (
+                      <>
+                        نحن الفائزون بجائزة{" "}
+                        <span className="text-[#8bc34a]">MEA Business Awards 2025</span>
+                      </>
+                    ) : (
+                      <>
+                        We Are The Winners Of{" "}
+                        <span className="text-[#8bc34a]">MEA Business Awards 2025</span>
+                      </>
+                    )}
+                  </h2>
+                  
+                  <p className="text-base sm:text-lg text-[#1e1e1e] font-medium">
+                    {locale === "ar"
+                      ? "نفخر بحصولنا على جائزة أفضل مقدم رعاية صحية منزلية 2025 وجائزة التميز في العلاج الطبيعي 2025"
+                      : "We are proud to have won the Best Home Healthcare Provider 2025 and Excellence Award in Physical Therapy 2025"}
+                  </p>
+                </div>
+
+                {/* Certificate Image */}
+                <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden ">
+                  <Image
+                    src="/assets/images/certification.png"
+                    alt={
+                      locale === "ar"
+                        ? "شهادة MEA Business Awards 2025"
+                        : "MEA Business Awards 2025 Certificate"
+                    }
+                    fill
+                    className="object-contain p-4"
+                    priority
+                    quality={95}
+                  />
+                </div>
+
+              </div>
+            </motion.div>
+          </motion.div>
+      
+      </AnimatePresence>
+      }
+
+      <footer className="w-full mt-20">
+        {/* Certification/Award Celebration Section */}
       <section ref={celebrationRef} className="w-full mb-20 ">
         <div className="max-w-7xl mx-auto ">
           <motion.div
@@ -778,7 +889,8 @@ React.useEffect(() => {
           </div>
         </div>
       </section>
-    </footer>
+      </footer>
+    </>
   );
 }
 
