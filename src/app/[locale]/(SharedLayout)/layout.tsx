@@ -20,7 +20,7 @@ export default async function Layout({
       <Header locale={locale} />
       {children}
       <Footer settings={settings} section={footerSection} locale={locale} />
-      <FloatingContact /> {/* 👈 Add here */}
+      <FloatingContact settings={settings} locale={locale} />
     </>
   );
 }

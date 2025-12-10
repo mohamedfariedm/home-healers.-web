@@ -1,25 +1,44 @@
 "use client";
 
 import { Phone, MessageCircle } from "lucide-react";
-import { useParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 
-const contactInfo = {
-  phone: "966551172232",
-  whatsappMessage: {
-    ar: "مرحبا، لدي استفسار",
-    en: "Hello, I have a question",
-  },
+interface FloatingContactProps {
+  settings?: any;
+  locale?: string;
+}
+
+const whatsappMessage = {
+  ar: "مرحبا، لدي استفسار",
+  en: "Hello, I have a question",
 };
 
-export default function FloatingContact() {
-  const { locale } = useParams();
+// Helper function to format phone number for WhatsApp (remove leading 0 and add country code)
+const formatWhatsAppNumber = (phone: string) => {
+  if (!phone) return "";
+  const cleaned = phone.replace(/^0+/, ""); // Remove leading zeros
+  return `966${cleaned}`; // Add Saudi Arabia country code
+};
+
+export default function FloatingContact({
+  settings,
+  locale = "ar",
+}: FloatingContactProps) {
   const isArabic = locale === "ar";
 
-  const phoneNumber = contactInfo.phone;
-  const whatsappNumber = contactInfo.phone; // same number used for WhatsApp
-  const message = contactInfo.whatsappMessage[isArabic ? "ar" : "en"];
+  // Extract business info from settings
+  const settingsData = settings?.data?.[0]?.setting;
+  const businessInfo = settingsData?.business_info || {};
+
+  // Get phone numbers with fallbacks
+  const contactPhone = businessInfo.contact || "0118289771";
+  const whatsappPhone = businessInfo.whatsapp || "0118289771";
+
+  // Format phone numbers
+  const phoneNumber = formatWhatsAppNumber(contactPhone);
+  const whatsappNumber = formatWhatsAppNumber(whatsappPhone);
+
+  const message = whatsappMessage[isArabic ? "ar" : "en"];
   const encodedMsg = encodeURIComponent(message);
 
   return (
@@ -35,8 +54,7 @@ export default function FloatingContact() {
         aria-label="Chat on WhatsApp"
         className="group flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg transition-all duration-300 hover:scale-110 hover:bg-green-600"
       >
-        
-          <MessageCircle className="h-7 w-7" />
+        <MessageCircle className="h-7 w-7" />
       </Link>
 
       {/* ✅ Phone Floating Button */}

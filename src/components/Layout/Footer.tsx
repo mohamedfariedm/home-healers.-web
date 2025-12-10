@@ -4,10 +4,22 @@ import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import ClientAPI from "@/app/api/api";
-import { Twitter, Facebook, Instagram, Linkedin, Youtube, X,Ghost } from "lucide-react";
+import {
+  Twitter,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Youtube,
+  X,
+  Ghost,
+} from "lucide-react";
 
 // Custom Icons for TikTok and Snapchat since they might not be in all Lucide versions or for specific styling
-const TiktokIcon = ({ size = 20, strokeWidth = 1.5, color = "currentColor" }) => (
+const TiktokIcon = ({
+  size = 20,
+  strokeWidth = 1.5,
+  color = "currentColor",
+}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={size}
@@ -23,7 +35,11 @@ const TiktokIcon = ({ size = 20, strokeWidth = 1.5, color = "currentColor" }) =>
   </svg>
 );
 
-const SnapchatIcon = ({ size = 20, strokeWidth = 1.5, color = "currentColor" }) => (
+const SnapchatIcon = ({
+  size = 20,
+  strokeWidth = 1.5,
+  color = "currentColor",
+}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={size}
@@ -46,7 +62,11 @@ const SnapchatIcon = ({ size = 20, strokeWidth = 1.5, color = "currentColor" }) 
 );
 
 // Better Snapchat Path (Ghost)
-const SnapchatGhostIcon = ({ size = 20, strokeWidth = 1.5, color = "currentColor" }) => (
+const SnapchatGhostIcon = ({
+  size = 20,
+  strokeWidth = 1.5,
+  color = "currentColor",
+}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={size}
@@ -64,24 +84,27 @@ const SnapchatGhostIcon = ({ size = 20, strokeWidth = 1.5, color = "currentColor
 // Actually, let's just use the Lucide 'Ghost' icon if we want a ghost, but standard Snapchat logo is specific.
 // I will use a simplified path for Snapchat that looks decent or just rely on text if icon is too hard, but user wants icons.
 // Let's use a simple path for Snapchat.
-const SimpleSnapchatIcon = ({ size = 20, strokeWidth = 1.5, color = "currentColor" }) => (
-   <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke={color}
-      strokeWidth={strokeWidth}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 2.5c-2.8 0-5 2.2-5 5v1.5a2.5 2.5 0 0 0-2.5 2.5v1a2.5 2.5 0 0 0 2.5 2.5h.5c.3 0 .5.2.5.5v.5c0 .3.2.5.5.5h7c.3 0 .5-.2.5-.5v-.5c0-.3.2-.5.5-.5h.5a2.5 2.5 0 0 0 2.5-2.5v-1a2.5 2.5 0 0 0-2.5-2.5v-1.5c0-2.8-2.2-5-5-5z" />
-    </svg>
+const SimpleSnapchatIcon = ({
+  size = 20,
+  strokeWidth = 1.5,
+  color = "currentColor",
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 2.5c-2.8 0-5 2.2-5 5v1.5a2.5 2.5 0 0 0-2.5 2.5v1a2.5 2.5 0 0 0 2.5 2.5h.5c.3 0 .5.2.5.5v.5c0 .3.2.5.5.5h7c.3 0 .5-.2.5-.5v-.5c0-.3.2-.5.5-.5h.5a2.5 2.5 0 0 0 2.5-2.5v-1a2.5 2.5 0 0 0-2.5-2.5v-1.5c0-2.8-2.2-5-5-5z" />
+  </svg>
 );
 // Wait, I should just use the standard icons if possible. I'll stick to the ones I can find or just use a generic one if I can't find a perfect match.
 // Actually, Lucide doesn't have Snapchat. I will use a custom SVG for it.
-
 
 interface Post {
   id: number;
@@ -211,7 +234,6 @@ const animationVariants = {
   },
 };
 
-
 function Footer({ locale = "ar", section, settings }: FooterProps) {
   const t =
     translations[locale as keyof typeof translations] || translations.ar;
@@ -222,7 +244,48 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
   const socialMedia = settingsData?.social || {};
   const iosLink = settingsData?.ios_link;
   const androidLink = settingsData?.android_link;
+  const businessInfo = settingsData?.business_info || {};
 
+  // Helper function to format phone number for WhatsApp (remove leading 0 and add country code)
+  const formatWhatsAppNumber = (phone: string) => {
+    if (!phone) return "";
+    const cleaned = phone.replace(/^0+/, ""); // Remove leading zeros
+    return `966${cleaned}`; // Add Saudi Arabia country code
+  };
+
+  // Get business info with fallbacks
+  const whatsappNumber = businessInfo.whatsapp || "0118289771";
+  const contactPhone = businessInfo.contact || "0118289771";
+  const businessEmail = businessInfo.email || t.contact.email;
+  const businessAddress = businessInfo.address || t.contact.address;
+  const knownNumber = businessInfo.known_number || "217470";
+  const brandName = businessInfo.brand || "Home Healers";
+  const commercialRegistration = businessInfo.commercial_registration || "";
+  const healthLicense = businessInfo.health_license || "";
+
+  // Format brand registration text dynamically - returns array for multi-line display
+  const brandRegistrationText = (() => {
+    if (locale === "ar") {
+      return [
+        `العلامة التجارية ${brandName} مسجل بمعروف برقم ${knownNumber}`,
+        commercialRegistration && `سجل تجاري رقم: ${commercialRegistration}`,
+        healthLicense && `ترخيص وزارة الصحة رقم: ${healthLicense}`,
+      ].filter(Boolean) as string[];
+    } else {
+      return [
+        `${brandName} brand is registered with Maroof number ${knownNumber}`,
+        commercialRegistration &&
+          `Commercial Registration: ${commercialRegistration}`,
+        healthLicense && `Health Ministry License: ${healthLicense}`,
+      ].filter(Boolean) as string[];
+    }
+  })();
+
+  // Format copyright text dynamically
+  const copyrightText =
+    locale === "ar"
+      ? `© 2025 جميع الحقوق محفوظة | ${brandName}`
+      : `© 2025 All Rights Reserved | ${brandName}`;
   // Helper to get URL from social object or string
   const getSocialUrl = (social: any) => {
     if (typeof social === "string") return social;
@@ -295,7 +358,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
       icon: Ghost,
       ariaLabel: { ar: "تابعنا على سناب شات", en: "Follow us on Snapchat" },
     },
-  ].filter(item => item.url && item.show);
+  ].filter((item) => item.url && item.show);
 
   // Extract dynamic content from section data
   const contactTitle = section?.title || t.contactTitle;
@@ -333,9 +396,9 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
 
           {/* WhatsApp Button */}
           <motion.a
-            href={`https://wa.me/966551172232?text=${encodeURIComponent(
-              t.whatsappMessage
-            )}`}
+            href={`https://wa.me/${formatWhatsAppNumber(
+              whatsappNumber
+            )}?text=${encodeURIComponent(t.whatsappMessage)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex w-full sm:w-auto min-w-[200px] h-14 px-4 py-2 gap-2 justify-center items-center bg-[#12b669] rounded-xl text-white hover:bg-[#0ea55c] transition-colors"
@@ -370,9 +433,13 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                   <div className="w-[63px] h-[60px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/SKp7H4bUnm.png)] bg-cover bg-no-repeat" />
                   <div className="w-[57px] h-[72px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/PWe640v7e4.png)] bg-cover bg-no-repeat" />
                 </div>
-                <p className="text-xs font-light leading-4 text-[#1e1e1e] text-center max-w-[321px]">
-                  {t.brandRegistration}
-                </p>
+                <div className="flex flex-col gap-1 items-center text-xs font-light leading-4 text-[#1e1e1e] text-center max-w-[321px]">
+                  {brandRegistrationText.map((text, index) => (
+                    <p key={index} className="text-center">
+                      {text}
+                    </p>
+                  ))}
+                </div>
               </div>
 
               {/* Description and Social Links */}
@@ -468,7 +535,10 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
               <div className="flex flex-col gap-3 items-start">
                 {/* Google Play Button */}
                 <motion.a
-                  href={androidLink || "https://play.google.com/store/apps/details?id=com.homehealers.app"}
+                  href={
+                    androidLink ||
+                    "https://play.google.com/store/apps/details?id=com.homehealers.app"
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex w-full sm:w-[172px] px-5 py-4 gap-4 justify-center items-center bg-[#143087] rounded-xl hover:bg-[#0f2666] transition-colors"
@@ -490,7 +560,10 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
 
                 {/* App Store Button */}
                 <motion.a
-                  href={iosLink || "https://apps.apple.com/sa/app/home-healers/id123456789"}
+                  href={
+                    iosLink ||
+                    "https://apps.apple.com/sa/app/home-healers/id123456789"
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex w-full sm:w-[172px] px-5 py-4 gap-4 justify-center items-center bg-[#143087] rounded-xl hover:bg-[#0f2666] transition-colors"
@@ -524,51 +597,61 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
               <address className="flex flex-col gap-6 items-start not-italic">
                 {/* Address */}
                 <motion.a
-                  href="https://www.google.com/maps/search/الرياض+شارع+الامير+عبدالعزيز+بن+مساعد+بن+جلوي"
+                  href={`https://www.google.com/maps/search/${encodeURIComponent(
+                    businessAddress
+                  )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex gap-3 justify-start items-start hover:text-[#62a0f6] transition-colors"
                   variants={animationVariants.link}
                   whileHover="hover"
-                  aria-label="موقعنا على الخريطة"
+                  aria-label={
+                    locale === "ar"
+                      ? "موقعنا على الخريطة"
+                      : "Our location on map"
+                  }
                 >
                   <div className="w-6 h-6 flex-shrink-0 mt-0.5">
                     <div className="w-4 h-5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/KZx9WMQ2oO.png)] bg-cover bg-no-repeat ml-1" />
                   </div>
                   <span className="text-sm font-normal leading-5 text-[#1e1e1e] max-w-[180px]">
-                    {t.contact.address}
+                    {businessAddress}
                   </span>
                 </motion.a>
 
                 {/* Email */}
                 <motion.a
-                  href={`mailto:${t.contact.email}`}
+                  href={`mailto:${businessEmail}`}
                   className="flex gap-3 justify-start items-center hover:text-[#62a0f6] transition-colors"
                   variants={animationVariants.link}
                   whileHover="hover"
-                  aria-label="راسلنا عبر البريد الإلكتروني"
+                  aria-label={
+                    locale === "ar"
+                      ? "راسلنا عبر البريد الإلكتروني"
+                      : "Send us an email"
+                  }
                 >
                   <div className="w-6 h-6 flex-shrink-0">
                     <div className="w-5 h-4 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/YMvEXnJGd2.png)] bg-cover bg-no-repeat mt-1 ml-0.5" />
                   </div>
                   <span className="text-sm font-normal leading-5 text-[#1e1e1e]">
-                    {t.contact.email}
+                    {businessEmail}
                   </span>
                 </motion.a>
 
                 {/* Phone */}
                 <motion.a
-                  href={`tel:+966${t.contact.phone}`}
+                  href={`tel:+${formatWhatsAppNumber(contactPhone)}`}
                   className="flex gap-3 justify-start items-center hover:text-[#62a0f6] transition-colors"
                   variants={animationVariants.link}
                   whileHover="hover"
-                  aria-label="اتصل بنا"
+                  aria-label={locale === "ar" ? "اتصل بنا" : "Call us"}
                 >
                   <div className="w-6 h-6 flex-shrink-0">
                     <div className="w-5 h-5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/c4wQnrL1nf.png)] bg-cover bg-no-repeat mt-0.5 ml-0.5" />
                   </div>
                   <span className="text-sm font-normal leading-5 text-[#1e1e1e]">
-                    {t.contact.phone}
+                    {contactPhone}
                   </span>
                 </motion.a>
               </address>
@@ -624,7 +707,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
               </Link>
             </nav>
             <p className="text-base font-medium leading-6 text-[#1e1e1e] text-center">
-              {t.copyright}
+              {copyrightText}
             </p>
           </div>
         </div>
