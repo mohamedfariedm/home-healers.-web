@@ -1,8 +1,9 @@
 "use client";
-
+import confetti from "canvas-confetti";
 import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import ClientAPI from "@/app/api/api";
 import {
   Twitter,
@@ -34,77 +35,6 @@ const TiktokIcon = ({
     <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
   </svg>
 );
-
-const SnapchatIcon = ({
-  size = 20,
-  strokeWidth = 1.5,
-  color = "currentColor",
-}) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth={strokeWidth}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M10.65 21.32a8 8 0 0 1 2.7-20.51 4 4 0 0 0-6.4 6.4 8.88 8.88 0 0 1 3.7 14.11z" />
-    {/* This is a simplified representation, Snapchat logo is complex for simple stroke. 
-        Let's use a more accurate path or a bell/ghost shape if possible, 
-        but for now a generic path or the lucide 'Ghost' if available would be better. 
-        Actually, let's use a standard SVG path for Snapchat. */}
-    <path d="M16.88 20c.84-.24 1.6.5 2.12 1.15a.55.55 0 0 0 .78.09c.3-.23.68-.32 1.05-.24 1.12.24 1.17 1.95 1.17 2.25 0 .4-.32.75-.72.75h-18.56c-.4 0-.72-.35-.72-.75 0-.3.05-2.01 1.17-2.25.37-.08.75.01 1.05.24.24.18.57.15.78-.09.52-.65 1.28-1.39 2.12-1.15 1.17.33 1.91 1.65 2.7 2.65.16.21.48.23.67.05.6-.58 1.48-1.05 2.5-1.05s1.9.47 2.5 1.05c.19.18.51.16.67-.05.79-1 1.53-2.32 2.7-2.65z" />
-    <path d="M12 2a5 5 0 0 0-5 5v2a3 3 0 0 0-3 3v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1a3 3 0 0 0-3-3V7a5 5 0 0 0-5-5z" />
-  </svg>
-);
-
-// Better Snapchat Path (Ghost)
-const SnapchatGhostIcon = ({
-  size = 20,
-  strokeWidth = 1.5,
-  color = "currentColor",
-}) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth={strokeWidth}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M12 2.5c-2.5 0-4.5 1.8-4.5 4.5v1.5c0 1.1-.9 2-2 2h-1c-1.1 0-2 .9-2 2v1c0 1.1.9 2 2 2h1c.6 0 1.1.2 1.5.6.4.4.6.9.6 1.5v.5c0 1.1.9 2 2 2h1.5c.8 0 1.5.7 1.5 1.5v.5c0 .3.2.5.5.5s.5-.2.5-.5v-.5c0-.8.7-1.5 1.5-1.5h1.5c1.1 0 2-.9 2-2v-.5c0-.6.2-1.1.6-1.5.4-.4.9-.6 1.5-.6h1c1.1 0 2-.9 2-2v-1c0-1.1-.9-2-2-2h-1c-1.1 0-2-.9-2-2V7c0-2.7-2-4.5-4.5-4.5z" />
-  </svg>
-);
-// Actually, let's just use the Lucide 'Ghost' icon if we want a ghost, but standard Snapchat logo is specific.
-// I will use a simplified path for Snapchat that looks decent or just rely on text if icon is too hard, but user wants icons.
-// Let's use a simple path for Snapchat.
-const SimpleSnapchatIcon = ({
-  size = 20,
-  strokeWidth = 1.5,
-  color = "currentColor",
-}) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth={strokeWidth}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M12 2.5c-2.8 0-5 2.2-5 5v1.5a2.5 2.5 0 0 0-2.5 2.5v1a2.5 2.5 0 0 0 2.5 2.5h.5c.3 0 .5.2.5.5v.5c0 .3.2.5.5.5h7c.3 0 .5-.2.5-.5v-.5c0-.3.2-.5.5-.5h.5a2.5 2.5 0 0 0 2.5-2.5v-1a2.5 2.5 0 0 0-2.5-2.5v-1.5c0-2.8-2.2-5-5-5z" />
-  </svg>
-);
-// Wait, I should just use the standard icons if possible. I'll stick to the ones I can find or just use a generic one if I can't find a perfect match.
-// Actually, Lucide doesn't have Snapchat. I will use a custom SVG for it.
 
 interface Post {
   id: number;
@@ -232,6 +162,33 @@ const animationVariants = {
       },
     },
   },
+};
+
+
+const fireCelebration = () => {
+  const duration = 1500;
+  const end = Date.now() + duration;
+
+  const frame = () => {
+    confetti({
+      particleCount: 5,
+      angle: 60,
+      spread: 70,
+      origin: { x: 0 },
+    });
+    confetti({
+      particleCount: 5,
+      angle: 120,
+      spread: 70,
+      origin: { x: 1 },
+    });
+
+    if (Date.now() < end) {
+      requestAnimationFrame(frame);
+    }
+  };
+
+  frame();
 };
 
 function Footer({ locale = "ar", section, settings }: FooterProps) {
@@ -364,8 +321,114 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
   const contactTitle = section?.title || t.contactTitle;
   const contactDescription = section?.Posts?.[0]?.title || t.contactDescription;
 
+
+
+  const celebrationRef = React.useRef<HTMLDivElement | null>(null);
+
+React.useEffect(() => {
+  if (!celebrationRef.current) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          fireCelebration(); // Trigger animation
+        }
+      });
+    },
+    { threshold: 1 }
+  );
+
+  observer.observe(celebrationRef.current);
+
+  return () => observer.disconnect();
+}, []);
+
   return (
     <footer className="w-full mt-20">
+      {/* Certification/Award Celebration Section */}
+      <section ref={celebrationRef} className="w-full mb-20 ">
+        <div className="max-w-7xl mx-auto ">
+          <motion.div
+            className="flex md:flex-row flex-col  items-center gap-8"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            {/* Celebration Message */}
+            <div className="text-center space-y-4">
+              <motion.div
+                initial={{ scale: 0.8 }}
+                whileInView={{ scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, type: "spring" }}
+                className="inline-block"
+              >
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#143087] mb-4">
+                  {locale === "ar" ? (
+                    <>
+                      نحن الفائزون بجائزة{" "}
+                      <span className="text-[#8bc34a]">MEA Business Awards 2025</span>
+                    </>
+                  ) : (
+                    <>
+                      We Are The Winners Of{" "}
+                      <span className="text-[#8bc34a]">MEA Business Awards 2025</span>
+                    </>
+                  )}
+                </h2>
+              </motion.div>
+              
+              <motion.p
+                className="text-lg sm:text-xl text-[#1e1e1e] font-medium max-w-3xl mx-auto"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+              >
+                {locale === "ar"
+                  ? "نفخر بحصولنا على جائزة أفضل مقدم رعاية صحية منزلية 2025 وجائزة التميز في العلاج الطبيعي 2025"
+                  : "We are proud to have won the Best Home Healthcare Provider 2025 and Excellence Award in Physical Therapy 2025"}
+              </motion.p>
+            </div>
+
+            {/* Certificate Image */}
+            <motion.div
+              className="relative w-full max-w-[500px] sm:max-w-[600px] md:max-w-[700px]"
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4, duration: 0.6, type: "spring" }}
+              whileHover={{ scale: 1.02 }}
+            >
+              <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl   bg-white">
+                <Image
+                  src="/assets/images/certification.png"
+                  alt={
+                    locale === "ar"
+                      ? "شهادة MEA Business Awards 2025"
+                      : "MEA Business Awards 2025 Certificate"
+                  }
+                  fill
+                  className="object-contain p-4"
+                  priority
+                  quality={95}
+                />
+                
+                {/* Decorative Glow Effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-[#8bc34a]/10 pointer-events-none"></div>
+              </div>
+
+              {/* Decorative Corner Elements */}
+              <div className="absolute -top-4 -left-4 w-12 h-12 bg-[#8bc34a] rounded-full opacity-20 blur-xl"></div>
+              <div className="absolute -bottom-4 -right-4 w-12 h-12 bg-[#62a0f6] rounded-full opacity-20 blur-xl"></div>
+            </motion.div>
+
+          </motion.div>
+        </div>
+      </section>
+
       {/* Contact Section */}
       <section className="w-full py-6 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 xl:py-[75px] bg-[#ebfdf2]">
         <div className="flex flex-col lg:flex-row w-full gap-4 sm:gap-6 lg:gap-12 justify-between items-center max-w-7xl mx-auto">
@@ -659,6 +722,8 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
           </div>
         </div>
       </section>
+
+
 
       {/* Bottom Section */}
       <section className="w-full bg-[#eff6fe]">
