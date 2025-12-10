@@ -1,4 +1,5 @@
 "use client";
+// @ts-ignore
 import confetti from "canvas-confetti";
 import React from "react";
 import { motion } from "framer-motion";
