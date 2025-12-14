@@ -49,10 +49,10 @@ async function page({ params: { locale } }: props) {
         </h1>
 
         <HeroBanner
-          title={"عن هوم هيليرز"}
+          title={t("breadcrumb.title")}
           breadcrumbItems={[
-            { label: "الرئيسية" },
-            { label: "عن هوم هيليرز", isActive: true },
+            { label: t("home") },
+            { label: t("breadcrumb.name"), isActive: true },
           ]}
         />
 

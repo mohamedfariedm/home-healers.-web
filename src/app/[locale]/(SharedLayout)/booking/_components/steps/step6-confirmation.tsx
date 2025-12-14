@@ -8,6 +8,7 @@ import {
   Download,
   Home,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { BookingData } from "@/types/booking";
 import { Document, Page, Text, View, StyleSheet, Font, pdf } from "@react-pdf/renderer";
 import { toast } from "sonner";
@@ -225,6 +226,7 @@ const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => (
 );
 
 export default function Step6Confirmation({ bookingData, reservationId }: Step6Props) {
+  const { t } = useTranslation("booking");
   const handleDownloadReceipt = async () => {
     try {
       const blob = await pdf(<ReceiptDocument bookingData={bookingData} reservationId={reservationId} />).toBlob();
@@ -236,7 +238,7 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
       URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error("Error generating PDF:", error);
-      toast.error("فشل في إنشاء إيصال الحجز. حاول مرة أخرى.");
+      toast.error(t("step6.pdfError") || "فشل في إنشاء إيصال الحجز. حاول مرة أخرى.");
     }
   };
 
@@ -253,14 +255,13 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
           <CheckCircle className="w-12 h-12 text-green-600" />
         </div>
         <h1 className="text-3xl font-bold text-green-800 mb-4">
-          تم تأكيد حجزك بنجاح!
+          {t("step6.successTitle")}
         </h1>
         <p className="text-lg text-gray-600 mb-6">
-          شكراً لك لاستخدام منصة هوم هيلرز. سيتم التواصل معك قريباً لتأكيد موعد
-          الزيارة.
+          {t("step6.successMessage")}
         </p>
         <div className="inline-flex items-center gap-2 px-6 py-3 bg-green-50 border border-green-200 rounded-lg">
-          <span className="text-green-800 font-medium">رقم الحجز:</span>
+          <span className="text-green-800 font-medium">{t("step6.reservationNumber")}:</span>
           <span className="text-green-600 font-bold">HH-{reservationId || Date.now()}</span>
         </div>
       </div>
@@ -271,39 +272,39 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
         <div className="bg-white rounded-2xl shadow-md p-6">
           <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
             <User className="w-6 h-6 text-[#62a0f6]" />
-            تفاصيل الحجز
+            {t("step6.bookingDetails")}
           </h2>
           <div className="space-y-4">
             <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
               <span className="font-medium">
-                {bookingData.selectedPatients?.map((p) => p.name).join(", ") || "غير محدد"}
+                {bookingData.selectedPatients?.map((p) => p.name).join(", ") || t("step5.notSpecified")}
               </span>
-              <span className="text-gray-600">اسم المريض</span>
+              <span className="text-gray-600">{t("step5.patientName")}</span>
             </div>
             <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
               <span className="font-medium">
-                {bookingData.selectedDoctor?.name || "غير محدد"}
+                {bookingData.selectedDoctor?.name || t("step5.notSpecified")}
               </span>
-              <span className="text-gray-600">الطبيب المعالج</span>
+              <span className="text-gray-600">{t("step6.treatingDoctor")}</span>
             </div>
             <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
               <span className="font-medium">
-                {bookingData.selectedDoctor?.specialist || "غير محدد"}
+                {bookingData.selectedDoctor?.specialist || t("step5.notSpecified")}
               </span>
-              <span className="text-gray-600">التخصص</span>
+              <span className="text-gray-600">{t("step6.specialty")}</span>
             </div>
             <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
               <span className="font-medium">
-                {bookingData.healthInfo.painLocation || "غير محدد"}
+                {bookingData.healthInfo.painLocation || t("step5.notSpecified")}
               </span>
-              <span className="text-gray-600">المشكلة الصحية</span>
+              <span className="text-gray-600">{t("step5.healthIssue")}</span>
             </div>
             {bookingData.selectedPackage && (
               <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
                 <span className="font-medium text-blue-800">
-                  {bookingData.selectedPackage.name || "غير محدد"}
+                  {bookingData.selectedPackage.name || t("step5.notSpecified")}
                 </span>
-                <span className="text-blue-600">الباقة المختارة</span>
+                <span className="text-blue-600">{t("step5.selectedPackage")}</span>
               </div>
             )}
           </div>
@@ -313,21 +314,21 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
         <div className="bg-white rounded-2xl shadow-md p-6">
           <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
             <MapPin className="w-6 h-6 text-[#62a0f6]" />
-            الموقع والمواعيد
+            {t("step6.locationAndSchedule")}
           </h2>
           <div className="space-y-4">
             <div className="p-3 bg-gray-50 rounded-lg">
-              <h3 className="font-medium text-gray-600 mb-1">موقع الزيارة</h3>
+              <h3 className="font-medium text-gray-600 mb-1">{t("step5.visitLocation")}</h3>
               <p className="font-medium">
-                {bookingData.selectedLocation?.title || "غير محدد"}
+                {bookingData.selectedLocation?.title || t("step5.notSpecified")}
               </p>
               <p className="text-sm text-gray-600">
-                {bookingData.selectedLocation?.address || "غير محدد"}
+                {bookingData.selectedLocation?.address || t("step5.notSpecified")}
               </p>
             </div>
             <div className="p-3 bg-gray-50 rounded-lg">
               <h3 className="font-medium text-gray-600 mb-2">
-                المواعيد المحجوزة
+                {t("step6.bookedAppointments")}
               </h3>
               <div className="space-y-2">
                 {bookingData.selectedDates.map((dateTime, index) => (
@@ -347,51 +348,51 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
         <div className="bg-white rounded-2xl shadow-md p-6">
           <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
             <CreditCard className="w-6 h-6 text-[#62a0f6]" />
-            ملخص الدفع
+            {t("step6.paymentSummary")}
           </h2>
           <div className="space-y-3 p-4 bg-[#eff6fe] rounded-lg">
             <div className="flex justify-between">
               <span className="font-medium">
-                {bookingData.pricing.subTotal} ريال
+                {bookingData.pricing.subTotal} {t("step5.currency")}
               </span>
-              <span className="text-gray-600">المبلغ الأساسي</span>
+              <span className="text-gray-600">{t("step5.baseAmount")}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-medium">
-                {bookingData.pricing.fees} ريال
+                {bookingData.pricing.fees} {t("step5.currency")}
               </span>
-              <span className="text-gray-600">رسوم الزيارة</span>
+              <span className="text-gray-600">{t("step6.visitFees")}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-medium">
-                {bookingData.pricing.tax} ريال
+                {bookingData.pricing.tax} {t("step5.currency")}
               </span>
-              <span className="text-gray-600">الضريبة</span>
+              <span className="text-gray-600">{t("step6.tax")}</span>
             </div>
             {bookingData.pricing.discount > 0 && (
               <div className="flex justify-between text-green-600">
                 <span className="font-medium">
-                  -{bookingData.pricing.discount} ريال
+                  -{bookingData.pricing.discount} {t("step5.currency")}
                 </span>
-                <span>الخصم</span>
+                <span>{t("step5.discount")}</span>
               </div>
             )}
             <div className="border-t border-gray-300 pt-3">
               <div className="flex justify-between text-lg font-bold">
                 <span className="text-[#62a0f6]">
-                  {bookingData.pricing.total} ريال
+                  {bookingData.pricing.total} {t("step5.currency")}
                 </span>
-                <span>المبلغ الإجمالي</span>
+                <span>{t("step5.totalAmount")}</span>
               </div>
             </div>
           </div>
           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-green-800 text-sm">
-              ✅ تم الدفع بنجاح عبر{" "}
+              ✅ {t("step6.paymentSuccess")} {t("step6.via")}{" "}
               {bookingData.paymentMethod === "cash_on_delivery"
-                ? "الدفع عند الاستلام"
+                ? t("step5.cashOnDelivery")
                 : bookingData.paymentMethod === "telr"
-                ? "Telr Payment"
+                ? t("step5.telrPayment")
                 : "Apple Pay"}
             </p>
           </div>
@@ -399,16 +400,16 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
 
         {/* Next Steps */}
         <div className="bg-white rounded-2xl shadow-md p-6">
-          <h2 className="text-xl font-bold mb-6">الخطوات التالية</h2>
+          <h2 className="text-xl font-bold mb-6">{t("step6.nextSteps")}</h2>
           <div className="space-y-4">
             <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
               <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                 1
               </div>
               <div>
-                <h3 className="font-medium">تأكيد الموعد</h3>
+                <h3 className="font-medium">{t("step6.confirmAppointment")}</h3>
                 <p className="text-sm text-gray-600">
-                  سيتم التواصل معك خلال 24 ساعة لتأكيد الموعد
+                  {t("step6.confirmAppointmentDesc")}
                 </p>
               </div>
             </div>
@@ -417,9 +418,9 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
                 2
               </div>
               <div>
-                <h3 className="font-medium">تحضير الزيارة</h3>
+                <h3 className="font-medium">{t("step6.prepareVisit")}</h3>
                 <p className="text-sm text-gray-600">
-                  تأكد من توفر جميع الأدوية والتقارير الطبية
+                  {t("step6.prepareVisitDesc")}
                 </p>
               </div>
             </div>
@@ -428,9 +429,9 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
                 3
               </div>
               <div>
-                <h3 className="font-medium">يوم الزيارة</h3>
+                <h3 className="font-medium">{t("step6.visitDay")}</h3>
                 <p className="text-sm text-gray-600">
-                  سيصل الطبيب في الموعد المحدد إلى الموقع المختار
+                  {t("step6.visitDayDesc")}
                 </p>
               </div>
             </div>
@@ -445,22 +446,22 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
           className="flex items-center justify-center gap-2 px-8 py-3 border border-[#62a0f6] text-[#62a0f6] rounded-lg hover:bg-[#eff6fe] transition-colors"
         >
           <Download className="w-5 h-5" />
-          تحميل الإيصال
+          {t("step6.downloadReceipt")}
         </button>
         <button
           onClick={handleGoHome}
           className="flex items-center justify-center gap-2 px-8 py-3 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] transition-colors"
         >
           <Home className="w-5 h-5" />
-          العودة للرئيسية
+          {t("step6.goHome")}
         </button>
       </div>
 
       {/* Contact Info */}
       <div className="text-center p-6 bg-gray-50 rounded-lg">
-        <h3 className="font-bold mb-2">هل تحتاج مساعدة؟</h3>
+        <h3 className="font-bold mb-2">{t("step6.needHelp")}</h3>
         <p className="text-gray-600 mb-4">
-          فريق خدمة العملاء متاح على مدار الساعة لمساعدتك
+          {t("step6.customerService")}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <a

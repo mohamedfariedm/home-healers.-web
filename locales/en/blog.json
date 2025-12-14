@@ -3,6 +3,11 @@
   "name": "Blogs",
   "name2": "Blog Detailes",
   "title": "Nonda Coffee Blog",
+  "hero": {
+    "title": "Blog",
+    "breadcrumb": "Blog",
+    "home": "Home"
+  },
   "description": "Welcome to the Nonda Coffee Blog, where we take you on an exciting journey into the world of coffee and its community. Discover the latest articles, tips, and news that will inspire and enrich your knowledge about coffee and everything related to it.",
   
   "articles": {

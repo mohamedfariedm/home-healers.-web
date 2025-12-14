@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 import type { BookingData, Location, Patient, Doctor } from "@/types/booking"
 
 // Import all step components
@@ -39,6 +40,7 @@ export default function BookingFlow({
   countriesData,
   statesData,
 }: BookingFlowProps) {
+  const { t } = useTranslation("booking")
   const [currentStep, setCurrentStep] = useState<BookingStep>(1)
   
   const [isLoading, setIsLoading] = useState(false)
@@ -97,12 +99,12 @@ export default function BookingFlow({
   const [filteredDoctors, setFilteredDoctors] = useState(doctorsData?.data || [])
 
   const steps = [
-    { step: "الخطوة الأولى", desc: "(اختيار التخصص)", active: currentStep >= 1 },
-    { step: "الخطوة الثانية", desc: "(اختيار الطبيب)", active: currentStep >= 2 },
-    { step: "الخطوة الثالثة", desc: "(الموقع والوقت)", active: currentStep >= 3 },
-    { step: "الخطوة الرابعة", desc: "(بيانات المريض)", active: currentStep >= 4 },
-    { step: "الخطوة الخامسة", desc: "(الدفع)", active: currentStep >= 5 },
-    { step: "التأكيد", desc: "(تأكيد الحجز)", active: currentStep >= 6 },
+    { step: t("steps.step1"), desc: t("steps.step1Desc"), active: currentStep >= 1 },
+    { step: t("steps.step2"), desc: t("steps.step2Desc"), active: currentStep >= 2 },
+    { step: t("steps.step3"), desc: t("steps.step3Desc"), active: currentStep >= 3 },
+    { step: t("steps.step4"), desc: t("steps.step4Desc"), active: currentStep >= 4 },
+    { step: t("steps.step5"), desc: t("steps.step5Desc"), active: currentStep >= 5 },
+    { step: t("steps.step6"), desc: t("steps.step6Desc"), active: currentStep >= 6 },
   ]
 
 useEffect(() => {
@@ -212,7 +214,7 @@ const calculatePricing = () => {
     const newLocation = { ...location, id: location.id || Date.now() }
     setSavedLocations((prev) => [...prev, newLocation])
     updateBookingData({ selectedLocation: newLocation })
-    toast.success("تم حفظ الموقع بنجاح")
+    toast.success(t("messages.locationSaved"))
   }
 
   const updateSavedLocations = (locations: Location[]) => {
@@ -232,7 +234,7 @@ const calculatePricing = () => {
         selectedPatients: bookingData.selectedPatients.map((p) => (p.id === patient.id ? patient : p)),
         patients: bookingData.patients.map((p) => (p.id === patient.id ? patient : p)),
       })
-      toast.success("تم تعديل المريض بنجاح")
+      toast.success(t("messages.patientUpdated"))
     } else {
       const newPatient = { ...patient, id: patient.id || Date.now() }
       setSavedPatients((prev) => [...prev, newPatient])
@@ -261,8 +263,8 @@ const calculatePricing = () => {
     switch (step) {
       case 1:
         if (!bookingData.selectedCategory && !bookingData.selectedService) {
-          setError("يرجى اختيار التخصص أو الخدمة")
-          toast.error("يرجى اختيار التخصص أو الخدمة")
+          setError(t("validation.selectCategoryOrService"))
+          toast.error(t("validation.selectCategoryOrService"))
           return false
         }
         break
@@ -270,39 +272,39 @@ const calculatePricing = () => {
         if (!bookingData.selectedDoctor) {
           console.log(bookingData.selectedDoctor);
           
-          setError("يرجى اختيار الطبيب")
-          toast.error("يرجى اختيار الطبيب")
+          setError(t("validation.selectDoctor"))
+          toast.error(t("validation.selectDoctor"))
           return false
         }
         break
       case 3:
         if (!bookingData.selectedLocation) {
-          setError("يرجى اختيار الموقع")
-          toast.error("يرجى اختيار الموقع")
+          setError(t("validation.selectLocation"))
+          toast.error(t("validation.selectLocation"))
           return false
         }
        if (bookingData.selectedDates.length < 1) {
-          setError("يرجى اختيار موعد واحد على الأقل")
-          toast.error("يرجى اختيار موعد واحد على الأقل")
+          setError(t("validation.selectAtLeastOneAppointment"))
+          toast.error(t("validation.selectAtLeastOneAppointment"))
           return false
         }
         break
       case 4:
         if (bookingData.selectedPatients.length === 0) {
-          setError("يرجى اختيار مريض واحد على الأقل")
-          toast.error("يرجى اختيار مريض واحد على الأقل")
+          setError(t("validation.selectAtLeastOnePatient"))
+          toast.error(t("validation.selectAtLeastOnePatient"))
           return false
         }
         if (!bookingData.healthInfo.painLocation.trim()) {
-          setError("يرجى تحديد مكان الألم أو المشكلة الصحية")
-          toast.error("يرجى تحديد مكان الألم أو المشكلة الصحية")
+          setError(t("validation.specifyPainLocation"))
+          toast.error(t("validation.specifyPainLocation"))
           return false
         }
         break
       case 5:
         if (!bookingData.paymentMethod) {
-          setError("يرجى اختيار طريقة الدفع")
-          toast.error("يرجى اختيار طريقة الدفع")
+          setError(t("validation.selectPaymentMethod"))
+          toast.error(t("validation.selectPaymentMethod"))
           return false
         }
         break
@@ -399,12 +401,12 @@ if (bookingData.selectedPackage) {
 console.log("response", response);
 
     setReservationId(response.data[0].id)
-    toast.success("تم إنشاء الحجز بنجاح، يرجى إكمال الدفع")
+    toast.success(t("messages.bookingCreated"))
     setCurrentStep(5)
   } catch (error: any) {
     console.error(error)
-    setError(error.message || "حدث خطأ أثناء إنشاء الحجز")
-    toast.error("فشل في إنشاء الحجز")
+    setError(error.message || t("messages.error"))
+    toast.error(t("messages.bookingFailed"))
   } finally {
     setIsLoading(false)
   }
@@ -417,13 +419,13 @@ const completePayment = async () => {
     setError(null);
 
     if (!reservationId) {
-      throw new Error("معرف الحجز غير متوفر");
+      throw new Error(t("messages.reservationIdMissing"));
     }
 
     if (bookingData.paymentMethod === "cash_on_delivery") {
       // Cash on Delivery: No API call needed, just confirm the booking
       localStorage.removeItem("bookingData");
-      toast.success("تم تأكيد الحجز بنجاح! سيتم الدفع عند الاستلام.");
+      toast.success(t("messages.bookingConfirmed"));
       setCurrentStep(6); // Proceed to confirmation
     } else
       //  if (bookingData.paymentMethod === "telr") 
@@ -441,8 +443,8 @@ const completePayment = async () => {
     // }
   } catch (error: any) {
     console.error("Payment Error:", error);
-    setError(error.message || "حدث خطأ أثناء تأكيد الدفع");
-    toast.error(error.message || "فشل في تأكيد الدفع");
+    setError(error.message || t("messages.error"));
+    toast.error(error.message || t("messages.paymentFailed"));
   } finally {
     setIsLoading(false);
   }

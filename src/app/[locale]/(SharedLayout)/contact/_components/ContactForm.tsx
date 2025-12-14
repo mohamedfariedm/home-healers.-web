@@ -3,8 +3,11 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRightIcon } from "lucide-react";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function ContactSection() {
+  const { t } = useTranslation("contactUs");
+  
   // You can add form state handling here if needed
   const [formData, setFormData] = useState({
     name: "",
@@ -23,7 +26,7 @@ export default function ContactSection() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Add your submit logic here (e.g. API call)
-    alert("تم ارسال الرسالة بنجاح!");
+    alert(t("successMessage"));
   };
 
   return (
@@ -42,26 +45,26 @@ export default function ContactSection() {
         transition={{ delay: 0.2 }}
       >
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-[#1e1e1e] mb-2">اتصل بنا</h2>
-          <p className="text-sm text-[#736b7a]">من فضلك ادخل البيانات التالية لتتمكن من ارسال طلبك</p>
+          <h2 className="text-2xl font-bold text-[#1e1e1e] mb-2">{t("formSection.title")}</h2>
+          <p className="text-sm text-[#736b7a]">{t("formSection.subtitle")}</p>
         </div>
 
         <form className="w-full max-w-[590px] space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-2">
-            <label htmlFor="name" className="block text-start text-sm font-medium text-[#1e1e1e]">الاسم</label>
+            <label htmlFor="name" className="block text-start text-sm font-medium text-[#1e1e1e]">{t("formSection.name")}</label>
             <input
               id="name"
               name="name"
               value={formData.name}
               onChange={handleChange}
               className="bg-white w-full border border-[#d0d5dd] rounded-md px-4 py-3 text-sm text-start"
-              placeholder="ادخل الاسم كاملا"
+              placeholder={t("formSection.namePlaceholder")}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="email" className="block text-start text-sm font-medium text-[#1e1e1e]">البريد الالكتروني</label>
+            <label htmlFor="email" className="block text-start text-sm font-medium text-[#1e1e1e]">{t("formSection.emailLabel")}</label>
             <input
               id="email"
               name="email"
@@ -69,12 +72,12 @@ export default function ContactSection() {
               value={formData.email}
               onChange={handleChange}
               className="bg-white w-full border border-[#d0d5dd] rounded-md px-4 py-3 text-sm text-start"
-              placeholder="ادخل البريد الالكتروني"
+              placeholder={t("formSection.emailPlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="phone" className="block text-start text-sm font-medium text-[#1e1e1e]">رقم الهاتف</label>
+            <label htmlFor="phone" className="block text-start text-sm font-medium text-[#1e1e1e]">{t("formSection.phoneLabel")}</label>
             <div className="flex items-center border border-[#d0d5dd] rounded-md overflow-hidden">
               <div className="bg-[#e8eaf3]/50 px-3 py-2 flex items-center gap-2">
                 <img src="https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/SUr7AzvBDd.png" className="w-6 h-6" alt="flag" />
@@ -87,21 +90,21 @@ export default function ContactSection() {
                 value={formData.phone}
                 onChange={handleChange}
                 className="bg-white flex-1 px-4 py-3 text-sm text-start"
-                placeholder="رقم الهاتف"
+                placeholder={t("formSection.phonePlaceholder")}
                 required
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="message" className="block text-start text-sm font-medium text-[#1e1e1e]">الرسالة</label>
+            <label htmlFor="message" className="block text-start text-sm font-medium text-[#1e1e1e]">{t("formSection.messageLabel")}</label>
             <textarea
               id="message"
               name="message"
               value={formData.message}
               onChange={handleChange}
               className="w-full bg-white border border-[#d0d5dd] rounded-md px-4 py-3 text-sm text-start h-40"
-              placeholder="الرسالة"
+              placeholder={t("formSection.messagePlaceholder")}
               required
             />
           </div>
@@ -111,7 +114,7 @@ export default function ContactSection() {
             className="w-full bg-[#143087] hover:scale-105 text-white py-3 rounded-md flex justify-center items-center gap-2 hover:bg-[#0f2d6a] transition-colors duration-1000"
           >
             
-            <span className="text-lg font-medium">ارسال رسالتك</span>
+            <span className="text-lg font-medium">{t("formSection.submitButton")}</span>
             <ArrowLeft className="w-6 h-6" />
           </button>
         </form>
@@ -127,17 +130,17 @@ export default function ContactSection() {
         {[
           {
             icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/fxFV5KXUD4.png",
-            title: "قم بزيارتنا",
+            title: t("contactInfo.visitUs"),
             description: "الرياض - شارع الامير عبدالعزيز بن مساعد بن جلوي",
           },
           {
             icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/RKCBiHeaWM.png",
-            title: "أرسلنا عبر الايميل",
+            title: t("contactInfo.sendEmail"),
             description: "customer.service@home-healers.com",
           },
           {
             icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/pyxgUkH7d4.png",
-            title: "قم بالاتصال بنا",
+            title: t("contactInfo.callUs"),
             description: "0551172232",
           },
         ].map(({ icon, title, description }, i) => (

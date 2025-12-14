@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { MapPin, Calendar, Clock, Plus, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import type { BookingData, Location } from "@/types/booking";
 
 interface Step3Props {
@@ -21,18 +22,19 @@ export default function Step3LocationTime({
   onPrev,
   onOpenLocationPicker,
 }: Step3Props) {
+  const { t } = useTranslation("booking");
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
 
   const timeSlots = [
-    { time: "09:00", period: "morning", label: "9:00 صباحاً" },
-    { time: "10:00", period: "morning", label: "10:00 صباحاً" },
-    { time: "11:00", period: "morning", label: "11:00 صباحاً" },
-    { time: "14:00", period: "afternoon", label: "2:00 مساءً" },
-    { time: "15:00", period: "afternoon", label: "3:00 مساءً" },
-    { time: "16:00", period: "afternoon", label: "4:00 مساءً" },
-    { time: "19:00", period: "evening", label: "7:00 مساءً" },
-    { time: "20:00", period: "evening", label: "8:00 مساءً" },
+    { time: "09:00", period: "morning", label: `9:00 ${t("step3.morning")}` },
+    { time: "10:00", period: "morning", label: `10:00 ${t("step3.morning")}` },
+    { time: "11:00", period: "morning", label: `11:00 ${t("step3.morning")}` },
+    { time: "14:00", period: "afternoon", label: `2:00 ${t("step3.afternoon")}` },
+    { time: "15:00", period: "afternoon", label: `3:00 ${t("step3.afternoon")}` },
+    { time: "16:00", period: "afternoon", label: `4:00 ${t("step3.afternoon")}` },
+    { time: "19:00", period: "evening", label: `7:00 ${t("step3.evening")}` },
+    { time: "20:00", period: "evening", label: `8:00 ${t("step3.evening")}` },
   ];
 
   // Determine sessions count from package or user selection
@@ -40,18 +42,18 @@ export default function Step3LocationTime({
 
   const handleLocationSelect = (location: Location) => {
     updateBookingData({ selectedLocation: location });
-    toast.success("تم اختيار الموقع بنجاح");
+    toast.success(t("step3.locationSelected"));
   };
 
   const handleAddDateTime = () => {
     if (!selectedDate || !selectedTime) {
-      toast.error("يرجى اختيار التاريخ والوقت");
+      toast.error(t("step3.selectDateAndTime"));
       return;
     }
 
     // Check if date is already selected
     if (bookingData.selectedDates.some((d) => d.date === selectedDate)) {
-      toast.error("هذا التاريخ تم اختياره بالفعل");
+      toast.error(t("step3.dateAlreadySelected"));
       return;
     }
 
@@ -71,30 +73,30 @@ export default function Step3LocationTime({
 
       setSelectedDate("");
       setSelectedTime("");
-      toast.success("تم إضافة الموعد بنجاح");
+      toast.success(t("step3.appointmentAdded"));
     }
   };
 
   const handleRemoveDateTime = (index: number) => {
     const newDates = bookingData.selectedDates.filter((_, i) => i !== index);
     updateBookingData({ selectedDates: newDates });
-    toast.info("تم إزالة الموعد");
+    toast.info(t("step3.appointmentRemoved"));
   };
 
   const handleSessionsCountChange = (count: number) => {
     if (!bookingData.selectedPackage) {
       updateBookingData({ sessionsCount: count });
-      toast.info(`تم تحديد عدد الجلسات: ${count}`);
+      toast.info(`${t("step3.sessionsCountSet")}: ${count}`);
     }
   };
 
   const handleNext = () => {
     if (!bookingData.selectedLocation) {
-      toast.error("يرجى اختيار الموقع");
+      toast.error(t("step3.selectLocationFirst"));
       return;
     }
     if (bookingData.selectedDates.length < 1) {
-  toast.error("يرجى اختيار موعد واحد على الأقل");
+  toast.error(t("step3.selectAtLeastOneAppointment"));
   return;
 }
     onNext();
@@ -106,29 +108,29 @@ export default function Step3LocationTime({
       <div className="bg-white rounded-2xl shadow-md p-6">
         <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
           <MapPin className="w-6 h-6 text-[#62a0f6]" />
-          اختيار موقع الزيارة
+          {t("step3.selectLocation")}
         </h2>
 
         {/* Current Selected Location */}
         {bookingData.selectedLocation ? (
           <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <h3 className="font-semibold text-green-800 mb-1">الموقع المختار:</h3>
+            <h3 className="font-semibold text-green-800 mb-1">{t("step3.selectedLocation")}:</h3>
             <p className="text-green-700">{bookingData.selectedLocation.title}</p>
             <p className="text-sm text-green-600">{bookingData.selectedLocation.address}</p>
             <p className="text-sm text-green-600">{bookingData.selectedLocation.city}, {bookingData.selectedLocation.country}</p>
           </div>
         ) : (
           <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-            <p className="text-gray-600">لم يتم اختيار موقع بعد</p>
-            <p className="text-sm text-gray-500">اختر موقعًا من المواقع المحفوظة أو أضف موقعًا جديدًا</p>
+            <p className="text-gray-600">{t("step3.noLocationSelected")}</p>
+            <p className="text-sm text-gray-500">{t("step3.addLocation")}</p>
           </div>
         )}
 
         {/* Saved Locations */}
         <div className="mb-6">
-          <h3 className="font-semibold mb-4">المواقع المحفوظة</h3>
+          <h3 className="font-semibold mb-4">{t("step3.selectLocation")}</h3>
           {savedLocations.length === 0 ? (
-            <p className="text-gray-600">لا توجد مواقع محفوظة</p>
+            <p className="text-gray-600">{t("step3.noLocationSelected")}</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {savedLocations.map((location) => (
@@ -156,7 +158,7 @@ export default function Step3LocationTime({
           className="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-[#62a0f6] transition-colors flex items-center justify-center gap-2"
         >
           <Plus className="w-5 h-5" />
-          إضافة موقع جديد
+          {t("step3.addLocation")}
         </button>
       </div>
 
@@ -169,10 +171,10 @@ export default function Step3LocationTime({
 
         {/* Sessions Count */}
         <div className="mb-6">
-          <label className="block font-semibold mb-3">عدد الجلسات</label>
+          <label className="block font-semibold mb-3">{t("step3.sessionsCount")}</label>
           {bookingData.selectedPackage ? (
             <p className="text-sm text-gray-600">
-              عدد الجلسات محدد بواسطة الباقة: {sessionsCount} جلسة
+              {t("step3.sessionsCount")}: {sessionsCount}
             </p>
           ) : (
             <div className="flex gap-3">
@@ -194,7 +196,7 @@ export default function Step3LocationTime({
           {bookingData.selectedDates.length < 1 && (
   <div className="mt-3 flex items-center gap-2 text-blue-600">
     <AlertCircle className="w-5 h-5" />
-    <p className="text-sm">اختر موعدًا واحدًا على الأقل</p>
+    <p className="text-sm">{t("step3.selectAtLeastOneAppointment")}</p>
   </div>
 )}
         </div>
@@ -202,7 +204,7 @@ export default function Step3LocationTime({
         {/* Date Selection */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
-            <label className="block font-semibold mb-3">اختر التاريخ</label>
+            <label className="block font-semibold mb-3">{t("step3.selectDate")}</label>
             <input
               type="date"
               value={selectedDate}
@@ -213,13 +215,13 @@ export default function Step3LocationTime({
           </div>
 
           <div>
-            <label className="block font-semibold mb-3">اختر الوقت</label>
+            <label className="block font-semibold mb-3">{t("step3.selectTime")}</label>
             <select
               value={selectedTime}
               onChange={(e) => setSelectedTime(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#62a0f6]"
             >
-              <option value="">اختر الوقت</option>
+              <option value="">{t("step3.selectTime")}</option>
               {timeSlots.map((slot) => (
                 <option key={slot.time} value={slot.time}>
                   {slot.label}
@@ -236,13 +238,13 @@ export default function Step3LocationTime({
           className="w-full p-3 bg-[#62a0f6] text-white rounded-lg hover:bg-[#5090e6] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
         >
           <Plus className="w-5 h-5" />
-          إضافة موعد
+          {t("step3.addDateTime")}
         </button>
 
         {/* Selected Dates */}
         {bookingData.selectedDates.length > 0 && (
           <div className="mt-6">
-            <h3 className="font-semibold mb-4">المواعيد المختارة</h3>
+            <h3 className="font-semibold mb-4">{t("step3.appointments")}</h3>
             <div className="space-y-3">
               {bookingData.selectedDates.map((dateTime, index) => (
                 <div
@@ -261,7 +263,7 @@ export default function Step3LocationTime({
                     onClick={() => handleRemoveDateTime(index)}
                     className="text-red-600 hover:text-red-800"
                   >
-                    حذف
+                    {t("step3.remove")}
                   </button>
                 </div>
               ))}
@@ -276,14 +278,14 @@ export default function Step3LocationTime({
           onClick={onPrev}
           className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
         >
-          السابق
+          {t("step2.previous")}
         </button>
         <button
           onClick={handleNext}
           disabled={!bookingData.selectedLocation || bookingData.selectedDates.length < 1}
           className="px-6 py-3 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
-          التالي
+          {t("step2.next")}
         </button>
       </div>
     </div>

@@ -31,6 +31,7 @@ async function page({
 }: {
   params: { locale: "ar" | "en"; blogID: string };
 }) {
+  const { t } = await initTranslations(locale, ["blog"]);
   const { data } = await ClientAPI.getSingleBlog(blogID, locale);
 
   return (
@@ -73,11 +74,11 @@ async function page({
           {/* Center Content */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
             <div className="text-white text-[24px] font-semibold leading-[32px]">
-              المدونة
+              {t("hero.title", { ns: "blog" })}
             </div>
             <div className="mt-2 flex justify-center items-center gap-2">
               <span className="text-[#62a0f6] text-sm font-semibold">
-                المدونة
+                {t("hero.breadcrumb", { ns: "blog" })}
               </span>
               <div
                 className="w-4 h-4 bg-no-repeat bg-cover"
@@ -86,7 +87,9 @@ async function page({
                     "url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/5HzeZiBmtr.png)",
                 }}
               />
-              <span className="text-white text-sm font-semibold">الرئيسية</span>
+              <span className="text-white text-sm font-semibold">
+                {t("hero.home", { ns: "blog" })}
+              </span>
             </div>
           </div>
 

@@ -4,7 +4,7 @@ import ThemeProvider from "./theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import ClientComponentsAuthSessionProvider from "./client-components-auth-session-provider";
 
-const i18nNamespaces = [ "homepage", "common", "contactUs", "blog", "complaints","products","faq","expo","doctor-apply"];
+const i18nNamespaces = [ "homepage", "common", "contactUs", "blog", "complaints","products","faq","expo","doctor-apply","booking"];
 
 export default async function GlobalProvider({
   children,

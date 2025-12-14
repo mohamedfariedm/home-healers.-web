@@ -86,11 +86,11 @@ async function page({ params: { locale } }: props) {
             {/* Center Content */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
               <div className="text-white text-[24px] font-semibold leading-[32px]">
-                المدونة
+                {t("hero.title")}
               </div>
               <div className="mt-2 flex justify-center items-center gap-2">
                 <span className="text-[#62a0f6] text-sm font-semibold">
-                  المدونة
+                  {t("hero.breadcrumb")}
                 </span>
                 <div
                   className="w-4 h-4 bg-no-repeat bg-cover"
@@ -100,7 +100,7 @@ async function page({ params: { locale } }: props) {
                   }}
                 />
                 <span className="text-white text-sm font-semibold">
-                  الرئيسية
+                  {t("hero.home")}
                 </span>
               </div>
             </div>

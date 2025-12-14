@@ -12,7 +12,7 @@
   },
   "home": "Home",
   "about": "About Home Healers",
-  "services": "Our Services",
+  "servic": "Our Services",
   "products": "Medical Products",
   "blogs": "Blog",
   "contact": "Contact Us",
@@ -27,5 +27,37 @@
   "a11y": {
     "open_menu": "Open menu",
     "close_menu": "Close menu"
+  },
+  "breadcrumb": {
+    "about": "About Home Healers",
+    "services": "Our Services"
+  },
+  "services": {
+    "hero": {
+      "title": "Our Services",
+      "breadcrumb": "Our Services",
+      "home": "Home"
+    }
+  },
+  "booking": {
+    "hero": {
+      "title": "Book Your Session",
+      "breadcrumb": "Book Your Session",
+      "home": "Home"
+    },
+    "steps": {
+      "step1": "Step 1",
+      "step1Desc": "(Select Specialty)",
+      "step2": "Step 2",
+      "step2Desc": "(Select Doctor)",
+      "step3": "Step 3",
+      "step3Desc": "(Location & Time)",
+      "step4": "Step 4",
+      "step4Desc": "(Patient Info)",
+      "step5": "Step 5",
+      "step5Desc": "(Payment)",
+      "step6": "Confirmation",
+      "step6Desc": "(Confirm Booking)"
+    }
   }
 }

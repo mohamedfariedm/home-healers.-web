@@ -29,5 +29,9 @@
   "sustainability_description": "We protect the environment through eco-friendly farming practices and reducing our carbon footprint.",
 
   "community_empowerment_title": "Community Empowerment",
-  "community_empowerment_description": "We strive to empower coffee-growing regions by improving infrastructure, providing education, and creating job opportunities."
+  "community_empowerment_description": "We strive to empower coffee-growing regions by improving infrastructure, providing education, and creating job opportunities.",
+  "breadcrumb": {
+    "title": "About Home Healers",
+    "name": "About Home Healers"
+  }
 }

@@ -26,7 +26,7 @@ export default async function ServicesPage({
 }: {
   params: { locale: string };
 }) {
-  const { t } = await initTranslations(locale, ["aboutUs"]);
+  const { t } = await initTranslations(locale, ["common"]);
   const servicesData = await ClientAPI.getAllServices(locale);
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data[0]?.setting?.seo["services"];
@@ -76,11 +76,11 @@ export default async function ServicesPage({
           {/* Center Content */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
             <div className="text-white text-[24px] font-semibold leading-[32px]">
-              خدماتنا
+              {t("services.hero.title", { ns: "common" })}
             </div>
             <div className="mt-2 flex justify-center items-center gap-2">
               <span className="text-[#62a0f6] text-sm font-semibold">
-                خدماتنا
+                {t("services.hero.breadcrumb", { ns: "common" })}
               </span>
               <div
                 className="w-4 h-4 bg-no-repeat bg-cover"
@@ -89,7 +89,9 @@ export default async function ServicesPage({
                     "url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/5HzeZiBmtr.png)",
                 }}
               />
-              <span className="text-white text-sm font-semibold">الرئيسية</span>
+              <span className="text-white text-sm font-semibold">
+                {t("services.hero.home", { ns: "common" })}
+              </span>
             </div>
           </div>
 

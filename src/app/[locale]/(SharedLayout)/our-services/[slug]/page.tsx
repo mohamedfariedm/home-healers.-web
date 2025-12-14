@@ -73,7 +73,7 @@ export async function generateMetadata({
 }
 
 async function page({ params: { locale, slug } }: props) {
-  const { t } = await initTranslations(locale, ["aboutUs"]);
+  const { t } = await initTranslations(locale, ["common"]);
   const servicesData = await ClientAPI.getAllServices(locale);
 
   const settings = await ClientAPI.getSettings(locale);
@@ -139,11 +139,11 @@ async function page({ params: { locale, slug } }: props) {
             {/* Center Content */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
               <div className="text-white text-[24px] font-semibold leading-[32px]">
-                خدماتنا
+                {t("services.hero.title", { ns: "common" })}
               </div>
               <div className="mt-2 flex justify-center items-center gap-2">
                 <span className="text-[#62a0f6] text-sm font-semibold">
-                  خدماتنا
+                  {t("services.hero.breadcrumb", { ns: "common" })}
                 </span>
                 <div
                   className="w-4 h-4 bg-no-repeat bg-cover"
@@ -153,7 +153,7 @@ async function page({ params: { locale, slug } }: props) {
                   }}
                 />
                 <span className="text-white text-sm font-semibold">
-                  الرئيسية
+                  {t("services.hero.home", { ns: "common" })}
                 </span>
               </div>
             </div>

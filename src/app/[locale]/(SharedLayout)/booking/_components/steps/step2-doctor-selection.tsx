@@ -3,6 +3,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { Search, Star, Clock, User, Filter, MapPin } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "next/navigation";
 import type { BookingData, Doctor, Package } from "@/types/booking";
 
@@ -53,6 +54,7 @@ export default function Step2DoctorSelection({
   onOpenProfile,
   isLoading,
 }: Step2Props) {
+  const { t } = useTranslation("booking");
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const searchParams = useSearchParams();
@@ -112,7 +114,7 @@ export default function Step2DoctorSelection({
         sessionsCount: selectedPkg.sessions_count 
       });
       
-      toast.success(`تم اختيار الباقة: ${selectedPkg.name}`);
+      toast.success(`${t("step2.packageSelected")}: ${selectedPkg.name}`);
     } else {
       console.warn("❌ Step2 - Package not found with ID:", pkgId, "Available IDs:", packagesData.data.map((p: Package) => p.id));
     }
@@ -155,12 +157,12 @@ export default function Step2DoctorSelection({
         [key]: value,
       },
     });
-    toast.info("تم تحديث الفلاتر");
+    toast.info(t("step2.filtersUpdated"));
   };
 
   const handleDoctorSelect = (doctor: any) => {
     updateBookingData({ selectedDoctor: doctor });
-    toast.success(`تم اختيار الطبيب: ${doctor?.name ?? ""}`);
+    toast.success(`${t("step2.doctorSelected")}: ${doctor?.name ?? ""}`);
     onNext();
   };
 
@@ -174,14 +176,14 @@ const handlePackageSelect = (pkg: Package) => {
       selectedPackage: null,
       sessionsCount: 1 // Reset to default
     });
-    toast.info(`تم إلغاء اختيار الباقة: ${pkg.name}`);
+    toast.info(`${t("step2.packageUnselected")}: ${pkg.name}`);
   } else {
     // Otherwise → select it and update sessions count
     updateBookingData({ 
       selectedPackage: pkg,
       sessionsCount: pkg.sessions_count || 1
     });
-    toast.success(`تم اختيار الباقة: ${pkg.name}`);
+    toast.success(`${t("step2.packageSelected")}: ${pkg.name}`);
   }
 };
 
@@ -281,11 +283,11 @@ console.log("packagesData",packagesData?.data);
           <div className="relative">
             <input
               type="text"
-              placeholder="ابحث عن طبيب أو عيادة..."
+              placeholder={t("step2.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               className="w-full p-4 pr-12 border border-gray-300 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6]"
-              aria-label="البحث عن طبيب أو عيادة"
+              aria-label={t("step2.searchLabel")}
             />
             <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           </div>
@@ -294,41 +296,41 @@ console.log("packagesData",packagesData?.data);
             <button
               onClick={() => setShowFilters((s) => !s)}
               className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-              aria-label="فتح أو إغلاق الفلاتر"
+              aria-label={t("step2.toggleFilters")}
             >
               <Filter className="w-4 h-4" />
-              فلترة النتائج
+              {t("step2.filters")}
             </button>
 
             <select
               value={bookingData.searchFilters.city}
               onChange={(e) => handleFilterChange("city", e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg"
-              aria-label="اختيار المدينة"
+              aria-label={t("step2.city")}
             >
-              <option value="">جميع المدن</option>
-              <option value="riyadh">الرياض</option>
-              <option value="jeddah">جدة</option>
-              <option value="dammam">الدمام</option>
+              <option value="">{t("step2.allCities")}</option>
+              <option value="riyadh">{t("step2.riyadh")}</option>
+              <option value="jeddah">{t("step2.jeddah")}</option>
+              <option value="dammam">{t("step2.dammam")}</option>
             </select>
 
             <select
               value={bookingData.searchFilters.specialty}
               onChange={(e) => handleFilterChange("specialty", e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg"
-              aria-label="اختيار التخصص"
+              aria-label={t("step2.specialty")}
             >
-              <option value="">جميع التخصصات</option>
+              <option value="">{t("step2.allSpecialties")}</option>
               {bookingData.selectedCategory ? (
                 <option value={bookingData.selectedCategory.name}>
                   {bookingData.selectedCategory.name}
                 </option>
               ) : (
                 <>
-                  <option value="علاج طبيعي">علاج طبيعي</option>
-                  <option value="عظام">عظام</option>
-                  <option value="أعصاب">أعصاب</option>
-                  <option value="أطفال">أطفال</option>
+                  <option value="علاج طبيعي">{t("step2.physiotherapy")}</option>
+                  <option value="عظام">{t("step2.orthopedics")}</option>
+                  <option value="أعصاب">{t("step2.neurology")}</option>
+                  <option value="أطفال">{t("step2.pediatrics")}</option>
                 </>
               )}
             </select>
@@ -337,12 +339,12 @@ console.log("packagesData",packagesData?.data);
               value={bookingData.searchFilters.experience}
               onChange={(e) => handleFilterChange("experience", e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg"
-              aria-label="اختيار سنوات الخبرة"
+              aria-label={t("step2.experience")}
             >
-              <option value="">سنوات الخبرة</option>
-              <option value="2">أكثر من سنتين</option>
-              <option value="5">أكثر من 5 سنوات</option>
-              <option value="10">أكثر من 10 سنوات</option>
+              <option value="">{t("step2.experienceYears")}</option>
+              <option value="2">{t("step2.moreThan2")}</option>
+              <option value="5">{t("step2.moreThan5")}</option>
+              <option value="10">{t("step2.moreThan10")}</option>
             </select>
           </div>
 
@@ -350,7 +352,7 @@ console.log("packagesData",packagesData?.data);
             <div className="p-4 bg-gray-50 rounded-lg">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">التقييم</label>
+                  <label className="block text-sm font-medium mb-2">{t("step2.rating")}</label>
                   <div className="flex gap-2">
                     {[5, 4, 3, 2, 1].map((rating) => (
                       <button
@@ -361,7 +363,7 @@ console.log("packagesData",packagesData?.data);
                             ? "border-[#62a0f6] bg-[#eff6fe]"
                             : "border-gray-300 hover:bg-gray-50"
                         }`}
-                        aria-label={`تصفية حسب التقييم ${rating} نجوم`}
+                        aria-label={`${t("step2.filterByRating")} ${rating}`}
                       >
                         <span className="text-sm">{rating}</span>
                         <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
@@ -371,11 +373,11 @@ console.log("packagesData",packagesData?.data);
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">نطاق السعر</label>
+                  <label className="block text-sm font-medium mb-2">{t("step2.priceRange")}</label>
                   <div className="flex gap-2">
                     <input
                       type="number"
-                      placeholder="من"
+                      placeholder={t("step2.from")}
                       value={(bookingData.searchFilters.priceRange ?? [0, 1000])[0]}
                       onChange={(e) =>
                         handleFilterChange("priceRange", [
@@ -384,11 +386,11 @@ console.log("packagesData",packagesData?.data);
                         ])
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                      aria-label="الحد الأدنى للسعر"
+                      aria-label={t("step2.minPrice")}
                     />
                     <input
                       type="number"
-                      placeholder="إلى"
+                      placeholder={t("step2.to")}
                       value={(bookingData.searchFilters.priceRange ?? [0, 1000])[1]}
                       onChange={(e) =>
                         handleFilterChange("priceRange", [
@@ -397,7 +399,7 @@ console.log("packagesData",packagesData?.data);
                         ])
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                      aria-label="الحد الأقصى للسعر"
+                      aria-label={t("step2.maxPrice")}
                     />
                   </div>
                 </div>
@@ -411,9 +413,9 @@ console.log("packagesData",packagesData?.data);
         {/* Packages Sidebar */}
         <div className="w-full lg:w-1/4">
           <div className="bg-white rounded-2xl shadow-md p-6">
-            <h3 className="text-lg font-bold mb-4">الباقات المتاحة</h3>
+            <h3 className="text-lg font-bold mb-4">{t("step2.packages")}</h3>
             {isPackagesEmpty ? (
-              <p className="text-gray-600 text-center">لا توجد باقات متاحة</p>
+              <p className="text-gray-600 text-center">{t("step2.noPackages")}</p>
             ) : (
               <div className="space-y-3">
                 {packagesData?.data?.map((pkg: Package) => {
@@ -430,7 +432,7 @@ console.log("packagesData",packagesData?.data);
         ? "border-[#62a0f6] bg-[#eff6fe]"
         : "border-gray-200 hover:border-[#62a0f6]"
     }`}
-    aria-label={`اختيار الباقة ${pkg.name}`}
+    aria-label={`${t("step2.selectPackage")} ${pkg.name}`}
   >
     {/* Image */}
     {pkg.image?.length > 0 && (
@@ -447,9 +449,9 @@ console.log("packagesData",packagesData?.data);
 
     {/* Price Section */}
     <div className="flex justify-between items-center">
-      <span className="text-lg font-bold text-[#62a0f6]">{pkg.price} ريال</span>
+      <span className="text-lg font-bold text-[#62a0f6]">{pkg.price} {t("step2.price")}</span>
       {pkg.discount && (
-        <span className="text-sm text-green-600">بدلا من <span className="text-sm text-gray-400 line-through ms-1">{pkg.discount}</span> </span>
+        <span className="text-sm text-green-600">{t("step2.insteadOf")} <span className="text-sm text-gray-400 line-through ms-1">{pkg.discount}</span> </span>
       )}
     </div>
   </button>
@@ -464,8 +466,8 @@ console.log("packagesData",packagesData?.data);
         {/* Doctors List */}
         <div className="w-full lg:w-3/4">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold">نتائج البحث</h2>
-            <span className="text-gray-600">({filteredDoctors.length} طبيب)</span>
+            <h2 className="text-xl font-bold">{t("step2.results")}</h2>
+            <span className="text-gray-600">({filteredDoctors.length} {t("step2.doctorsCount")})</span>
           </div>
 
           {isLoading ? (
@@ -474,12 +476,12 @@ console.log("packagesData",packagesData?.data);
             </div>
           ) : isDoctorsEmpty ? (
             <div className="text-center p-6 text-gray-600">
-              لا توجد أطباء متاحين وفقًا للفلاتر المحددة. حاول تعديل الفلاتر أو العودة لاختيار تخصص آخر.
+              {t("step2.noDoctors")}
               <button
                 onClick={onPrev}
                 className="mt-4 px-6 py-3 bg-[#62a0f6] text-white rounded-lg hover:bg-[#5090e6]"
               >
-                العودة إلى اختيار التخصص
+                {t("step2.backToSpecialty")}
               </button>
             </div>
           ) : (
@@ -519,7 +521,7 @@ console.log("packagesData",packagesData?.data);
                                 {doctor?.name}
                               </h3>
                               <p className="text-sm text-gray-600">
-                                {doctor?.doctor_role ?? doctor?.specialist ?? "غير محدد"}
+                                {doctor?.doctor_role ?? doctor?.specialist ?? t("step2.doctorRole")}
                               </p>
                             </div>
                             <div className="flex">
@@ -539,48 +541,48 @@ console.log("packagesData",packagesData?.data);
                             <div className="flex items-center gap-2">
                               <Clock className="w-4 h-4 text-gray-400" />
                               <span className="text-sm">
-                                الخبرة: {toNum(doctor?.experience, 0)} سنوات
+                                {t("step2.experienceLabel")}: {toNum(doctor?.experience, 0)} {t("step2.years")}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <User className="w-4 h-4 text-gray-400" />
                               <span className="text-sm">
-                                التخصص: {doctor?.specialist ?? doctor?.department ?? "غير محدد"}
+                                {t("step2.specialtyLabel")}: {doctor?.specialist ?? doctor?.department ?? t("step2.doctorRole")}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <MapPin className="w-4 h-4 text-gray-400" />
-                              <span className="text-sm">العيادة: {doctor?.clinic_name ?? "-"}</span>
+                              <span className="text-sm">{t("step2.clinic")}: {doctor?.clinic_name ?? "-"}</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <Clock className="w-4 h-4 text-gray-400" />
                               <span className="text-sm">
-                                المواعيد: {doctor?.from ?? "--:--"} - {doctor?.to ?? "--:--"}
+                                {t("step2.appointments")}: {doctor?.from ?? "--:--"} - {doctor?.to ?? "--:--"}
                               </span>
                             </div>
                           </div>
 
                           <div className="flex justify-between items-center mt-4">
                             <div className="text-right">
-                              <span className="text-sm text-gray-600">السعر: </span>
+                              <span className="text-sm text-gray-600">{t("step2.priceLabel")}: </span>
                               <span className="text-lg font-bold text-[#62a0f6]">
-                                {toNum(doctor?.session_price, 0)} ريال
+                                {toNum(doctor?.session_price, 0)} {t("step2.price")}
                               </span>
                             </div>
                             <div className="flex gap-3">
                               <button
                                 onClick={() => onOpenProfile(doctor)}
                                 className="px-4 py-2 border border-[#62a0f6] text-[#62a0f6] rounded-lg hover:bg-[#eff6fe] transition-colors"
-                                aria-label={`عرض ملف الطبيب ${doctor?.name ?? ""}`}
+                                aria-label={`${t("step2.viewProfile")} ${doctor?.name ?? ""}`}
                               >
-                                عرض الملف
+                                {t("step2.viewProfile")}
                               </button>
                               <button
                                 onClick={() => handleDoctorSelect(doctor)}
                                 className="px-6 py-2 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] transition-colors"
-                                aria-label={`اختيار الطبيب ${doctor?.name ?? ""}`}
+                                aria-label={`${t("step2.selectDoctor")} ${doctor?.name ?? ""}`}
                               >
-                                اختيار الطبيب
+                                {t("step2.selectDoctor")}
                               </button>
                             </div>
                           </div>
@@ -600,23 +602,23 @@ console.log("packagesData",packagesData?.data);
         <button
           onClick={onPrev}
           className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-          aria-label="الرجوع إلى الخطوة السابقة"
+          aria-label={t("step2.previous")}
         >
-          السابق
+          {t("step2.previous")}
         </button>
         <button
           onClick={() => {
             if (!bookingData.selectedDoctor) {
-              toast.error("يرجى اختيار طبيب للمتابعة");
+              toast.error(t("step2.selectDoctorFirst"));
               return;
             }
             onNext();
           }}
           className="px-6 py-3 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] disabled:bg-gray-400 disabled:cursor-not-allowed"
           disabled={!bookingData.selectedDoctor}
-          aria-label="الانتقال إلى الخطوة التالية"
+          aria-label={t("step2.next")}
         >
-          التالي
+          {t("step2.next")}
         </button>
       </div>
     </div>

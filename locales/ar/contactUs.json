@@ -33,5 +33,28 @@
     "email": "info@nondacoffee.com",
     "response_time": "الرد خلال 24 ساعة.",
     "support_message": "لا تتردد في مراسلتنا لمزيد من المعلومات أو الدعم."
+  },
+  "hero": {
+    "title": "تواصل معنا",
+    "breadcrumb": "تواصل معنا",
+    "home": "الرئيسية"
+  },
+  "formSection": {
+    "title": "اتصل بنا",
+    "subtitle": "من فضلك ادخل البيانات التالية لتتمكن من ارسال طلبك",
+    "name": "الاسم",
+    "namePlaceholder": "ادخل الاسم كاملا",
+    "emailLabel": "البريد الالكتروني",
+    "emailPlaceholder": "ادخل البريد الالكتروني",
+    "phoneLabel": "رقم الهاتف",
+    "phonePlaceholder": "رقم الهاتف",
+    "messageLabel": "الرسالة",
+    "messagePlaceholder": "الرسالة",
+    "submitButton": "ارسال رسالتك"
+  },
+  "contactInfo": {
+    "visitUs": "قم بزيارتنا",
+    "sendEmail": "أرسلنا عبر الايميل",
+    "callUs": "قم بالاتصال بنا"
   }
 }

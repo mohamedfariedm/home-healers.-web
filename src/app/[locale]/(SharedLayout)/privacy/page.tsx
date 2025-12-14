@@ -18,7 +18,7 @@ export async function generateMetadata({ params: { locale } }: Props) {
 }
 
 export default async function ConditionsPage({ params: { locale } }: Props) {
-  const { t } = await initTranslations(locale, ["common"]);
+  const { t } = await initTranslations(locale, ["common", "privacy"]);
   const settings = await ClientAPI.getSettings(locale);
 
   const pages = settings?.data[0]?.setting;
@@ -36,9 +36,9 @@ export default async function ConditionsPage({ params: { locale } }: Props) {
         <HeroBanner
           title={conditions?.title}
           breadcrumbItems={[
-            { label: locale === "ar" ? "الرئيسية" : "Home" },
+            { label: t("home", { ns: "common" }) },
             {
-              label: locale === "ar" ? "الشروط العامة" : "General Conditions",
+              label: t("breadCrumb", { ns: "privacy" }),
               isActive: true,
             },
           ]}

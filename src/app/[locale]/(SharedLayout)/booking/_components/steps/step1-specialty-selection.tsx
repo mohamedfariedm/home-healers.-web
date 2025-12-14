@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Search, ArrowRight, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import type { BookingData, Category, Service, Location } from "@/types/booking";
 import { useRouter } from "next/navigation";
 import ClientAPI from "@/app/api/api";
@@ -17,6 +18,7 @@ export default function Step1SpecialtySelection({
   updateBookingData,
   onNext,
 }: Step1Props) {
+  const { t } = useTranslation("booking");
   const router = useRouter();
 
   /* --------------------- STATE --------------------- */
@@ -94,9 +96,9 @@ export default function Step1SpecialtySelection({
     if (catServices.length) {
       setSelectedType("service");
       setSearchQuery("");
-      toast.success(`تم اختيار التخصص: ${category.name}`);
+      toast.success(`${t("step1.categorySelected")}: ${category.name}`);
     } else {
-      toast.success(`تم اختيار التخصص: ${category.name}`);
+      toast.success(`${t("step1.categorySelected")}: ${category.name}`);
       onNext();
     }
   };
@@ -137,7 +139,7 @@ export default function Step1SpecialtySelection({
       const res = await ClientAPI.createQueiqReservation(quickForm, "ar");
 
       if (res?.success || res?.data) {
-        toast.success("تم إرسال طلب الحجز السريع بنجاح!");
+        toast.success(t("step1.quickBookingSuccess") || "تم إرسال طلب الحجز السريع بنجاح!");
         setIsQuickBookingOpen(false);
         setQuickForm({
           pain_location: "",
@@ -169,10 +171,10 @@ export default function Step1SpecialtySelection({
       console.log("responceTelr", responceTelr);
       
       route.push(responceTelr.redirect_url);
-      } else toast.error("فشل الإرسال، حاول مرة أخرى.");
+      } else toast.error(t("step1.quickBookingFailed") || "فشل الإرسال، حاول مرة أخرى.");
     } catch (err) {
       console.error(err);
-      toast.error("حدث خطأ أثناء الإرسال.");
+      toast.error(t("messages.error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -200,7 +202,7 @@ export default function Step1SpecialtySelection({
       },
     }));
 
-    toast.success("تم اختيار الموقع بنجاح");
+    toast.success(t("step3.locationSelected"));
     setIsLocationPickerOpen(false);
   };
 
@@ -218,17 +220,17 @@ export default function Step1SpecialtySelection({
         {/* Quick Booking Button */}
         <div className="flex flex-col items-start gap-4 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
           <h2 className="text-lg sm:text-xl font-bold leading-7 text-[#1e1e1e]">
-            هل تحتاج إلى حجز سريع؟
+            {t("step1.quickBooking")}
           </h2>
           <p className="text-base leading-6 text-[#1e1e1e] text-right">
-            أرسل حالتك وسنتواصل معك لتحديد الطبيب والموعد المناسب
+            {t("step1.quickBookingDescription") || "أرسل حالتك وسنتواصل معك لتحديد الطبيب والموعد المناسب"}
           </p>
           <button
             onClick={() => setIsQuickBookingOpen(true)}
             className="px-6 py-3 bg-[#10b981] rounded-lg text-white font-medium text-base flex items-center gap-2 hover:bg-[#0d9c6e] transition-colors"
           >
             <ArrowRight className="w-5 h-5" />
-            حجز سريع
+            {t("step1.quickBooking")}
           </button>
         </div>
 
@@ -245,7 +247,7 @@ export default function Step1SpecialtySelection({
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
-            اختيار حسب التخصص
+            {t("step1.selectCategory")}
           </button>
           <button
             onClick={() => setSelectedType("service")}
@@ -256,7 +258,7 @@ export default function Step1SpecialtySelection({
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
-            اختيار حسب الخدمة
+            {t("step1.selectService")}
           </button>
         </div>
 
@@ -267,7 +269,7 @@ export default function Step1SpecialtySelection({
             className="flex items-center gap-2 text-[#62a0f6] hover:text-[#5090e6] font-medium mb-4"
           >
             <ArrowRight className="w-5 h-5" />
-            العودة إلى اختيار التخصص
+            {t("step2.backToSpecialty")}
           </button>
         )}
 
@@ -275,9 +277,7 @@ export default function Step1SpecialtySelection({
         <div className="relative">
           <input
             type="text"
-            placeholder={
-              selectedType === "category" ? "ابحث عن التخصص..." : "ابحث عن الخدمة..."
-            }
+            placeholder={t("step1.searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full p-4 pr-12 border border-gray-300 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6] focus:border-transparent"
@@ -288,12 +288,12 @@ export default function Step1SpecialtySelection({
         {/* Empty states */}
         {selectedType === "category" && isCategoriesEmpty && (
           <div className="text-center p-6 text-gray-600">
-            لا توجد تخصصات متاحة حاليًا. حاول لاحقًا.
+            {t("step1.noCategories") || "لا توجد تخصصات متاحة حاليًا. حاول لاحقًا."}
           </div>
         )}
         {selectedType === "service" && isServicesEmpty && (
           <div className="text-center p-6 text-gray-600">
-            لا توجد خدمات متاحة لهذا التخصص. يمكنك العودة لاختيار تخصص آخر.
+            {t("step1.noServices") || "لا توجد خدمات متاحة لهذا التخصص. يمكنك العودة لاختيار تخصص آخر."}
           </div>
         )}
 
@@ -302,8 +302,8 @@ export default function Step1SpecialtySelection({
           <div>
             <h2 className="text-lg sm:text-xl font-bold leading-7 text-[#1e1e1e] mb-6">
               {selectedType === "category"
-                ? "اختر التخصص المناسب"
-                : "اختر الخدمة المناسبة"}
+                ? t("step1.selectCategory")
+                : t("step1.selectService")}
             </h2>
 
             {selectedType === "category" ? (
@@ -328,7 +328,7 @@ export default function Step1SpecialtySelection({
                       </div>
                       <div className="text-center">
                         <h3 className="font-semibold text-[#1e1e1e] mb-1">{c.name}</h3>
-                        <p className="text-sm text-gray-600">{c.services?.length || 0} خدمة</p>
+                        <p className="text-sm text-gray-600">{c.services?.length || 0} {t("step1.service") || "خدمة"}</p>
                       </div>
                     </div>
                   </button>
@@ -375,14 +375,14 @@ export default function Step1SpecialtySelection({
         {(bookingData.selectedCategory || bookingData.selectedService) && (
           <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-green-800 font-medium">
-              تم اختيار:{" "}
+              {t("step1.selected") || "تم اختيار"}:{" "}
               {bookingData.selectedCategory && !bookingData.selectedService ? (
-                <>{bookingData.selectedCategory.name} (تخصص)</>
+                <>{bookingData.selectedCategory.name} ({t("step1.category") || "تخصص"})</>
               ) : (
                 <>
-                  {bookingData.selectedService?.name} (خدمة)
+                  {bookingData.selectedService?.name} ({t("step1.service") || "خدمة"})
                   {bookingData.selectedService?.category && (
-                    <> - التخصص: {bookingData.selectedService.category.name}</>
+                    <> - {t("step1.category")}: {bookingData.selectedService.category.name}</>
                   )}
                 </>
               )}
@@ -397,7 +397,7 @@ export default function Step1SpecialtySelection({
           <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="p-6 border-b flex justify-between items-center">
-              <h2 className="text-xl font-bold">الحجز السريع</h2>
+              <h2 className="text-xl font-bold">{t("step1.quickBooking")}</h2>
               <button
                 onClick={() => setIsQuickBookingOpen(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -409,11 +409,11 @@ export default function Step1SpecialtySelection({
             <form onSubmit={handleQuickBookingSubmit} className="p-6 space-y-6">
               {/* Pain & Notes */}
               <div>
-                <label className="form-label">مكان الألم</label>
+                <label className="form-label">{t("step1.painLocation")}</label>
                 <input
                   type="text"
                   required
-                  placeholder="مثال: أسفل الظهر – الركبة – الرقبة"
+                  placeholder={t("step1.painLocationPlaceholder") || "مثال: أسفل الظهر – الركبة – الرقبة"}
                   value={quickForm.pain_location}
                   onChange={(e) =>
                     setQuickForm((p) => ({ ...p, pain_location: e.target.value }))
@@ -423,11 +423,11 @@ export default function Step1SpecialtySelection({
               </div>
 
               <div>
-                <label className="form-label">وصف الحالة (تفاصيل كاملة)</label>
+                <label className="form-label">{t("step1.notes")}</label>
                 <textarea
                   rows={4}
                   required
-                  placeholder="اكتب وصف دقيق للحالة – متى بدأ الألم – ما الذى يسببه – الأدوية الحالية..."
+                  placeholder={t("step1.notesPlaceholder") || "اكتب وصف دقيق للحالة – متى بدأ الألم – ما الذى يسببه – الأدوية الحالية..."}
                   value={quickForm.notes}
                   onChange={(e) =>
                     setQuickForm((p) => ({ ...p, notes: e.target.value }))
@@ -441,11 +441,11 @@ export default function Step1SpecialtySelection({
 
   {/* Full Name */}
   <div>
-    <label className="form-label">الاسم الكامل</label>
+    <label className="form-label">{t("step1.name")}</label>
     <input
       type="text"
       required
-      placeholder="أدخل اسم المريض"
+      placeholder={t("step1.namePlaceholder") || "أدخل اسم المريض"}
       value={quickForm.guest_info.name}
       onChange={(e) =>
         setQuickForm((p) => ({
@@ -459,7 +459,7 @@ export default function Step1SpecialtySelection({
 
   {/* Email */}
   <div>
-    <label className="form-label">البريد الإلكتروني</label>
+    <label className="form-label">{t("step1.email")}</label>
     <input
       type="email"
       required
@@ -477,7 +477,7 @@ export default function Step1SpecialtySelection({
 
   {/* Mobile */}
   <div>
-    <label className="form-label">رقم الجوال</label>
+    <label className="form-label">{t("step1.mobile")}</label>
     <input
       type="tel"
       required
@@ -497,7 +497,7 @@ export default function Step1SpecialtySelection({
 
   {/* Nationality */}
   <div>
-    <label className="form-label">الجنسية</label>
+    <label className="form-label">{t("step1.nationality")}</label>
     <input
       type="text"
       placeholder="سعودي – مصري – أردني..."
@@ -514,7 +514,7 @@ export default function Step1SpecialtySelection({
 
   {/* Date of Birth */}
   <div>
-    <label className="form-label">تاريخ الميلاد</label>
+    <label className="form-label">{t("step1.dateOfBirth")}</label>
     <input
       type="date"
       value={quickForm.guest_info.date_of_birth}
@@ -530,7 +530,7 @@ export default function Step1SpecialtySelection({
 
   {/* Gender */}
   <div>
-    <label className="form-label">الجنس</label>
+    <label className="form-label">{t("step1.gender")}</label>
     <select
       value={quickForm.guest_info.gender}
       onChange={(e) =>
@@ -541,15 +541,15 @@ export default function Step1SpecialtySelection({
       }
       className="form-input"
     >
-      <option value="">اختر</option>
-      <option value="male">ذكر</option>
-      <option value="female">أنثى</option>
+      <option value="">{t("step1.select") || "اختر"}</option>
+      <option value="male">{t("step1.male")}</option>
+      <option value="female">{t("step1.female")}</option>
     </select>
   </div>
 
   {/* National ID */}
   <div>
-    <label className="form-label">رقم الهوية</label>
+    <label className="form-label">{t("step1.nationalId")}</label>
     <input
       type="text"
       placeholder="الهوية / الإقامة"
@@ -566,7 +566,7 @@ export default function Step1SpecialtySelection({
 
   {/* Blood Group */}
   <div>
-    <label className="form-label">فصيلة الدم</label>
+    <label className="form-label">{t("step1.bloodGroup")}</label>
     <select
       value={quickForm.guest_info.blood_group}
       onChange={(e) =>
@@ -596,7 +596,7 @@ export default function Step1SpecialtySelection({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Address */}
   <div>
-    <label className="form-label">العنوان الكامل</label>
+    <label className="form-label">{t("step1.address")}</label>
     <input
       type="text"
       required
@@ -614,7 +614,7 @@ export default function Step1SpecialtySelection({
 
   {/* City */}
   <div>
-    <label className="form-label">المدينة</label>
+    <label className="form-label">{t("step1.city")}</label>
     <input
       type="text"
       required
@@ -632,7 +632,7 @@ export default function Step1SpecialtySelection({
 
   {/* Country */}
   <div>
-    <label className="form-label">الدولة</label>
+    <label className="form-label">{t("step1.country")}</label>
     <input
       type="text"
       required
@@ -649,7 +649,7 @@ export default function Step1SpecialtySelection({
   </div>
 
                 <div>
-                  <label className="form-label">المنطقة / الولاية</label>
+                  <label className="form-label">{t("step1.state") || "المنطقة / الولاية"}</label>
                   <input
                     type="text"
                     placeholder="منطقة الرياض..."
@@ -663,7 +663,7 @@ export default function Step1SpecialtySelection({
 
                 {/* LINK + PICKER BUTTON */}
                 <div>
-                  <label className="form-label">رابط الموقع على الخريطة</label>
+                  <label className="form-label">{t("step3.selectLocation")}</label>
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -677,7 +677,7 @@ export default function Step1SpecialtySelection({
                       onClick={() => setIsLocationPickerOpen(true)}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 whitespace-nowrap"
                     >
-                      اختيار الموقع
+                      {t("step3.selectLocation")}
                     </button>
                   </div>
                 </div>
@@ -690,14 +690,14 @@ export default function Step1SpecialtySelection({
                   onClick={() => setIsQuickBookingOpen(false)}
                   className="px-6 py-3 border rounded-lg text-gray-700 hover:bg-gray-50"
                 >
-                  إلغاء
+                  {t("modals.addPatient.cancel")}
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
                   className="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-60"
                 >
-                  {isSubmitting ? "جاري الإرسال..." : "إرسال الطلب"}
+                  {isSubmitting ? t("step1.submitting") || "جاري الإرسال..." : t("step1.submit") || "إرسال الطلب"}
                 </button>
               </div>
             </form>

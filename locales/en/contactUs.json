@@ -34,5 +34,28 @@
     "email": "info@nondacoffee.com",
     "response_time": "Response within 24 hours.",
     "support_message": "Feel free to contact us for more information or support."
+  },
+  "hero": {
+    "title": "Contact Us",
+    "breadcrumb": "Contact Us",
+    "home": "Home"
+  },
+  "formSection": {
+    "title": "Contact Us",
+    "subtitle": "Please fill in the following information to send your request",
+    "name": "Name",
+    "namePlaceholder": "Enter your full name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "phoneLabel": "Phone Number",
+    "phonePlaceholder": "Phone number",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Message",
+    "submitButton": "Send Your Message"
+  },
+  "contactInfo": {
+    "visitUs": "Visit Us",
+    "sendEmail": "Send Us an Email",
+    "callUs": "Call Us"
   }
 }

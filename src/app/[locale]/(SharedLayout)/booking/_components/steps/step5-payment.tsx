@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { CreditCard, Receipt, Tag, Gift, Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { BookingData } from "@/types/booking";
 import { FaCashRegister } from "react-icons/fa";
 
@@ -19,13 +20,14 @@ export default function Step5Payment({
   onPrev,
   isLoading,
 }: Step5Props) {
+  const { t } = useTranslation("booking");
   const [couponInput, setCouponInput] = useState("");
   const [couponError, setCouponError] = useState("");
 
   const paymentMethods = [
-    // { id: "cash_on_delivery", name: "الدفع عند الاستلام", icon: <FaCashRegister className="w-6 h-6" /> },
+    // { id: "cash_on_delivery", name: t("step5.cashOnDelivery"), icon: <FaCashRegister className="w-6 h-6" /> },
     { id: "apple_pay", name: "Apple Pay", icon: "🍎" },
-    { id: "telr", name: "Telr Payment", icon: "💳" },
+    { id: "telr", name: t("step5.telrPayment"), icon: "💳" },
   ];
 
   const handlePaymentMethodChange = (method: string) => {
@@ -43,51 +45,51 @@ export default function Step5Payment({
         <div className="bg-white rounded-2xl shadow-md p-6">
           <div className="flex items-center gap-3 mb-6">
             <Receipt className="w-6 h-6 text-[#62a0f6]" />
-            <h2 className="text-xl font-bold">ملخص الحجز</h2>
+            <h2 className="text-xl font-bold">{t("step5.bookingSummary")}</h2>
           </div>
           <div className="space-y-4 p-4 bg-[#eff6fe] rounded-lg">
             <div className="flex justify-between">
               <span className="font-medium">
-                {bookingData.selectedPatients?.[0]?.name || "المريض"}
+                {bookingData.selectedPatients?.[0]?.name || t("step5.patient")}
               </span>
-              <span className="text-gray-600">اسم المريض</span>
+              <span className="text-gray-600">{t("step5.patientName")}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-medium">
-                {bookingData.selectedDoctor?.name || "الطبيب"}
+                {bookingData.selectedDoctor?.name || t("step5.doctor")}
               </span>
-              <span className="text-gray-600">الطبيب المختار</span>
+              <span className="text-gray-600">{t("step5.selectedDoctor")}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-medium">
-                {bookingData.healthInfo.painLocation || "غير محدد"}
+                {bookingData.healthInfo.painLocation || t("step5.notSpecified")}
               </span>
-              <span className="text-gray-600">المشكلة الصحية</span>
+              <span className="text-gray-600">{t("step5.healthIssue")}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-medium">
-                {bookingData.selectedLocation?.title || "غير محدد"}
+                {bookingData.selectedLocation?.title || t("step5.notSpecified")}
               </span>
-              <span className="text-gray-600">موقع الزيارة</span>
+              <span className="text-gray-600">{t("step5.visitLocation")}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-medium">
-                {bookingData.selectedDates.length} موعد
+                {bookingData.selectedDates.length} {t("step5.appointment")}
               </span>
-              <span className="text-gray-600">عدد المواعيد</span>
+              <span className="text-gray-600">{t("step5.appointmentsCount")}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-medium">
-                {bookingData.sessionsCount} جلسة
+                {bookingData.sessionsCount} {t("step5.session")}
               </span>
-              <span className="text-gray-600">عدد الجلسات</span>
+              <span className="text-gray-600">{t("step5.sessionsCount")}</span>
             </div>
             {bookingData.selectedPackage && (
               <div className="flex justify-between">
                 <span className="font-medium">
-                  {bookingData.selectedPackage.name || "غير محدد"}
+                  {bookingData.selectedPackage.name || t("step5.notSpecified")}
                 </span>
-                <span className="text-gray-600">الباقة المختارة</span>
+                <span className="text-gray-600">{t("step5.selectedPackage")}</span>
               </div>
             )}
           </div>
@@ -97,7 +99,7 @@ export default function Step5Payment({
         <div className="bg-white rounded-2xl shadow-md p-6">
           <div className="flex items-center gap-3 mb-6">
             <CreditCard className="w-6 h-6 text-[#62a0f6]" />
-            <h2 className="text-xl font-bold">طريقة الدفع</h2>
+            <h2 className="text-xl font-bold">{t("step5.paymentMethod")}</h2>
           </div>
           <div className="space-y-3">
             {paymentMethods.map((method) => (
@@ -185,41 +187,41 @@ export default function Step5Payment({
            <div className="bg-white rounded-2xl shadow-md p-6">
         <div className="flex items-center gap-3 mb-6">
           <Gift className="w-6 h-6 text-[#62a0f6]" />
-          <h2 className="text-xl font-bold">ملخص الفاتورة</h2>
+          <h2 className="text-xl font-bold">{t("step5.invoiceSummary")}</h2>
         </div>
         <div className="space-y-4 p-4 bg-[#eff6fe] rounded-lg">
           <div className="flex justify-between">
             <span className="font-medium">
-              {bookingData.pricing.subTotal} ريال
+              {bookingData.pricing.subTotal} {t("step5.currency")}
             </span>
-            <span className="text-gray-600">المبلغ الأساسي</span>
+            <span className="text-gray-600">{t("step5.baseAmount")}</span>
           </div>
 
           {/* رسوم الزيارة فقط للغير سعوديين */}
           {bookingData.pricing.fees > 0 && (
             <div className="flex justify-between">
               <span className="font-medium">
-                {bookingData.pricing.fees} ريال
+                {bookingData.pricing.fees} {t("step5.currency")}
               </span>
-              <span className="text-gray-600">رسوم الزيارة (للغير سعوديين)</span>
+              <span className="text-gray-600">{t("step5.visitFees")}</span>
             </div>
           )}
 
           {bookingData.pricing.discount > 0 && (
             <div className="flex justify-between text-green-600">
               <span className="font-medium">
-                -{bookingData.pricing.discount} ريال
+                -{bookingData.pricing.discount} {t("step5.currency")}
               </span>
-              <span>الخصم</span>
+              <span>{t("step5.discount")}</span>
             </div>
           )}
 
           <div className="border-t border-gray-300 pt-4">
             <div className="flex justify-between text-lg font-bold">
               <span className="text-[#62a0f6]">
-                {bookingData.pricing.total} ريال
+                {bookingData.pricing.total} {t("step5.currency")}
               </span>
-              <span>المبلغ الإجمالي</span>
+              <span>{t("step5.totalAmount")}</span>
             </div>
           </div>
         </div>
@@ -234,12 +236,12 @@ export default function Step5Payment({
              {isLoading ? (
                <>
                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                 جاري المعالجة...
+                 {t("step5.processing")}
                </>
              ) : (
                <>
                  <CreditCard className="w-5 h-5" />
-                 تأكيد الدفع والحجز
+                 {t("step5.confirmPayment")}
                </>
              )}
            </button>
@@ -252,7 +254,7 @@ export default function Step5Payment({
              disabled={isLoading}
              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
            >
-             السابق
+             {t("step2.previous")}
            </button>
          </div>
        </div>
