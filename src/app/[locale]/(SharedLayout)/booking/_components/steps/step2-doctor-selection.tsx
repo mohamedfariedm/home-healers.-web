@@ -449,7 +449,7 @@ console.log("packagesData",packagesData?.data);
     <div className="flex justify-between items-center">
       <span className="text-lg font-bold text-[#62a0f6]">{pkg.price} ريال</span>
       {pkg.discount && (
-        <span className="text-sm text-green-600">خصم {pkg.discount} ريال</span>
+        <span className="text-sm text-green-600">بدلا من <span className="text-sm text-gray-400 line-through ms-1">{pkg.discount}</span> </span>
       )}
     </div>
   </button>
