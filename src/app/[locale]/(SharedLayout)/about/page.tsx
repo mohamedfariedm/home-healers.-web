@@ -61,7 +61,7 @@ async function page({ params: { locale } }: props) {
             {/* This is a placeholder for the AboutAppTwoColumns component which is imported in the original file */}
             <div className="w-full py-8 text-center">
               <AboutAppTwoColumns
-                aboutHomeSection={aboutData?.data?.sections?.[0]}
+                aboutHomeSection={aboutData?.data?.sections?.[4]}
                 locale={locale}
               />
             </div>
@@ -69,7 +69,7 @@ async function page({ params: { locale } }: props) {
         </div>
 
         <FeaturesSection
-          data={aboutData?.data?.sections?.[1]}
+          data={aboutData?.data?.sections?.[3]}
           locale={locale}
         />
         {homeBanners?.length > 0 &&
@@ -87,7 +87,7 @@ async function page({ params: { locale } }: props) {
           locale={locale}
         />
         <PartnersSection
-          data={aboutData?.data?.sections?.[4]}
+          data={aboutData?.data?.sections?.[0]}
           locale={locale}
         />
       </div>
