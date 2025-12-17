@@ -41,6 +41,25 @@ async function page({ params: { locale } }: props) {
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
     (banner: any) => banner.page === "about-us"
   );
+  console.log("aboutData", aboutData);
+
+  // Find sections by ID
+  const aboutSection = aboutData?.data?.sections?.find(
+    (section: any) => section?.id === 7
+  );
+  const featuresSection = aboutData?.data?.sections?.find(
+    (section: any) => section?.id === 8
+  );
+  const doctorsSection = aboutData?.data?.sections?.find(
+    (section: any) => section?.id === 9
+  );
+  const faqSection = aboutData?.data?.sections?.find(
+    (section: any) => section?.id === 10
+  );
+  const partnersSection = aboutData?.data?.sections?.find(
+    (section: any) => section?.id === 11
+  );
+
   return (
     <>
       <div className="min-h-screen bg-white">
@@ -61,35 +80,29 @@ async function page({ params: { locale } }: props) {
             {/* This is a placeholder for the AboutAppTwoColumns component which is imported in the original file */}
             <div className="w-full py-8 text-center">
               <AboutAppTwoColumns
-                aboutHomeSection={aboutData?.data?.sections?.[4]}
+                aboutHomeSection={aboutSection}
                 locale={locale}
               />
             </div>
           </div>
         </div>
 
-        <FeaturesSection
-          data={aboutData?.data?.sections?.[3]}
-          locale={locale}
-        />
+        <FeaturesSection data={featuresSection} locale={locale} />
         {homeBanners?.length > 0 &&
           homeBanners.map((banner: any, index: number) => (
             <Bannar key={index} banner={banner} />
           ))}
         <DoctorsSection
           doctorsData={doctorsData?.data}
-          data={aboutData?.data?.sections?.[2]}
+          data={doctorsSection}
           locale={locale}
         />
         <FaqSection
           faqsData={faqsData?.data}
-          data={aboutData?.data?.sections?.[3]}
+          data={faqSection}
           locale={locale}
         />
-        <PartnersSection
-          data={aboutData?.data?.sections?.[0]}
-          locale={locale}
-        />
+        <PartnersSection data={partnersSection} locale={locale} />
       </div>
     </>
   );
