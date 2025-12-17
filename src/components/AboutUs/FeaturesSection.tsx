@@ -46,7 +46,7 @@ const FeaturesSection = ({ data, locale }: { data: any; locale: string }) => {
   
   const features = data?.Posts.filter((post: any) => post.id !== 12).map(
     (post: any) => ({
-      icon: post.attachment[0]?.original || "https://via.placeholder.com/52", // Fallback image if none provided
+      icon: post.attachment?.[0]?.original || "https://via.placeholder.com/52", // Fallback image if none provided
       title: post.title,
       description: post.description,
     })
