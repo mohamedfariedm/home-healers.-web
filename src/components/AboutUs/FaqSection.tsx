@@ -16,6 +16,7 @@ interface FaqSectionProps {
   contactInfo?: ContactInfo;
   showSearch?: boolean;
   maxItems?: number;
+  settings?: any;
 }
 
 const FaqSection: React.FC<FaqSectionProps> = ({
@@ -25,6 +26,7 @@ const FaqSection: React.FC<FaqSectionProps> = ({
   contactInfo,
   showSearch = false,
   maxItems,
+  settings,
 }) => {
   const [openIndex, setOpenIndex] = useState<number>(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -32,6 +34,41 @@ const FaqSection: React.FC<FaqSectionProps> = ({
 
   const translations: FaqTranslations = faqTranslations[locale as keyof typeof faqTranslations] || faqTranslations.ar;
   const isRTL = locale === "ar";
+
+  // Extract dynamic content from settings
+  const settingsData = settings?.data?.[0]?.setting;
+  const businessInfo = settingsData?.business_info || {};
+
+  // Helper function to format phone number for WhatsApp (remove leading 0 and add country code)
+  const formatWhatsAppNumber = (phone: string) => {
+    if (!phone) return "";
+    const cleaned = phone.replace(/^0+/, ""); // Remove leading zeros
+    return `966${cleaned}`; // Add Saudi Arabia country code
+  };
+
+  const whatsappNumber = businessInfo.whatsapp || "0118289771";
+  const contactPhone = businessInfo.contact || "0118289771";
+
+  // Construct dynamic contact info from settings if available
+  const dynamicContactInfo: ContactInfo = useMemo(() => {
+    if (settings) {
+      return {
+        phone: formatWhatsAppNumber(whatsappNumber),
+        whatsappMessage: {
+          ar: translations.whatsappMessage || "مرحبا، لدي استفسار",
+          en: translations.whatsappMessage || "Hello, I have a question"
+        },
+        image: contactInfo?.image // Preserve image if passed, or could be from settings if available
+      };
+    }
+    return contactInfo || {
+      phone: "966551172232",
+      whatsappMessage: {
+        ar: "مرحبا، لدي استفسار",
+        en: "Hello, I have a question"
+      }
+    };
+  }, [settings, whatsappNumber, translations, contactInfo]);
 
   // Format FAQ data
   const formattedFaqs = useMemo(() => {
@@ -168,7 +205,7 @@ const FaqSection: React.FC<FaqSectionProps> = ({
               <ContactCard
                 translations={translations}
                 locale={locale}
-                contactInfo={contactInfo}
+                contactInfo={dynamicContactInfo}
               />
             </div>
           </div>

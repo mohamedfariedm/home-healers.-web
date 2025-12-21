@@ -33,7 +33,7 @@ async function page({ params: { locale } }: { params: { locale: string } }) {
   return (
     <>
       <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-        {seo?.title}
+        {seo?.[locale]?.title}
       </h1>
 
       <div className="main-container w-full bg-white relative overflow-hidden mx-auto">
@@ -115,7 +115,7 @@ async function page({ params: { locale } }: { params: { locale: string } }) {
             />
           </div>
         </div>
-        <ContactSection />
+        <ContactSection settings={settings} />
         <MapComponent />
         {homeBanners?.length > 0 &&
           homeBanners.map((banner: any, index: number) => (

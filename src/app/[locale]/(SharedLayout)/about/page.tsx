@@ -64,7 +64,7 @@ async function page({ params: { locale } }: props) {
     <>
       <div className="min-h-screen bg-white">
         <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-          {seo?.title}
+          {seo?.[locale]?.title}
         </h1>
 
         <HeroBanner
@@ -101,6 +101,7 @@ async function page({ params: { locale } }: props) {
           faqsData={faqsData?.data}
           data={faqSection}
           locale={locale}
+          settings={settings}
         />
         <PartnersSection data={partnersSection} locale={locale} />
       </div>

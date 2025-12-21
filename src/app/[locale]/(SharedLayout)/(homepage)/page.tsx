@@ -79,7 +79,7 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
       <div className="w-full xl:w-[489.058px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-05/Xam6EEVohV.png)] bg-[length:100%_100%] bg-no-repeat relative" />
       <div>
         <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-          {seo?.title}
+          {seo?.[locale]?.title}
         </h1>
         <div className="w-full xl:w-[1440px] h-[1px] bg-[#fff] relative shadow-[0_1px_2px_0_rgba(16,24,40,0.06)] mt-0 mr-0 mb-0 ml-0" />
         <Hero locale={locale} section={heroSection} />

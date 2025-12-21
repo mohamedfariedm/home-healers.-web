@@ -5,9 +5,17 @@ import { ArrowLeft, ArrowRightIcon } from "lucide-react";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export default function ContactSection() {
+export default function ContactSection({ settings }: { settings?: any }) {
   const { t } = useTranslation("contactUs");
   
+  // Extract dynamic content from settings
+  const settingsData = settings?.data?.[0]?.setting;
+  const businessInfo = settingsData?.business_info || {};
+
+  const contactPhone = businessInfo.contact;
+  const businessEmail = businessInfo.email ;
+  const businessAddress = businessInfo.address;
+
   // You can add form state handling here if needed
   const [formData, setFormData] = useState({
     name: "",
@@ -131,17 +139,17 @@ export default function ContactSection() {
           {
             icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/fxFV5KXUD4.png",
             title: t("contactInfo.visitUs"),
-            description: "الرياض - شارع الامير عبدالعزيز بن مساعد بن جلوي",
+            description: businessAddress,
           },
           {
             icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/RKCBiHeaWM.png",
             title: t("contactInfo.sendEmail"),
-            description: "customer.service@home-healers.com",
+            description: businessEmail,
           },
           {
             icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/pyxgUkH7d4.png",
             title: t("contactInfo.callUs"),
-            description: "0551172232",
+            description: contactPhone,
           },
         ].map(({ icon, title, description }, i) => (
           <motion.div
