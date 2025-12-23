@@ -17,13 +17,13 @@ export async function generateMetadata({
 
   // Base metadata from global blogs seo then override with blog-specific meta
   const baseMeta = createMetadata(seo, locale, "/blog", {
-    title: data?.meta_title || "Home Hellers",
+    title: data?.meta_title[locale] ||data?.meta_title|| "Home Hellers",
   });
 
   return {
     ...baseMeta,
-    title: data?.meta_title[locale] || baseMeta.title,
-    description: data?.meta_description[locale] || baseMeta.description,
+    title: data?.meta_title[locale] ||data?.meta_title|| baseMeta.title,
+    description: data?.meta_description[locale] || data?.meta_description|| baseMeta.description,
   };
 }
 async function page({
@@ -37,7 +37,7 @@ async function page({
   return (
     <div className="main-container w-full  mx-auto relative">
       <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-        {data?.meta_title[locale]}
+        {data?.meta_title[locale]|| data?.meta_title || "Blog Details"}
       </h1>
       <div
         className="w-full h-[250px] relative bg-no-repeat bg-cover bg-center"
