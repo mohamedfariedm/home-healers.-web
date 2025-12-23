@@ -22,8 +22,8 @@ export async function generateMetadata({
 
   return {
     ...baseMeta,
-    title: data?.meta_title || baseMeta.title,
-    description: data?.meta_description || baseMeta.description,
+    title: data?.meta_title[locale] || baseMeta.title,
+    description: data?.meta_description[locale] || baseMeta.description,
   };
 }
 async function page({
@@ -37,7 +37,7 @@ async function page({
   return (
     <div className="main-container w-full  mx-auto relative">
       <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-        {data?.meta_title}
+        {data?.meta_title[locale]}
       </h1>
       <div
         className="w-full h-[250px] relative bg-no-repeat bg-cover bg-center"
