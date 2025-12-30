@@ -20,6 +20,97 @@ export function middleware(request: NextRequest) {
     return response
   }
 
+  // Handle defunct /services page with 410 Gone (for SEO/Google Indexing)
+  const isServicesPage = pathname === "/services" || pathname === "/en/services" || pathname === "/ar/services"
+
+  if (isServicesPage) {
+    console.log(`🗑️ Defunct page detected: ${pathname} → Returning 410 Gone`)
+    return new NextResponse(
+      `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>410 - Page Gone</title>
+          <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;600;700&display=swap" rel="stylesheet">
+          <style>
+              body {
+                  margin: 0;
+                  padding: 0;
+                  font-family: 'Alexandria', sans-serif;
+                  background-color: #ffffff;
+                  height: 100vh;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  overflow: hidden;
+              }
+              .container {
+                  text-align: center;
+                  max-width: 600px;
+                  padding: 2rem;
+              }
+              .error-code {
+                  font-size: 8rem;
+                  font-weight: 700;
+                  color: #62a0f6;
+                  margin: 0;
+                  opacity: 0.1;
+                  position: absolute;
+                  top: 50%;
+                  left: 50%;
+                  transform: translate(-50%, -50%);
+                  z-index: -1;
+              }
+              h1 {
+                  font-size: 2.5rem;
+                  color: #1e1e1e;
+                  margin-bottom: 1rem;
+              }
+              p {
+                  font-size: 1.1rem;
+                  color: #4a5568;
+                  line-height: 1.6;
+                  margin-bottom: 2rem;
+              }
+              .btn {
+                  display: inline-block;
+                  background-color: #62a0f6;
+                  color: white;
+                  padding: 1rem 2rem;
+                  border-radius: 50px;
+                  text-decoration: none;
+                  font-weight: 600;
+                  transition: all 0.3s ease;
+                  box-shadow: 0 10px 20px rgba(98, 160, 246, 0.2);
+              }
+              .btn:hover {
+                  background-color: #4f8ae8;
+                  transform: translateY(-2px);
+                  box-shadow: 0 15px 30px rgba(98, 160, 246, 0.3);
+              }
+          </style>
+      </head>
+      <body>
+          <div class="error-code">410</div>
+          <div class="container">
+              <h1>This Page is Gone</h1>
+              <p>The services page you are looking for has been permanently removed. You can find all our current offerings on our homepage.</p>
+              <a href="/" class="btn">Back to Home</a>
+          </div>
+      </body>
+      </html>`,
+      {
+        status: 410,
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+        },
+      }
+    )
+  }
+
   // For paths without locale prefix, rewrite to /ar/* (default locale)
   // This avoids redirects by using rewrites instead
   console.log("🌍 No prefix → Rewriting to Arabic (default)")
