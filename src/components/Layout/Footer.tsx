@@ -399,7 +399,9 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
             onClick={handleBackdropClick}
           >
             {/* Backdrop with transparent background */}
-            <div className="absolute inset-0 flex  items-center justify-center bg-black/10 backdrop-blur-sm" />
+            <div
+            onClick={handleBackdropClick}
+            className="absolute inset-0 flex  items-center justify-center bg-black/10 backdrop-blur-sm" />
 
             {/* Modal Content */}
             <motion.div
