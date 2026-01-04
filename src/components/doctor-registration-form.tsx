@@ -92,10 +92,9 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
   const [isLoading, setIsLoading] = useState(false)
   const { t } = useTranslation("doctor-apply")
   const locale = "ar"
-  console.log("nationalityOptions", nationalityOptions)
-
-  const tr = (key: string, def?: string, opts?: Record<string, any>) =>
-    t(key, { defaultValue: def, ...opts })
+  
+  // Safe-guard for nationalityOptions
+  const safeNationalityOptions = Array.isArray(nationalityOptions) ? nationalityOptions : [];
 
   const updateFormData = (field: keyof FormData | "name.en" | "name.ar", value: string | File[] | number[] | number) => {
     if (field === "name.en" || field === "name.ar") {
@@ -112,6 +111,9 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
       setErrors((prev) => ({ ...prev, [field]: "" }))
     }
   }
+
+  const tr = (key: string, def?: string, opts?: Record<string, any>) =>
+    t(key, { defaultValue: def, ...opts })
 
   const validateStep = (step: number): boolean => {
     const newErrors: Record<string, string> = {}
@@ -155,11 +157,13 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
   const nextStep = () => {
     if (validateStep(currentStep)) {
       setCurrentStep((prev) => Math.min(prev + 1, stepDefs.length))
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
 
   const prevStep = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1))
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -241,6 +245,7 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
         )
         setFormData(initialFormData)
         setCurrentStep(1)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
 
     } catch (error: any) {
       console.error(error)
@@ -263,11 +268,11 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label htmlFor="doctor_role" className="text-sm font-semibold text-gray-700">{tr("form.labels.doctor_role")} *</Label>
-                <Select value={formData.doctor_role} onValueChange={(value) => updateFormData("doctor_role", value)}>
-                  <SelectTrigger className={`mt-1 h-12 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 ${errors.doctor_role ? "border-red-500" : ""}`}>
+                <Select value={formData.doctor_role || undefined} onValueChange={(value) => updateFormData("doctor_role", value)}>
+                  <SelectTrigger className={`mt-1 h-12 w-full rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 ${errors.doctor_role ? "border-red-500" : ""}`}>
                     <SelectValue placeholder={tr("form.placeholders.doctor_role")} />
                   </SelectTrigger>
-                  <SelectContent className="bg-white rounded-xl shadow-lg">
+                  <SelectContent className="bg-white rounded-xl shadow-lg z-50">
                     <SelectItem value="Consultant">{tr("form.options.roles.consultant", "Consultant")}</SelectItem>
                     <SelectItem value="Specialist">{tr("form.options.roles.specialist", "Specialist")}</SelectItem>
                     <SelectItem value="Resident">{tr("form.options.roles.resident", "Resident")}</SelectItem>
@@ -278,11 +283,11 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
               </div>
               <div>
                 <Label htmlFor="gender" className="text-sm font-semibold text-gray-700">{tr("form.labels.gender")} *</Label>
-                <Select value={formData.gender} onValueChange={(value) => updateFormData("gender", value)}>
-                  <SelectTrigger className={`mt-1 h-12 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 ${errors.gender ? "border-red-500" : ""}`}>
+                <Select value={formData.gender || undefined} onValueChange={(value) => updateFormData("gender", value)}>
+                  <SelectTrigger className={`mt-1 h-12 w-full rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 ${errors.gender ? "border-red-500" : ""}`}>
                     <SelectValue placeholder={tr("form.placeholders.gender")} />
                   </SelectTrigger>
-                  <SelectContent className="bg-white rounded-xl shadow-lg">
+                  <SelectContent className="bg-white rounded-xl shadow-lg z-50">
                     <SelectItem value="male">{tr("form.options.gender.male", "Male")}</SelectItem>
                     <SelectItem value="female">{tr("form.options.gender.female", "Female")}</SelectItem>
                   </SelectContent>
@@ -344,14 +349,14 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
               <div>
                 <Label htmlFor="nationality_id" className="text-sm font-semibold text-gray-700">{tr("form.labels.nationality")} *</Label>
                 <Select
-                  value={formData.nationality_id?.toString()}
+                  value={formData.nationality_id ? formData.nationality_id.toString() : ""}
                   onValueChange={(value) => updateFormData("nationality_id", value === "" ? "" : Number(value))}
                 >
-                  <SelectTrigger className={`mt-1 h-12 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 ${errors.nationality_id ? "border-red-500" : ""}`}>
+                  <SelectTrigger className={`mt-1 h-12 w-full rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 ${errors.nationality_id ? "border-red-500" : ""}`}>
                     <SelectValue placeholder={tr("form.placeholders.nationality")} />
                   </SelectTrigger>
-                  <SelectContent className="bg-white rounded-xl shadow-lg">
-                    {nationalityOptions?.map((option) => (
+                  <SelectContent className="bg-white rounded-xl shadow-lg z-50">
+                    {safeNationalityOptions.map((option) => (
                       <SelectItem key={option.id} value={option.id.toString()}>
                         {option.name}
                       </SelectItem>
@@ -386,11 +391,11 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
               </div>
               <div>
                 <Label htmlFor="blood_group" className="text-sm font-semibold text-gray-700">{tr("form.labels.blood_group")}</Label>
-                <Select value={formData.blood_group} onValueChange={(value) => updateFormData("blood_group", value)}>
-                  <SelectTrigger className="mt-1 h-12 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500">
+                <Select value={formData.blood_group || undefined} onValueChange={(value) => updateFormData("blood_group", value)}>
+                  <SelectTrigger className="mt-1 h-12 w-full rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500">
                     <SelectValue placeholder={tr("form.placeholders.blood_group")} />
                   </SelectTrigger>
-                  <SelectContent className="bg-white rounded-xl shadow-lg">
+                  <SelectContent className="bg-white rounded-xl shadow-lg z-50">
                     <SelectItem value="A+">A+</SelectItem>
                     <SelectItem value="A-">A-</SelectItem>
                     <SelectItem value="B+">B+</SelectItem>
@@ -422,11 +427,11 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
               </div>
               <div>
                 <Label htmlFor="classification" className="text-sm font-semibold text-gray-700">{tr("form.labels.classification")} *</Label>
-                <Select value={formData.classification} onValueChange={(value) => updateFormData("classification", value)}>
-                  <SelectTrigger className={`mt-1 h-12 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 ${errors.classification ? "border-red-500" : ""}`}>
+                <Select value={formData.classification || undefined} onValueChange={(value) => updateFormData("classification", value)}>
+                  <SelectTrigger className={`mt-1 h-12 w-full rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 ${errors.classification ? "border-red-500" : ""}`}>
                     <SelectValue placeholder={tr("form.placeholders.classification")} />
                   </SelectTrigger>
-                  <SelectContent className="bg-white rounded-xl shadow-lg">
+                  <SelectContent className="bg-white rounded-xl shadow-lg z-50">
                     <SelectItem value="Senior Specialist">{tr("form.options.classification.senior_specialist", "Senior Specialist")}</SelectItem>
                     <SelectItem value="Specialist">{tr("form.options.classification.specialist", "Specialist")}</SelectItem>
                     <SelectItem value="Senior Consultant">{tr("form.options.classification.senior_consultant", "Senior Consultant")}</SelectItem>
@@ -440,11 +445,11 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label htmlFor="department" className="text-sm font-semibold text-gray-700">{tr("form.labels.department")} *</Label>
-                <Select value={formData.department} onValueChange={(value) => updateFormData("department", value)}>
-                  <SelectTrigger className={`mt-1 h-12 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 ${errors.department ? "border-red-500" : ""}`}>
+                <Select value={formData.department || undefined} onValueChange={(value) => updateFormData("department", value)}>
+                  <SelectTrigger className={`mt-1 h-12 w-full rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 ${errors.department ? "border-red-500" : ""}`}>
                     <SelectValue placeholder={tr("form.placeholders.department")} />
                   </SelectTrigger>
-                  <SelectContent className="bg-white rounded-xl shadow-lg">
+                  <SelectContent className="bg-white rounded-xl shadow-lg z-50">
                     <SelectItem value="Cardiology">{tr("form.options.department.cardiology", "Cardiology")}</SelectItem>
                     <SelectItem value="Neurology">{tr("form.options.department.neurology", "Neurology")}</SelectItem>
                     <SelectItem value="Orthopedics">{tr("form.options.department.orthopedics", "Orthopedics")}</SelectItem>
@@ -718,10 +723,24 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
   const currentStepTitle = renderStepTitle(currentStep)
 
   return (
-    <Card className="max-w-4xl mx-auto my-8 shadow-2xl border-none rounded-xl bg-white">
+    <Card 
+    className="
+    w-full
+    max-w-[95%]
+    sm:max-w-3xl
+    lg:max-w-4xl
+    xl:max-w-5xl
+    mx-auto
+    my-4 sm:my-8
+    shadow-2xl
+    border-none
+    rounded-xl
+    bg-white
+  "
+    >
       <CardHeader className="pb-4">
-        <div className="flex items-center justify-between mb-4">
-          <CardTitle className="text-2xl font-bold text-gray-800">
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-4">
+          <CardTitle className="text-xl sm:text-2xl font-bold text-gray-800 text-center sm:text-left">
             {tr("form.stepper.step_of_total", "Step {{current}} of {{total}}: {{title}}", {
               current: currentStep,
               total: stepDefs.length,
@@ -733,7 +752,7 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
           </div>
         </div>
         <Progress value={progress} className="h-2 bg-gray-200 rounded-full" />
-        <div className="flex items-center justify-between mt-6">
+        <div className="hidden sm:flex items-center justify-between mt-6">
           {stepDefs.map((step) => {
             const Icon = step.icon
             const isCurrent = step.id === currentStep
@@ -763,7 +782,7 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
           })}
         </div>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="p-4 sm:p-6">
         <div className="mb-8">{renderStepContent()}</div>
         <div className="flex justify-between">
           <Button
@@ -790,7 +809,6 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
             <Button
               type="button"
               onClick={nextStep}
-              disabled={isLoading}
               className="h-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-2"
             >
               <span>{tr("form.buttons.next")}</span>

@@ -165,7 +165,6 @@ const animationVariants = {
   },
 };
 
-
 const fireCelebration = () => {
   const duration = 1500;
   const end = Date.now() + duration;
@@ -328,11 +327,11 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
 
   // Show modal on mount (only once per session)
   useEffect(() => {
-    const hasSeenModal = sessionStorage.getItem('hasSeenCertificationModal');
+    const hasSeenModal = sessionStorage.getItem("hasSeenCertificationModal");
     if (!hasSeenModal) {
       setShowModal(true);
-      sessionStorage.setItem('hasSeenCertificationModal', 'true');
-      
+      sessionStorage.setItem("hasSeenCertificationModal", "true");
+
       // Auto close after 10 seconds
       const timer = setTimeout(() => {
         setShowModal(false);
@@ -360,11 +359,22 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
   React.useEffect(() => {
     if (!celebrationRef.current) return;
 
+    // Check if animation has already been fired in this session
+    const hasSeenAnimation = sessionStorage.getItem(
+      "hasSeenCertificationAnimation"
+    );
+    if (hasSeenAnimation) return; // Don't set up observer if already seen
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            fireCelebration(); // Trigger animation
+            // Check again before firing to avoid race conditions
+            if (!sessionStorage.getItem("hasSeenCertificationAnimation")) {
+              fireCelebration(); // Trigger animation
+              sessionStorage.setItem("hasSeenCertificationAnimation", "true");
+              observer.disconnect(); // Disconnect after first animation
+            }
           }
         });
       },
@@ -379,8 +389,8 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
   return (
     <>
       {/* Certification Modal Popup */}
-      {showModal&&
-      <AnimatePresence>
+      {showModal && (
+        <AnimatePresence>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -390,7 +400,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
           >
             {/* Backdrop with transparent background */}
             <div className="absolute inset-0 flex  items-center justify-center bg-black/10 backdrop-blur-sm" />
-            
+
             {/* Modal Content */}
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
@@ -413,23 +423,27 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
               <div className="p-6 flex flex-col md:flex-row  items-center justify-center sm:p-8">
                 {/* Celebration Message */}
                 <div className="text-center mb-6">
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#143087] mb-3">
+                  <h2 className="text-2xl sm:text-3xl md: font-bold text-[#143087] mb-3">
                     {locale === "ar" ? (
                       <>
-                        نحن الفائزون بجائزة{" "}
-                        <span className="text-[#8bc34a]">MEA Business Awards 2025</span>
+                        بفضل ثقتكم نفتخر بحصولنا علي جائزة
+                        <span className="text-[#8bc34a]">
+                          MEA Business Awards 2025
+                        </span>
                       </>
                     ) : (
                       <>
                         We Are The Winners Of{" "}
-                        <span className="text-[#8bc34a]">MEA Business Awards 2025</span>
+                        <span className="text-[#8bc34a]">
+                          MEA Business Awards 2025
+                        </span>
                       </>
                     )}
                   </h2>
-                  
+
                   <p className="text-base sm:text-lg text-[#1e1e1e] font-medium">
                     {locale === "ar"
-                      ? "نفخر بحصولنا على جائزة أفضل مقدم رعاية صحية منزلية 2025 وجائزة التميز في العلاج الطبيعي 2025"
+                      ? "نحتفل بحصولنا على جائزة أفضل مقدم رعاية صحية منزلية 2025 وجائزة التميز في العلاج الطبيعي 2025"
                       : "We are proud to have won the Best Home Healthcare Provider 2025 and Excellence Award in Physical Therapy 2025"}
                   </p>
                 </div>
@@ -449,398 +463,401 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     quality={95}
                   />
                 </div>
-
               </div>
             </motion.div>
           </motion.div>
-      
-      </AnimatePresence>
-      }
+        </AnimatePresence>
+      )}
 
       <footer className="w-full mt-20">
         {/* Certification/Award Celebration Section */}
-      <section ref={celebrationRef} className="w-full mb-20 ">
-        <div className="max-w-7xl mx-auto ">
-          <motion.div
-            className="flex md:flex-row flex-col  items-center gap-8"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            {/* Celebration Message */}
-            <div className="text-center space-y-4">
-              <motion.div
-                initial={{ scale: 0.8 }}
-                whileInView={{ scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, type: "spring" }}
-                className="inline-block"
-              >
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#143087] mb-4">
-                  {locale === "ar" ? (
-                    <>
-                      نحن الفائزون بجائزة{" "}
-                      <span className="text-[#8bc34a]">MEA Business Awards 2025</span>
-                    </>
-                  ) : (
-                    <>
-                      We Are The Winners Of{" "}
-                      <span className="text-[#8bc34a]">MEA Business Awards 2025</span>
-                    </>
-                  )}
-                </h2>
-              </motion.div>
-              
-              <motion.p
-                className="text-lg sm:text-xl text-[#1e1e1e] font-medium max-w-3xl mx-auto"
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3, duration: 0.6 }}
-              >
-                {locale === "ar"
-                  ? "نفخر بحصولنا على جائزة أفضل مقدم رعاية صحية منزلية 2025 وجائزة التميز في العلاج الطبيعي 2025"
-                  : "We are proud to have won the Best Home Healthcare Provider 2025 and Excellence Award in Physical Therapy 2025"}
-              </motion.p>
-            </div>
-
-            {/* Certificate Image */}
+        <section ref={celebrationRef} className="w-full mb-20 px-5 ">
+          <div className="max-w-7xl mx-auto ">
             <motion.div
-              className="relative w-full max-w-[500px] sm:max-w-[600px] md:max-w-[700px]"
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              className="flex md:flex-row flex-col  items-center gap-8"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.4, duration: 0.6, type: "spring" }}
-              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.6 }}
             >
-              <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl   bg-white">
-                <Image
-                  src="/assets/images/certification.png"
-                  alt={
-                    locale === "ar"
-                      ? "شهادة MEA Business Awards 2025"
-                      : "MEA Business Awards 2025 Certificate"
-                  }
-                  fill
-                  className="object-contain p-4"
-                  priority
-                  quality={95}
-                />
-                
-                {/* Decorative Glow Effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-[#8bc34a]/10 pointer-events-none"></div>
+              {/* Celebration Message */}
+              <div className="text-center space-y-4">
+                <motion.div
+                  initial={{ scale: 0.8 }}
+                  whileInView={{ scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, type: "spring" }}
+                  className="inline-block"
+                >
+                  <h2
+  className="text-4xl font-bold text-[#143087] mb-4"
+  style={{ lineHeight: "inherit" }}
+>
+                    {locale === "ar" ? (
+                      <>
+                        بفضل ثقتكم نفتخر بحصولنا علي جائزة
+                        <span className="text-[#8bc34a]">
+                          MEA Business Awards 2025
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        We Are The Winners Of{" "}
+                        <span className="text-[#8bc34a]">
+                          MEA Business Awards 2025
+                        </span>
+                      </>
+                    )}
+                  </h2>
+                </motion.div>
+
+                <motion.p
+                  className="text-lg sm:text-xl text-[#1e1e1e] font-medium max-w-3xl mx-auto"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3, duration: 0.6 }}
+                >
+                  {locale === "ar"
+                    ? "نفخر بحصولنا على جائزة أفضل مقدم رعاية صحية منزلية 2025 وجائزة التميز في العلاج الطبيعي 2025"
+                    : "We are proud to have won the Best Home Healthcare Provider 2025 and Excellence Award in Physical Therapy 2025"}
+                </motion.p>
               </div>
 
-              {/* Decorative Corner Elements */}
-              <div className="absolute -top-4 -left-4 w-12 h-12 bg-[#8bc34a] rounded-full opacity-20 blur-xl"></div>
-              <div className="absolute -bottom-4 -right-4 w-12 h-12 bg-[#62a0f6] rounded-full opacity-20 blur-xl"></div>
+              {/* Certificate Image */}
+              <motion.div
+                className="relative w-full max-w-[500px] sm:max-w-[600px] md:max-w-[700px]"
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4, duration: 0.6, type: "spring" }}
+                whileHover={{ scale: 1.02 }}
+              >
+                <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl   bg-white">
+                  <Image
+                    src="/assets/images/certification.png"
+                    alt={
+                      locale === "ar"
+                        ? "شهادة MEA Business Awards 2025"
+                        : "MEA Business Awards 2025 Certificate"
+                    }
+                    fill
+                    className="object-contain p-4"
+                    priority
+                    quality={95}
+                  />
+
+                  {/* Decorative Glow Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-[#8bc34a]/10 pointer-events-none"></div>
+                </div>
+
+                {/* Decorative Corner Elements */}
+                <div className="absolute -top-4 -left-4 w-12 h-12 bg-[#8bc34a] rounded-full opacity-20 blur-xl"></div>
+                <div className="absolute -bottom-4 -right-4 w-12 h-12 bg-[#62a0f6] rounded-full opacity-20 blur-xl"></div>
+              </motion.div>
             </motion.div>
-
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section className="w-full py-6 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 xl:py-[75px] bg-[#ebfdf2]">
-        <div className="flex flex-col lg:flex-row w-full gap-4 sm:gap-6 lg:gap-12 justify-between items-center max-w-7xl mx-auto">
-          {/* Text and Icon Section */}
-          <div className="flex w-full max-w-[736px] flex-col gap-3 items-end">
-            <div className="flex w-full gap-4 sm:gap-6 justify-center items-center">
-              {/* Icon */}
-              <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-06-25/jrXCqZ0F4w.png)] bg-cover bg-no-repeat flex-shrink-0" />
-
-              {/* Text Content */}
-              <div className="flex flex-col w-full gap-3">
-                <h2 className="text-lg sm:text-xl font-semibold leading-7 sm:leading-8 text-[#1e1e1e] text-start">
-                  {contactTitle?.includes("استفسار") ? (
-                    <>
-                      اذا كان لديك أي{" "}
-                      <span className="text-[#1e1e1e]">استفسار</span> فلا تردد!
-                    </>
-                  ) : (
-                    contactTitle
-                  )}
-                </h2>
-                <p className="text-sm sm:text-base font-normal leading-6 text-[#1e1e1e] text-start">
-                  {contactDescription}
-                </p>
-              </div>
-            </div>
           </div>
+        </section>
 
-          {/* WhatsApp Button */}
-          <motion.a
-            href={`https://wa.me/${formatWhatsAppNumber(
-              whatsappNumber
-            )}?text=${encodeURIComponent(t.whatsappMessage)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex w-full sm:w-auto min-w-[200px] h-14 px-4 py-2 gap-2 justify-center items-center bg-[#12b669] rounded-xl text-white hover:bg-[#0ea55c] transition-colors"
-            variants={animationVariants.button}
-            whileHover="hover"
-            whileTap="tap"
-            aria-label={
-              locale === "ar"
-                ? "تواصل معنا عبر الواتساب"
-                : "Contact us via WhatsApp"
-            }
-          >
-            <div className="w-6 h-6 relative overflow-hidden">
-              <div className="w-5 h-5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-06-25/nc3zMu9Qh4.png)] bg-cover bg-no-repeat mt-0.5 ml-0.5" />
-            </div>
-            <span className="text-base sm:text-lg font-medium leading-7 whitespace-nowrap">
-              {t.whatsappButton}
-            </span>
-          </motion.a>
-        </div>
-      </section>
+        {/* Contact Section */}
+        <section className="w-full py-6 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 xl:py-[75px] bg-[#ebfdf2]">
+          <div className="flex flex-col lg:flex-row w-full gap-4 sm:gap-6 lg:gap-12 justify-between items-center max-w-7xl mx-auto">
+            {/* Text and Icon Section */}
+            <div className="flex w-full max-w-[736px] flex-col gap-3 items-end">
+              <div className="flex w-full gap-4 sm:gap-6 justify-center items-center">
+                {/* Icon */}
+                <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-06-25/jrXCqZ0F4w.png)] bg-cover bg-no-repeat flex-shrink-0" />
 
-      {/* Main Footer Content */}
-      <section className="w-full bg-[#eff6fe] px-4 md:px-8 lg:px-[60px] py-10">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-center items-start gap-10 lg:gap-20">
-          {/* Logo and Description */}
-          <div className="w-full max-w-[438px] flex flex-col items-center">
-            <div className="flex flex-col gap-8 items-center ">
-              {/* Logo */}
-              <div className="flex flex-col gap-6 items-center">
-                <div className="flex gap-[14px] items-center">
-                  <div className="w-[63px] h-[60px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/SKp7H4bUnm.png)] bg-cover bg-no-repeat" />
-                  <div className="w-[57px] h-[72px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/PWe640v7e4.png)] bg-cover bg-no-repeat" />
-                </div>
-                <div className="flex flex-col gap-1 items-center text-xs font-light leading-4 text-[#1e1e1e] text-center max-w-[321px]">
-                  {brandRegistrationText.map((text, index) => (
-                    <p key={index} className="text-center">
-                      {text}
-                    </p>
-                  ))}
-                </div>
-              </div>
-
-              {/* Description and Social Links */}
-              <div className="flex flex-col gap-8 items-center">
-                <p className="text-xs font-medium leading-6 text-[#1e1e1e] text-center max-w-[380px]">
-                  {t.description}
-                </p>
-
-                {/* Social Media Icons */}
-                <div className="flex gap-4 items-center flex-wrap justify-center">
-                  {dynamicSocialLinks.map((social) => (
-                    <motion.a
-                      key={social.name}
-                      href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex w-10 h-10 items-center justify-center bg-[#62a0f6] rounded-xl hover:bg-[#4f8ae8] transition-colors text-white"
-                      variants={animationVariants.button}
-                      whileHover="hover"
-                      whileTap="tap"
-                      aria-label={
-                        social.ariaLabel[
-                          locale as keyof typeof social.ariaLabel
-                        ]
-                      }
-                    >
-                      <social.icon size={20} strokeWidth={1.5} />
-                    </motion.a>
-                  ))}
+                {/* Text Content */}
+                <div className="flex flex-col w-full gap-3">
+                  <h2 className="text-lg sm:text-xl font-semibold leading-7 sm:leading-8 text-[#1e1e1e] text-start">
+                    {contactTitle?.includes("استفسار") ? (
+                      <>
+                        اذا كان لديك أي{" "}
+                        <span className="text-[#1e1e1e]">استفسار</span> فلا
+                        تردد!
+                      </>
+                    ) : (
+                      contactTitle
+                    )}
+                  </h2>
+                  <p className="text-sm sm:text-base font-normal leading-6 text-[#1e1e1e] text-start">
+                    {contactDescription}
+                  </p>
                 </div>
               </div>
             </div>
+
+            {/* WhatsApp Button */}
+            <motion.a
+              href={`https://wa.me/${formatWhatsAppNumber(
+                whatsappNumber
+              )}?text=${encodeURIComponent(t.whatsappMessage)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full sm:w-auto min-w-[200px] h-14 px-4 py-2 gap-2 justify-center items-center bg-[#12b669] rounded-xl text-white hover:bg-[#0ea55c] transition-colors"
+              variants={animationVariants.button}
+              whileHover="hover"
+              whileTap="tap"
+              aria-label={
+                locale === "ar"
+                  ? "تواصل معنا عبر الواتساب"
+                  : "Contact us via WhatsApp"
+              }
+            >
+              <div className="w-6 h-6 relative overflow-hidden">
+                <div className="w-5 h-5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-06-25/nc3zMu9Qh4.png)] bg-cover bg-no-repeat mt-0.5 ml-0.5" />
+              </div>
+              <span className="text-base sm:text-lg font-medium leading-7 whitespace-nowrap">
+                {t.whatsappButton}
+              </span>
+            </motion.a>
           </div>
+        </section>
 
-          {/* Links and Contact Section */}
-          <div className="flex items-start w-full justify-between flex-wrap gap-10 lg:gap-20 max-w-[832px]">
-            {/* Quick Links */}
-            <nav className="flex flex-col gap-8 items-start">
-              <div className="flex flex-col gap-2 items-start">
-                <h3 className="text-xl font-semibold leading-[30px] text-[#143087]">
-                  {t.quickLinks}
-                </h3>
-                <div className="w-10 h-1.5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/1tXT90JNoT.png)] bg-cover bg-no-repeat" />
-              </div>
+        {/* Main Footer Content */}
+        <section className="w-full bg-[#eff6fe] px-4 md:px-8 lg:px-[60px] py-10">
+          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-center items-start gap-10 lg:gap-20">
+            {/* Logo and Description */}
+            <div className="w-full max-w-[438px] flex flex-col items-center">
+              <div className="flex flex-col gap-8 items-center ">
+                {/* Logo */}
+                <div className="flex flex-col gap-6 items-center">
+                  <div className="flex gap-[14px] items-center">
+                    <div className="w-[63px] h-[60px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/SKp7H4bUnm.png)] bg-cover bg-no-repeat" />
+                    <div className="w-[57px] h-[72px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/PWe640v7e4.png)] bg-cover bg-no-repeat" />
+                  </div>
+                  <div className="flex flex-col gap-1 items-center text-xs font-light leading-4 text-[#1e1e1e] text-center max-w-[321px]">
+                    {brandRegistrationText.map((text, index) => (
+                      <p key={index} className="text-center">
+                        {text}
+                      </p>
+                    ))}
+                  </div>
+                </div>
 
-              <ul className="flex flex-col gap-4 items-start">
-                {[
-                  {
-                    href: `${locale === "ar" ? "" : "/en"}`,
-                    text: t.navigation.home,
-                  },
-                  {
-                    href: `${locale === "ar" ? "" : "/en"}/about`,
-                    text: t.navigation.about,
-                  },
-                  {
-                    href: `${locale === "ar" ? "" : "/en"}/our-services`,
-                    text: t.navigation.services,
-                  },
-                  {
-                    href: `${locale === "ar" ? "" : "/en"}/blog`,
-                    text: t.navigation.blog,
-                  },
-                  {
-                    href: `${locale === "ar" ? "" : "/en"}/contact`,
-                    text: t.navigation.contact,
-                  },
-                ].map((link) => (
-                  <li key={link.href}>
-                    <Link href={link.href}>
-                      <motion.span
-                        className="text-base font-normal leading-6 text-[#1e1e1e] hover:text-[#62a0f6] transition-colors cursor-pointer"
-                        variants={animationVariants.link}
+                {/* Description and Social Links */}
+                <div className="flex flex-col gap-8 items-center">
+                  <p className="text-xs font-medium leading-6 text-[#1e1e1e] text-center max-w-[380px]">
+                    {t.description}
+                  </p>
+
+                  {/* Social Media Icons */}
+                  <div className="flex gap-4 items-center flex-wrap justify-center">
+                    {dynamicSocialLinks.map((social) => (
+                      <motion.a
+                        key={social.name}
+                        href={social.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex w-10 h-10 items-center justify-center bg-[#62a0f6] rounded-xl hover:bg-[#4f8ae8] transition-colors text-white"
+                        variants={animationVariants.button}
                         whileHover="hover"
+                        whileTap="tap"
+                        aria-label={
+                          social.ariaLabel[
+                            locale as keyof typeof social.ariaLabel
+                          ]
+                        }
                       >
-                        {link.text}
-                      </motion.span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-
-            {/* App Download */}
-            <div className="flex flex-col gap-6 items-start">
-              <div className="flex flex-col gap-2 items-start">
-                <h3 className="text-xl font-semibold leading-[30px] text-[#143087]">
-                  {t.downloadApp}
-                </h3>
-                <div className="w-10 h-1.5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/Q6CctxZby4.png)] bg-cover bg-no-repeat" />
-              </div>
-
-              <div className="flex flex-col gap-3 items-start">
-                {/* Google Play Button */}
-                <motion.a
-                  href={
-                    androidLink ||
-                    "https://play.google.com/store/apps/details?id=com.homehealers.app"
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex w-full sm:w-[172px] px-5 py-4 gap-4 justify-center items-center bg-[#143087] rounded-xl hover:bg-[#0f2666] transition-colors"
-                  variants={animationVariants.button}
-                  whileHover="hover"
-                  whileTap="tap"
-                  aria-label={`${t.appDownload.text} ${t.appDownload.googlePlay}`}
-                >
-                  <div className="w-8 h-8 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/f3GhWRCGPf.png)] bg-cover bg-no-repeat" />
-                  <div className="flex flex-col gap-1 items-start">
-                    <span className="text-xs font-normal leading-4 text-white">
-                      {t.appDownload.text}
-                    </span>
-                    <span className="text-sm font-semibold leading-5 text-white">
-                      {t.appDownload.googlePlay}
-                    </span>
+                        <social.icon size={20} strokeWidth={1.5} />
+                      </motion.a>
+                    ))}
                   </div>
-                </motion.a>
-
-                {/* App Store Button */}
-                <motion.a
-                  href={
-                    iosLink ||
-                    "https://apps.apple.com/sa/app/home-healers/id123456789"
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex w-full sm:w-[172px] px-5 py-4 gap-4 justify-center items-center bg-[#143087] rounded-xl hover:bg-[#0f2666] transition-colors"
-                  variants={animationVariants.button}
-                  whileHover="hover"
-                  whileTap="tap"
-                  aria-label={`${t.appDownload.text} ${t.appDownload.appStore}`}
-                >
-                  <div className="w-8 h-8 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/GrVtXLn6Og.png)] bg-cover bg-no-repeat" />
-                  <div className="flex flex-col gap-1 items-start">
-                    <span className="text-xs font-normal leading-4 text-white">
-                      {t.appDownload.text}
-                    </span>
-                    <span className="text-sm font-semibold leading-5 text-white">
-                      {t.appDownload.appStore}
-                    </span>
-                  </div>
-                </motion.a>
+                </div>
               </div>
             </div>
 
-            {/* Contact Info */}
-            <div className="flex flex-col gap-8 items-start">
-              <div className="flex flex-col gap-2 items-start">
-                <h3 className="text-xl font-semibold leading-[30px] text-[#143087]">
-                  {t.contactUs}
-                </h3>
-                <div className="w-10 h-1.5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/JsXDV3xffp.png)] bg-cover bg-no-repeat" />
+            {/* Links and Contact Section */}
+            <div className="flex items-start w-full justify-between flex-wrap gap-10 lg:gap-20 max-w-[832px]">
+              {/* Quick Links */}
+              <nav className="flex flex-col gap-8 items-start">
+                <div className="flex flex-col gap-2 items-start">
+                  <h3 className="text-xl font-semibold leading-[30px] text-[#143087]">
+                    {t.quickLinks}
+                  </h3>
+                  <div className="w-10 h-1.5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/1tXT90JNoT.png)] bg-cover bg-no-repeat" />
+                </div>
+
+                <ul className="flex flex-col gap-4 items-start">
+                  {[
+                    {
+                      href: `${locale === "ar" ? "" : "/en"}`,
+                      text: t.navigation.home,
+                    },
+                    {
+                      href: `${locale === "ar" ? "" : "/en"}/about`,
+                      text: t.navigation.about,
+                    },
+                    {
+                      href: `${locale === "ar" ? "" : "/en"}/our-services`,
+                      text: t.navigation.services,
+                    },
+                    {
+                      href: `${locale === "ar" ? "" : "/en"}/blog`,
+                      text: t.navigation.blog,
+                    },
+                    {
+                      href: `${locale === "ar" ? "" : "/en"}/contact`,
+                      text: t.navigation.contact,
+                    },
+                  ].map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href}>
+                        <motion.span
+                          className="text-base font-normal leading-6 text-[#1e1e1e] hover:text-[#62a0f6] transition-colors cursor-pointer"
+                          variants={animationVariants.link}
+                          whileHover="hover"
+                        >
+                          {link.text}
+                        </motion.span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+
+              {/* App Download */}
+              <div className="flex flex-col gap-6 items-start">
+                <div className="flex flex-col gap-2 items-start">
+                  <h3 className="text-xl font-semibold leading-[30px] text-[#143087]">
+                    {t.downloadApp}
+                  </h3>
+                  <div className="w-10 h-1.5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/Q6CctxZby4.png)] bg-cover bg-no-repeat" />
+                </div>
+
+                <div className="flex flex-col gap-3 items-start">
+                  {/* Google Play Button */}
+                  <motion.a
+                    href={
+                      androidLink ||
+                      "https://play.google.com/store/apps/details?id=com.homehealers.app"
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-full sm:w-[172px] px-5 py-4 gap-4 justify-center items-center bg-[#143087] rounded-xl hover:bg-[#0f2666] transition-colors"
+                    variants={animationVariants.button}
+                    whileHover="hover"
+                    whileTap="tap"
+                    aria-label={`${t.appDownload.text} ${t.appDownload.googlePlay}`}
+                  >
+                    <div className="w-8 h-8 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/f3GhWRCGPf.png)] bg-cover bg-no-repeat" />
+                    <div className="flex flex-col gap-1 items-start">
+                      <span className="text-xs font-normal leading-4 text-white">
+                        {t.appDownload.text}
+                      </span>
+                      <span className="text-sm font-semibold leading-5 text-white">
+                        {t.appDownload.googlePlay}
+                      </span>
+                    </div>
+                  </motion.a>
+
+                  {/* App Store Button */}
+                  <motion.a
+                    href={
+                      iosLink ||
+                      "https://apps.apple.com/sa/app/home-healers/id123456789"
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-full sm:w-[172px] px-5 py-4 gap-4 justify-center items-center bg-[#143087] rounded-xl hover:bg-[#0f2666] transition-colors"
+                    variants={animationVariants.button}
+                    whileHover="hover"
+                    whileTap="tap"
+                    aria-label={`${t.appDownload.text} ${t.appDownload.appStore}`}
+                  >
+                    <div className="w-8 h-8 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/GrVtXLn6Og.png)] bg-cover bg-no-repeat" />
+                    <div className="flex flex-col gap-1 items-start">
+                      <span className="text-xs font-normal leading-4 text-white">
+                        {t.appDownload.text}
+                      </span>
+                      <span className="text-sm font-semibold leading-5 text-white">
+                        {t.appDownload.appStore}
+                      </span>
+                    </div>
+                  </motion.a>
+                </div>
               </div>
 
-              <address className="flex flex-col gap-6 items-start not-italic">
-                {/* Address */}
-                <motion.a
-                  href={`https://www.google.com/maps/search/${encodeURIComponent(
-                    businessAddress
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex gap-3 justify-start items-start hover:text-[#62a0f6] transition-colors"
-                  variants={animationVariants.link}
-                  whileHover="hover"
-                  aria-label={
-                    locale === "ar"
-                      ? "موقعنا على الخريطة"
-                      : "Our location on map"
-                  }
-                >
-                  <div className="w-6 h-6 flex-shrink-0 mt-0.5">
-                    <div className="w-4 h-5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/KZx9WMQ2oO.png)] bg-cover bg-no-repeat ml-1" />
-                  </div>
-                  <span className="text-sm font-normal leading-5 text-[#1e1e1e] max-w-[180px]">
-                    {businessAddress}
-                  </span>
-                </motion.a>
+              {/* Contact Info */}
+              <div className="flex flex-col gap-8 items-start">
+                <div className="flex flex-col gap-2 items-start">
+                  <h3 className="text-xl font-semibold leading-[30px] text-[#143087]">
+                    {t.contactUs}
+                  </h3>
+                  <div className="w-10 h-1.5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/JsXDV3xffp.png)] bg-cover bg-no-repeat" />
+                </div>
 
-                {/* Email */}
-                <motion.a
-                  href={`mailto:${businessEmail}`}
-                  className="flex gap-3 justify-start items-center hover:text-[#62a0f6] transition-colors"
-                  variants={animationVariants.link}
-                  whileHover="hover"
-                  aria-label={
-                    locale === "ar"
-                      ? "راسلنا عبر البريد الإلكتروني"
-                      : "Send us an email"
-                  }
-                >
-                  <div className="w-6 h-6 flex-shrink-0">
-                    <div className="w-5 h-4 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/YMvEXnJGd2.png)] bg-cover bg-no-repeat mt-1 ml-0.5" />
-                  </div>
-                  <span className="text-sm font-normal leading-5 text-[#1e1e1e]">
-                    {businessEmail}
-                  </span>
-                </motion.a>
+                <address className="flex flex-col gap-6 items-start not-italic">
+                  {/* Address */}
+                  <motion.a
+                    href={`https://www.google.com/maps/search/${encodeURIComponent(
+                      businessAddress
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex gap-3 justify-start items-start hover:text-[#62a0f6] transition-colors"
+                    variants={animationVariants.link}
+                    whileHover="hover"
+                    aria-label={
+                      locale === "ar"
+                        ? "موقعنا على الخريطة"
+                        : "Our location on map"
+                    }
+                  >
+                    <div className="w-6 h-6 flex-shrink-0 mt-0.5">
+                      <div className="w-4 h-5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/KZx9WMQ2oO.png)] bg-cover bg-no-repeat ml-1" />
+                    </div>
+                    <span className="text-sm font-normal leading-5 text-[#1e1e1e] max-w-[180px]">
+                      {businessAddress}
+                    </span>
+                  </motion.a>
 
-                {/* Phone */}
-                <motion.a
-                  href={`tel:+${formatWhatsAppNumber(contactPhone)}`}
-                  className="flex gap-3 justify-start items-center hover:text-[#62a0f6] transition-colors"
-                  variants={animationVariants.link}
-                  whileHover="hover"
-                  aria-label={locale === "ar" ? "اتصل بنا" : "Call us"}
-                >
-                  <div className="w-6 h-6 flex-shrink-0">
-                    <div className="w-5 h-5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/c4wQnrL1nf.png)] bg-cover bg-no-repeat mt-0.5 ml-0.5" />
-                  </div>
-                  <span className="text-sm font-normal leading-5 text-[#1e1e1e]">
-                    {contactPhone}
-                  </span>
-                </motion.a>
-              </address>
+                  {/* Email */}
+                  <motion.a
+                    href={`mailto:${businessEmail}`}
+                    className="flex gap-3 justify-start items-center hover:text-[#62a0f6] transition-colors"
+                    variants={animationVariants.link}
+                    whileHover="hover"
+                    aria-label={
+                      locale === "ar"
+                        ? "راسلنا عبر البريد الإلكتروني"
+                        : "Send us an email"
+                    }
+                  >
+                    <div className="w-6 h-6 flex-shrink-0">
+                      <div className="w-5 h-4 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/YMvEXnJGd2.png)] bg-cover bg-no-repeat mt-1 ml-0.5" />
+                    </div>
+                    <span className="text-sm font-normal leading-5 text-[#1e1e1e]">
+                      {businessEmail}
+                    </span>
+                  </motion.a>
+
+                  {/* Phone */}
+                  <motion.a
+                    href={`tel:+${formatWhatsAppNumber(contactPhone)}`}
+                    className="flex gap-3 justify-start items-center hover:text-[#62a0f6] transition-colors"
+                    variants={animationVariants.link}
+                    whileHover="hover"
+                    aria-label={locale === "ar" ? "اتصل بنا" : "Call us"}
+                  >
+                    <div className="w-6 h-6 flex-shrink-0">
+                      <div className="w-5 h-5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/c4wQnrL1nf.png)] bg-cover bg-no-repeat mt-0.5 ml-0.5" />
+                    </div>
+                    <span className="text-sm font-normal leading-5 text-[#1e1e1e]">
+                      {contactPhone}
+                    </span>
+                  </motion.a>
+                </address>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-
-
-      {/* Bottom Section */}
-      <section className="w-full bg-[#eff6fe]">
-        {/* Social Media Links */}
-        {/* <div className="w-full py-4 ">
+        {/* Bottom Section */}
+        <section className="w-full bg-[#eff6fe]">
+          {/* Social Media Links */}
+          {/* <div className="w-full py-4 ">
           <div className="flex flex-wrap justify-center items-center gap-6 max-w-[1200px] mx-auto px-4">
             {dynamicSocialLinks.map((social) => (
               <motion.a
@@ -860,35 +877,35 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
           </div>
         </div> */}
 
-        {/* Copyright and Legal Links */}
-        <div className="w-full border-t border-b border-[#1a191a] py-4">
-          <div className="flex flex-col lg:flex-row justify-between items-center gap-4 max-w-7xl mx-auto px-4">
-            <nav className="flex flex-col sm:flex-row gap-4 items-center">
-              <Link href={`${locale === "ar" ? "" : "/en"}/terms`}>
-                <motion.span
-                  className="text-base font-medium leading-6 text-[#1e1e1e] cursor-pointer hover:text-[#62a0f6] transition-colors"
-                  variants={animationVariants.link}
-                  whileHover="hover"
-                >
-                  {t.legal.terms}
-                </motion.span>
-              </Link>
-              <Link href={`${locale === "ar" ? "" : "/en"}/privacy`}>
-                <motion.span
-                  className="text-base font-medium leading-6 text-[#1e1e1e] cursor-pointer hover:text-[#62a0f6] transition-colors"
-                  variants={animationVariants.link}
-                  whileHover="hover"
-                >
-                  {t.legal.privacy}
-                </motion.span>
-              </Link>
-            </nav>
-            <p className="text-base font-medium leading-6 text-[#1e1e1e] text-center">
-              {copyrightText}
-            </p>
+          {/* Copyright and Legal Links */}
+          <div className="w-full border-t border-b border-[#1a191a] py-4">
+            <div className="flex flex-col lg:flex-row justify-between items-center gap-4 max-w-7xl mx-auto px-4">
+              <nav className="flex flex-col sm:flex-row gap-4 items-center">
+                <Link href={`${locale === "ar" ? "" : "/en"}/terms`}>
+                  <motion.span
+                    className="text-base font-medium leading-6 text-[#1e1e1e] cursor-pointer hover:text-[#62a0f6] transition-colors"
+                    variants={animationVariants.link}
+                    whileHover="hover"
+                  >
+                    {t.legal.terms}
+                  </motion.span>
+                </Link>
+                <Link href={`${locale === "ar" ? "" : "/en"}/privacy`}>
+                  <motion.span
+                    className="text-base font-medium leading-6 text-[#1e1e1e] cursor-pointer hover:text-[#62a0f6] transition-colors"
+                    variants={animationVariants.link}
+                    whileHover="hover"
+                  >
+                    {t.legal.privacy}
+                  </motion.span>
+                </Link>
+              </nav>
+              <p className="text-base font-medium leading-6 text-[#1e1e1e] text-center">
+                {copyrightText}
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
       </footer>
     </>
   );
