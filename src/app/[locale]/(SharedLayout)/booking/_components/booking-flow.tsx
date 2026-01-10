@@ -258,6 +258,7 @@ export default function BookingFlow({
     //@ts-ignore
     if (
       bookingData.selectedLocation &&
+      //@ts-ignore
       !locations.some((loc) => loc.id === bookingData.selectedLocation.id)
     ) {
       updateBookingData({ selectedLocation: null });
