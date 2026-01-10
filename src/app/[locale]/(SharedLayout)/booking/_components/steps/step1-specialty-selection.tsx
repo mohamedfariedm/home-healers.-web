@@ -23,11 +23,13 @@ export default function Step1SpecialtySelection({
 
   /* --------------------- STATE --------------------- */
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedType, setSelectedType] = useState<"category" | "service">("category");
+  const [selectedType, setSelectedType] = useState<"category" | "service">(
+    "category"
+  );
   const [isQuickBookingOpen, setIsQuickBookingOpen] = useState(false);
-  const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);   // <-- NEW
-  const [savedLocations, setSavedLocations] = useState<Location[]>([]);      // <-- NEW
- let route=useRouter()
+  const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false); // <-- NEW
+  const [savedLocations, setSavedLocations] = useState<Location[]>([]); // <-- NEW
+  let route = useRouter();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -64,7 +66,10 @@ export default function Step1SpecialtySelection({
 
   const updateSavedLocations = (locations: Location[]) => {
     setSavedLocations(locations);
-    localStorage.setItem("quickBookingSavedLocations", JSON.stringify(locations));
+    localStorage.setItem(
+      "quickBookingSavedLocations",
+      JSON.stringify(locations)
+    );
   };
 
   /* ------------------- FILTERS ------------------- */
@@ -89,9 +94,10 @@ export default function Step1SpecialtySelection({
   /* ------------------- HANDLERS ------------------- */
   const handleCategorySelect = (category: Category) => {
     updateBookingData({ selectedCategory: category, selectedService: null });
-    const catServices = servicesData?.data?.filter(
-      (s: Service) => s.category?.id === category.id
-    ) || [];
+    const catServices =
+      servicesData?.data?.filter(
+        (s: Service) => s.category?.id === category.id
+      ) || [];
 
     if (catServices.length) {
       setSelectedType("service");
@@ -133,13 +139,12 @@ export default function Step1SpecialtySelection({
     setIsSubmitting(true);
 
     try {
-
-
-
       const res = await ClientAPI.createQueiqReservation(quickForm, "ar");
 
       if (res?.success || res?.data) {
-        toast.success(t("step1.quickBookingSuccess") || "تم إرسال طلب الحجز السريع بنجاح!");
+        toast.success(
+          t("step1.quickBookingSuccess") || "تم إرسال طلب الحجز السريع بنجاح!"
+        );
         setIsQuickBookingOpen(false);
         setQuickForm({
           pain_location: "",
@@ -165,13 +170,19 @@ export default function Step1SpecialtySelection({
           address_state: "",
           address_link: "",
         });
-        console.log({res});
+        console.log({ res });
         const reservationId = res.data[0].id;
-      const responceTelr = await ClientAPI.payReservationWithTelr(reservationId, "ar");
-      console.log("responceTelr", responceTelr);
-      
-      route.push(responceTelr.redirect_url);
-      } else toast.error(t("step1.quickBookingFailed") || "فشل الإرسال، حاول مرة أخرى.");
+        const responceTelr = await ClientAPI.payReservationWithTelr(
+          reservationId,
+          "ar"
+        );
+        console.log("responceTelr", responceTelr);
+
+        route.push(responceTelr.redirect_url);
+      } else
+        toast.error(
+          t("step1.quickBookingFailed") || "فشل الإرسال، حاول مرة أخرى."
+        );
     } catch (err) {
       console.error(err);
       toast.error(t("messages.error"));
@@ -181,11 +192,13 @@ export default function Step1SpecialtySelection({
   };
 
   /* ------------------- LOCATION PICKER CALLBACK ------------------- */
-  const handleLocationSaved = (loc: Location & {
-    address_city?: string;
-    address_state?: string;
-    address_link?: string;
-  }) => {
+  const handleLocationSaved = (
+    loc: Location & {
+      address_city?: string;
+      address_state?: string;
+      address_link?: string;
+    }
+  ) => {
     // Fill the quick-booking fields
     setQuickForm((p) => ({
       ...p,
@@ -223,7 +236,8 @@ export default function Step1SpecialtySelection({
             {t("step1.quickBooking")}
           </h2>
           <p className="text-base leading-6 text-[#1e1e1e] text-right">
-            {t("step1.quickBookingDescription") || "أرسل حالتك وسنتواصل معك لتحديد الطبيب والموعد المناسب"}
+            {t("step1.quickBookingDescription") ||
+              "أرسل حالتك وسنتواصل معك لتحديد الطبيب والموعد المناسب"}
           </p>
           <button
             onClick={() => setIsQuickBookingOpen(true)}
@@ -288,12 +302,14 @@ export default function Step1SpecialtySelection({
         {/* Empty states */}
         {selectedType === "category" && isCategoriesEmpty && (
           <div className="text-center p-6 text-gray-600">
-            {t("step1.noCategories") || "لا توجد تخصصات متاحة حاليًا. حاول لاحقًا."}
+            {t("step1.noCategories") ||
+              "لا توجد تخصصات متاحة حاليًا. حاول لاحقًا."}
           </div>
         )}
         {selectedType === "service" && isServicesEmpty && (
           <div className="text-center p-6 text-gray-600">
-            {t("step1.noServices") || "لا توجد خدمات متاحة لهذا التخصص. يمكنك العودة لاختيار تخصص آخر."}
+            {t("step1.noServices") ||
+              "لا توجد خدمات متاحة لهذا التخصص. يمكنك العودة لاختيار تخصص آخر."}
           </div>
         )}
 
@@ -321,14 +337,21 @@ export default function Step1SpecialtySelection({
                     <div className="flex flex-col items-center gap-4">
                       <div className="w-16 h-16 bg-[#eff6fe] rounded-full flex items-center justify-center">
                         <img
-                          src={c.image?.[0]?.original || "/default-category.png"}
+                          src={
+                            c.image?.[0]?.original || "/default-category.png"
+                          }
                           alt={c.name}
                           className="w-8 h-8 object-cover rounded-full"
                         />
                       </div>
                       <div className="text-center">
-                        <h3 className="font-semibold text-[#1e1e1e] mb-1">{c.name}</h3>
-                        <p className="text-sm text-gray-600">{c.services?.length || 0} {t("step1.service") || "خدمة"}</p>
+                        <h3 className="font-semibold text-[#1e1e1e] mb-1">
+                          {c.name}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {c.services?.length || 0}{" "}
+                          {t("step1.service") || "خدمة"}
+                        </p>
                       </div>
                     </div>
                   </button>
@@ -355,12 +378,16 @@ export default function Step1SpecialtySelection({
                         />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-[#1e1e1e] mb-2">{s.name}</h3>
+                        <h3 className="font-semibold text-[#1e1e1e] mb-2">
+                          {s.name}
+                        </h3>
                         <p className="text-sm text-gray-600 line-clamp-3">
                           {s.description.replace(/<[^>]*>/g, "")}
                         </p>
                         {s.category && (
-                          <p className="text-xs text-[#62a0f6] mt-2">{s.category.name}</p>
+                          <p className="text-xs text-[#62a0f6] mt-2">
+                            {s.category.name}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -377,12 +404,20 @@ export default function Step1SpecialtySelection({
             <p className="text-green-800 font-medium">
               {t("step1.selected") || "تم اختيار"}:{" "}
               {bookingData.selectedCategory && !bookingData.selectedService ? (
-                <>{bookingData.selectedCategory.name} ({t("step1.category") || "تخصص"})</>
+                <>
+                  {bookingData.selectedCategory.name} (
+                  {t("step1.category") || "تخصص"})
+                </>
               ) : (
                 <>
-                  {bookingData.selectedService?.name} ({t("step1.service") || "خدمة"})
+                  {bookingData.selectedService?.name} (
+                  {t("step1.service") || "خدمة"})
                   {bookingData.selectedService?.category && (
-                    <> - {t("step1.category")}: {bookingData.selectedService.category.name}</>
+                    <>
+                      {" "}
+                      - {t("step1.category")}:{" "}
+                      {bookingData.selectedService.category.name}
+                    </>
                   )}
                 </>
               )}
@@ -393,311 +428,454 @@ export default function Step1SpecialtySelection({
 
       {/* ==================== QUICK BOOKING MODAL ==================== */}
       {isQuickBookingOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-2 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[95%] sm:max-w-2xl lg:max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
             {/* Header */}
-            <div className="p-6 border-b flex justify-between items-center">
-              <h2 className="text-xl font-bold">{t("step1.quickBooking")}</h2>
+            <div className="sticky top-0 bg-white p-4 sm:p-6 border-b flex justify-between items-center z-10">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-800">
+                {t("step1.quickBooking")}
+              </h2>
               <button
                 onClick={() => setIsQuickBookingOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleQuickBookingSubmit} className="p-6 space-y-6">
-              {/* Pain & Notes */}
-              <div>
-                <label className="form-label">{t("step1.painLocation")}</label>
-                <input
-                  type="text"
-                  required
-                  placeholder={t("step1.painLocationPlaceholder") || "مثال: أسفل الظهر – الركبة – الرقبة"}
-                  value={quickForm.pain_location}
-                  onChange={(e) =>
-                    setQuickForm((p) => ({ ...p, pain_location: e.target.value }))
-                  }
-                  className="form-input"
-                />
-              </div>
-
-              <div>
-                <label className="form-label">{t("step1.notes")}</label>
-                <textarea
-                  rows={4}
-                  required
-                  placeholder={t("step1.notesPlaceholder") || "اكتب وصف دقيق للحالة – متى بدأ الألم – ما الذى يسببه – الأدوية الحالية..."}
-                  value={quickForm.notes}
-                  onChange={(e) =>
-                    setQuickForm((p) => ({ ...p, notes: e.target.value }))
-                  }
-                  className="form-input"
-                />
-              </div>
-
-
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-  {/* Full Name */}
-  <div>
-    <label className="form-label">{t("step1.name")}</label>
-    <input
-      type="text"
-      required
-      placeholder={t("step1.namePlaceholder") || "أدخل اسم المريض"}
-      value={quickForm.guest_info.name}
-      onChange={(e) =>
-        setQuickForm((p) => ({
-          ...p,
-          guest_info: { ...p.guest_info, name: e.target.value },
-        }))
-      }
-      className="form-input"
-    />
-  </div>
-
-  {/* Email */}
-  <div>
-    <label className="form-label">{t("step1.email")}</label>
-    <input
-      type="email"
-      required
-      placeholder="example@email.com"
-      value={quickForm.guest_info.email}
-      onChange={(e) =>
-        setQuickForm((p) => ({
-          ...p,
-          guest_info: { ...p.guest_info, email: e.target.value },
-        }))
-      }
-      className="form-input"
-    />
-  </div>
-
-  {/* Mobile */}
-  <div>
-    <label className="form-label">{t("step1.mobile")}</label>
-    <input
-      type="tel"
-      required
-      placeholder="05xxxxxxxx"
-      value={quickForm.guest_info.mobile}
-      onChange={(e) =>
-        setQuickForm((p) => ({
-          ...p,
-          guest_info: { ...p.guest_info, mobile: e.target.value },
-        }))
-      }
-      className="form-input"
-    />
-  </div>
-
-
-
-  {/* Nationality */}
-  <div>
-    <label className="form-label">{t("step1.nationality")}</label>
-    <input
-      type="text"
-      placeholder="سعودي – مصري – أردني..."
-      value={quickForm.guest_info.nationality}
-      onChange={(e) =>
-        setQuickForm((p) => ({
-          ...p,
-          guest_info: { ...p.guest_info, nationality: e.target.value },
-        }))
-      }
-      className="form-input"
-    />
-  </div>
-
-  {/* Date of Birth */}
-  <div>
-    <label className="form-label">{t("step1.dateOfBirth")}</label>
-    <input
-      type="date"
-      value={quickForm.guest_info.date_of_birth}
-      onChange={(e) =>
-        setQuickForm((p) => ({
-          ...p,
-          guest_info: { ...p.guest_info, date_of_birth: e.target.value },
-        }))
-      }
-      className="form-input"
-    />
-  </div>
-
-  {/* Gender */}
-  <div>
-    <label className="form-label">{t("step1.gender")}</label>
-    <select
-      value={quickForm.guest_info.gender}
-      onChange={(e) =>
-        setQuickForm((p) => ({
-          ...p,
-          guest_info: { ...p.guest_info, gender: e.target.value as "male" | "female" },
-        }))
-      }
-      className="form-input"
-    >
-      <option value="">{t("step1.select") || "اختر"}</option>
-      <option value="male">{t("step1.male")}</option>
-      <option value="female">{t("step1.female")}</option>
-    </select>
-  </div>
-
-  {/* National ID */}
-  <div>
-    <label className="form-label">{t("step1.nationalId")}</label>
-    <input
-      type="text"
-      placeholder="الهوية / الإقامة"
-      value={quickForm.guest_info.national_id}
-      onChange={(e) =>
-        setQuickForm((p) => ({
-          ...p,
-          guest_info: { ...p.guest_info, national_id: e.target.value },
-        }))
-      }
-      className="form-input"
-    />
-  </div>
-
-  {/* Blood Group */}
-  <div>
-    <label className="form-label">{t("step1.bloodGroup")}</label>
-    <select
-      value={quickForm.guest_info.blood_group}
-      onChange={(e) =>
-        setQuickForm((p) => ({
-          ...p,
-          guest_info: { ...p.guest_info, blood_group: e.target.value },
-        }))
-      }
-      className="form-input"
-    >
-      <option value="">اختر فصيلة الدم</option>
-      <option value="A+">A+</option>
-      <option value="A-">A-</option>
-      <option value="B+">B+</option>
-      <option value="B-">B-</option>
-      <option value="AB+">AB+</option>
-      <option value="AB-">AB-</option>
-      <option value="O+">O+</option>
-      <option value="O-">O-</option>
-    </select>
-  </div>
-
-
-</div>
-
-              {/* ==== ADDRESS SECTION ==== */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Address */}
-  <div>
-    <label className="form-label">{t("step1.address")}</label>
-    <input
-      type="text"
-      required
-      placeholder="الحي – الشارع – رقم المبنى"
-      value={quickForm.guest_info.address}
-      onChange={(e) =>
-        setQuickForm((p) => ({
-          ...p,
-          guest_info: { ...p.guest_info, address: e.target.value },
-        }))
-      }
-      className="form-input"
-    />
-  </div>
-
-  {/* City */}
-  <div>
-    <label className="form-label">{t("step1.city")}</label>
-    <input
-      type="text"
-      required
-      placeholder="الرياض – جدة – الدمام..."
-      value={quickForm.guest_info.city}
-      onChange={(e) =>
-        setQuickForm((p) => ({
-          ...p,
-          guest_info: { ...p.guest_info, city: e.target.value },
-        }))
-      }
-      className="form-input"
-    />
-  </div>
-
-  {/* Country */}
-  <div>
-    <label className="form-label">{t("step1.country")}</label>
-    <input
-      type="text"
-      required
-      placeholder="السعودية – الكويت – الإمارات..."
-      value={quickForm.guest_info.country}
-      onChange={(e) =>
-        setQuickForm((p) => ({
-          ...p,
-          guest_info: { ...p.guest_info, country: e.target.value },
-        }))
-      }
-      className="form-input"
-    />
-  </div>
-
-                <div>
-                  <label className="form-label">{t("step1.state") || "المنطقة / الولاية"}</label>
-                  <input
-                    type="text"
-                    placeholder="منطقة الرياض..."
-                    value={quickForm.address_state}
-                    onChange={(e) =>
-                      setQuickForm((p) => ({ ...p, address_state: e.target.value }))
-                    }
-                    className="form-input"
-                  />
-                </div>
-
-                {/* LINK + PICKER BUTTON */}
-                <div>
-                  <label className="form-label">{t("step3.selectLocation")}</label>
-                  <div className="flex gap-2">
+            <form
+              onSubmit={handleQuickBookingSubmit}
+              className="p-4 sm:p-6 space-y-5 sm:space-y-6"
+            >
+              {/* Pain & Notes Section */}
+              <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-4 sm:p-5 rounded-xl border border-emerald-100">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <span className="w-6 h-6 sm:w-7 sm:h-7 bg-emerald-500 text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-bold">
+                    1
+                  </span>
+                  {t("step1.medicalInfo") || "المعلومات الطبية"}
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {t("step1.painLocation")} *
+                    </label>
                     <input
                       type="text"
-                      placeholder="https://maps.google.com/?q=..."
-                      value={quickForm.address_link}
-                      readOnly
-                      className="form-input flex-1 bg-gray-50"
+                      required
+                      placeholder={
+                        t("step1.painLocationPlaceholder") ||
+                        "مثال: أسفل الظهر – الركبة – الرقبة"
+                      }
+                      value={quickForm.pain_location}
+                      onChange={(e) =>
+                        setQuickForm((p) => ({
+                          ...p,
+                          pain_location: e.target.value,
+                        }))
+                      }
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-gray-400 transition-all"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setIsLocationPickerOpen(true)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 whitespace-nowrap"
-                    >
-                      {t("step3.selectLocation")}
-                    </button>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {t("step1.notes")} *
+                    </label>
+                    <textarea
+                      rows={3}
+                      required
+                      placeholder={
+                        t("step1.notesPlaceholder") ||
+                        "اكتب وصف دقيق للحالة – متى بدأ الألم – ما الذى يسببه – الأدوية الحالية..."
+                      }
+                      value={quickForm.notes}
+                      onChange={(e) =>
+                        setQuickForm((p) => ({ ...p, notes: e.target.value }))
+                      }
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-gray-400 transition-all resize-none"
+                    />
                   </div>
                 </div>
               </div>
 
-              {/* ==== SUBMIT ==== */}
-              <div className="flex justify-end gap-3 pt-4">
+              {/* Personal Info Section */}
+              <div className="bg-gradient-to-r from-blue-50 to-sky-50 p-4 sm:p-5 rounded-xl border border-blue-100">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <span className="w-6 h-6 sm:w-7 sm:h-7 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-bold">
+                    2
+                  </span>
+                  {t("step1.personalInfo") || "المعلومات الشخصية"}
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Full Name */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {t("step1.name")} *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder={
+                        t("step1.namePlaceholder") || "أدخل اسم المريض"
+                      }
+                      value={quickForm.guest_info.name}
+                      onChange={(e) =>
+                        setQuickForm((p) => ({
+                          ...p,
+                          guest_info: { ...p.guest_info, name: e.target.value },
+                        }))
+                      }
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400 transition-all"
+                    />
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {t("step1.email")} *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="example@email.com"
+                      value={quickForm.guest_info.email}
+                      onChange={(e) =>
+                        setQuickForm((p) => ({
+                          ...p,
+                          guest_info: {
+                            ...p.guest_info,
+                            email: e.target.value,
+                          },
+                        }))
+                      }
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400 transition-all"
+                    />
+                  </div>
+
+                  {/* Mobile */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {t("step1.mobile")} *
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="05xxxxxxxx"
+                      value={quickForm.guest_info.mobile}
+                      onChange={(e) =>
+                        setQuickForm((p) => ({
+                          ...p,
+                          guest_info: {
+                            ...p.guest_info,
+                            mobile: e.target.value,
+                          },
+                        }))
+                      }
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400 transition-all"
+                    />
+                  </div>
+
+                  {/* Nationality */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {t("step1.nationality")}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="سعودي – مصري – أردني..."
+                      value={quickForm.guest_info.nationality}
+                      onChange={(e) =>
+                        setQuickForm((p) => ({
+                          ...p,
+                          guest_info: {
+                            ...p.guest_info,
+                            nationality: e.target.value,
+                          },
+                        }))
+                      }
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400 transition-all"
+                    />
+                  </div>
+
+                  {/* Date of Birth */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {t("step1.dateOfBirth")}
+                    </label>
+                    <input
+                      type="date"
+                      value={quickForm.guest_info.date_of_birth}
+                      onChange={(e) =>
+                        setQuickForm((p) => ({
+                          ...p,
+                          guest_info: {
+                            ...p.guest_info,
+                            date_of_birth: e.target.value,
+                          },
+                        }))
+                      }
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+
+                  {/* Gender */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {t("step1.gender")}
+                    </label>
+                    <select
+                      value={quickForm.guest_info.gender}
+                      onChange={(e) =>
+                        setQuickForm((p) => ({
+                          ...p,
+                          guest_info: {
+                            ...p.guest_info,
+                            gender: e.target.value as "male" | "female",
+                          },
+                        }))
+                      }
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="">{t("step1.select") || "اختر"}</option>
+                      <option value="male">{t("step1.male") || "ذكر"}</option>
+                      <option value="female">
+                        {t("step1.female") || "أنثى"}
+                      </option>
+                    </select>
+                  </div>
+
+                  {/* National ID */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {t("step1.nationalId")}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="الهوية / الإقامة"
+                      value={quickForm.guest_info.national_id}
+                      onChange={(e) =>
+                        setQuickForm((p) => ({
+                          ...p,
+                          guest_info: {
+                            ...p.guest_info,
+                            national_id: e.target.value,
+                          },
+                        }))
+                      }
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400 transition-all"
+                    />
+                  </div>
+
+                  {/* Blood Group */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {t("step1.bloodGroup")}
+                    </label>
+                    <select
+                      value={quickForm.guest_info.blood_group}
+                      onChange={(e) =>
+                        setQuickForm((p) => ({
+                          ...p,
+                          guest_info: {
+                            ...p.guest_info,
+                            blood_group: e.target.value,
+                          },
+                        }))
+                      }
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="">
+                        {t("step1.selectBloodGroup") || "اختر فصيلة الدم"}
+                      </option>
+                      <option value="A+">A+</option>
+                      <option value="A-">A-</option>
+                      <option value="B+">B+</option>
+                      <option value="B-">B-</option>
+                      <option value="AB+">AB+</option>
+                      <option value="AB-">AB-</option>
+                      <option value="O+">O+</option>
+                      <option value="O-">O-</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Address Section */}
+              <div className="bg-gradient-to-r from-purple-50 to-violet-50 p-4 sm:p-5 rounded-xl border border-purple-100">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <span className="w-6 h-6 sm:w-7 sm:h-7 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-bold">
+                    3
+                  </span>
+                  {t("step1.addressInfo") || "معلومات العنوان"}
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Address */}
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {t("step1.address")} *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="الحي – الشارع – رقم المبنى"
+                      value={quickForm.guest_info.address}
+                      onChange={(e) =>
+                        setQuickForm((p) => ({
+                          ...p,
+                          guest_info: {
+                            ...p.guest_info,
+                            address: e.target.value,
+                          },
+                        }))
+                      }
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder:text-gray-400 transition-all"
+                    />
+                  </div>
+
+                  {/* City */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {t("step1.city")} *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="الرياض – جدة – الدمام..."
+                      value={quickForm.guest_info.city}
+                      onChange={(e) =>
+                        setQuickForm((p) => ({
+                          ...p,
+                          guest_info: { ...p.guest_info, city: e.target.value },
+                        }))
+                      }
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder:text-gray-400 transition-all"
+                    />
+                  </div>
+
+                  {/* Country */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {t("step1.country")} *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="السعودية – الكويت – الإمارات..."
+                      value={quickForm.guest_info.country}
+                      onChange={(e) =>
+                        setQuickForm((p) => ({
+                          ...p,
+                          guest_info: {
+                            ...p.guest_info,
+                            country: e.target.value,
+                          },
+                        }))
+                      }
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder:text-gray-400 transition-all"
+                    />
+                  </div>
+
+                  {/* State */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {t("step1.state") || "المنطقة / الولاية"}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="منطقة الرياض..."
+                      value={quickForm.address_state}
+                      onChange={(e) =>
+                        setQuickForm((p) => ({
+                          ...p,
+                          address_state: e.target.value,
+                        }))
+                      }
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder:text-gray-400 transition-all"
+                    />
+                  </div>
+
+                  {/* Location Picker */}
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {t("step3.selectLocation")}
+                    </label>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="text"
+                        placeholder="https://maps.google.com/?q=..."
+                        value={quickForm.address_link}
+                        readOnly
+                        className="flex-1 h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right bg-gray-50 text-gray-600 focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setIsLocationPickerOpen(true)}
+                        className="h-11 sm:h-12 px-5 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-medium flex items-center justify-center gap-2 whitespace-nowrap"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-4 h-4"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        {t("step3.selectLocation")}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-gray-100">
                 <button
                   type="button"
                   onClick={() => setIsQuickBookingOpen(false)}
-                  className="px-6 py-3 border rounded-lg text-gray-700 hover:bg-gray-50"
+                  className="h-11 sm:h-12 px-6 border-2 border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors"
                 >
                   {t("modals.addPatient.cancel")}
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-60"
+                  className="h-11 sm:h-12 px-8 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl font-medium hover:from-emerald-600 hover:to-green-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
                 >
-                  {isSubmitting ? t("step1.submitting") || "جاري الإرسال..." : t("step1.submit") || "إرسال الطلب"}
+                  {isSubmitting ? (
+                    <>
+                      <svg
+                        className="animate-spin h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      {t("step1.submitting") || "جاري الإرسال..."}
+                    </>
+                  ) : (
+                    <>
+                      <ArrowRight className="w-5 h-5 rotate-180" />
+                      {t("step1.submit") || "إرسال الطلب"}
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -728,8 +906,4 @@ interface Step1Props {
   onNext: () => void;
 }
 
-/* Simple reusable Tailwind classes (you can move to a CSS file) */
-const style = `
-  .form-label { @apply block text-sm font-medium text-gray-700 mb-1; }
-  .form-input { @apply w-full p-3 border border-gray-300 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#10b981]; }
-`;
+/* Form styles are now inline using Tailwind classes for better consistency */
