@@ -16,3 +16,4 @@ export { default as Values } from "./Values";
 export { default as Testimonials } from "./Testimonials";
 export { default as Blogs } from "./Blogs";
 export { default as Products } from "./Products";
+export { default as ReservationReviewsSection } from "./ReservationReviewsSection";

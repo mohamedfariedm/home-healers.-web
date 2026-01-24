@@ -88,5 +88,10 @@
     "title": "Stay Close to the Coffee World",
     "description": "Subscribe to our newsletter to get the latest offers and updates, along with exclusive discounts for our community members.",
     "email_placeholder": "Your email"
+  },
+  "reservationReviews": {
+    "title": "Client Reservation Reviews",
+    "description": "Read what our clients say about their reservation experiences with our healthcare services. Real feedback from real patients.",
+    "anonymous": "Anonymous"
   }
 }

@@ -128,6 +128,23 @@ payReservationWithTelr: (reservationId: number, locale: string) =>
     requiresAuth: true,
   }),
 
+// Reservation Review
+submitReservationReview: (reservationId: number | string, payload: {
+  doctor_rate: number;
+  doctor_comment: string;
+  reservation_rate: number;
+  reservation_comment: string;
+}, locale: string) =>
+  fetchData(`client/reservations/review/${reservationId}`, locale, {
+    method: 'POST',
+    body: payload,
+    requiresAuth: true,
+  }),
+
+// Get Active Reservation Reviews
+getActiveReservationReviews: (locale: string, params?: { limit?: number; page?: number; with_doctor_rating?: number; with_reservation_rating?: number }) =>
+  fetchData('client/reviews', locale, { params }),
+
   // Attachments
   getAttachments: (locale: string) =>
     fetchData('attachments', locale),

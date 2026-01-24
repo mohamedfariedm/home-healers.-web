@@ -7,6 +7,7 @@ import {
   DownloadApp,
   Bannar,
   Card,
+  ReservationReviewsSection,
 } from "./_components";
 import ClientAPI from "../../../api/api";
 import { createMetadata } from "@/lib/seo";
@@ -34,6 +35,10 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
   const blogData = await ClientAPI.getAllBlogs(locale);
   const packageData = await ClientAPI.getPackages(locale);
   const servicesData = await ClientAPI.getAllServices(locale);
+  const reservationReviews = await ClientAPI.getActiveReservationReviews(locale, {
+    limit: 10,
+    page: 1,
+  });
 
   // Find sections by ID
   const heroSection = homeData?.data?.sections?.find(
@@ -100,6 +105,12 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
           ))}
 
         <OurStory data={blogData?.data} locale={locale} />
+        {reservationReviews?.data && reservationReviews?.data?.length > 0 && (
+          <ReservationReviewsSection
+            reviews={reservationReviews.data}
+            locale={locale}
+          />
+        )}
         <Card locale={locale} section={cardSection} />
       </div>
     </div>

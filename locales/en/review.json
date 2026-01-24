@@ -1,0 +1,47 @@
+{
+  "meta": {
+    "title": "Rate Your Experience - Home Healers",
+    "description": "Share your feedback about your reservation experience with Home Healers"
+  },
+  "title": "Rate Your Experience",
+  "subtitle": "Your opinion matters! Help us improve our services by sharing your experience",
+  "reservationId": "Reservation ID",
+  "doctor": {
+    "title": "Rate the Doctor",
+    "subtitle": "How was your experience with the doctor?",
+    "commentLabel": "Write your comment about the doctor",
+    "commentPlaceholder": "Share your thoughts about the doctor's professionalism and quality of service..."
+  },
+  "reservation": {
+    "title": "Rate the Reservation",
+    "subtitle": "How was your overall booking experience?",
+    "commentLabel": "Write your comment about the booking experience",
+    "commentPlaceholder": "Share your thoughts about the booking process, punctuality, and service quality..."
+  },
+  "rating": {
+    "notSelected": "Select your rating",
+    "poor": "Poor",
+    "fair": "Fair",
+    "good": "Good",
+    "veryGood": "Very Good",
+    "excellent": "Excellent"
+  },
+  "validation": {
+    "doctorRateRequired": "Please rate the doctor",
+    "reservationRateRequired": "Please rate the booking experience"
+  },
+  "submit": "Submit Review",
+  "submitting": "Submitting...",
+  "messages": {
+    "success": "Thank you! Your review has been submitted successfully",
+    "error": "An error occurred while submitting your review. Please try again"
+  },
+  "success": {
+    "title": "Thank You for Your Review!",
+    "message": "We appreciate your time in sharing your feedback with us. Your input helps us continuously improve our services to provide the best home healthcare experience.",
+    "backToHome": "Back to Home"
+  },
+  "footer": {
+    "note": "Your review is confidential and helps us improve our service quality"
+  }
+}
