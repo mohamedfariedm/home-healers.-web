@@ -172,7 +172,7 @@ function ReservationReviewsSection({
                     {/* Review Text */}
                     {reviewText && (
                       <p className="text-gray-700 text-sm leading-relaxed line-clamp-6 text-center">
-                        "{reviewText}"
+                        &ldquo;{reviewText}&rdquo;
                       </p>
                     )}
 
