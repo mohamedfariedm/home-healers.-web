@@ -1,0 +1,19 @@
+{
+  "meta": {
+    "title": "New Reservation Invitation - Home Healers",
+    "description": "You have been invited to a new reservation on Home Healers platform"
+  },
+  "title": "New Reservation Invitation",
+  "message": "You have been invited to a new reservation on Home Healers platform. Please review the reservation details and confirm or decline your attendance",
+  "accept": "Accept Reservation",
+  "decline": "Decline Reservation",
+  "processing": "Processing...",
+  "thankYou": "Thank You",
+  "declinedMessage": "Reservation declined successfully. You will be redirected to the homepage.",
+  "messages": {
+    "acceptSuccess": "Reservation accepted successfully",
+    "acceptError": "Failed to accept reservation. Please try again",
+    "acceptErrorGeneric": "An error occurred while accepting the reservation",
+    "declineSuccess": "Thank you"
+  }
+}

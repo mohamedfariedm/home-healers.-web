@@ -113,37 +113,37 @@ const ClientAPI = {
   },
 
   // Payment - Apple Pay or default payment
-payReservation: (reservationId: number, locale: string) =>
-  fetchData('payment/pay', locale, {
-    method: 'POST',
-    body: { reservation_id: reservationId,method:"web" },
-    requiresAuth: true,
-  }),
+  payReservation: (reservationId: number, locale: string) =>
+    fetchData('payment/pay', locale, {
+      method: 'POST',
+      body: { reservation_id: reservationId, method: "web" },
+      requiresAuth: true,
+    }),
 
-// Payment - Telr Payment
-payReservationWithTelr: (reservationId: number, locale: string) =>
-  fetchData('payment/telr/pay', locale, {
-    method: 'POST',
-    body: { reservation_id: reservationId,method:"web" },
-    requiresAuth: true,
-  }),
+  // Payment - Telr Payment
+  payReservationWithTelr: (reservationId: number, locale: string) =>
+    fetchData('payment/telr/pay', locale, {
+      method: 'POST',
+      body: { reservation_id: reservationId, method: "web" },
+      requiresAuth: true,
+    }),
 
-// Reservation Review
-submitReservationReview: (reservationId: number | string, payload: {
-  doctor_rate: number;
-  doctor_comment: string;
-  reservation_rate: number;
-  reservation_comment: string;
-}, locale: string) =>
-  fetchData(`client/reservations/review/${reservationId}`, locale, {
-    method: 'POST',
-    body: payload,
-    requiresAuth: true,
-  }),
+  // Reservation Review
+  submitReservationReview: (reservationId: number | string, payload: {
+    doctor_rate: number;
+    doctor_comment: string;
+    reservation_rate: number;
+    reservation_comment: string;
+  }, locale: string) =>
+    fetchData(`client/reservations/review/${reservationId}`, locale, {
+      method: 'POST',
+      body: payload,
+      requiresAuth: true,
+    }),
 
-// Get Active Reservation Reviews
-getActiveReservationReviews: (locale: string, params?: { limit?: number; page?: number; with_doctor_rating?: number; with_reservation_rating?: number }) =>
-  fetchData('client/reviews', locale, { params }),
+  // Get Active Reservation Reviews
+  getActiveReservationReviews: (locale: string, params?: { limit?: number; page?: number; with_doctor_rating?: number; with_reservation_rating?: number }) =>
+    fetchData('client/reviews', locale, { params }),
 
   // Attachments
   getAttachments: (locale: string) =>
@@ -159,14 +159,54 @@ getActiveReservationReviews: (locale: string, params?: { limit?: number; page?: 
       isFormData: true,
     }),
 
-  doctorApplayment: (formData: any, locale: string) =>{
+  doctorApplayment: (formData: any, locale: string) => {
     console.log("Submitting doctor application with data:", formData);
-    
+
     fetchData('client/doctors-apply-registration', locale, {
       method: 'POST',
       body: formData,
       requiresAuth: true,
     })
+  },
+
+  // Doctor Invitation
+  validateInviteToken: (token: string, locale: string) =>
+    fetchData(`client/invite-doctor/${token}`, locale, {
+      method: 'GET',
+    }),
+
+  acceptInviteToken: (token: string, formData: any, locale: string) =>
+    fetchData(`client/invite-doctor/${token}/accept`, locale, {
+      method: 'POST',
+      body: formData,
+    }),
+
+  // Accept Reservation Invitation (Doctor)
+  acceptReservationInvite: async (token: string, locale: string) => {
+    try {
+      const url = new URL(`${API_BASE_URL}/${token}`);
+
+      const headers: HeadersInit = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Accept-Language": locale,
+      };
+
+      const response = await fetch(url.toString(), {
+        method: "GET",
+        headers,
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        console.log("API Fetch Error:", response);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("API Fetch Error:", error);
+      throw error;
+    }
   },
 
   deleteAttachment: (id: string | number, locale: string) =>
@@ -205,7 +245,7 @@ getActiveReservationReviews: (locale: string, params?: { limit?: number; page?: 
 
   getAllServices: (locale: string, params?: { page?: number; limit?: number; type?: string; show_home?: boolean }) =>
     fetchData('client/services', locale),
-  getAllServicesSlug: (locale: string,slug: string, params?: { page?: number; limit?: number; type?: string; show_home?: boolean }) =>
+  getAllServicesSlug: (locale: string, slug: string, params?: { page?: number; limit?: number; type?: string; show_home?: boolean }) =>
     fetchData(`client/services-slug/${slug}`, locale),
   getSingleService: (id: string | number, locale: string) =>
     fetchData(`client/services/${id}`, locale),
@@ -242,23 +282,23 @@ getActiveReservationReviews: (locale: string, params?: { limit?: number; page?: 
     }
   },
   getRobots: async () => {
-  try {
-    const url = new URL(`${API_BASE_URL}/sitemaps/robots.txt`);
+    try {
+      const url = new URL(`${API_BASE_URL}/sitemaps/robots.txt`);
 
-    const response = await fetch(url.toString(), {
-      method: "GET",
-      headers: { Accept: "text/plain" },
-      cache: "no-store",
-    });
+      const response = await fetch(url.toString(), {
+        method: "GET",
+        headers: { Accept: "text/plain" },
+        cache: "no-store",
+      });
 
-    if (!response.ok) throw new Error("Failed to fetch robots.txt");
+      if (!response.ok) throw new Error("Failed to fetch robots.txt");
 
-    return await response.text();
-  } catch (e) {
-    console.error("robots fetch error:", e);
-    return "User-agent: *\nDisallow:";
+      return await response.text();
+    } catch (e) {
+      console.error("robots fetch error:", e);
+      return "User-agent: *\nDisallow:";
+    }
   }
-}
 
 };
 
