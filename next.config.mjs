@@ -2,11 +2,29 @@
 const nextConfig = {
   reactStrictMode: false,
   images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "placehold.co",
+      },
+      {
+        protocol: "https",
+        hostname: "backend.home-healers.com",
+      },
+      {
+        protocol: "https",
+        hostname: "development.home-healers.com",
+      },
+      {
+        protocol: "https",
+        hostname: "codia-f2c.s3.us-west-1.amazonaws.com",
+      },
+    ],
     domains: [
       "placehold.co",
       "backend.home-healers.com",
       "development.home-healers.com",
-      "backend.home-healers.com"
+      "codia-f2c.s3.us-west-1.amazonaws.com",
     ],
   },
   async redirects() {

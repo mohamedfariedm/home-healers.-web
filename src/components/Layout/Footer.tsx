@@ -195,7 +195,6 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
   const t =
     translations[locale as keyof typeof translations] || translations.ar;
   const isRTL = locale === "ar";
-
   // Extract dynamic content from settings
   const settingsData = settings?.data?.[0]?.setting;
   const socialMedia = settingsData?.social || {};

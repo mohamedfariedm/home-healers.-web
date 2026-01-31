@@ -255,6 +255,11 @@ const ClientAPI = {
 
   getSettings: (locale: string) =>
     fetchData('client/settings', locale),
+
+  // Landing Pages
+  getLandingPageBySlug: (slug: string, locale: string) =>
+    fetchData(`client/landing-pages/${slug}`, locale),
+
   getSiteMap: async (endpoint: string, locale: string = "en") => {
     try {
       const url = new URL(`${API_BASE_URL}/${endpoint}`);

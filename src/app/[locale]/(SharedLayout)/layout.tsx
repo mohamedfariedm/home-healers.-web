@@ -14,7 +14,6 @@ export default async function Layout({
     (section: any) => section?.id === 6
   );
   const settings = await ClientAPI.getSettings(locale);
-
   return (
     <>
       <Header locale={locale} />
