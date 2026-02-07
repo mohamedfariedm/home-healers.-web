@@ -18,7 +18,7 @@ export default function LandingPageRenderer({
   locale,
   settings,
 }: LandingPageRendererProps) {
-  console.log("🎨 Rendering landing page with sections:", sections.length);
+  console.log("🎨 Rendering landing page with sections:", sections);
   console.log("🌐 Locale:", locale);
   
   if (!sections || sections.length === 0) {
@@ -30,14 +30,29 @@ export default function LandingPageRenderer({
     );
   }
 
+  // Filter only active sections and sort by order
+  const activeSections = sections
+    .filter((section) => section.active === true)
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  if (activeSections.length === 0) {
+    console.warn("⚠️ No active sections to render!");
+    return (
+      <div className="w-full max-w-7xl mx-auto py-16 px-4 text-center">
+        <p className="text-gray-600">No active sections found for this landing page.</p>
+      </div>
+    );
+  }
+
   return (
     <>
-      {sections.map((section, index) => {
+      {activeSections.map((section, index) => {
         const key = `${section.type}-${section.order}-${index}`;
-        console.log(`📦 Rendering section ${index + 1}/${sections.length}:`, {
+        console.log(`📦 Rendering section ${index + 1}/${activeSections.length}:`, {
           type: section.type,
           order: section.order,
           display_mode: section.display_mode,
+          active: section.active,
           hasTitle: !!section.title?.[locale],
           hasContent: !!section.content?.[locale],
           hasImage: !!(section.image || section.attachment?.original),

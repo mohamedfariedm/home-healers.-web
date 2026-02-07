@@ -64,9 +64,9 @@ export default function LandingHero({ section, locale }: LandingHeroProps) {
       ref={ref}
       className="w-full xl:max-w-[1280px] relative mx-auto pb-8 px-4 lg:px-0"
     >
-      <div className="flex relative flex-col-reverse xl:flex-row gap-10 items-center">
+      <div className={`flex relative ${image ? "flex-col-reverse xl:flex-row" : "flex-col"} gap-10 items-center`}>
         <motion.div
-          className="relative w-full xl:w-1/2 flex flex-col gap-8 justify-center"
+          className={`relative w-full ${image ? "xl:w-1/2" : "xl:w-full max-w-4xl"} flex flex-col gap-8 justify-center`}
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
@@ -170,20 +170,7 @@ export default function LandingHero({ section, locale }: LandingHeroProps) {
               />
             </div>
           </motion.div>
-        ) : (
-          // Debug: Show when image is not found
-          <div className="w-full xl:w-1/2 relative z-10 flex justify-center xl:justify-end p-4 border-2 border-dashed border-yellow-300 bg-yellow-50 rounded-lg">
-            <p className="text-yellow-800 text-sm">
-              ⚠️ Image not found
-              <br />
-              <span className="text-xs">
-                section.image: {section.image ? `"${section.image}"` : "undefined"}
-                <br />
-                section.attachment: {section.attachment ? JSON.stringify(section.attachment) : "undefined"}
-              </span>
-            </p>
-          </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
