@@ -16,12 +16,11 @@ function Banner({ banner }: { banner: any }) {
   };
 
   return (
-    <div ref={bannerRef}>
-      <motion.div
-        className="w-full h-[300px] my-14 rounded-[24px] overflow-hidden bg-center bg-cover"
-        style={{
-          backgroundImage: `url(${banner?.attachment?.original})`,
-        }}
+    <div ref={bannerRef} className="my-14 overflow-hidden rounded-[24px]">
+      <motion.img
+        src={banner?.attachment?.original}
+        alt="Banner"
+        className="w-full h-auto block"
         initial="hidden"
         animate={isInView ? "visible" : "hidden"}
         variants={bannerVariants}

@@ -41,7 +41,7 @@ async function page({ params: { locale } }: props) {
   const seo = settings?.data[0]?.setting?.seo["blogs"];
 
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
-    (banner: any) => banner.page === "blogs"
+    (banner: any) => banner.page === "blogs"&& banner.type === "web"
   );
 
   return (

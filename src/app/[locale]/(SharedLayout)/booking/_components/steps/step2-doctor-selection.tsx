@@ -128,14 +128,18 @@ export default function Step2DoctorSelection({
     if (isImageUrl(doctorOriginal)) return doctorOriginal!;
 
     // 2) any service image
-    const fromService = pickFirstImageFromServices(doctor?.services);
-    if (fromService) return fromService;
+    // const fromService = pickFirstImageFromServices(doctor?.services);
+    // if (fromService) return fromService;
 
-    // 3) upload_attachments (first imageish URL)
-    const fromAttachments = pickFirstImageFromAttachments(doctor?.upload_attachments);
-    if (fromAttachments) return fromAttachments;
+    // // 3) upload_attachments (first imageish URL)
+    // const fromAttachments = pickFirstImageFromAttachments(doctor?.upload_attachments);
+    // if (fromAttachments) return fromAttachments;
 
     // 4) fallback
+    if (doctor?.gender?.toLowerCase() === "male") {
+      return "/assets/images/doctorMale.jpeg";
+    }
+
     return "/default-doctor.png";
   };
 

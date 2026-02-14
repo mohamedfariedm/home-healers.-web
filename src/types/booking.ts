@@ -51,7 +51,7 @@ export interface Doctor {
     id: number
     name: string
     description: string
-    
+
     image: Array<{
       thumbnail: string
       original: string
@@ -63,6 +63,11 @@ export interface Doctor {
     district?: string
     address?: string
   }> // Added from data
+  image?: Array<{
+    thumbnail: string
+    original: string
+    id: number
+  }>
 }
 
 export interface Category {
@@ -79,17 +84,17 @@ export interface Service {
     original: string
     id: number
   }>
-  name:string
-  description:string
+  name: string
+  description: string
   category: {
     id: number
-    name:string
+    name: string
   }
 }
 
 export interface Package {
   id: number
-  name:string
+  name: string
   description: string
   price: string
   discount: string
@@ -115,7 +120,7 @@ export interface Patient {
   id: number
   name: string
   birthDate: string
-  relationship: string |undefined
+  relationship: string | undefined
   nationality: string
   idNumber: string
   phone: string
@@ -126,7 +131,7 @@ export interface Patient {
 
 export interface BookingData {
   selectedCategory: Category | null
-    selectedPatients: Patient[];
+  selectedPatients: Patient[];
   selectedService: Service | null
   selectedSymptoms: string[]
   selectedDoctor: Doctor | null

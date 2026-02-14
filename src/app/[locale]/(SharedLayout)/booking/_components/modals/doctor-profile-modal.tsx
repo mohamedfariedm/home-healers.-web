@@ -45,13 +45,8 @@ export default function DoctorProfileModal({
   const phoneNumber = isValidPhone(doctor.mobile_number) ? `+966${doctor.mobile_number}` : "غير متوفر"
 
   // Validate image
-  const isValidImage = (attachment: string) => /\.(jpg|jpeg|png|gif)$/i.test(attachment)
-  const doctorImage = doctor.upload_attachments && isValidImage(doctor.upload_attachments)
-    ? doctor.upload_attachments
-    : doctor.service?.image?.[0]?.original ||
-    //@ts-ignore
-    doctor.image?.[0]?.original||
-    "/default-doctor.png"
+  const doctorImage = doctor.image?.[0]?.original || 
+    (doctor.gender?.toLowerCase() === "male" ? "/assets/images/doctorMale.jpeg" : "/default-doctor.png");
 console.log(doctor);
 
   // Validate placeholder fields

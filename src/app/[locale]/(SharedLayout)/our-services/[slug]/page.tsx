@@ -94,7 +94,7 @@ async function page({ params: { locale, slug } }: props) {
     serviceData?.name?.[locale] ||
     "Home Healers";
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
-    (banner: any) => banner.page === "services"
+    (banner: any) => banner.page === "services"&& banner.type === "web"
   );
 
   return (

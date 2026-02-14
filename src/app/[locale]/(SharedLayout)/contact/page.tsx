@@ -28,7 +28,7 @@ async function page({ params: { locale } }: { params: { locale: string } }) {
   const seo = settings?.data[0]?.setting?.seo["contact"];
 
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
-    (banner: any) => banner.page === "contact"
+    (banner: any) => banner.page === "contact"&& banner.type === "web"
   );
   return (
     <>

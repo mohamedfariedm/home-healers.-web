@@ -39,7 +39,7 @@ async function page({ params: { locale } }: props) {
   const seo = settings?.data[0]?.setting?.seo["about-us"];
 
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
-    (banner: any) => banner.page === "about-us"
+    (banner: any) => banner.page === "about-us"&& banner.type === "web"
   );
   console.log("aboutData", aboutData);
 

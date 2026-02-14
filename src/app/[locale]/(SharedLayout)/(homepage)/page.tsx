@@ -62,10 +62,11 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
 
   const settings = await ClientAPI.getSettings(locale);
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
-    (banner: any) => banner.page === "home"
+    (banner: any) => banner.page === "home" && banner.type === "web"
   );
   const seo = settings?.data[0]?.setting?.seo["home"];
 
+  console.log({ homeBanners });
   // Generate breadcrumb schema for homepage
   const breadcrumbSchema = createBreadcrumbSchema([
     {

@@ -29,7 +29,7 @@ async function page({ params: { locale } }: props) {
   const settings = await ClientAPI.getSettings(locale);
 
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
-    (banner: any) => banner.page === "services"
+    (banner: any) => banner.page === "services"&& banner.type === "web"
   );
   return <PaymentSuccess />;
 }
