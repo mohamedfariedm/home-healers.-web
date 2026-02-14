@@ -8,7 +8,11 @@ export const getDoctorImage = (doctor: Doctor): string => {
     return "/assets/images/doctorMale.jpeg";
   }
 
-  // Placeholder for female or other genders
+  if (doctor?.gender?.toLowerCase() === "female") {
+    return "/assets/images/doctorFemale.jpeg";
+  }
+
+  // Final fallback
   return "/default-doctor.png";
 };
 

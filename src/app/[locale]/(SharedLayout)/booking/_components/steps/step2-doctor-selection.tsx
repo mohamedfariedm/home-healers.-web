@@ -140,6 +140,10 @@ export default function Step2DoctorSelection({
       return "/assets/images/doctorMale.jpeg";
     }
 
+    if (doctor?.gender?.toLowerCase() === "female") {
+      return "/assets/images/doctorFemale.jpeg";
+    }
+
     return "/default-doctor.png";
   };
 
