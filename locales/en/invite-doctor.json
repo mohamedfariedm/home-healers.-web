@@ -14,6 +14,9 @@
     "acceptSuccess": "Reservation accepted successfully",
     "acceptError": "Failed to accept reservation. Please try again",
     "acceptErrorGeneric": "An error occurred while accepting the reservation",
-    "declineSuccess": "Thank you"
-  }
+    "declineSuccess": "Thank you",
+    "reservationTaken": "This reservation has been accepted by another doctor"
+  },
+  "reservationTakenTitle": "Reservation Unavailable",
+  "reservationTakenMessage": "Sorry, this reservation has already been accepted by another doctor. Thank you for your interest."
 }

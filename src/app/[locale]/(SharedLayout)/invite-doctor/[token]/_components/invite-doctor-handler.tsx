@@ -20,6 +20,7 @@ export default function InviteDoctorHandler({
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDeclined, setIsDeclined] = useState(false);
+  const [isReservationTaken, setIsReservationTaken] = useState(false);
 
   const handleAccept = async () => {
     setIsProcessing(true);
@@ -28,14 +29,16 @@ export default function InviteDoctorHandler({
       
       const response = await ClientAPI.acceptReservationInvite(token, locale);
       
-      if (response?.success || response?.data) {
+      if (response?.success || response?.status === true) {
         toast.success(t("messages.acceptSuccess"));
-        // You can redirect or show success message here
         setTimeout(() => {
           router.push(`/${locale}`);
         }, 2000);
+      } else if (response?.error_code === "RESERVATION_TAKEN") {
+        setIsReservationTaken(true);
+        toast.error(t("messages.reservationTaken"));
       } else {
-        toast.error(t("messages.acceptError"));
+        toast.error(response?.message || t("messages.acceptError"));
       }
     } catch (error: any) {
       console.error("Error accepting reservation:", error);
@@ -52,6 +55,30 @@ export default function InviteDoctorHandler({
       router.push(`/${locale}`);
     }, 2000);
   };
+
+  if (isReservationTaken) {
+    return (
+      <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-10 text-center">
+        <div className="flex flex-col items-center justify-center">
+          <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center mb-6 shadow-lg">
+            <XCircle className="w-12 h-12 text-white" />
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3">
+            {t("reservationTakenTitle")}
+          </h2>
+          <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            {t("reservationTakenMessage")}
+          </p>
+          <button
+             onClick={() => router.push(`/${locale}`)}
+             className="px-8 py-3 bg-[#62a0f6] text-white rounded-xl font-bold hover:bg-[#5090e6] transition-all"
+          >
+            {locale === "ar" ? "العودة للرئيسية" : "Back to Home"}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (isDeclined) {
     return (

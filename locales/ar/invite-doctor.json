@@ -14,6 +14,9 @@
     "acceptSuccess": "تم قبول الحجز بنجاح",
     "acceptError": "فشل في قبول الحجز. يرجى المحاولة مرة أخرى",
     "acceptErrorGeneric": "حدث خطأ أثناء قبول الحجز",
-    "declineSuccess": "شكراً لك"
-  }
+    "declineSuccess": "شكراً لك",
+    "reservationTaken": "تم قبول هذا الحجز من قبل طبيب آخر"
+  },
+  "reservationTakenTitle": "الحجز غير متاح",
+  "reservationTakenMessage": "نأسف، لقد تم قبول هذا الحجز بالفعل من قبل طبيب آخر. شكراً لاهتمامك."
 }
