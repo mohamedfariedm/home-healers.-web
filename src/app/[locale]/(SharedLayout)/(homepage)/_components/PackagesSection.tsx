@@ -81,7 +81,7 @@ export default function PackagesSection({ locale, data }: PackagesSectionProps) 
           1024: { slidesPerView: 3 },
           1280: { slidesPerView: 4 },
         }}
-        className="w-full h-[60vh]"
+        className="w-full py-10"
       >
         {packages.map((pkg, i) => (
           <SwiperSlide key={pkg.id}>
@@ -89,10 +89,10 @@ export default function PackagesSection({ locale, data }: PackagesSectionProps) 
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.3 }}
               onClick={() => handlePackageClick(pkg)}
-              className={`relative bg-white shadow-lg rounded-3xl overflow-hidden w-[300px] h-[420px] flex flex-col mx-auto border border-gray-100 cursor-pointer hover:shadow-xl transition-shadow`}
+              className={`relative bg-white shadow-lg rounded-3xl overflow-hidden w-full h-full min-h-[420px] flex flex-col border border-gray-100 cursor-pointer hover:shadow-xl transition-shadow`}
             >
               {/* Image */}
-              <div className="relative w-full h-[180px] bg-gray-100">
+              <div className="relative w-full h-[370px] bg-gray-100">
                 <Image
                   src={
                     pkg.image?.[0]?.original ||
