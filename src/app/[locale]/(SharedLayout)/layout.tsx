@@ -1,6 +1,8 @@
 import ClientAPI from "@/app/api/api";
 import { Footer, Header } from "@/components/Layout";
-import FloatingContact from "@/components/FloatingContact"; // 👈 add this import
+import FloatingContact from "@/components/FloatingContact";
+import { IS_RAMADAN_ACTIVE } from "@/constants/ramadan";
+import RamadanBanner, { RamadanBackgroundDecorations } from "@/components/RamadanOverlay";
 
 export default async function Layout({
   children,
@@ -17,7 +19,10 @@ export default async function Layout({
   return (
     <>
       <Header locale={locale} />
+      {IS_RAMADAN_ACTIVE && <RamadanBanner position="top" />}
+      {IS_RAMADAN_ACTIVE && <RamadanBackgroundDecorations />}
       {children}
+      {IS_RAMADAN_ACTIVE && <RamadanBanner position="bottom" />}
       <Footer settings={settings} section={footerSection} locale={locale} />
       <FloatingContact settings={settings} locale={locale} />
     </>

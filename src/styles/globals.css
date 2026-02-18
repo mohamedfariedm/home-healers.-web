@@ -316,3 +316,27 @@ html {
 .form-label {
   @apply block text-sm font-medium text-gray-700 mb-2;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   🌙 RAMADAN BANNER — Brand Blue Edition
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Keyframes ── */
+@keyframes ramadan-sway {
+  0%, 100% { transform: rotate(-7deg); }
+  50%       { transform: rotate(7deg);  }
+}
+
+@keyframes ramadan-twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.7) rotate(0deg);  }
+  50%       { opacity: 1;   transform: scale(1.1) rotate(45deg); }
+}
+
+@keyframes drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+
+/* ── Ramadan Side Decorations (Placeholder) ── */
+

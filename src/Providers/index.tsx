@@ -3,6 +3,8 @@ import ClientComponentsTranslationsProvider from "./client-components-translatio
 import ThemeProvider from "./theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import ClientComponentsAuthSessionProvider from "./client-components-auth-session-provider";
+import { RamadanProvider } from "./ramadan-provider";
+import { IS_RAMADAN_ACTIVE } from "@/constants/ramadan";
 
 const i18nNamespaces = [ "homepage", "common", "contactUs", "blog", "complaints","products","faq","expo","doctor-apply","booking","review","invite-doctor"];
 
@@ -24,14 +26,16 @@ export default async function GlobalProvider({
         enableSystem
         disableTransitionOnChange
       >
-        <ClientComponentsTranslationsProvider
-          namespaces={i18nNamespaces}
-          locale={locale}
-          resources={resources}
-        >
-            {children}{" "}
-          <Toaster />
-        </ClientComponentsTranslationsProvider>
+        <RamadanProvider isRamadan={IS_RAMADAN_ACTIVE}>
+          <ClientComponentsTranslationsProvider
+            namespaces={i18nNamespaces}
+            locale={locale}
+            resources={resources}
+          >
+              {children}{" "}
+            <Toaster />
+          </ClientComponentsTranslationsProvider>
+        </RamadanProvider>
       </ThemeProvider>
     </>
   );
