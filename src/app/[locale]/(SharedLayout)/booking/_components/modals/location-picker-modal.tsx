@@ -1,8 +1,9 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { X, Search, MapPin, Save, Edit2, Trash2 } from "lucide-react";
+import { X, Search, MapPin, Save } from "lucide-react";
 import { toast } from "sonner";
 import type { Location } from "@/types/booking";
+import { useParams } from "next/navigation";
 
 interface LocationPickerModalProps {
   isOpen: boolean;
@@ -14,6 +15,9 @@ interface LocationPickerModalProps {
   }) => void;
   savedLocations: Location[];
   updateSavedLocations: (locations: Location[]) => void;
+  countriesData?: any;
+  statesData?: any;
+  initialLocation?: Location | null;
 }
 
 export default function LocationPickerModal({
@@ -22,7 +26,13 @@ export default function LocationPickerModal({
   onSave,
   savedLocations,
   updateSavedLocations,
+  countriesData,
+  statesData,
+  initialLocation,
 }: LocationPickerModalProps) {
+  const params = useParams();
+  const locale = (params?.locale as string) || "ar";
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     savedLocations.length > 0 ? savedLocations[0] : null
@@ -30,9 +40,7 @@ export default function LocationPickerModal({
   const [showSavedLocations, setShowSavedLocations] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editingLocationId, setEditingLocationId] = useState<number | null>(
-    null
-  );
+  const [editingLocationId, setEditingLocationId] = useState<number | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -44,6 +52,28 @@ export default function LocationPickerModal({
     longitude: "",
   });
   const [formError, setFormError] = useState("");
+
+  // Cascading dropdown computed from API data
+  const [availableCities, setAvailableCities] = useState<any[]>([]);
+  const [availableStates, setAvailableStates] = useState<any[]>([]);
+
+  // Helper: normalize { data: [] } or plain array
+  const normalizeList = (raw: any): any[] => {
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    if (Array.isArray(raw.data)) return raw.data;
+    return [];
+  };
+
+  // Filter helpers based on each entity's status field convention
+  const isPublished = (item: any) =>
+    item.status === "Published" || item.status === "1" || item.status === 1;
+
+  // All published countries (status: "Published")
+  const countries: any[] = normalizeList(countriesData).filter(isPublished);
+  // All published states (status: "Published")
+  const allStates: any[] = normalizeList(statesData).filter(isPublished);
+
 
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
@@ -68,6 +98,33 @@ export default function LocationPickerModal({
       }
     };
   }, [isOpen, showForm]);
+
+  useEffect(() => {
+    if (initialLocation && isOpen) {
+      setEditingLocationId(initialLocation.id);
+      setIsEditing(true);
+      setFormData({
+        title: initialLocation.title || "",
+        address: initialLocation.address || "",
+        city: initialLocation.city || "",
+        state: initialLocation.state || "",
+        country: initialLocation.country || "",
+        latitude: initialLocation.latitude?.toString() || "",
+        longitude: initialLocation.longitude?.toString() || "",
+      });
+      setShowForm(true);
+      setShowSavedLocations(false);
+
+      // Also set available cities based on country
+      const selectedCountry = normalizeList(countriesData).find(
+        (c: any) => c.name === initialLocation.country
+      );
+      if (selectedCountry) {
+        setAvailableCities((selectedCountry.cities || []).filter(isPublished));
+      }
+      setAvailableStates(normalizeList(statesData).filter(isPublished));
+    }
+  }, [initialLocation, isOpen, countriesData, statesData]);
 
   const loadGoogleMapsScript = () => {
     if (window.google || document.getElementById("google-maps-script")) {
@@ -253,7 +310,12 @@ export default function LocationPickerModal({
           loc.id === editingLocationId ? location : loc
         );
         updateSavedLocations(updated);
-        setSelectedLocation(location);
+        onSave({
+          ...location,
+          address_city: location.city,
+          address_state: location.state,
+          address_link: location.link,
+        });
         toast.success("تم تعديل الموقع بنجاح");
       } else {
         onSave({
@@ -262,21 +324,9 @@ export default function LocationPickerModal({
           address_state: location.state,
           address_link: location.link,
         });
-        setSelectedLocation(location);
         toast.success("تم حفظ الموقع بنجاح");
       }
-      setFormData({
-        title: "",
-        address: "",
-        city: "",
-        state: "",
-        country: "",
-        latitude: "",
-        longitude: "",
-      });
-      setFormError("");
-      setIsEditing(false);
-      setEditingLocationId(null);
+      resetForm();
     } else if (selectedLocation) {
       onSave({
         ...selectedLocation,
@@ -284,13 +334,55 @@ export default function LocationPickerModal({
         address_state: selectedLocation.state,
         address_link: selectedLocation.link,
       });
-      toast.success("تم حفظ الموقع بنجاح");
     } else {
       toast.error("يرجى اختيار موقع أولاً");
       return;
     }
     setShowForm(false);
+    setShowSavedLocations(false);
     onClose();
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      address: "",
+      city: "",
+      state: "",
+      country: "",
+      latitude: "",
+      longitude: "",
+    });
+    setFormError("");
+    setIsEditing(false);
+    setEditingLocationId(null);
+  };
+
+  const handleDeleteLocation = (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const updated = savedLocations.filter((loc) => loc.id !== id);
+    updateSavedLocations(updated);
+    if (selectedLocation?.id === id) {
+      setSelectedLocation(null);
+    }
+    toast.success("تم حذف الموقع");
+  };
+
+  const handleEditLocation = (location: Location, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingLocationId(location.id);
+    setIsEditing(true);
+    setFormData({
+      title: location.title || "",
+      address: location.address || "",
+      city: location.city || "",
+      state: location.state || "",
+      country: location.country || "",
+      latitude: location.latitude?.toString() || "",
+      longitude: location.longitude?.toString() || "",
+    });
+    setShowForm(true);
+    setShowSavedLocations(false);
   };
 
   // Sync map when lat/lng typed manually
@@ -320,6 +412,33 @@ export default function LocationPickerModal({
     setFormError("");
   };
 
+  // When country changes: extract embedded cities for that country (status "1")
+  const handleCountryChange = (countryName: string) => {
+    setFormData((prev) => ({ ...prev, country: countryName, city: "", state: "" }));
+    setFormError("");
+    if (!countryName) {
+      setAvailableCities([]);
+      setAvailableStates([]);
+      return;
+    }
+    const selectedCountry = countries.find((c: any) => c.name === countryName);
+    const embeddedCities: any[] = (selectedCountry?.cities || []).filter(isPublished);
+    setAvailableCities(embeddedCities);
+    setAvailableStates([]); // reset states until city is picked
+  };
+
+  // When city changes: show all published states
+  const handleCityChange = (cityName: string) => {
+    setFormData((prev) => ({ ...prev, city: cityName, state: "" }));
+    setFormError("");
+    if (cityName) {
+      setAvailableStates(allStates);
+    } else {
+      setAvailableStates([]);
+    }
+  };
+
+
   if (!isOpen) return null;
 
   // --- UI ---
@@ -327,55 +446,179 @@ export default function LocationPickerModal({
     <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4 overflow-y-auto" dir="rtl">
       <div className="relative bg-white rounded-3xl w-full max-w-5xl max-h-[95vh] overflow-hidden">
         {/* header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-[#1e1e1e]">
-            {showSavedLocations
-              ? "المواقع المحفوظة"
-              : showForm
-              ? isEditing
-                ? "تعديل الموقع"
-                : "إدخال موقع يدويًا"
-              : "اختيار الموقع"}
-          </h2>
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center z-[1001]">
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl font-bold text-[#1e1e1e]">
+              {showSavedLocations
+                ? "المواقع المحفوظة"
+                : showForm
+                ? isEditing
+                  ? "تعديل الموقع"
+                  : "إدخال موقع يدويًا"
+                : "اختيار الموقع"}
+            </h2>
+            <button
+              onClick={() => {
+                setShowSavedLocations(!showSavedLocations);
+                setShowForm(false);
+                setIsEditing(false);
+              }}
+              className={`text-sm px-4 py-2 rounded-full transition-colors ${
+                showSavedLocations
+                  ? "bg-[#62a0f6] text-white"
+                  : "bg-[#e8eaf3] text-[#143087] hover:bg-[#d5d9e8]"
+              }`}
+            >
+              مواقعي المحفوظة
+            </button>
+          </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full">
             <X className="w-6 h-6" />
           </button>
         </div>
 
-        {/* manual form */}
-        {showForm ? (
+        {showSavedLocations ? (
+          <div className="p-6 max-h-[80vh] overflow-y-auto">
+            {savedLocations.length === 0 ? (
+              <div className="text-center py-12">
+                <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">لا يوجد مواقع محفوظة حالياً</p>
+                <button
+                  onClick={() => setShowSavedLocations(false)}
+                  className="mt-4 text-[#62a0f6] font-semibold"
+                >
+                  العودة للخريطة
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {savedLocations.map((loc) => (
+                  <div
+                    key={loc.id}
+                    onClick={() => {
+                      setSelectedLocation(loc);
+                      onSave({
+                        ...loc,
+                        address_city: loc.city,
+                        address_state: loc.state,
+                        address_link: loc.link,
+                      });
+                      onClose();
+                    }}
+                    className={`p-4 rounded-2xl border-2 transition-all cursor-pointer group hover:bg-gray-50 ${
+                      selectedLocation?.id === loc.id
+                        ? "border-[#62a0f6] bg-[#eff6fe]"
+                        : "border-gray-100 bg-white"
+                    }`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-5 h-5 text-[#62a0f6]" />
+                        <h3 className="font-bold text-[#1e1e1e]">{loc.title}</h3>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={(e) => handleEditLocation(loc, e)}
+                          className="p-1 px-3 bg-white border border-gray-200 rounded-lg text-xs text-blue-600 hover:bg-blue-50 transition-colors"
+                        >
+                          تعديل
+                        </button>
+                        <button
+                          onClick={(e) => handleDeleteLocation(loc.id, e)}
+                          className="p-1 px-3 bg-white border border-gray-200 rounded-lg text-xs text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          حذف
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-1">{loc.address}</p>
+                    <p className="text-xs text-gray-400">
+                      {loc.city}, {loc.state}, {loc.country}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : showForm ? (
           <div className="p-6 max-h-[80vh] overflow-y-auto">
             <div className="flex flex-col gap-6">
-              {["title","country","state","city"].map((field) => (
-                <div key={field} className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-[#1e1e1e]">
-                    {field === "title"
-                      ? "عنوان الموقع"
-                      : field === "country"
-                      ? "الدولة"
-                      : field === "state"
-                      ? "المنطقة / الولاية"
-                      : "المدينة"}
-                  </label>
-                  <input
-                    type="text"
-                    value={(formData as any)[field]}
-                    onChange={(e) =>
-                      handleFormChange(field as any, e.target.value)
-                    }
-                    placeholder={
-                      field === "title"
-                        ? "مثال: مكتب الرياض"
-                        : field === "country"
-                        ? "مثال: السعودية"
-                        : field === "state"
-                        ? "مثال: الرياض"
-                        : "مثال: جدة"
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-right focus:ring-2 focus:ring-[#62a0f6]"
-                  />
-                </div>
-              ))}
+              {/* Title */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-[#1e1e1e]">عنوان الموقع</label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => handleFormChange("title", e.target.value)}
+                  placeholder="مثال: مكتب الرياض"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-right focus:ring-2 focus:ring-[#62a0f6]"
+                />
+              </div>
+
+              {/* Country */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-[#1e1e1e]">الدولة</label>
+                <select
+                  value={formData.country}
+                  onChange={(e) => handleCountryChange(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-right focus:ring-2 focus:ring-[#62a0f6] bg-white"
+                >
+                  <option value="">-- اختر الدولة --</option>
+                  {countries.map((c: any) => (
+                    <option key={c.id ?? c.name} value={c.name}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* City — from embedded country.cities */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-[#1e1e1e]">المدينة</label>
+                <select
+                  value={formData.city}
+                  onChange={(e) => handleCityChange(e.target.value)}
+                  disabled={!formData.country || availableCities.length === 0}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-right focus:ring-2 focus:ring-[#62a0f6] bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {!formData.country
+                      ? "-- اختر الدولة أولاً --"
+                      : availableCities.length === 0
+                      ? "-- لا توجد مدن متاحة --"
+                      : "-- اختر المدينة --"}
+                  </option>
+                  {availableCities.map((city: any) => (
+                    <option key={city.id ?? city.name} value={city.name}>
+                      {city.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* State — shown after city is selected */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-[#1e1e1e]">المنطقة / الولاية</label>
+                <select
+                  value={formData.state}
+                  onChange={(e) => { setFormData(prev => ({ ...prev, state: e.target.value })); setFormError(""); }}
+                  disabled={!formData.city || availableStates.length === 0}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-right focus:ring-2 focus:ring-[#62a0f6] bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {!formData.city
+                      ? "-- اختر المدينة أولاً --"
+                      : availableStates.length === 0
+                      ? "-- لا توجد مناطق متاحة --"
+                      : "-- اختر المنطقة --"}
+                  </option>
+                  {availableStates.map((s: any) => (
+                    <option key={s.id ?? s.name} value={s.name}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-[#1e1e1e]">
@@ -421,16 +664,7 @@ export default function LocationPickerModal({
               <button
                 onClick={() => {
                   setShowForm(false);
-                  setFormError("");
-                  setFormData({
-                    title: "",
-                    address: "",
-                    city: "",
-                    state: "",
-                    country: "",
-                    latitude: "",
-                    longitude: "",
-                  });
+                  resetForm();
                 }}
                 className="flex-1 bg-[#e8eaf3] text-[#143087] py-3 px-4 rounded-xl text-sm font-semibold hover:bg-[#d5d9e8]"
               >
@@ -474,14 +708,35 @@ export default function LocationPickerModal({
             <div className="p-6 pt-4 border-t border-gray-200">
               {selectedLocation && (
                 <div className="bg-[#eff6fe] rounded-xl p-4 mb-4">
-                  <h3 className="font-semibold text-[#1e1e1e]">
-                    {selectedLocation.title}
-                  </h3>
-                  <p className="text-sm">{selectedLocation.address}</p>
-                  <p className="text-sm">
-                    {selectedLocation.city}, {selectedLocation.state},{" "}
-                    {selectedLocation.country}
-                  </p>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-semibold text-[#1e1e1e]">
+                        {selectedLocation.title}
+                      </h3>
+                      <p className="text-sm">{selectedLocation.address}</p>
+                      <p className="text-sm">
+                        {selectedLocation.city}, {selectedLocation.state},{" "}
+                        {selectedLocation.country}
+                      </p>
+                    </div>
+                    {/* Only show edit/delete in list, but could add here if it's already saved */}
+                    {savedLocations.some(l => l.id === selectedLocation.id) && (
+                       <div className="flex gap-2">
+                        <button
+                          onClick={(e) => handleEditLocation(selectedLocation, e)}
+                          className="text-xs text-[#62a0f6] hover:underline"
+                        >
+                          تعديل
+                        </button>
+                         <button
+                          onClick={(e) => handleDeleteLocation(selectedLocation.id, e)}
+                          className="text-xs text-red-500 hover:underline"
+                        >
+                          حذف
+                        </button>
+                       </div>
+                    )}
+                  </div>
                   {selectedLocation.latitude && selectedLocation.longitude && (
                     <p className="text-xs text-gray-500 mt-1">
                       {selectedLocation.latitude.toFixed(6)},{" "}
@@ -509,7 +764,7 @@ export default function LocationPickerModal({
                   حفظ واختيار
                 </button>
                 <button
-                  onClick={() => setShowForm(true)}
+                  onClick={() => { setShowForm(true); setShowSavedLocations(false); }}
                   className="flex-1 bg-[#e8eaf3] text-[#143087] py-3 px-4 rounded-xl font-semibold hover:bg-[#d5d9e8]"
                 >
                   إدخال موقع يدويًا

@@ -47,6 +47,7 @@ export default function BookingFlow({
   const [error, setError] = useState<string | null>(null);
   const [profileDoctor, setProfileDoctor] = useState<Doctor | null>(null);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
+  const [editingLocation, setEditingLocation] = useState<Location | null>(null);
   const [reservationId, setReservationId] = useState<number | null>(null); // Store reservation ID
   let route = useRouter();
   const [bookingData, setBookingData] = useLocalStorage<BookingData>(
@@ -243,14 +244,33 @@ export default function BookingFlow({
     if (modalName === "addPatient") {
       setEditingPatient(null);
     }
+    if (modalName === "locationPicker") {
+      setEditingLocation(null);
+    }
   };
 
   const saveLocation = (location: Location) => {
     console.log("Saving location:", location);
-    const newLocation = { ...location, id: location.id || Date.now() };
-    setSavedLocations((prev) => [...prev, newLocation]);
-    updateBookingData({ selectedLocation: newLocation });
-    toast.success(t("messages.locationSaved"));
+    const existingIndex = savedLocations.findIndex(
+      (loc) =>
+        loc.id === location.id ||
+        (loc.latitude === location.latitude &&
+          loc.longitude === location.longitude &&
+          loc.title === location.title)
+    );
+
+    if (existingIndex >= 0) {
+      const updated = [...savedLocations];
+      updated[existingIndex] = location;
+      setSavedLocations(updated);
+      updateBookingData({ selectedLocation: location });
+      toast.success(t("messages.locationUpdated") || "تمت تحديث الموقع بنجاح");
+    } else {
+      const newLocation = { ...location, id: location.id || Date.now() };
+      setSavedLocations((prev) => [...prev, newLocation]);
+      updateBookingData({ selectedLocation: newLocation });
+      toast.success(t("messages.locationSaved"));
+    }
   };
 
   const updateSavedLocations = (locations: Location[]) => {
@@ -569,6 +589,14 @@ export default function BookingFlow({
             onNext={nextStep}
             onPrev={prevStep}
             onOpenLocationPicker={() => openModal("locationPicker")}
+            onEditLocation={(location: Location) => {
+              setEditingLocation(location);
+              setModals((prev) => ({ ...prev, locationPicker: true }));
+            }}
+            onDeleteLocation={(id: number) => {
+              const updated = savedLocations.filter((loc) => loc.id !== id);
+              updateSavedLocations(updated);
+            }}
           />
         );
       case 4:
@@ -700,6 +728,9 @@ export default function BookingFlow({
         onSave={saveLocation}
         savedLocations={savedLocations}
         updateSavedLocations={updateSavedLocations}
+        countriesData={countriesData}
+        statesData={statesData}
+        initialLocation={editingLocation}
       />
       <SymptomsSearchModal
         isOpen={modals.symptomsSearch}

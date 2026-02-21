@@ -68,6 +68,12 @@ const ClientAPI = {
   getCountries: (locale: string) =>
     fetchData('client/countries', locale),
 
+  getCities: (locale: string, countryId?: number | string) =>
+    fetchData('client/cities', locale, countryId ? { params: { country_id: countryId } } : {}),
+
+  getStates: (locale: string, countryId?: number | string) =>
+    fetchData('client/states', locale, countryId ? { params: { country_id: countryId } } : {}),
+
   // Nationalities
   getNationalities: (locale: string) =>
     fetchData('client/nationalities', locale),
@@ -76,9 +82,6 @@ const ClientAPI = {
   getDoctors: (locale: string) =>
     fetchData('client/doctors', locale),
 
-  // States
-  getStates: (locale: string) =>
-    fetchData('client/states', locale),
 
   // Client Reviews
   getClientReviews: (locale: string, params?: { active?: boolean; futures?: boolean }) =>

@@ -12,6 +12,8 @@ interface Step3Props {
   onNext: () => void;
   onPrev: () => void;
   onOpenLocationPicker: () => void;
+  onEditLocation: (location: Location) => void;
+  onDeleteLocation: (id: number) => void;
 }
 
 export default function Step3LocationTime({
@@ -21,6 +23,8 @@ export default function Step3LocationTime({
   onNext,
   onPrev,
   onOpenLocationPicker,
+  onEditLocation,
+  onDeleteLocation,
 }: Step3Props) {
   const { t } = useTranslation("booking");
   const [selectedDate, setSelectedDate] = useState("");
@@ -137,13 +141,35 @@ export default function Step3LocationTime({
                 <button
                   key={location.id}
                   onClick={() => handleLocationSelect(location)}
-                  className={`p-4 rounded-lg border-2 text-right transition-all ${
+                  className={`p-4 rounded-lg border-2 text-right transition-all group relative ${
                     bookingData.selectedLocation?.id === location.id
                       ? "border-[#62a0f6] bg-[#eff6fe]"
                       : "border-gray-200 hover:border-[#62a0f6]"
                   }`}
                 >
-                  <h4 className="font-semibold mb-1">{location.title}</h4>
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-semibold mb-1">{location.title}</h4>
+                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditLocation(location);
+                        }}
+                        className="p-1 px-2 text-xs bg-white border border-gray-200 rounded text-blue-600 hover:bg-blue-50"
+                      >
+                        تعديل
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteLocation(location.id);
+                        }}
+                        className="p-1 px-2 text-xs bg-white border border-gray-200 rounded text-red-600 hover:bg-red-50"
+                      >
+                        حذف
+                      </button>
+                    </div>
+                  </div>
                   <p className="text-sm text-gray-600">{location.address}</p>
                   <p className="text-sm text-gray-600">{location.city}, {location.country}</p>
                 </button>
