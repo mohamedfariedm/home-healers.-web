@@ -97,6 +97,11 @@ export interface Service {
     original: string
     id: number
   }>
+  icon?: Array<{
+    thumbnail?: string
+    original?: string
+    id?: number
+  }>
   name: string
   description: string
   category: {
