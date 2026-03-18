@@ -102,7 +102,7 @@ const AnimatedServicesSection = ({
                   >
                     <img
                       src={
-                        service.image?.[0]?.thumbnail ||
+                        service.icon?.[0]?.original ||service.image?.[0]?.thumbnail||
                         "/assets/images/homehellers/Injury.svg"
                       }
                       className="w-10 h-10 rounded-full object-cover"

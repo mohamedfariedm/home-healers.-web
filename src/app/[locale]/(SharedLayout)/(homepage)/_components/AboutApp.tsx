@@ -27,7 +27,7 @@ function AboutApp({
 
   // Use provided data or fallback to empty array
   const services = data || [];
-
+console.log(services);
   return (
     <div className="flex w-full xl:w-[1280px] flex-col gap-[100px] items-start flex-nowrap relative z-[487] mt-[91px] mx-auto">
       {/* Section Header */}
@@ -88,7 +88,7 @@ function AboutApp({
                   <div
                     style={{
                       backgroundImage: `url(${
-                        service.image?.[0]?.original ||
+                        service.icon?.[0]?.original ||service.image?.[0]?.original||
                         "/assets/images/homehellers/Injury.svg"
                       })`,
                     }}

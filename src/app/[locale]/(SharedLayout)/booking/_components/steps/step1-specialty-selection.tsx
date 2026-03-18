@@ -372,7 +372,7 @@ export default function Step1SpecialtySelection({
                     <div className="flex flex-col gap-4">
                       <div className="w-12 h-12 bg-[#eff6fe] rounded-lg flex items-center justify-center">
                         <img
-                          src={s.image?.[0]?.original || "/default-service.png"}
+                          src={s.icon?.[0]?.original ||s.image?.[0]?.original || "/default-service.png"}
                           alt={s.name}
                           className="w-6 h-6 object-cover"
                         />
