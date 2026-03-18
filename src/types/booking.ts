@@ -68,6 +68,18 @@ export interface Doctor {
     original: string
     id: number
   }>
+  categories?: Array<{ // Added: categories that doctor belongs to
+    id: number
+    name: {
+      en: string
+      ar: string
+    }
+    image: any
+    active: number
+    created_at: string
+    updated_at: string
+    has_service: boolean
+  }>
 }
 
 export interface Category {
@@ -75,6 +87,7 @@ export interface Category {
   name: string
   image: any
   services: Service[]
+  has_service?: boolean // Added: indicates if category has services
 }
 
 export interface Service {

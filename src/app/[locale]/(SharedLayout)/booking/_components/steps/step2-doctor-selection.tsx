@@ -204,6 +204,19 @@ const handlePackageSelect = (pkg: Package) => {
 
     const selectedServiceId = bookingData?.selectedService?.id;
     const selectedCategory = bookingData?.selectedCategory; // might have name or id
+    
+    // Debug logging
+    const categoryHasNoService = (selectedCategory as any)?.has_service === false;
+    console.log("=== Step2 Filtering ===", {
+      totalDoctors: list.length,
+      selectedCategory: selectedCategory ? {
+        id: selectedCategory.id,
+        name: selectedCategory.name,
+        has_service: (selectedCategory as any)?.has_service,
+        categoryHasNoService,
+      } : null,
+      selectedServiceId,
+    });
 
     const cityFilter = bookingData?.searchFilters?.city || "";
     const specialtyFilter = bookingData?.searchFilters?.specialty || "";
@@ -246,6 +259,10 @@ const handlePackageSelect = (pkg: Package) => {
       // --- Step 1 selection (by service OR category) ---
       let matchesStep1 = true;
 
+      // Check if selected category has has_service: false
+      const categoryHasNoService = (selectedCategory as any)?.has_service === false;
+      const categoryId = selectedCategory?.id;
+
       // If a service is selected, doc must have ANY service with same id
       if (selectedServiceId) {
         const hasSrv =
@@ -253,18 +270,45 @@ const handlePackageSelect = (pkg: Package) => {
           doc.services.some((s: any) => String(s?.id) === String(selectedServiceId));
         matchesStep1 = hasSrv;
       } else if (selectedCategory) {
-        // Match by category id if present, else by name vs specialist/department
-        const byCategoryId =
-          selectedCategory?.id != null &&
-          Array.isArray(doc?.services) &&
-          doc.services.some((s: any) => String(s?.category_id) === String(selectedCategory.id));
+        // If category has has_service: false, check doctor's categories array
+        if (categoryHasNoService && categoryId != null) {
+          const doctorCategories = Array.isArray(doc?.categories) ? doc.categories : [];
+          const hasCategory = doctorCategories.some((cat: any) => {
+            const catId = cat?.id;
+            const matches = String(catId) === String(categoryId);
+            if (matches) {
+              console.log(`✅ Doctor ${doc.id} (${doc.name}) matches category ${categoryId}`, {
+                doctorId: doc.id,
+                doctorName: doc.name,
+                categoryId,
+                doctorCategories: doctorCategories.map((c: any) => c.id),
+              });
+            }
+            return matches;
+          });
+          matchesStep1 = hasCategory;
+          if (!hasCategory && doctorCategories.length > 0) {
+            console.log(`❌ Doctor ${doc.id} (${doc.name}) does NOT match category ${categoryId}`, {
+              doctorId: doc.id,
+              doctorName: doc.name,
+              categoryId,
+              doctorCategories: doctorCategories.map((c: any) => c.id),
+            });
+          }
+        } else {
+          // For categories with services, check services array for category_id
+          const byCategoryId =
+            categoryId != null &&
+            Array.isArray(doc?.services) &&
+            doc.services.some((s: any) => String(s?.category_id) === String(categoryId));
 
-        const byCategoryName =
-          !!selectedCategory?.name &&
-          (String(doc?.specialist ?? "").toLowerCase() === String(selectedCategory.name).toLowerCase() ||
-            String(doc?.department ?? "").toLowerCase() === String(selectedCategory.name).toLowerCase());
+          const byCategoryName =
+            !!selectedCategory?.name &&
+            (String(doc?.specialist ?? "").toLowerCase() === String(selectedCategory.name).toLowerCase() ||
+              String(doc?.department ?? "").toLowerCase() === String(selectedCategory.name).toLowerCase());
 
-        matchesStep1 = byCategoryId || byCategoryName || !selectedCategory;
+          matchesStep1 = byCategoryId || byCategoryName || !selectedCategory;
+        }
       }
 
       return (
@@ -278,6 +322,14 @@ const handlePackageSelect = (pkg: Package) => {
       );
     });
   }, [doctorsData, searchQuery, bookingData]);
+
+  // Log filtered results
+  useEffect(() => {
+    console.log("=== Step2 Filtered Results ===", {
+      filteredCount: filteredDoctors.length,
+      filteredDoctors: filteredDoctors.map((d: any) => ({ id: d.id, name: d.name })),
+    });
+  }, [filteredDoctors]);
 
   const isDoctorsEmpty = !doctorsData?.data?.length || !filteredDoctors.length;
   const isPackagesEmpty = !packagesData?.data?.length;

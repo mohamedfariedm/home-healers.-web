@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import type { BookingData, Location, Patient, Doctor } from "@/types/booking";
+import type { BookingData, Location, Patient, Doctor, Category } from "@/types/booking";
 
 // Import all step components
 import Step1SpecialtySelection from "./steps/step1-specialty-selection";
@@ -110,6 +110,13 @@ export default function BookingFlow({
     doctorsData?.data || []
   );
 
+  // Initial filter when component mounts or doctorsData changes
+  useEffect(() => {
+    if (doctorsData?.data && doctorsData.data.length > 0) {
+      handleDoctorSearch();
+    }
+  }, [doctorsData]);
+
   const steps = [
     {
       step: t("steps.step1"),
@@ -154,7 +161,18 @@ export default function BookingFlow({
 
   useEffect(() => {
     handleDoctorSearch();
-  }, [bookingData.searchFilters]);
+  }, [bookingData.searchFilters, bookingData.selectedCategory, bookingData.selectedService]);
+
+  // Log all doctors when component mounts or doctorsData changes
+  useEffect(() => {
+    console.log("=== All Doctors Data ===");
+    console.log("doctorsData (original):", doctorsData);
+    console.log("doctorsData.data:", doctorsData?.data);
+    console.log("Total doctors count:", doctorsData?.data?.length || 0);
+    console.log("filteredDoctors:", filteredDoctors);
+    console.log("Filtered doctors count:", filteredDoctors?.length || 0);
+    console.log("========================");
+  }, [doctorsData, filteredDoctors]);
 
   const calculatePricing = () => {
     let subTotal = 0;
@@ -221,7 +239,76 @@ export default function BookingFlow({
   };
 
   const handleDoctorSearch = async () => {
-    setFilteredDoctors(doctorsData?.data || []);
+    let doctors = doctorsData?.data || [];
+    
+    console.log("=== handleDoctorSearch START ===");
+    console.log("Total doctors before filtering:", doctors.length);
+    console.log("Selected category:", bookingData.selectedCategory);
+    console.log("Selected service:", bookingData.selectedService);
+    
+    // Get full category object from categoriesData to ensure has_service property is available
+    let fullCategory = bookingData.selectedCategory as (Category & { has_service?: boolean }) | null;
+    if (fullCategory && categoriesData?.data) {
+      const categoryFromData = categoriesData.data.find((cat: any) => cat.id === fullCategory?.id);
+      if (categoryFromData) {
+        fullCategory = { ...fullCategory, ...categoryFromData };
+        console.log("Found full category from categoriesData:", categoryFromData);
+      }
+    }
+    
+    const categoryHasNoService = fullCategory?.has_service === false;
+    
+    console.log("Category has_service check:", {
+      has_service: fullCategory?.has_service,
+      categoryHasNoService,
+      categoryId: fullCategory?.id,
+      categoryName: fullCategory?.name,
+      fullCategoryObject: fullCategory,
+    });
+    
+    // Filter doctors by category if category has has_service: false
+    if (categoryHasNoService && fullCategory) {
+      const categoryId = fullCategory.id;
+      console.log("Filtering doctors by category ID:", categoryId);
+      
+      // Log first doctor's categories structure for debugging
+      if (doctors.length > 0) {
+        console.log("Sample doctor categories structure:", {
+          doctorId: doctors[0]?.id,
+          doctorName: doctors[0]?.name,
+          categories: (doctors[0] as any)?.categories,
+          categoriesLength: (doctors[0] as any)?.categories?.length,
+        });
+      }
+      
+      const beforeFilterCount = doctors.length;
+      doctors = doctors.filter((doctor: Doctor & { categories?: Array<{ id: number }> }) => {
+        const hasCategory = doctor.categories?.some((cat: any) => cat.id === categoryId) || false;
+        if (hasCategory) {
+          console.log(`Doctor ${doctor.id} (${doctor.name}) has category ${categoryId}`);
+        }
+        return hasCategory;
+      });
+      
+      console.log("handleDoctorSearch - Filtering by category (has_service: false):", {
+        categoryId,
+        categoryName: fullCategory.name,
+        beforeFilterCount,
+        afterFilterCount: doctors.length,
+        filteredDoctors: doctors.map((d: any) => ({ id: d.id, name: d.name })),
+      });
+    } else if (bookingData.selectedService) {
+      // If service is selected, filter by service (existing logic if needed)
+      console.log("Service selected, no category filtering needed");
+    } else if (fullCategory && fullCategory.has_service !== false) {
+      console.log("Category selected but has_service is not false, showing all doctors");
+    } else {
+      console.log("No category or service selected, showing all doctors");
+    }
+    
+    console.log("handleDoctorSearch - Final filtered doctors count:", doctors.length);
+    console.log("=== handleDoctorSearch END ===");
+    setFilteredDoctors(doctors);
   };
 
   const updateBookingData = (updates: Partial<BookingData>) => {
@@ -410,8 +497,20 @@ export default function BookingFlow({
       const isGuest = bookingData.selectedPatients?.length === 1;
       const guest = isGuest ? bookingData.selectedPatients[0] : null;
 
+      // Check if selected category has has_service: false
+      const selectedCategory = bookingData.selectedCategory as (Category & { has_service?: boolean }) | null;
+      const categoryHasNoService = selectedCategory?.has_service === false;
+      
+      console.log("submitBooking - Category has_service:", {
+        categoryId: selectedCategory?.id,
+        categoryName: selectedCategory?.name,
+        has_service: selectedCategory?.has_service,
+        categoryHasNoService,
+        service_id: categoryHasNoService ? null : bookingData.selectedService?.id,
+      });
+      
       const reservationData: any = {
-        service_id: bookingData.selectedService?.id,
+        service_id: categoryHasNoService ? null : bookingData.selectedService?.id,
         category_id: bookingData.selectedCategory?.id,
         doctor_id: bookingData.selectedDoctor?.id,
         sessions_count:
