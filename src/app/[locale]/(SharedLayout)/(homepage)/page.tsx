@@ -14,6 +14,8 @@ import { createMetadata } from "@/lib/seo";
 import PackagesSection from "./_components/PackagesSection";
 import { createBreadcrumbSchema, renderJsonLd } from "@/lib/structured-data";
 export const dynamic = "force-dynamic";
+import ClientReviewsLogger from "./_components/ClientReviewsLogger";
+import ClientReviewsSection from "./_components/ClientReviewsSection";
 
 export async function generateMetadata({
   params: { locale, slug },
@@ -39,6 +41,8 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
     limit: 10,
     page: 1,
   });
+  const clientReviews = await ClientAPI.getClientReviews(locale, { active: true });
+  console.log("clientReviews response:", clientReviews);
 
   // Find sections by ID
   const heroSection = homeData?.data?.sections?.find(
@@ -106,6 +110,9 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
           ))}
 
         <OurStory data={blogData?.data} locale={locale} />
+{clientReviews?.data && clientReviews?.data?.length > 0 && (
+          <ClientReviewsSection locale={locale} reviews={clientReviews.data} />
+        )}
         {reservationReviews?.data && reservationReviews?.data?.length > 0 && (
           <ReservationReviewsSection
             reviews={reservationReviews.data}
@@ -113,6 +120,7 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
           />
         )}
         <Card locale={locale} section={cardSection} />
+
       </div>
     </div>
   );

@@ -85,7 +85,7 @@ const ClientAPI = {
 
   // Client Reviews
   getClientReviews: (locale: string, params?: { active?: boolean; futures?: boolean }) =>
-    fetchData('client/ClientReview', locale, { params }),
+    fetchData('client/client-reviews', locale, { params }),
 
   getClientReview: (id: string | number, locale: string) =>
     fetchData(`client/ClientReview/${id}`, locale),
