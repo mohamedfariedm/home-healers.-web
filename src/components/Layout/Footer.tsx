@@ -328,8 +328,8 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
   useEffect(() => {
     const hasSeenModal = sessionStorage.getItem("hasSeenCertificationModal");
     if (!hasSeenModal) {
-      setShowModal(true);
-      sessionStorage.setItem("hasSeenCertificationModal", "true");
+      setShowModal(false);
+      sessionStorage.setItem("hasSeenCertificationModal", "false");
 
       // Auto close after 10 seconds
       const timer = setTimeout(() => {
