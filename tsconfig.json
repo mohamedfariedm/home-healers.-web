@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -18,8 +22,11 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "target": "ES2017"
   },
   "include": [
     "next-env.d.ts",
@@ -27,8 +34,14 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "tailwind.config.ts",
-    "src/components/FormComponents/DragDropArea.sx"
-, "src/app/[locale]/(Auth)/login/pagetsx"  ],
-  "exclude": ["node_modules"],
-  "typeRoots": ["./node_modules/@types", "./custom.d.ts"]
+    "src/components/FormComponents/DragDropArea.sx",
+    "src/app/[locale]/(Auth)/login/pagetsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "typeRoots": [
+    "./node_modules/@types",
+    "./custom.d.ts"
+  ]
 }
