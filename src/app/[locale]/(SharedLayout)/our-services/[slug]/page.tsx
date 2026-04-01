@@ -9,10 +9,11 @@ type props = {
 };
 
 export async function generateMetadata({
-  params: { locale, slug },
+  params,
 }: {
-  params: { locale: string; slug: string };
+  params: Promise<{ locale: string; slug: string }>;
 }) {
+  const { locale, slug } = await params;
   const { t } = await initTranslations(locale, ["homepage"]);
 
   // Global SEO fallback
@@ -72,7 +73,8 @@ export async function generateMetadata({
   };
 }
 
-async function page({ params: { locale, slug } }: props) {
+async function page({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  const { locale, slug } = await params;
   const { t } = await initTranslations(locale, ["common"]);
   const servicesData = await ClientAPI.getAllServices(locale);
 

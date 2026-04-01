@@ -9,7 +9,8 @@ type Props = {
   params: { locale: string; token: string };
 };
 
-export async function generateMetadata({ params: { locale } }: Props) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; token: string }> }) {
+  const { locale } = await params;
   const { t } = await initTranslations(locale, ["invite-doctor"]);
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data?.[0]?.setting?.seo?.["invite-doctor"];
@@ -20,7 +21,8 @@ export async function generateMetadata({ params: { locale } }: Props) {
   });
 }
 
-async function InviteDoctorPage({ params: { locale, token } }: Props) {
+async function InviteDoctorPage({ params }: { params: Promise<{ locale: string; token: string }> }) {
+  const { locale, token } = await params;
   const { t } = await initTranslations(locale, ["common"]);
 
   return (

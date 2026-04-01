@@ -10,8 +10,11 @@ type Props = {
 };
 
 export async function generateMetadata({
-  params: { locale, slug },
-}: Props): Promise<Metadata> {
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
   try {
     const settings = await ClientAPI.getSettings(locale);
     const landingPages = settings?.data?.[0]?.setting?.landing_pages || [];
@@ -64,7 +67,8 @@ export async function generateMetadata({
   }
 }
 
-async function LandingPage({ params: { locale, slug } }: Props) {
+async function LandingPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  const { locale, slug } = await params;
   try {
     console.log("🔍 Landing Page Request:", { locale, slug });
     

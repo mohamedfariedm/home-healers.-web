@@ -21,10 +21,11 @@ interface ArticleData {
 }
 
 export async function generateMetadata({
-  params: { locale, slug },
+  params,
 }: {
-  params: { locale: string; slug: string[] };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const { t } = await initTranslations(locale, ["homepage"]);
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data[0]?.setting?.seo["blogs"];
@@ -33,7 +34,8 @@ export async function generateMetadata({
     title: "Home Hellers",
   });
 }
-async function page({ params: { locale } }: props) {
+async function page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const { t } = await initTranslations(locale, ["blog"]);
   const { data } = await ClientAPI.getAllBlogs(locale);
   const settings = await ClientAPI.getSettings(locale);

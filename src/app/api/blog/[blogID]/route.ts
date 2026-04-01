@@ -3,8 +3,9 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  { params: { blogID } }: { params: { blogID: string } }
+  context: { params: Promise<{ blogID: string }> }
 ) {
+  const { blogID } = await context.params;
   //await new Promise((resolve, reject) => setTimeout(reject, 10000));
   try {
     // Find the blog post with the matching ID

@@ -7,10 +7,11 @@ import { createMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const { t } = await initTranslations(locale, ["homepage"]);
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data[0]?.setting?.seo?.["services"];
@@ -22,10 +23,11 @@ export async function generateMetadata({
 }
 
 export default async function ServicesPage({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const { t } = await initTranslations(locale, ["common"]);
   const servicesData = await ClientAPI.getAllServices(locale);
   const settings = await ClientAPI.getSettings(locale);

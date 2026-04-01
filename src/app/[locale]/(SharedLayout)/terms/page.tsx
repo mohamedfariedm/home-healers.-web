@@ -6,7 +6,8 @@ export const dynamic = "force-dynamic";
 
 type Props = { params: { locale: string } };
 
-export async function generateMetadata({ params: { locale } }: Props) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data[0]?.setting?.seo["about-us"];
 
@@ -14,7 +15,8 @@ export async function generateMetadata({ params: { locale } }: Props) {
   return createMetadata(seo, locale, "/terms", { title: "Terms & Conditions" });
 }
 
-export default async function TermsPage({ params: { locale } }: Props) {
+export default async function TermsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const { t } = await initTranslations(locale, ["common", "terms"]);
   const settings = await ClientAPI.getSettings(locale);
 

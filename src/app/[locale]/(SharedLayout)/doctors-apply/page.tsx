@@ -5,10 +5,11 @@ import DoctorRegistrationForm from "@/components/doctor-registration-form";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
-  params: { locale, slug },
+  params,
 }: {
-  params: { locale: string; slug: string[] };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const { t } = await initTranslations(locale, ["doctor-apply"]);
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data[0]?.setting?.seo["doctor-apply"] || {};
@@ -71,10 +72,11 @@ export async function generateMetadata({
 }
 
 async function DoctorApplyPage({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const { t } = await initTranslations(locale, ["doctor-apply"]);
   const nationalities = await ClientAPI.getNationalities(locale);
   return (

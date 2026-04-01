@@ -9,7 +9,8 @@ type Props = {
 };
 
 // Static metadata for Invoice Page SEO
-export async function generateMetadata({ params: { locale, slug } }: Props) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  const { locale, slug } = await params;
   const { t } = await initTranslations(locale, ["invoice"]);
 
   const title = t("invoice_page.title", { invoiceId: slug });
@@ -44,7 +45,8 @@ export async function generateMetadata({ params: { locale, slug } }: Props) {
   };
 }
 
-async function page({ params: { locale, slug } }: Props) {
+async function page({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  const { locale, slug } = await params;
   const { t } = await initTranslations(locale, ["invoice"]);
   const data = await ClientAPI.getInvoices(slug, locale);
   log("Invoice Data:", data);

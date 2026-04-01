@@ -6,10 +6,11 @@ import { createMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
-  params: { locale, blogID },
+  params,
 }: {
-  params: { locale: string; blogID: string };
+  params: Promise<{ locale: string; blogID: string }>;
 }) {
+  const { locale, blogID } = await params;
   const { t } = await initTranslations(locale, ["homepage"]);
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data[0]?.setting?.seo["blogs"];
@@ -27,10 +28,11 @@ export async function generateMetadata({
   };
 }
 async function page({
-  params: { locale, blogID },
+  params,
 }: {
-  params: { locale: "ar" | "en"; blogID: string };
+  params: Promise<{ locale: "ar" | "en"; blogID: string }>;
 }) {
+  const { locale, blogID } = await params;
   const { t } = await initTranslations(locale, ["blog"]);
   const { data } = await ClientAPI.getSingleBlog(blogID, locale);
 

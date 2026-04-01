@@ -16,10 +16,11 @@ type CardData = {
 };
 
 export async function generateMetadata({
-  params: { locale, slug },
+  params,
 }: {
-  params: { locale: string; slug: string[] };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const { t } = await initTranslations(locale, ["homepage"]);
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data[0]?.setting?.seo["specialty"];
@@ -29,7 +30,8 @@ export async function generateMetadata({
   });
 }
 
-async function Page({ params: { locale } }: PageProps) {
+async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const { t } = await initTranslations(locale, ["contactUs"]);
   const doctorsData = await ClientAPI.getDoctors(locale);
   const packagesData = await ClientAPI.getPackages(locale);

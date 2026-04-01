@@ -13,16 +13,21 @@ import ClientAPI from "../../../api/api";
 import { createMetadata } from "@/lib/seo";
 import PackagesSection from "./_components/PackagesSection";
 import { createBreadcrumbSchema, renderJsonLd } from "@/lib/structured-data";
-export const dynamic = "force-dynamic";
-import ClientReviewsLogger from "./_components/ClientReviewsLogger";
 import ClientReviewsSection from "./_components/ClientReviewsSection";
+export const dynamic = "force-dynamic";
+
+
+type props = {
+  params: { locale: string };
+};
+
 
 export async function generateMetadata({
-  params: { locale, slug },
+  params,
 }: {
-  params: { locale: string; slug: string[] };
+  params: Promise<{ locale: string }>;
 }) {
-  const { t } = await initTranslations(locale, ["homepage"]);
+  const { locale } = await params;
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data[0]?.setting?.seo;
 
@@ -31,8 +36,8 @@ export async function generateMetadata({
     description: "Home Hellers app",
   });
 }
-const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
-  const { t } = await initTranslations(locale, ["homepage"]);
+async function page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const homeData = await ClientAPI.getHomeData(locale);
   const blogData = await ClientAPI.getAllBlogs(locale);
   const packageData = await ClientAPI.getPackages(locale);
@@ -126,4 +131,4 @@ const Home = async ({ params: { locale } }: { params: { locale: string } }) => {
   );
 };
 
-export default Home;
+export default page;

@@ -9,7 +9,8 @@ type Props = {
   params: { locale: string; reservationId: string };
 };
 
-export async function generateMetadata({ params: { locale } }: Props) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; reservationId: string }> }) {
+  const { locale } = await params;
   const { t } = await initTranslations(locale, ["review"]);
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data?.[0]?.setting?.seo?.["review"];
@@ -20,7 +21,8 @@ export async function generateMetadata({ params: { locale } }: Props) {
   });
 }
 
-async function ReviewPage({ params: { locale, reservationId } }: Props) {
+async function ReviewPage({ params }: { params: Promise<{ locale: string; reservationId: string }> }) {
+  const { locale, reservationId } = await params;
   const { t } = await initTranslations(locale, ["review"]);
 
   return (
