@@ -113,6 +113,30 @@ export default function BookingFlow({
     doctorsData?.data || []
   );
 
+  const clearTransientReservationData = () => {
+    setBookingData((prev) => ({
+      ...prev,
+      couponCode: "",
+      couponId: undefined,
+      couponType: undefined,
+      couponValue: undefined,
+    }));
+  };
+
+  // Avoid conflicts from old reservation/coupon data saved in localStorage
+  useEffect(() => {
+    if (
+      bookingData.couponCode ||
+      bookingData.couponId ||
+      bookingData.couponType ||
+      bookingData.couponValue
+    ) {
+      clearTransientReservationData();
+    }
+    // run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Initial filter when component mounts or doctorsData changes
   useEffect(() => {
     if (doctorsData?.data && doctorsData.data.length > 0) {
@@ -594,6 +618,8 @@ export default function BookingFlow({
       console.log("response", response);
 
       setReservationId(response.data[0].id);
+      // Reservation created: ensure old coupon state is cleared so user applies fresh coupon for this reservation
+      clearTransientReservationData();
       toast.success(t("messages.bookingCreated"));
       setCurrentStep(5);
     } catch (error: any) {
@@ -628,7 +654,8 @@ export default function BookingFlow({
           "ar"
         );
         console.log("responceTelr", responceTelr);
-
+        // prevent stale booking/coupon data after redirect
+        localStorage.removeItem("bookingData");
         route.push(responceTelr.redirect_url);
       }
       //  else {
