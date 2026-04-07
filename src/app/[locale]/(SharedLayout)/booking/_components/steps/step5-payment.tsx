@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import { CreditCard, Receipt, Tag, Gift, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { BookingData } from "@/types/booking";
-import { FaCashRegister } from "react-icons/fa";
+import { toast } from "sonner";
+import ClientAPI from "@/app/api/api";
 
 interface Step5Props {
   bookingData: BookingData;
   updateBookingData: (updates: Partial<BookingData>) => void;
+  reservationId?: number | null;
   onNext: () => void;
   onPrev: () => void;
   isLoading: boolean;
@@ -16,13 +18,16 @@ interface Step5Props {
 export default function Step5Payment({
   bookingData,
   updateBookingData,
+  reservationId,
   onNext,
   onPrev,
   isLoading,
 }: Step5Props) {
-  const { t } = useTranslation("booking");
+  const { t, i18n } = useTranslation("booking");
   const [couponInput, setCouponInput] = useState("");
   const [couponError, setCouponError] = useState("");
+  const [coupons, setCoupons] = useState<any[]>([]);
+  const [isCouponsLoading, setIsCouponsLoading] = useState(false);
 
   const paymentMethods = [
     // { id: "cash_on_delivery", name: t("step5.cashOnDelivery"), icon: <FaCashRegister className="w-6 h-6" /> },
@@ -34,6 +39,151 @@ export default function Step5Payment({
     updateBookingData({ paymentMethod: method });
   };
 
+  useEffect(() => {
+    const loadCoupons = async () => {
+      try {
+        setIsCouponsLoading(true);
+        const locale = i18n.language?.startsWith("en") ? "en" : "ar";
+        const response = await ClientAPI.getCoupons(locale);
+        const list = Array.isArray(response?.data) ? response.data : [];
+        setCoupons(list);
+        console.log("coupons response:", response);
+      } catch (error) {
+        console.error("Failed to load coupons:", error);
+        setCoupons([]);
+      } finally {
+        setIsCouponsLoading(false);
+      }
+    };
+    loadCoupons();
+  }, [i18n.language]);
+
+  const extractCouponTypeAndValue = (coupon: any) => {
+    const rawType = String(
+      coupon?.discount_type ??
+      coupon?.type ??
+      coupon?.value_type ??
+      ""
+    ).toLowerCase();
+    const type: "percentage" | "fixed" =
+      rawType.includes("percent") ||
+      rawType.includes("percentage") ||
+      rawType.includes("نسب") ||
+      rawType.includes("مئوي") ||
+      rawType.includes("مئويه")
+        ? "percentage"
+        : "fixed";
+
+    const rawValue =
+      coupon?.discount ??
+      coupon?.value ??
+      coupon?.amount ??
+      coupon?.discount_value ??
+      coupon?.percentage ??
+      coupon?.percent ??
+      0;
+
+    return { type, value: Number(rawValue) || 0 };
+  };
+
+  const applyCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code) {
+      setCouponError(t("step5.enterCouponCode") || "Please enter coupon code");
+      return;
+    }
+
+    const matched = coupons.find((coupon: any) => {
+      const candidate = String(
+        coupon?.code ?? coupon?.coupon_code ?? coupon?.name ?? ""
+      ).trim();
+      return candidate.toLowerCase() === code.toLowerCase();
+    });
+
+    if (!matched) {
+      const message =
+        t("step5.couponNotFound") || "Coupon doesn't exist";
+      setCouponError(message);
+      toast.error(message);
+      return;
+    }
+
+    // If coupon is limited to specific doctors, validate current selected doctor
+    const doctorIds = Array.isArray(matched?.doctors)
+      ? matched.doctors.map((d: any) => d?.id).filter(Boolean)
+      : [];
+    if (
+      doctorIds.length > 0 &&
+      bookingData.selectedDoctor?.id &&
+      !doctorIds.includes(bookingData.selectedDoctor.id)
+    ) {
+      const message =
+        t("step5.couponNotValidForDoctor") ||
+        "Coupon is not valid for selected doctor";
+      setCouponError(message);
+      toast.error(message);
+      return;
+    }
+
+    const { type, value } = extractCouponTypeAndValue(matched);
+    if (value <= 0) {
+      const message =
+        t("step5.invalidCoupon") || "Coupon is invalid";
+      setCouponError(message);
+      toast.error(message);
+      return;
+    }
+
+    if (!reservationId) {
+      const message =
+        t("step5.reservationIdMissing") || "Reservation ID is required before applying coupon";
+      setCouponError(message);
+      toast.error(message);
+      return;
+    }
+
+    const locale = i18n.language?.startsWith("en") ? "en" : "ar";
+    const applyResponse = await ClientAPI.applyCouponOnReservation(
+      { reservationId, coupon_id: matched.id },
+      locale
+    );
+    console.log("apply coupon response:", applyResponse);
+
+    updateBookingData({
+      couponCode: code,
+      couponId: matched.id,
+      couponType: type,
+      couponValue: value,
+    });
+    setCouponError("");
+    toast.success(t("step5.couponApplied") || "Coupon applied successfully");
+  };
+
+  const removeCoupon = async () => {
+    if (reservationId && bookingData.couponId) {
+      const locale = i18n.language?.startsWith("en") ? "en" : "ar";
+      const removeResponse = await ClientAPI.removeCouponFromReservation(
+        { reservationId, coupon_id: bookingData.couponId },
+        locale
+      );
+      console.log("remove coupon response:", removeResponse);
+    }
+    updateBookingData({
+      couponCode: "",
+      couponId: undefined,
+      couponType: undefined,
+      couponValue: undefined,
+    });
+    setCouponInput("");
+    setCouponError("");
+  };
+
+  const couponDiscountAmount =
+    bookingData.couponCode && bookingData.couponType && bookingData.couponValue
+      ? bookingData.couponType === "percentage"
+        ? Math.round((bookingData.pricing.subTotal * bookingData.couponValue) / 100)
+        : bookingData.couponValue
+      : 0;
 
 
 
@@ -128,17 +278,17 @@ export default function Step5Payment({
       {/* Right Column - Pricing & Coupon */}
       <div className="space-y-6">
         {/* Coupon Section */}
-        {/* <div className="bg-white rounded-2xl shadow-md p-6">
+        <div className="bg-white rounded-2xl shadow-md p-6">
           <div className="flex items-center gap-3 mb-6">
             <Tag className="w-6 h-6 text-[#62a0f6]" />
-            <h2 className="text-xl font-bold">كوبون الخصم</h2>
+            <h2 className="text-xl font-bold">{t("step5.couponSection") || "Discount Coupon"}</h2>
           </div>
           {bookingData.couponCode ? (
             <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-medium text-green-800">
-                    تم تطبيق كود الخصم
+                    {t("step5.couponApplied") || "Coupon applied"}
                   </p>
                   <p className="text-sm text-green-600">
                     {bookingData.couponCode}
@@ -148,7 +298,7 @@ export default function Step5Payment({
                   onClick={removeCoupon}
                   className="text-red-600 hover:text-red-800 text-sm"
                 >
-                  إزالة
+                  {t("step5.removeCoupon") || "Remove"}
                 </button>
               </div>
             </div>
@@ -159,29 +309,23 @@ export default function Step5Payment({
                      type="text"
                      value={couponInput}
                      onChange={(e) => setCouponInput(e.target.value)}
-                     placeholder="أدخل كود الخصم"
+                     placeholder={t("step5.enterCouponCode") || "Enter coupon code"}
                      className="flex-1 p-3 border border-gray-300 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6]"
                    />
                    <button
                      onClick={applyCoupon}
                      className="px-6 py-3 bg-[#62a0f6] text-white rounded-lg hover:bg-[#5090e6]"
                    >
-                     تطبيق
+                     {t("step5.applyCoupon") || "Apply"}
                    </button>
                  </div>
                  {couponError && (
                    <p className="text-red-600 text-sm">{couponError}</p>
                  )}
-                 <div className="text-sm text-gray-600">
-                   <p>أكواد الخصم المتاحة:</p>
-                   <ul className="list-disc list-inside mt-1 space-y-1">
-                     <li>SAVE20 - خصم 20%</li>
-                     <li>FIRST10 - خصم 10% للعملاء الجد ب</li>
-                   </ul>
-                 </div>
+                 
                </div>
              )}
-           </div> */}
+           </div>
    
            {/* Pricing Summary */}
            <div className="bg-white rounded-2xl shadow-md p-6">
@@ -213,6 +357,15 @@ export default function Step5Payment({
                 -{bookingData.pricing.discount} {t("step5.currency")}
               </span>
               <span>{t("step5.discount")}</span>
+            </div>
+          )}
+
+          {couponDiscountAmount > 0 && (
+            <div className="flex justify-between text-green-600">
+              <span className="font-medium">
+                -{couponDiscountAmount} {t("step5.currency")}
+              </span>
+              <span>{t("step5.couponDiscount") || "Coupon Discount"}</span>
             </div>
           )}
 

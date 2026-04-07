@@ -183,6 +183,9 @@ export interface BookingData {
   }
   paymentMethod: string
   couponCode: string
+  couponId?: number
+  couponType?: "percentage" | "fixed"
+  couponValue?: number
   pricing: {
     subTotal: number
     fees: number
@@ -201,6 +204,7 @@ export interface ReservationRequest {
   address_id: number
   doctor_id: number
   package_id?: number
+  coupon_id?: number
   sessions_count: number
   sub_total: number
   fees: number

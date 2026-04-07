@@ -115,6 +115,26 @@ const ClientAPI = {
     });
   },
 
+  applyCouponOnReservation: (
+    payload: { reservationId: number; coupon_id: number },
+    locale: string
+  ) =>
+    fetchData("client/reservations/apply-coupon", locale, {
+      method: "POST",
+      body: payload,
+      requiresAuth: true,
+    }),
+
+  removeCouponFromReservation: (
+    payload: { reservationId: number; coupon_id: number },
+    locale: string
+  ) =>
+    fetchData("client/reservations/remove-coupon", locale, {
+      method: "POST",
+      body: payload,
+      requiresAuth: true,
+    }),
+
   // Payment - Apple Pay or default payment
   payReservation: (reservationId: number, locale: string) =>
     fetchData('payment/pay', locale, {

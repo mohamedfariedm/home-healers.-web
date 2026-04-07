@@ -82,6 +82,9 @@ export default function BookingFlow({
       },
       paymentMethod: "apple_pay",
       couponCode: "",
+      couponId: undefined,
+      couponType: undefined,
+      couponValue: undefined,
       pricing: {
         subTotal: 0,
         fees: 0,
@@ -205,11 +208,15 @@ export default function BookingFlow({
       discount += Number.parseFloat(bookingData.selectedPackage.discount);
     }
 
-    // Apply coupon discounts
-    if (bookingData.couponCode === "SAVE20") {
-      discount += Math.round(subTotal * 0.2);
-    } else if (bookingData.couponCode === "FIRST10") {
-      discount += Math.round(subTotal * 0.1);
+    // Apply coupon discount from selected coupon metadata
+    let couponDiscount = 0;
+    if (bookingData.couponType && bookingData.couponValue) {
+      if (bookingData.couponType === "percentage") {
+        couponDiscount = Math.round((subTotal * bookingData.couponValue) / 100);
+      } else {
+        couponDiscount = bookingData.couponValue;
+      }
+      couponDiscount = Math.max(0, Math.min(couponDiscount, subTotal));
     }
 
     // For packages: show the discount amount for display purposes only
@@ -222,9 +229,12 @@ export default function BookingFlow({
     // 6. Final total
     // For packages: total = price (already discounted) + fees + tax
     // For non-packages: total = subtotal + fees + tax - discount
-    const total = hasPackage
-      ? subTotal + fees + tax
-      : subTotal + fees + tax - discount;
+    const total = Math.max(
+      0,
+      hasPackage
+        ? subTotal + fees + tax - couponDiscount
+        : subTotal + fees + tax - discount - couponDiscount
+    );
 
     setBookingData((prev) => ({
       ...prev,
@@ -718,6 +728,7 @@ export default function BookingFlow({
           <Step5Payment
             bookingData={bookingData}
             updateBookingData={updateBookingData}
+            reservationId={reservationId}
             onNext={completePayment} // Call payment completion
             onPrev={prevStep}
             isLoading={isLoading}
