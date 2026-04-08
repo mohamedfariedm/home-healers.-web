@@ -58,6 +58,32 @@ export default function Step5Payment({
     loadCoupons();
   }, [i18n.language]);
 
+  useEffect(() => {
+    if (!bookingData.selectedPackage) return;
+    if (
+      bookingData.couponCode ||
+      bookingData.couponId ||
+      bookingData.couponType ||
+      bookingData.couponValue
+    ) {
+      updateBookingData({
+        couponCode: "",
+        couponId: undefined,
+        couponType: undefined,
+        couponValue: undefined,
+      });
+    }
+    setCouponInput("");
+    setCouponError("");
+  }, [
+    bookingData.selectedPackage,
+    bookingData.couponCode,
+    bookingData.couponId,
+    bookingData.couponType,
+    bookingData.couponValue,
+    updateBookingData,
+  ]);
+
   const extractCouponTypeAndValue = (coupon: any) => {
     const rawType = String(
       coupon?.discount_type ??
@@ -87,6 +113,10 @@ export default function Step5Payment({
   };
 
   const applyCoupon = async () => {
+    if (bookingData.selectedPackage) {
+      return;
+    }
+
     const code = couponInput.trim();
     if (!code) {
       setCouponError(t("step5.enterCouponCode") || "Please enter coupon code");
@@ -160,6 +190,10 @@ export default function Step5Payment({
   };
 
   const removeCoupon = async () => {
+    if (bookingData.selectedPackage) {
+      return;
+    }
+
     if (reservationId && bookingData.couponId) {
       const locale = i18n.language?.startsWith("en") ? "en" : "ar";
       const removeResponse = await ClientAPI.removeCouponFromReservation(
@@ -184,6 +218,10 @@ export default function Step5Payment({
         ? Math.round((bookingData.pricing.subTotal * bookingData.couponValue) / 100)
         : bookingData.couponValue
       : 0;
+
+  const displayBaseAmount = bookingData.selectedPackage
+    ? Number(bookingData.selectedPackage.discount) || bookingData.pricing.subTotal
+    : bookingData.pricing.subTotal;
 
 
 
@@ -277,55 +315,57 @@ export default function Step5Payment({
 
       {/* Right Column - Pricing & Coupon */}
       <div className="space-y-6">
-        {/* Coupon Section */}
-        <div className="bg-white rounded-2xl shadow-md p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <Tag className="w-6 h-6 text-[#62a0f6]" />
-            <h2 className="text-xl font-bold">{t("step5.couponSection") || "Discount Coupon"}</h2>
-          </div>
-          {bookingData.couponCode ? (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="font-medium text-green-800">
-                    {t("step5.couponApplied") || "Coupon applied"}
-                  </p>
-                  <p className="text-sm text-green-600">
-                    {bookingData.couponCode}
-                  </p>
-                </div>
-                <button
-                  onClick={removeCoupon}
-                  className="text-red-600 hover:text-red-800 text-sm"
-                >
-                  {t("step5.removeCoupon") || "Remove"}
-                </button>
-              </div>
+        {/* Coupon Section (hidden for package bookings) */}
+        {!bookingData.selectedPackage && (
+          <div className="bg-white rounded-2xl shadow-md p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <Tag className="w-6 h-6 text-[#62a0f6]" />
+              <h2 className="text-xl font-bold">{t("step5.couponSection") || "Discount Coupon"}</h2>
             </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex gap-2">
-                <input
-                     type="text"
-                     value={couponInput}
-                     onChange={(e) => setCouponInput(e.target.value)}
-                     placeholder={t("step5.enterCouponCode") || "Enter coupon code"}
-                     className="flex-1 p-3 border border-gray-300 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6]"
-                   />
-                   <button
-                     onClick={applyCoupon}
-                     className="px-6 py-3 bg-[#62a0f6] text-white rounded-lg hover:bg-[#5090e6]"
-                   >
-                     {t("step5.applyCoupon") || "Apply"}
-                   </button>
+            {bookingData.couponCode ? (
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-medium text-green-800">
+                      {t("step5.couponApplied") || "Coupon applied"}
+                    </p>
+                    <p className="text-sm text-green-600">
+                      {bookingData.couponCode}
+                    </p>
+                  </div>
+                  <button
+                    onClick={removeCoupon}
+                    className="text-red-600 hover:text-red-800 text-sm"
+                  >
+                    {t("step5.removeCoupon") || "Remove"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <input
+                       type="text"
+                       value={couponInput}
+                       onChange={(e) => setCouponInput(e.target.value)}
+                       placeholder={t("step5.enterCouponCode") || "Enter coupon code"}
+                       className="flex-1 p-3 border border-gray-300 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6]"
+                     />
+                     <button
+                       onClick={applyCoupon}
+                       className="px-6 py-3 bg-[#62a0f6] text-white rounded-lg hover:bg-[#5090e6]"
+                     >
+                       {t("step5.applyCoupon") || "Apply"}
+                     </button>
+                   </div>
+                   {couponError && (
+                     <p className="text-red-600 text-sm">{couponError}</p>
+                   )}
+                   
                  </div>
-                 {couponError && (
-                   <p className="text-red-600 text-sm">{couponError}</p>
-                 )}
-                 
-               </div>
-             )}
-           </div>
+               )}
+             </div>
+        )}
    
            {/* Pricing Summary */}
            <div className="bg-white rounded-2xl shadow-md p-6">
@@ -336,7 +376,7 @@ export default function Step5Payment({
         <div className="space-y-4 p-4 bg-[#eff6fe] rounded-lg">
           <div className="flex justify-between">
             <span className="font-medium">
-              {bookingData.pricing.subTotal} {t("step5.currency")}
+              {displayBaseAmount} {t("step5.currency")}
             </span>
             <span className="text-gray-600">{t("step5.baseAmount")}</span>
           </div>

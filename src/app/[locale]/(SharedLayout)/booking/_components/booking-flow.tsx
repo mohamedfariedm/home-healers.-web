@@ -246,8 +246,12 @@ export default function BookingFlow({
     // For packages: show the discount amount for display purposes only
     // but don't subtract it from total (price is already discounted)
     const packageDiscount =
-      hasPackage && bookingData.selectedPackage?.discount
-        ? Number.parseFloat(bookingData.selectedPackage.discount)
+      hasPackage && bookingData.selectedPackage
+        ? Math.max(
+            0,
+            (Number.parseFloat(bookingData.selectedPackage.discount) || 0) -
+              (Number.parseFloat(bookingData.selectedPackage.price) || 0)
+          )
         : 0;
 
     // 6. Final total
