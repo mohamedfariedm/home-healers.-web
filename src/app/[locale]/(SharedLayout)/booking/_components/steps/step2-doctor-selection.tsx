@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "next/navigation";
 import type { BookingData, Doctor, Package } from "@/types/booking";
+import { doctorMatchesCategoryId } from "@/lib/doctor-matches-category";
 
 // ===== Helpers for the new data shape =====
 const isImageUrl = (url?: string | null) =>
@@ -202,20 +203,15 @@ const handlePackageSelect = (pkg: Package) => {
 
     const q = searchQuery.trim().toLowerCase();
 
-    const selectedServiceId = bookingData?.selectedService?.id;
-    const selectedCategory = bookingData?.selectedCategory; // might have name or id
-    
-    // Debug logging
-    const categoryHasNoService = (selectedCategory as any)?.has_service === false;
+    const selectedCategory = bookingData?.selectedCategory;
+    const categoryId = selectedCategory?.id;
+
     console.log("=== Step2 Filtering ===", {
       totalDoctors: list.length,
-      selectedCategory: selectedCategory ? {
-        id: selectedCategory.id,
-        name: selectedCategory.name,
-        has_service: (selectedCategory as any)?.has_service,
-        categoryHasNoService,
-      } : null,
-      selectedServiceId,
+      selectedCategory: selectedCategory
+        ? { id: selectedCategory.id, name: selectedCategory.name }
+        : null,
+      filterByCategoryId: categoryId ?? null,
     });
 
     const cityFilter = bookingData?.searchFilters?.city || "";
@@ -256,59 +252,10 @@ const handlePackageSelect = (pkg: Package) => {
       const price = toNum(doc?.session_price, 0);
       const matchesPrice = price >= toNum(priceRange[0], 0) && price <= toNum(priceRange[1], 100000);
 
-      // --- Step 1 selection (by service OR category) ---
+      // --- Step 1: always by selected category id (not selected service id) ---
       let matchesStep1 = true;
-
-      // Check if selected category has has_service: false
-      const categoryHasNoService = (selectedCategory as any)?.has_service === false;
-      const categoryId = selectedCategory?.id;
-
-      // If a service is selected, doc must have ANY service with same id
-      if (selectedServiceId) {
-        const hasSrv =
-          Array.isArray(doc?.services) &&
-          doc.services.some((s: any) => String(s?.id) === String(selectedServiceId));
-        matchesStep1 = hasSrv;
-      } else if (selectedCategory) {
-        // If category has has_service: false, check doctor's categories array
-        if (categoryHasNoService && categoryId != null) {
-          const doctorCategories = Array.isArray(doc?.categories) ? doc.categories : [];
-          const hasCategory = doctorCategories.some((cat: any) => {
-            const catId = cat?.id;
-            const matches = String(catId) === String(categoryId);
-            if (matches) {
-              console.log(`✅ Doctor ${doc.id} (${doc.name}) matches category ${categoryId}`, {
-                doctorId: doc.id,
-                doctorName: doc.name,
-                categoryId,
-                doctorCategories: doctorCategories.map((c: any) => c.id),
-              });
-            }
-            return matches;
-          });
-          matchesStep1 = hasCategory;
-          if (!hasCategory && doctorCategories.length > 0) {
-            console.log(`❌ Doctor ${doc.id} (${doc.name}) does NOT match category ${categoryId}`, {
-              doctorId: doc.id,
-              doctorName: doc.name,
-              categoryId,
-              doctorCategories: doctorCategories.map((c: any) => c.id),
-            });
-          }
-        } else {
-          // For categories with services, check services array for category_id
-          const byCategoryId =
-            categoryId != null &&
-            Array.isArray(doc?.services) &&
-            doc.services.some((s: any) => String(s?.category_id) === String(categoryId));
-
-          const byCategoryName =
-            !!selectedCategory?.name &&
-            (String(doc?.specialist ?? "").toLowerCase() === String(selectedCategory.name).toLowerCase() ||
-              String(doc?.department ?? "").toLowerCase() === String(selectedCategory.name).toLowerCase());
-
-          matchesStep1 = byCategoryId || byCategoryName || !selectedCategory;
-        }
+      if (categoryId != null && selectedCategory) {
+        matchesStep1 = doctorMatchesCategoryId(doc, categoryId);
       }
 
       return (
