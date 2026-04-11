@@ -152,9 +152,10 @@ export default function Step5Payment({
       0,
       subTotal + fees + tax - discount
     );
+    const couponPercentBase = subTotal + fees;
     const potentialDiscount =
       type === "percentage"
-        ? Math.round((subTotal * value) / 100)
+        ? Math.round((couponPercentBase * value) / 100)
         : value;
     if (
       payableBeforeCoupon <= 0 ||
@@ -216,10 +217,12 @@ export default function Step5Payment({
     setCouponError("");
   };
 
+  const couponPercentBase =
+    bookingData.pricing.subTotal + bookingData.pricing.fees;
   const couponDiscountRaw =
     bookingData.couponCode && bookingData.couponType && bookingData.couponValue
       ? bookingData.couponType === "percentage"
-        ? Math.round((bookingData.pricing.subTotal * bookingData.couponValue) / 100)
+        ? Math.round((couponPercentBase * bookingData.couponValue) / 100)
         : bookingData.couponValue
       : 0;
   const payableBeforeCoupon = bookingData.selectedPackage
@@ -248,7 +251,7 @@ export default function Step5Payment({
     ? 0
     : Math.max(
         0,
-        Math.min(couponDiscountRaw, bookingData.pricing.subTotal)
+        Math.min(couponDiscountRaw, payableBeforeCoupon)
       );
 
   /** Payable session amount (matches how fees and total are calculated in booking-flow). */

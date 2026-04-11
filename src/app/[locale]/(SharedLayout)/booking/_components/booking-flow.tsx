@@ -344,18 +344,6 @@ export default function BookingFlow({
       discount += Number.parseFloat(bookingData.selectedPackage.discount);
     }
 
-    // Apply coupon discount from selected coupon metadata
-    let couponDiscount = 0;
-    let couponDiscountRaw = 0;
-    if (bookingData.couponType && bookingData.couponValue) {
-      if (bookingData.couponType === "percentage") {
-        couponDiscountRaw = Math.round((subTotal * bookingData.couponValue) / 100);
-      } else {
-        couponDiscountRaw = bookingData.couponValue;
-      }
-      couponDiscount = Math.max(0, Math.min(couponDiscountRaw, subTotal));
-    }
-
     // For packages: show the discount amount for display purposes only
     // but don't subtract it from total (price is already discounted)
     const packageDiscount =
@@ -370,6 +358,24 @@ export default function BookingFlow({
     const payableBeforeCoupon = hasPackage
       ? Math.max(0, subTotal + fees + tax)
       : Math.max(0, subTotal + fees + tax - discount);
+
+    // Coupon % applies to subtotal + fees, then discount is capped to amount owed
+    const couponPercentBase = subTotal + fees;
+    let couponDiscount = 0;
+    let couponDiscountRaw = 0;
+    if (bookingData.couponType && bookingData.couponValue) {
+      if (bookingData.couponType === "percentage") {
+        couponDiscountRaw = Math.round(
+          (couponPercentBase * bookingData.couponValue) / 100
+        );
+      } else {
+        couponDiscountRaw = bookingData.couponValue;
+      }
+      couponDiscount = Math.max(
+        0,
+        Math.min(couponDiscountRaw, payableBeforeCoupon)
+      );
+    }
 
     const couponTooLarge =
       Boolean(bookingData.couponType && bookingData.couponValue) &&
