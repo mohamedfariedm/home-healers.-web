@@ -183,7 +183,9 @@ export default function BookingFlow({
     bookingData.selectedPackage,
     bookingData.sessionsCount,
     bookingData.couponCode,
-    bookingData.selectedPatients, // Add this!
+    bookingData.couponType,
+    bookingData.couponValue,
+    bookingData.selectedPatients,
   ]);
 
   useEffect(() => {
@@ -234,13 +236,14 @@ export default function BookingFlow({
 
     // Apply coupon discount from selected coupon metadata
     let couponDiscount = 0;
+    let couponDiscountRaw = 0;
     if (bookingData.couponType && bookingData.couponValue) {
       if (bookingData.couponType === "percentage") {
-        couponDiscount = Math.round((subTotal * bookingData.couponValue) / 100);
+        couponDiscountRaw = Math.round((subTotal * bookingData.couponValue) / 100);
       } else {
-        couponDiscount = bookingData.couponValue;
+        couponDiscountRaw = bookingData.couponValue;
       }
-      couponDiscount = Math.max(0, Math.min(couponDiscount, subTotal));
+      couponDiscount = Math.max(0, Math.min(couponDiscountRaw, subTotal));
     }
 
     // For packages: show the discount amount for display purposes only
@@ -254,18 +257,36 @@ export default function BookingFlow({
           )
         : 0;
 
+    const payableBeforeCoupon = hasPackage
+      ? Math.max(0, subTotal + fees + tax)
+      : Math.max(0, subTotal + fees + tax - discount);
+
+    const couponTooLarge =
+      Boolean(bookingData.couponType && bookingData.couponValue) &&
+      (payableBeforeCoupon <= 0 || couponDiscountRaw >= payableBeforeCoupon);
+
+    const finalCouponDiscount = couponTooLarge ? 0 : couponDiscount;
+
     // 6. Final total
     // For packages: total = price (already discounted) + fees + tax
     // For non-packages: total = subtotal + fees + tax - discount
     const total = Math.max(
       0,
       hasPackage
-        ? subTotal + fees + tax - couponDiscount
-        : subTotal + fees + tax - discount - couponDiscount
+        ? subTotal + fees + tax - finalCouponDiscount
+        : subTotal + fees + tax - discount - finalCouponDiscount
     );
 
     setBookingData((prev) => ({
       ...prev,
+      ...(couponTooLarge
+        ? {
+            couponCode: "",
+            couponId: undefined,
+            couponType: undefined,
+            couponValue: undefined,
+          }
+        : {}),
       pricing: {
         subTotal,
         fees,

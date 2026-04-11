@@ -220,6 +220,8 @@
     "couponNotValidForDoctor": "الكوبون غير متاح للطبيب المختار",
     "reservationIdMissing": "رقم الحجز مطلوب قبل تطبيق الكوبون",
     "couponDiscount": "خصم الكوبون",
+    "packageSavings": "توفير الباقة (مدرج في المبلغ الأساسي)",
+    "couponExceedsOrEqualsTotal": "لا يمكن استخدام هذا الكوبون لأن قيمة الخصم أكبر من أو تساوي إجمالي الطلب (شامل الرسوم).",
     "invalidCoupon": "كود الخصم غير صحيح",
     "subTotal": "المجموع الفرعي",
     "fees": "الرسوم",

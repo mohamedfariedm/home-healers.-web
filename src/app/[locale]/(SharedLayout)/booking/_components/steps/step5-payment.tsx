@@ -138,27 +138,31 @@ export default function Step5Payment({
       return;
     }
 
-    // If coupon is limited to specific doctors, validate current selected doctor
-    const doctorIds = Array.isArray(matched?.doctors)
-      ? matched.doctors.map((d: any) => d?.id).filter(Boolean)
-      : [];
-    if (
-      doctorIds.length > 0 &&
-      bookingData.selectedDoctor?.id &&
-      !doctorIds.includes(bookingData.selectedDoctor.id)
-    ) {
+    const { type, value } = extractCouponTypeAndValue(matched);
+    if (value <= 0) {
       const message =
-        t("step5.couponNotValidForDoctor") ||
-        "Coupon is not valid for selected doctor";
+        t("step5.invalidCoupon") || "Coupon is invalid";
       setCouponError(message);
       toast.error(message);
       return;
     }
 
-    const { type, value } = extractCouponTypeAndValue(matched);
-    if (value <= 0) {
+    const { subTotal, fees, tax, discount } = bookingData.pricing;
+    const payableBeforeCoupon = Math.max(
+      0,
+      subTotal + fees + tax - discount
+    );
+    const potentialDiscount =
+      type === "percentage"
+        ? Math.round((subTotal * value) / 100)
+        : value;
+    if (
+      payableBeforeCoupon <= 0 ||
+      potentialDiscount >= payableBeforeCoupon
+    ) {
       const message =
-        t("step5.invalidCoupon") || "Coupon is invalid";
+        t("step5.couponExceedsOrEqualsTotal") ||
+        "This coupon cannot be applied because the discount is greater than or equal to your order total.";
       setCouponError(message);
       toast.error(message);
       return;
@@ -212,16 +216,62 @@ export default function Step5Payment({
     setCouponError("");
   };
 
-  const couponDiscountAmount =
+  const couponDiscountRaw =
     bookingData.couponCode && bookingData.couponType && bookingData.couponValue
       ? bookingData.couponType === "percentage"
         ? Math.round((bookingData.pricing.subTotal * bookingData.couponValue) / 100)
         : bookingData.couponValue
       : 0;
+  const payableBeforeCoupon = bookingData.selectedPackage
+    ? Math.max(
+        0,
+        bookingData.pricing.subTotal +
+          bookingData.pricing.fees +
+          bookingData.pricing.tax
+      )
+    : Math.max(
+        0,
+        bookingData.pricing.subTotal +
+          bookingData.pricing.fees +
+          bookingData.pricing.tax -
+          bookingData.pricing.discount
+      );
+  const couponOverTotal =
+    !bookingData.selectedPackage &&
+    Boolean(
+      bookingData.couponCode &&
+        bookingData.couponType &&
+        bookingData.couponValue
+    ) &&
+    (payableBeforeCoupon <= 0 || couponDiscountRaw >= payableBeforeCoupon);
+  const couponDiscountAmount = couponOverTotal
+    ? 0
+    : Math.max(
+        0,
+        Math.min(couponDiscountRaw, bookingData.pricing.subTotal)
+      );
 
-  const displayBaseAmount = bookingData.selectedPackage
-    ? Number(bookingData.selectedPackage.discount) || bookingData.pricing.subTotal
-    : bookingData.pricing.subTotal;
+  /** Payable session amount (matches how fees and total are calculated in booking-flow). */
+  const displayBaseAmount = bookingData.pricing.subTotal;
+
+  const packageListPrice =
+    bookingData.selectedPackage &&
+    Number.parseFloat(String(bookingData.selectedPackage.discount)) > 0
+      ? Number.parseFloat(String(bookingData.selectedPackage.discount))
+      : 0;
+
+  const invoiceTotal = bookingData.selectedPackage
+    ? Math.max(
+        0,
+        bookingData.pricing.subTotal +
+          bookingData.pricing.fees +
+          bookingData.pricing.tax -
+          couponDiscountAmount
+      )
+    : Math.max(
+        0,
+        payableBeforeCoupon - couponDiscountAmount
+      );
 
 
 
@@ -322,7 +372,7 @@ export default function Step5Payment({
               <Tag className="w-6 h-6 text-[#62a0f6]" />
               <h2 className="text-xl font-bold">{t("step5.couponSection") || "Discount Coupon"}</h2>
             </div>
-            {bookingData.couponCode ? (
+            {bookingData.couponCode && !couponOverTotal ? (
               <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                 <div className="flex justify-between items-center">
                   <div>
@@ -358,6 +408,11 @@ export default function Step5Payment({
                        {t("step5.applyCoupon") || "Apply"}
                      </button>
                    </div>
+                   {couponOverTotal && bookingData.couponCode && (
+                     <p className="text-red-600 text-sm">
+                       {t("step5.couponExceedsOrEqualsTotal")}
+                     </p>
+                   )}
                    {couponError && (
                      <p className="text-red-600 text-sm">{couponError}</p>
                    )}
@@ -380,6 +435,15 @@ export default function Step5Payment({
             </span>
             <span className="text-gray-600">{t("step5.baseAmount")}</span>
           </div>
+          {bookingData.selectedPackage &&
+            packageListPrice > displayBaseAmount && (
+              <p className="text-sm text-gray-500 text-right">
+                {t("step2.insteadOf")}{" "}
+                <span className="line-through">
+                  {packageListPrice} {t("step5.currency")}
+                </span>
+              </p>
+            )}
 
           {/* رسوم الزيارة فقط للغير سعوديين */}
           {bookingData.pricing.fees > 0 && (
@@ -391,7 +455,15 @@ export default function Step5Payment({
             </div>
           )}
 
-          {bookingData.pricing.discount > 0 && (
+          {bookingData.selectedPackage && bookingData.pricing.discount > 0 && (
+            <div className="flex justify-between text-green-600">
+              <span className="font-medium">
+                {bookingData.pricing.discount} {t("step5.currency")}
+              </span>
+              <span>{t("step5.packageSavings")}</span>
+            </div>
+          )}
+          {!bookingData.selectedPackage && bookingData.pricing.discount > 0 && (
             <div className="flex justify-between text-green-600">
               <span className="font-medium">
                 -{bookingData.pricing.discount} {t("step5.currency")}
@@ -412,7 +484,7 @@ export default function Step5Payment({
           <div className="border-t border-gray-300 pt-4">
             <div className="flex justify-between text-lg font-bold">
               <span className="text-[#62a0f6]">
-                {bookingData.pricing.total} {t("step5.currency")}
+                {invoiceTotal} {t("step5.currency")}
               </span>
               <span>{t("step5.totalAmount")}</span>
             </div>

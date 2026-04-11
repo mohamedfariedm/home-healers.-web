@@ -220,6 +220,8 @@
     "couponNotValidForDoctor": "Coupon is not valid for selected doctor",
     "reservationIdMissing": "Reservation ID is required before applying coupon",
     "couponDiscount": "Coupon Discount",
+    "packageSavings": "Package savings (included in base)",
+    "couponExceedsOrEqualsTotal": "This coupon cannot be used because the discount is greater than or equal to your order total (including fees).",
     "invalidCoupon": "Invalid coupon code",
     "subTotal": "Subtotal",
     "fees": "Fees",
