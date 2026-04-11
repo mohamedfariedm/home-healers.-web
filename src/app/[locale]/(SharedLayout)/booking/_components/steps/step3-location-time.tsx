@@ -28,7 +28,7 @@ export default function Step3LocationTime({
 }: Step3Props) {
   const { t } = useTranslation("booking");
   const [selectedDate, setSelectedDate] = useState("");
-  const [selectedTime, setSelectedTime] = useState("");
+  const [selectedTime, setSelectedTime] = useState("09:00");
 
   const timeSlots = [
     { time: "09:00", period: "morning", label: `9:00 ${t("step3.morning")}` },

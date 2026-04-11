@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { flushSync } from "react-dom";
 import { Search, ArrowRight, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -24,7 +25,7 @@ export default function Step1SpecialtySelection({
   /* --------------------- STATE --------------------- */
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<"category" | "service">(
-    "category"
+    "category",
   );
   const [isQuickBookingOpen, setIsQuickBookingOpen] = useState(false);
   const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false); // <-- NEW
@@ -64,18 +65,36 @@ export default function Step1SpecialtySelection({
     if (stored) setSavedLocations(JSON.parse(stored));
   }, []);
 
+  /* Match tab to pre-filled booking (e.g. defaults from parent) */
+  useEffect(() => {
+    if (bookingData.selectedService) {
+      setSelectedType("service");
+      return;
+    }
+    if (bookingData.selectedCategory && servicesData?.data?.length) {
+      const hasServicesForCategory = servicesData.data.some(
+        (s: Service) => s.category?.id === bookingData.selectedCategory?.id
+      );
+      setSelectedType(hasServicesForCategory ? "service" : "category");
+    }
+  }, [
+    bookingData.selectedCategory?.id,
+    bookingData.selectedService?.id,
+    servicesData?.data,
+  ]);
+
   const updateSavedLocations = (locations: Location[]) => {
     setSavedLocations(locations);
     localStorage.setItem(
       "quickBookingSavedLocations",
-      JSON.stringify(locations)
+      JSON.stringify(locations),
     );
   };
 
   /* ------------------- FILTERS ------------------- */
   const filteredCategories =
     categoriesData?.data?.filter((c: Category) =>
-      c.name.toLowerCase().includes(searchQuery.toLowerCase())
+      c.name.toLowerCase().includes(searchQuery.toLowerCase()),
     ) || [];
 
   const filteredServices =
@@ -88,15 +107,17 @@ export default function Step1SpecialtySelection({
           s.description
             .replace(/<[^>]*>/g, "")
             .toLowerCase()
-            .includes(searchQuery.toLowerCase()))
+            .includes(searchQuery.toLowerCase())),
     ) || [];
 
   /* ------------------- HANDLERS ------------------- */
   const handleCategorySelect = (category: Category) => {
-    updateBookingData({ selectedCategory: category, selectedService: null });
+    flushSync(() => {
+      updateBookingData({ selectedCategory: category, selectedService: null });
+    });
     const catServices =
       servicesData?.data?.filter(
-        (s: Service) => s.category?.id === category.id
+        (s: Service) => s.category?.id === category.id,
       ) || [];
 
     if (catServices.length) {
@@ -110,13 +131,30 @@ export default function Step1SpecialtySelection({
   };
 
   const handleServiceSelect = (service: Service) => {
-    updateBookingData({
-      selectedService: service,
-      //@ts-ignore
-      selectedCategory: service.category
-        ? { id: service.category.id, name: service.category.name, services: [] }
-        : null,
+    flushSync(() => {
+      updateBookingData({
+        selectedService: service,
+        //@ts-ignore
+        selectedCategory: service.category
+          ? { id: service.category.id, name: service.category.name, services: [] }
+          : null,
+      });
     });
+    onNext();
+  };
+
+  const categoryHasServices =
+    !!bookingData.selectedCategory &&
+    (servicesData?.data ?? []).some(
+      (s: Service) => s.category?.id === bookingData.selectedCategory?.id
+    );
+
+  const canContinueStep1 =
+    !!bookingData.selectedService ||
+    (!!bookingData.selectedCategory && !categoryHasServices);
+
+  const handleContinueStep1 = () => {
+    if (!canContinueStep1) return;
     onNext();
   };
 
@@ -143,7 +181,7 @@ export default function Step1SpecialtySelection({
 
       if (res?.success || res?.data) {
         toast.success(
-          t("step1.quickBookingSuccess") || "تم إرسال طلب الحجز السريع بنجاح!"
+          t("step1.quickBookingSuccess") || "تم إرسال طلب الحجز السريع بنجاح!",
         );
         setIsQuickBookingOpen(false);
         setQuickForm({
@@ -174,14 +212,14 @@ export default function Step1SpecialtySelection({
         const reservationId = res.data[0].id;
         const responceTelr = await ClientAPI.payReservationWithTelr(
           reservationId,
-          "ar"
+          "ar",
         );
         console.log("responceTelr", responceTelr);
 
         route.push(responceTelr.redirect_url);
       } else
         toast.error(
-          t("step1.quickBookingFailed") || "فشل الإرسال، حاول مرة أخرى."
+          t("step1.quickBookingFailed") || "فشل الإرسال، حاول مرة أخرى.",
         );
     } catch (err) {
       console.error(err);
@@ -197,7 +235,7 @@ export default function Step1SpecialtySelection({
       address_city?: string;
       address_state?: string;
       address_link?: string;
-    }
+    },
   ) => {
     // Fill the quick-booking fields
     setQuickForm((p) => ({
@@ -372,7 +410,11 @@ export default function Step1SpecialtySelection({
                     <div className="flex flex-col gap-4">
                       <div className="w-12 h-12 bg-[#eff6fe] rounded-lg flex items-center justify-center">
                         <img
-                          src={s.icon?.[0]?.original ||s.image?.[0]?.original || "/default-service.png"}
+                          src={
+                            s.icon?.[0]?.original ||
+                            s.image?.[0]?.original ||
+                            "/default-service.png"
+                          }
                           alt={s.name}
                           className="w-6 h-6 object-cover"
                         />
@@ -423,6 +465,16 @@ export default function Step1SpecialtySelection({
               )}
             </p>
           </div>
+        )}
+
+        {canContinueStep1 && (
+          <button
+            type="button"
+            onClick={handleContinueStep1}
+            className="w-full sm:w-auto px-8 py-3 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] font-semibold transition-colors"
+          >
+            {t("step2.next")}
+          </button>
         )}
       </div>
 

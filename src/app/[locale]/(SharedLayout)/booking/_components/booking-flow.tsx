@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import type { BookingData, Location, Patient, Doctor, Category } from "@/types/booking";
@@ -21,6 +21,15 @@ import { useLocalStorage } from "@/Hooks/use-local-storage";
 import ClientAPI from "@/app/api/api";
 import { useRouter } from "next/navigation";
 import { doctorMatchesCategoryId } from "@/lib/doctor-matches-category";
+
+function addDaysLocalISO(daysFromToday: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + daysFromToday);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
 
 type BookingStep = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -114,6 +123,9 @@ export default function BookingFlow({
     doctorsData?.data || []
   );
 
+  const defaultDatesSeededRef = useRef(false);
+  const step1DefaultsAppliedRef = useRef(false);
+
   const clearTransientReservationData = () => {
     setBookingData((prev) => ({
       ...prev,
@@ -144,6 +156,103 @@ export default function BookingFlow({
       handleDoctorSearch();
     }
   }, [doctorsData]);
+
+  // Step 1: default first category (and first service in that category when services exist), once per visit
+  useEffect(() => {
+    const firstCat = categoriesData?.data?.[0];
+    if (!firstCat || step1DefaultsAppliedRef.current) return;
+
+    setBookingData((prev:any) => {
+      if (prev.selectedCategory || prev.selectedService) {
+        step1DefaultsAppliedRef.current = true;
+        return prev;
+      }
+      step1DefaultsAppliedRef.current = true;
+      const catServices = (servicesData?.data ?? []).filter(
+        (s: any) => s.category?.id === firstCat.id
+      );
+      if (catServices.length > 0) {
+        const s0 = catServices[0];
+        return {
+          ...prev,
+          selectedCategory: {
+            id: s0.category.id,
+            name: s0.category.name,
+            services: [],
+          },
+          selectedService: s0,
+        };
+      }
+      return {
+        ...prev,
+        selectedCategory: firstCat,
+        selectedService: null,
+      };
+    });
+  }, [categoriesData, servicesData]);
+
+  // Step 2: default first doctor in current filtered list when none selected or selection not in list
+  useEffect(() => {
+    if (!filteredDoctors?.length) return;
+    setBookingData((prev) => {
+      if (
+        prev.selectedDoctor &&
+        filteredDoctors.some((d: Doctor) => d.id === prev.selectedDoctor?.id)
+      ) {
+        return prev;
+      }
+      return { ...prev, selectedDoctor: filteredDoctors[0] };
+    });
+  }, [filteredDoctors]);
+
+  // Step 3: default first saved location
+  useEffect(() => {
+    if (!savedLocations?.length) return;
+    setBookingData((prev) => {
+      if (prev.selectedLocation) return prev;
+      return { ...prev, selectedLocation: savedLocations[0] };
+    });
+  }, [savedLocations]);
+
+  // Step 3: default one appointment (tomorrow, first morning slot) when none stored
+  useEffect(() => {
+    if (defaultDatesSeededRef.current) return;
+    defaultDatesSeededRef.current = true;
+    setBookingData((prev) => {
+      if (prev.selectedDates.length > 0) return prev;
+      const dateStr = addDaysLocalISO(1);
+      const time = "09:00";
+      return {
+        ...prev,
+        selectedDates: [
+          {
+            date: dateStr,
+            time,
+            start_time: `${dateStr} ${time}:00`,
+            end_time: `${dateStr} 10:00:00`,
+            time_period: "morning",
+          },
+        ],
+      };
+    });
+  }, []);
+
+  // Step 4: default first saved patient when none selected
+  useEffect(() => {
+    if (!savedPatients?.length) return;
+    setBookingData((prev) => {
+      if (prev.selectedPatients.length > 0) return prev;
+      return { ...prev, selectedPatients: [savedPatients[0]] };
+    });
+  }, [savedPatients]);
+
+  // Step 5: ensure a payment method (first available)
+  useEffect(() => {
+    setBookingData((prev) => {
+      if (prev.paymentMethod) return prev;
+      return { ...prev, paymentMethod: "apple_pay" };
+    });
+  }, []);
 
   const steps = [
     {
