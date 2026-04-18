@@ -102,6 +102,14 @@ export default function BookingFlow({
         discount: 0,
         total: 0,
       },
+    },
+    {
+      // Fresh specialty/service each visit; other draft fields (location, patients, etc.) still restore.
+      deserialize: (parsed) => ({
+        ...parsed,
+        selectedCategory: null,
+        selectedService: null,
+      }),
     }
   );
 
@@ -302,17 +310,6 @@ export default function BookingFlow({
     handleDoctorSearch();
   }, [bookingData.searchFilters, bookingData.selectedCategory]);
 
-  // Log all doctors when component mounts or doctorsData changes
-  useEffect(() => {
-    console.log("=== All Doctors Data ===");
-    console.log("doctorsData (original):", doctorsData);
-    console.log("doctorsData.data:", doctorsData?.data);
-    console.log("Total doctors count:", doctorsData?.data?.length || 0);
-    console.log("filteredDoctors:", filteredDoctors);
-    console.log("Filtered doctors count:", filteredDoctors?.length || 0);
-    console.log("========================");
-  }, [doctorsData, filteredDoctors]);
-
   const calculatePricing = () => {
     let subTotal = 0;
     const hasPackage = !!bookingData.selectedPackage;
@@ -437,7 +434,6 @@ export default function BookingFlow({
   };
 
   const updateBookingData = (updates: Partial<BookingData>) => {
-    console.log("Updating booking data:", updates);
     setBookingData((prev) => ({ ...prev, ...updates }));
   };
 

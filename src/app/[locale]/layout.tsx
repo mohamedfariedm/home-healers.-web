@@ -1,6 +1,7 @@
 import { i18nRouterConfig } from "@/i18nRouterConfig";
 import { dir } from "i18next";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import GlobalProvider from "../../Providers";
 import "../../styles/globals.css";
 import { Alexandria } from 'next/font/google';
@@ -38,6 +39,10 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: { locale: string };
 }>) {
+  if (!i18nRouterConfig.locales.includes(locale as "ar" | "en")) {
+    redirect("/notfound/404");
+  }
+
   // Generate structured data schemas
   const organizationSchema = createOrganizationSchema(defaultOrganizationData);
   const websiteSchema = createWebsiteSchema({

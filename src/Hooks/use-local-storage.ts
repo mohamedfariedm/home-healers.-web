@@ -2,14 +2,25 @@
 
 import { useState } from "react"
 
-export function useLocalStorage<T>(key: string, initialValue: T) {
+export type UseLocalStorageOptions<T> = {
+  /** Transform persisted JSON once on mount (e.g. drop fields that should not restore from cache). */
+  deserialize?: (parsed: T) => T
+}
+
+export function useLocalStorage<T>(
+  key: string,
+  initialValue: T,
+  options?: UseLocalStorageOptions<T>
+) {
   const [storedValue, setStoredValue] = useState<T>(() => {
     if (typeof window === "undefined") {
       return initialValue
     }
     try {
       const item = window.localStorage.getItem(key)
-      return item ? JSON.parse(item) : initialValue
+      if (!item) return initialValue
+      const parsed = JSON.parse(item) as T
+      return options?.deserialize ? options.deserialize(parsed) : parsed
     } catch (error) {
       console.error(`Error reading localStorage key "${key}":`, error)
       return initialValue
