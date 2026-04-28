@@ -1,4 +1,7 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const SERVER_API_BASE_URL = process.env.API_URL;
+const WEBSITE_URL = process.env.NEXT_PUBLIC_WEBSITE_URL || "https://home-healers.com";
+const DEFAULT_ROBOTS_TXT = `User-agent: *\nAllow: /\n\nSitemap: ${WEBSITE_URL}/sitemap.xml`;
 
 const fetchData = async (endpoint: string, locale: string, params: Record<string, any> = {}) => {
   try {
@@ -310,30 +313,51 @@ const ClientAPI = {
     }
   },
   getRobots: async () => {
+    const candidateBaseUrls = [
+      API_BASE_URL,
+      SERVER_API_BASE_URL,
+      "https://backend.home-healers.com/api",
+      "https://development.home-healers.com/api",
+    ].filter(Boolean) as string[];
+
     try {
-      const url = new URL(`${API_BASE_URL}/sitemaps/robots.txt`);
+      for (const baseUrl of candidateBaseUrls) {
+        const url = new URL(`${baseUrl}/sitemaps/robots.txt`);
+        try {
+          const response = await fetch(url.toString(), {
+            method: "GET",
+            headers: { Accept: "text/plain" },
+            cache: "no-store",
+          });
 
-      const response = await fetch(url.toString(), {
-        method: "GET",
-        headers: { Accept: "text/plain" },
-        cache: "no-store",
-      });
+          if (!response.ok) {
+            const errorBody = await response.text();
+            console.error("robots fetch non-200 response:", {
+              url: url.toString(),
+              status: response.status,
+              statusText: response.statusText,
+              bodyPreview: errorBody.slice(0, 500),
+            });
+            continue;
+          }
 
-      if (!response.ok) {
-        const errorBody = await response.text();
-        console.error("robots fetch non-200 response:", {
-          url: url.toString(),
-          status: response.status,
-          statusText: response.statusText,
-          bodyPreview: errorBody.slice(0, 500),
-        });
-        return "User-agent: *\nDisallow:";
+          const robotsTxt = await response.text();
+          if (robotsTxt && robotsTxt.trim().length > 0) {
+            return robotsTxt;
+          }
+        } catch (candidateError) {
+          console.error("robots fetch candidate error:", {
+            url: url.toString(),
+            error: candidateError,
+          });
+        }
       }
 
-      return await response.text();
+      console.error("robots fetch failed for all candidate URLs:", candidateBaseUrls);
+      return DEFAULT_ROBOTS_TXT;
     } catch (e) {
       console.error("robots fetch error:", e);
-      return "User-agent: *\nDisallow:";
+      return DEFAULT_ROBOTS_TXT;
     }
   }
 
