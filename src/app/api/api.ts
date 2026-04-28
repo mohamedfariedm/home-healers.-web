@@ -2,6 +2,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const SERVER_API_BASE_URL = process.env.API_URL;
 const WEBSITE_URL = process.env.NEXT_PUBLIC_WEBSITE_URL || "https://home-healers.com";
 const DEFAULT_ROBOTS_TXT = `User-agent: *\nAllow: /\n\nSitemap: ${WEBSITE_URL}/sitemap.xml`;
+const ROBOTS_LOG_PREFIX = "[ROBOTS]";
 
 const fetchData = async (endpoint: string, locale: string, params: Record<string, any> = {}) => {
   try {
@@ -321,9 +322,17 @@ const ClientAPI = {
     ].filter(Boolean) as string[];
 
     try {
+      console.log(`${ROBOTS_LOG_PREFIX} fetch start`, {
+        nextPublicApiUrl: API_BASE_URL || null,
+        serverApiUrl: SERVER_API_BASE_URL || null,
+        websiteUrl: WEBSITE_URL,
+        candidates: candidateBaseUrls,
+      });
+
       for (const baseUrl of candidateBaseUrls) {
         const url = new URL(`${baseUrl}/sitemaps/robots.txt`);
         try {
+          console.log(`${ROBOTS_LOG_PREFIX} trying candidate`, { url: url.toString() });
           const response = await fetch(url.toString(), {
             method: "GET",
             headers: { Accept: "text/plain" },
@@ -332,7 +341,7 @@ const ClientAPI = {
 
           if (!response.ok) {
             const errorBody = await response.text();
-            console.error("robots fetch non-200 response:", {
+            console.error(`${ROBOTS_LOG_PREFIX} non-200 response`, {
               url: url.toString(),
               status: response.status,
               statusText: response.statusText,
@@ -343,20 +352,40 @@ const ClientAPI = {
 
           const robotsTxt = await response.text();
           if (robotsTxt && robotsTxt.trim().length > 0) {
+            console.log(`${ROBOTS_LOG_PREFIX} success`, {
+              url: url.toString(),
+              length: robotsTxt.length,
+              preview: robotsTxt.slice(0, 200),
+            });
             return robotsTxt;
           }
-        } catch (candidateError) {
-          console.error("robots fetch candidate error:", {
+
+          console.error(`${ROBOTS_LOG_PREFIX} empty body`, {
             url: url.toString(),
-            error: candidateError,
+          });
+        } catch (candidateError) {
+          const err = candidateError as Error & { cause?: unknown };
+          console.error(`${ROBOTS_LOG_PREFIX} candidate error`, {
+            url: url.toString(),
+            message: err?.message || String(candidateError),
+            stack: err?.stack,
+            cause: err?.cause,
           });
         }
       }
 
-      console.error("robots fetch failed for all candidate URLs:", candidateBaseUrls);
+      console.error(`${ROBOTS_LOG_PREFIX} all candidates failed`, {
+        candidates: candidateBaseUrls,
+        fallback: DEFAULT_ROBOTS_TXT,
+      });
       return DEFAULT_ROBOTS_TXT;
     } catch (e) {
-      console.error("robots fetch error:", e);
+      const err = e as Error & { cause?: unknown };
+      console.error(`${ROBOTS_LOG_PREFIX} unexpected error`, {
+        message: err?.message || String(e),
+        stack: err?.stack,
+        cause: err?.cause,
+      });
       return DEFAULT_ROBOTS_TXT;
     }
   }
