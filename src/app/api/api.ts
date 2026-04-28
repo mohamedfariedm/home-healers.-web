@@ -319,7 +319,16 @@ const ClientAPI = {
         cache: "no-store",
       });
 
-      if (!response.ok) throw new Error("Failed to fetch robots.txt");
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error("robots fetch non-200 response:", {
+          url: url.toString(),
+          status: response.status,
+          statusText: response.statusText,
+          bodyPreview: errorBody.slice(0, 500),
+        });
+        return "User-agent: *\nDisallow:";
+      }
 
       return await response.text();
     } catch (e) {

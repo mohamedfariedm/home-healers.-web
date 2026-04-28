@@ -8,11 +8,13 @@ import { redirect } from "next/navigation";
 
 export default async function Layout({
   children,
-  params: { locale },
+  params,
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
+
   if (!i18nRouterConfig.locales.includes(locale as "ar" | "en")) {
     redirect("/ar/notfound/404");
   }

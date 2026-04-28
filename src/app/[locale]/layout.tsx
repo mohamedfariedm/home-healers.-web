@@ -34,11 +34,13 @@ export function generateStaticParams() {
 
 export default async function RootLayout({
   children,
-  params: { locale },
+  params,
 }: Readonly<{
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }>) {
+  const { locale } = await params;
+
   if (!i18nRouterConfig.locales.includes(locale as "ar" | "en")) {
     redirect("/notfound/404");
   }
