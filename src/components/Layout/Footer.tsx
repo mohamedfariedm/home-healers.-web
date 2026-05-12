@@ -100,6 +100,7 @@ const translations = {
       googlePlay: "Google Play",
       appStore: "App Store",
     },
+    partnersGosiIntro: "نحن فخورون بالتعاون مع",
   },
   en: {
     contactTitle: "If you have any questions, don't hesitate!",
@@ -136,6 +137,7 @@ const translations = {
       googlePlay: "Google Play",
       appStore: "App Store",
     },
+    partnersGosiIntro: "We are proud to cooperate with",
   },
 };
 
@@ -879,7 +881,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
         </div> */}
 
           {/* Copyright and Legal Links */}
-          <div className="w-full border-t border-b border-[#1a191a] py-4">
+          <div className="w-full  py-4">
             <div className="flex flex-col lg:flex-row justify-between items-center gap-4 max-w-7xl mx-auto px-4">
               <nav className="flex flex-col sm:flex-row gap-4 items-center">
                 <Link href={`${locale === "ar" ? "" : "/en"}/terms`}>
@@ -906,7 +908,36 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
               </p>
             </div>
           </div>
+          <section
+          className="w-full flex justify-center items-center py-1.5 px-2"
+          aria-label={
+            locale === "ar" ? "شركاء: التأمينات الاجتماعية" : "Partners: GOSI"
+          }
+        >
+          <div
+            className="inline-flex flex-nowrap items-center justify-center gap-2 sm:gap-2.5 min-w-0 max-w-full"
+            dir={isRTL ? "rtl" : "ltr"}
+          >
+            <p className="text-xs sm:text-sm text-[#1e1e1e] font-medium leading-tight shrink min-w-0">
+              {t.partnersGosiIntro}
+            </p>
+            <div className="relative shrink-0 w-[92px] h-[32px] sm:w-[120px] sm:h-[42px]">
+              <Image
+                src="/assets/images/gosi.png"
+                alt={
+                  locale === "ar"
+                    ? "شعار المؤسسة العامة للتأمينات الاجتماعية — برنامج تقدير"
+                    : "General Organization for Social Insurance (GOSI) — Taqdeer program logo"
+                }
+                fill
+                className="object-contain object-center"
+                sizes="(max-width: 640px) 92px, 120px"
+              />
+            </div>
+          </div>
         </section>
+        </section>
+
       </footer>
     </>
   );
