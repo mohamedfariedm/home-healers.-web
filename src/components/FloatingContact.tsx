@@ -1,7 +1,8 @@
 "use client";
 
-import { Phone, MessageCircle } from "lucide-react";
+import { MessageCircle, MessagesSquare, Phone } from "lucide-react";
 import Link from "next/link";
+import { openTawkLiveChat } from "@/lib/tawk";
 
 interface FloatingContactProps {
   settings?: any;
@@ -13,11 +14,23 @@ const whatsappMessage = {
   en: "Hello, I have a question",
 };
 
-// Helper function to format phone number for WhatsApp (remove leading 0 and add country code)
+const labels = {
+  ar: {
+    whatsapp: "واتساب",
+    phone: "اتصال",
+    chat: "محادثة مباشرة",
+  },
+  en: {
+    whatsapp: "WhatsApp",
+    phone: "Call",
+    chat: "Live chat",
+  },
+};
+
 const formatWhatsAppNumber = (phone: string) => {
   if (!phone) return "";
-  const cleaned = phone.replace(/^0+/, ""); // Remove leading zeros
-  return `966${cleaned}`; // Add Saudi Arabia country code
+  const cleaned = phone.replace(/^0+/, "");
+  return `966${cleaned}`;
 };
 
 export default function FloatingContact({
@@ -25,46 +38,84 @@ export default function FloatingContact({
   locale = "ar",
 }: FloatingContactProps) {
   const isArabic = locale === "ar";
+  const t = labels[isArabic ? "ar" : "en"];
 
-  // Extract business info from settings
   const settingsData = settings?.data?.[0]?.setting;
   const businessInfo = settingsData?.business_info || {};
 
-  // Get phone numbers with fallbacks
   const contactPhone = businessInfo.contact || "0118289771";
   const whatsappPhone = businessInfo.whatsapp || "0118289771";
-
-  // Format phone numbers
   const phoneNumber = formatWhatsAppNumber(contactPhone);
   const whatsappNumber = formatWhatsAppNumber(whatsappPhone);
 
   const message = whatsappMessage[isArabic ? "ar" : "en"];
   const encodedMsg = encodeURIComponent(message);
 
+  const sideClass = isArabic ? "right-2 sm:right-4" : "left-2 sm:left-4";
+  const rowClass = isArabic ? "flex-row" : "flex-row-reverse";
+
+  const btnClass =
+    "flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-full text-white shadow-md sm:shadow-lg transition-transform hover:scale-110";
+  const iconClass = "h-4 w-4 sm:h-5 sm:w-5";
+  const labelClass =
+    "rounded-md sm:rounded-lg bg-white px-1.5 py-0.5 text-[10px] sm:px-2.5 sm:py-1 sm:text-xs font-medium text-gray-700 shadow-sm sm:shadow-md";
+
+  const actions = [
+    {
+      id: "whatsapp",
+      label: t.whatsapp,
+      href: `https://wa.me/${whatsappNumber}?text=${encodedMsg}`,
+      external: true,
+      className: "bg-green-500 hover:bg-green-600",
+      icon: MessageCircle,
+    },
+    {
+      id: "chat",
+      label: t.chat,
+      onClick: openTawkLiveChat,
+      className: "bg-teal-500 hover:bg-teal-600",
+      icon: MessagesSquare,
+    },
+    {
+      id: "phone",
+      label: t.phone,
+      href: `tel:${phoneNumber}`,
+      className: "bg-blue-500 hover:bg-blue-600",
+      icon: Phone,
+    },
+  ];
+
   return (
     <div
-      className={`fixed z-50 flex flex-col gap-3 ${
-        isArabic ? "right-4" : "left-4"
-      } bottom-6`}
+      className={`fixed z-[60] flex flex-col items-center gap-1.5 sm:gap-3 ${sideClass} bottom-4 sm:bottom-6`}
     >
-      {/* ✅ WhatsApp Floating Button */}
-      <Link
-        href={`https://wa.me/${whatsappNumber}?text=${encodedMsg}`}
-        target="_blank"
-        aria-label="Chat on WhatsApp"
-        className="group flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg transition-all duration-300 hover:scale-110 hover:bg-green-600"
-      >
-        <MessageCircle className="h-7 w-7" />
-      </Link>
+      {actions.map((action) => (
+        <div key={action.id} className={`flex items-center gap-1.5 sm:gap-2 ${rowClass}`}>
+          <span className={labelClass}>{action.label}</span>
 
-      {/* ✅ Phone Floating Button */}
-      <Link
-        href={`tel:${phoneNumber}`}
-        aria-label="Call us"
-        className="group flex h-14 w-14 items-center justify-center rounded-full bg-blue-500 text-white shadow-lg transition-all duration-300 hover:scale-110 hover:bg-blue-600"
-      >
-        <Phone className="h-7 w-7" />
-      </Link>
+          {action.href ? (
+            <Link
+              href={action.href}
+              target={action.external ? "_blank" : undefined}
+              rel={action.external ? "noopener noreferrer" : undefined}
+              aria-label={action.label}
+              className={`${btnClass} ${action.className}`}
+            >
+              <action.icon className={iconClass} />
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={action.onClick}
+              aria-label={action.label}
+              className={`${btnClass} ${action.className}`}
+            >
+              <action.icon className={iconClass} />
+            </button>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
+

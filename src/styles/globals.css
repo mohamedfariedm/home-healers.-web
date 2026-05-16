@@ -340,3 +340,45 @@ html {
 
 /* ── Ramadan Side Decorations (Placeholder) ── */
 
+/* Tawk.to — custom FAB controls chat; hide default bubble & branding */
+.tawk-min-container,
+.tawk-button-circle,
+#tawkchat-minified-wrapper,
+.tawk-branding {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.tawk-chat-open #tawkchat-container {
+  bottom: var(--tawk-chat-bottom, 13rem) !important;
+  inset-inline-end: 1rem !important;
+  inset-inline-start: auto !important;
+  z-index: 55 !important;
+}
+
+html[dir="ltr"] body.tawk-chat-open #tawkchat-container {
+  inset-inline-start: 1rem !important;
+  inset-inline-end: auto !important;
+}
+
+body.tawk-chat-open .tawk-max-container {
+  border-radius: 1rem !important;
+  overflow: hidden !important;
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18) !important;
+}
+
+@media (max-width: 640px) {
+  body.tawk-chat-open #tawkchat-container {
+    bottom: 9rem !important;
+    inset-inline-end: 0.5rem !important;
+    inset-inline-start: 0.5rem !important;
+    width: calc(100vw - 1rem) !important;
+    max-width: calc(100vw - 1rem) !important;
+  }
+
+  html[dir="ltr"] body.tawk-chat-open #tawkchat-container {
+    inset-inline-start: 0.5rem !important;
+    inset-inline-end: 0.5rem !important;
+  }
+}

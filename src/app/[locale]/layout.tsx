@@ -64,6 +64,52 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-TDDDW3G3');`}
         </Script>
+        {/* Microsoft Clarity */}
+        <Script id="microsoft-clarity" strategy="afterInteractive">
+          {`(function(c,l,a,r,i,t,y){
+c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+})(window,document,"clarity","script","wc9sy4cx56");`}
+        </Script>
+        {/* Tawk.to live chat */}
+        <Script id="tawk-to" strategy="afterInteractive">
+          {`var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+Tawk_API.customStyle={
+  visibility:{
+    desktop:{position:'br',xOffset:16,yOffset:16},
+    mobile:{position:'br',xOffset:12,yOffset:12}
+  }
+};
+Tawk_API.onLoad=function(){
+  Tawk_API.hideWidget();
+  if(window.__tawkOpenOnLoad){
+    Tawk_API.maximize();
+    window.__tawkOpenOnLoad=false;
+    document.body.classList.add('tawk-chat-open');
+    document.body.style.setProperty('--tawk-chat-bottom','13rem');
+    window.dispatchEvent(new Event('tawk-chat-opened'));
+  }
+};
+Tawk_API.onChatMaximized=function(){
+  document.body.classList.add('tawk-chat-open');
+  document.body.style.setProperty('--tawk-chat-bottom','13rem');
+  window.dispatchEvent(new Event('tawk-chat-opened'));
+};
+Tawk_API.onChatMinimized=function(){
+  Tawk_API.hideWidget();
+  document.body.classList.remove('tawk-chat-open');
+  window.dispatchEvent(new Event('tawk-chat-closed'));
+};
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/6a086137c744531c43731fa0/1joobngld';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();`}
+        </Script>
       </head>
       <body className={alexandria.className}>
         {/* Google Tag Manager (noscript) */}
