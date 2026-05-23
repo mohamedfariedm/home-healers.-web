@@ -21,7 +21,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import type { BookingData, Doctor, Package } from "@/types/booking";
+import type { BookingData, Category, Doctor, Package } from "@/types/booking";
 import { doctorMatchesCategoryId } from "@/lib/doctor-matches-category";
 import { getDoctorCityName, isDoctorInCity } from "@/lib/doctor-city";
 
@@ -54,6 +54,7 @@ const toNum = (val: any, fallback = 0) => {
 interface Step2Props {
   doctorsData: any;
   packagesData: any;
+  categoriesData?: { data?: Category[] };
   citiesData?: { data?: Array<{ id: number; name: string }> };
   bookingData: BookingData;
   updateBookingData: (updates: Partial<BookingData>) => void;
@@ -68,6 +69,7 @@ interface Step2Props {
 export default function Step2DoctorSelection({
   doctorsData,
   packagesData,
+  categoriesData,
   citiesData,
   bookingData,
   updateBookingData,
@@ -248,6 +250,20 @@ export default function Step2DoctorSelection({
     handleFilterChange("gender", gender);
   };
 
+  const categories: Category[] = categoriesData?.data ?? [];
+
+  const handleCategoryFilterChange = (categoryIdStr: string) => {
+    if (categoryIdStr === "") {
+      updateBookingData({ selectedCategory: null, selectedService: null });
+    } else {
+      const cat = categories.find((c) => String(c.id) === categoryIdStr);
+      if (cat) {
+        updateBookingData({ selectedCategory: cat, selectedService: null });
+      }
+    }
+    toast.info(t("step2.filtersUpdated"));
+  };
+
   const handleDoctorSelect = (doctor: any) => {
     updateBookingData({ selectedDoctor: doctor });
     toast.success(`${t("step2.doctorSelected")}: ${doctor?.name ?? ""}`);
@@ -293,7 +309,6 @@ const handlePackageSelect = (pkg: Package) => {
       filterByCategoryId: categoryId ?? null,
     });
 
-    const specialtyFilter = bookingData?.searchFilters?.specialty || "";
     const expFilter = bookingData?.searchFilters?.experience
       ? parseInt(String(bookingData.searchFilters.experience))
       : null;
@@ -305,12 +320,6 @@ const handlePackageSelect = (pkg: Package) => {
       const name = String(doc?.name ?? "").toLowerCase();
       const clinic = String(doc?.clinic_name ?? "").toLowerCase();
       const matchesSearch = q === "" || name.includes(q) || clinic.includes(q);
-
-      // --- Specialty filter (specialist exact match) ---
-      const matchesSpecialty =
-        !specialtyFilter ||
-        String(doc?.specialist ?? doc?.department ?? "").toLowerCase() ===
-          String(specialtyFilter).toLowerCase();
 
       // --- Experience filter (>= expFilter) ---
       const exp = toNum(doc?.experience, 0);
@@ -332,7 +341,6 @@ const handlePackageSelect = (pkg: Package) => {
 
       return (
         matchesSearch &&
-        matchesSpecialty &&
         matchesExp &&
         matchesRating &&
         matchesPrice &&
@@ -542,7 +550,7 @@ console.log("packagesData",packagesData?.data);
               </div>
             </div>
 
-            {/* Specialty */}
+            {/* Specialty (category) */}
             <div>
               <label htmlFor="doctor-specialty-filter" className={filterLabelClass}>
                 {t("step2.specialty")}
@@ -550,24 +558,21 @@ console.log("packagesData",packagesData?.data);
               <div className="relative">
                 <select
                   id="doctor-specialty-filter"
-                  value={bookingData.searchFilters.specialty}
-                  onChange={(e) => handleFilterChange("specialty", e.target.value)}
+                  value={
+                    bookingData.selectedCategory?.id != null
+                      ? String(bookingData.selectedCategory.id)
+                      : ""
+                  }
+                  onChange={(e) => handleCategoryFilterChange(e.target.value)}
                   className={filterSelectClass}
                   aria-label={t("step2.specialty")}
                 >
                   <option value="">{t("step2.allSpecialties")}</option>
-                  {bookingData.selectedCategory ? (
-                    <option value={bookingData.selectedCategory.name}>
-                      {bookingData.selectedCategory.name}
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={String(cat.id)}>
+                      {cat.name}
                     </option>
-                  ) : (
-                    <>
-                      <option value="علاج طبيعي">{t("step2.physiotherapy")}</option>
-                      <option value="عظام">{t("step2.orthopedics")}</option>
-                      <option value="أعصاب">{t("step2.neurology")}</option>
-                      <option value="أطفال">{t("step2.pediatrics")}</option>
-                    </>
-                  )}
+                  ))}
                 </select>
                 <ChevronDown
                   className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"

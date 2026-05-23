@@ -884,6 +884,7 @@ export default function BookingFlow({
           <Step2DoctorSelection
             doctorsData={{ data: filteredDoctors }}
             packagesData={packagesData}
+            categoriesData={categoriesData}
             citiesData={citiesData}
             bookingData={bookingData}
             updateBookingData={updateBookingData}
