@@ -5,12 +5,10 @@ import {
   Star,
   Clock,
   User,
-  Filter,
   MapPin,
   Info,
   ChevronDown,
   SlidersHorizontal,
-  Sparkles,
 } from "lucide-react";
 
 const filterSelectClass =
@@ -82,7 +80,6 @@ export default function Step2DoctorSelection({
 }: Step2Props) {
   const { t } = useTranslation("booking");
   const [searchQuery, setSearchQuery] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -233,10 +230,8 @@ export default function Step2DoctorSelection({
   };
 
   const handleFilterChange = (key: string, value: any) => {
-    const currentRange = bookingData.searchFilters?.priceRange ?? [0, 1000];
     const nextFilters = {
       ...bookingData.searchFilters,
-      priceRange: currentRange,
       [key]: value,
     };
     updateBookingData({ searchFilters: nextFilters });
@@ -244,10 +239,6 @@ export default function Step2DoctorSelection({
       syncGenderToUrl(value as "" | "male" | "female");
     }
     toast.info(t("step2.filtersUpdated"));
-  };
-
-  const handleGenderPreference = (gender: "" | "male" | "female") => {
-    handleFilterChange("gender", gender);
   };
 
   const categories: Category[] = categoriesData?.data ?? [];
@@ -312,8 +303,6 @@ const handlePackageSelect = (pkg: Package) => {
     const expFilter = bookingData?.searchFilters?.experience
       ? parseInt(String(bookingData.searchFilters.experience))
       : null;
-    const ratingFilter = bookingData?.searchFilters?.rating ?? null;
-    const priceRange = bookingData?.searchFilters?.priceRange ?? [0, 100000];
 
     return list.filter((doc) => {
       // --- Text search (name / clinic_name) ---
@@ -325,27 +314,13 @@ const handlePackageSelect = (pkg: Package) => {
       const exp = toNum(doc?.experience, 0);
       const matchesExp = !expFilter || exp >= expFilter;
 
-      // --- Rating filter (>= rating) ---
-      const rateNum = toNum(doc?.rate, 4);
-      const matchesRating = !ratingFilter || rateNum >= ratingFilter;
-
-      // --- Price range filter ---
-      const price = toNum(doc?.session_price, 0);
-      const matchesPrice = price >= toNum(priceRange[0], 0) && price <= toNum(priceRange[1], 100000);
-
       // --- Step 1: always by selected category id (not selected service id) ---
       let matchesStep1 = true;
       if (categoryId != null && selectedCategory) {
         matchesStep1 = doctorMatchesCategoryId(doc, categoryId);
       }
 
-      return (
-        matchesSearch &&
-        matchesExp &&
-        matchesRating &&
-        matchesPrice &&
-        matchesStep1
-      );
+      return matchesSearch && matchesExp && matchesStep1;
     });
   }, [doctorsData, searchQuery, bookingData]);
 
@@ -437,27 +412,11 @@ console.log("packagesData",packagesData?.data);
 
         {/* Primary filters */}
         <div className="p-5">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-[#143087]">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#eff6fe]">
-                <SlidersHorizontal className="h-4 w-4 text-[#62a0f6]" aria-hidden />
-              </span>
-              <span className="text-sm font-bold">{t("step2.filters")}</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowFilters((s) => !s)}
-              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${
-                showFilters
-                  ? "bg-[#143087] text-white shadow-md"
-                  : "border border-gray-200 bg-white text-gray-700 shadow-sm hover:border-[#62a0f6]/50 hover:bg-[#eff6fe]/50"
-              }`}
-              aria-expanded={showFilters}
-              aria-label={t("step2.toggleFilters")}
-            >
-              <Filter className="h-4 w-4" />
-              {showFilters ? t("step2.hideAdvancedFilters") : t("step2.showAdvancedFilters")}
-            </button>
+          <div className="mb-4 flex items-center gap-2 text-[#143087]">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#eff6fe]">
+              <SlidersHorizontal className="h-4 w-4 text-[#62a0f6]" aria-hidden />
+            </span>
+            <span className="text-sm font-bold">{t("step2.filters")}</span>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -523,30 +482,27 @@ console.log("packagesData",packagesData?.data);
 
             {/* Gender */}
             <div>
-              <span className={filterLabelClass}>{t("step2.genderPreference")}</span>
-              <div
-                className="flex h-11 rounded-xl border border-gray-200 bg-gray-50/80 p-1 shadow-sm"
-                role="group"
-                aria-label={t("step2.genderPreference")}
-              >
-                {(["", "male", "female"] as const).map((g) => (
-                  <button
-                    key={g || "any"}
-                    type="button"
-                    onClick={() => handleGenderPreference(g)}
-                    className={`flex-1 rounded-lg px-2 text-xs font-semibold transition-all sm:text-sm ${
-                      bookingData.searchFilters.gender === g
-                        ? "bg-white text-[#143087] shadow-sm ring-1 ring-[#62a0f6]/30"
-                        : "text-gray-600 hover:text-[#143087]"
-                    }`}
-                  >
-                    {g === ""
-                      ? t("step2.genderAny")
-                      : g === "male"
-                        ? t("step1.male")
-                        : t("step1.female")}
-                  </button>
-                ))}
+              <label htmlFor="doctor-gender-filter" className={filterLabelClass}>
+                {t("step2.genderPreference")}
+              </label>
+              <div className="relative">
+                <select
+                  id="doctor-gender-filter"
+                  value={bookingData.searchFilters.gender}
+                  onChange={(e) =>
+                    handleFilterChange("gender", e.target.value as "" | "male" | "female")
+                  }
+                  className={filterSelectClass}
+                  aria-label={t("step2.genderPreference")}
+                >
+                  <option value="">{t("step2.genderAny")}</option>
+                  <option value="male">{t("step1.male")}</option>
+                  <option value="female">{t("step1.female")}</option>
+                </select>
+                <ChevronDown
+                  className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                  aria-hidden
+                />
               </div>
             </div>
 
@@ -606,79 +562,6 @@ console.log("packagesData",packagesData?.data);
               </div>
             </div>
           </div>
-
-          {/* Advanced filters */}
-          {showFilters && (
-            <div className="mt-5 rounded-2xl border border-dashed border-[#62a0f6]/25 bg-gradient-to-br from-[#eff6fe]/40 to-white p-5">
-              <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#143087]">
-                <Sparkles className="h-4 w-4 text-[#62a0f6]" aria-hidden />
-                {t("step2.advancedFiltersTitle")}
-              </div>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div>
-                  <span className={filterLabelClass}>{t("step2.rating")}</span>
-                  <div className="flex flex-wrap gap-2">
-                    {[5, 4, 3, 2, 1].map((rating) => (
-                      <button
-                        key={rating}
-                        type="button"
-                        onClick={() => handleFilterChange("rating", rating)}
-                        className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-medium transition-all ${
-                          bookingData.searchFilters.rating === rating
-                            ? "border-[#62a0f6] bg-white text-[#143087] shadow-md ring-2 ring-[#62a0f6]/20"
-                            : "border-gray-200 bg-white text-gray-600 shadow-sm hover:border-[#62a0f6]/40 hover:bg-[#eff6fe]/30"
-                        }`}
-                        aria-label={`${t("step2.filterByRating")} ${rating}`}
-                      >
-                        <span>{rating}</span>
-                        <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <span className={filterLabelClass}>{t("step2.priceRange")}</span>
-                  <div className="flex items-center gap-3">
-                    <div className="relative flex-1">
-                      <input
-                        type="number"
-                        placeholder={t("step2.from")}
-                        value={(bookingData.searchFilters.priceRange ?? [0, 1000])[0]}
-                        onChange={(e) =>
-                          handleFilterChange("priceRange", [
-                            Number.parseInt(e.target.value) || 0,
-                            (bookingData.searchFilters.priceRange ?? [0, 1000])[1],
-                          ])
-                        }
-                        className="h-11 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm shadow-sm transition-all focus:border-[#62a0f6] focus:outline-none focus:ring-2 focus:ring-[#62a0f6]/25"
-                        aria-label={t("step2.minPrice")}
-                      />
-                    </div>
-                    <span className="text-sm font-medium text-gray-400">—</span>
-                    <div className="relative flex-1">
-                      <input
-                        type="number"
-                        placeholder={t("step2.to")}
-                        value={(bookingData.searchFilters.priceRange ?? [0, 1000])[1]}
-                        onChange={(e) =>
-                          handleFilterChange("priceRange", [
-                            (bookingData.searchFilters.priceRange ?? [0, 1000])[0],
-                            Number.parseInt(e.target.value) || 1000,
-                          ])
-                        }
-                        className="h-11 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm shadow-sm transition-all focus:border-[#62a0f6] focus:outline-none focus:ring-2 focus:ring-[#62a0f6]/25"
-                        aria-label={t("step2.maxPrice")}
-                      />
-                    </div>
-                    <span className="shrink-0 text-xs font-medium text-gray-500">
-                      {t("step2.price")}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
