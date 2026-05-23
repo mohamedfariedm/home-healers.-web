@@ -1,12 +1,29 @@
 "use client";
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Search, Star, Clock, User, Filter, MapPin } from "lucide-react";
+import {
+  Search,
+  Star,
+  Clock,
+  User,
+  Filter,
+  MapPin,
+  Info,
+  ChevronDown,
+  SlidersHorizontal,
+  Sparkles,
+} from "lucide-react";
+
+const filterSelectClass =
+  "h-11 w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 ps-4 pe-10 text-sm text-[#1e1e1e] shadow-sm transition-all hover:border-[#62a0f6]/40 focus:border-[#62a0f6] focus:outline-none focus:ring-2 focus:ring-[#62a0f6]/25 cursor-pointer";
+
+const filterLabelClass = "mb-1.5 block text-xs font-semibold tracking-wide text-gray-500 uppercase";
 import Image from "next/image";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import type { BookingData, Doctor, Package } from "@/types/booking";
 import { doctorMatchesCategoryId } from "@/lib/doctor-matches-category";
+import { getDoctorCityName, isDoctorInCity } from "@/lib/doctor-city";
 
 // ===== Helpers for the new data shape =====
 const isImageUrl = (url?: string | null) =>
@@ -37,29 +54,85 @@ const toNum = (val: any, fallback = 0) => {
 interface Step2Props {
   doctorsData: any;
   packagesData: any;
+  citiesData?: { data?: Array<{ id: number; name: string }> };
   bookingData: BookingData;
   updateBookingData: (updates: Partial<BookingData>) => void;
   onNext: () => void;
   onPrev: () => void;
   onOpenProfile: (doctor: Doctor) => void;
   isLoading: boolean;
+  locale: string;
+  sortCityId?: number;
 }
 
 export default function Step2DoctorSelection({
   doctorsData,
   packagesData,
+  citiesData,
   bookingData,
   updateBookingData,
   onNext,
   onPrev,
   onOpenProfile,
   isLoading,
+  locale,
+  sortCityId,
 }: Step2Props) {
   const { t } = useTranslation("booking");
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const packageProcessedRef = useRef<string | null>(null);
+  const genderFromUrlSynced = useRef(false);
+  const citySelectRef = useRef<HTMLSelectElement>(null);
+
+  const hasCityFilter =
+    bookingData.searchFilters.cityId !== "" &&
+    bookingData.searchFilters.cityId != null;
+
+  const selectedCityName = hasCityFilter
+    ? (citiesData?.data ?? []).find(
+        (c) => Number(c.id) === Number(bookingData.searchFilters.cityId)
+      )?.name
+    : null;
+
+  const nearbyDoctorsCount = useMemo(() => {
+    if (!hasCityFilter || sortCityId == null) return 0;
+    const list: any[] = doctorsData?.data ?? [];
+    return list.filter((doc) => isDoctorInCity(doc, sortCityId)).length;
+  }, [doctorsData, hasCityFilter, sortCityId]);
+
+  const focusCitySelect = () => {
+    citySelectRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    citySelectRef.current?.focus();
+  };
+
+  const syncGenderToUrl = (gender: "" | "male" | "female") => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (gender) params.set("gender", gender);
+    else params.delete("gender");
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  };
+
+  useEffect(() => {
+    if (genderFromUrlSynced.current) return;
+    const urlGender = searchParams.get("gender");
+    if (urlGender === "male" || urlGender === "female") {
+      if (bookingData.searchFilters.gender !== urlGender) {
+        updateBookingData({
+          searchFilters: {
+            ...bookingData.searchFilters,
+            gender: urlGender,
+          },
+        });
+      }
+    }
+    genderFromUrlSynced.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Auto-select package from URL parameter
   useEffect(() => {
@@ -159,14 +232,20 @@ export default function Step2DoctorSelection({
 
   const handleFilterChange = (key: string, value: any) => {
     const currentRange = bookingData.searchFilters?.priceRange ?? [0, 1000];
-    updateBookingData({
-      searchFilters: {
-        ...bookingData.searchFilters,
-        priceRange: currentRange,
-        [key]: value,
-      },
-    });
+    const nextFilters = {
+      ...bookingData.searchFilters,
+      priceRange: currentRange,
+      [key]: value,
+    };
+    updateBookingData({ searchFilters: nextFilters });
+    if (key === "gender") {
+      syncGenderToUrl(value as "" | "male" | "female");
+    }
     toast.info(t("step2.filtersUpdated"));
+  };
+
+  const handleGenderPreference = (gender: "" | "male" | "female") => {
+    handleFilterChange("gender", gender);
   };
 
   const handleDoctorSelect = (doctor: any) => {
@@ -214,7 +293,6 @@ const handlePackageSelect = (pkg: Package) => {
       filterByCategoryId: categoryId ?? null,
     });
 
-    const cityFilter = bookingData?.searchFilters?.city || "";
     const specialtyFilter = bookingData?.searchFilters?.specialty || "";
     const expFilter = bookingData?.searchFilters?.experience
       ? parseInt(String(bookingData.searchFilters.experience))
@@ -227,12 +305,6 @@ const handlePackageSelect = (pkg: Package) => {
       const name = String(doc?.name ?? "").toLowerCase();
       const clinic = String(doc?.clinic_name ?? "").toLowerCase();
       const matchesSearch = q === "" || name.includes(q) || clinic.includes(q);
-
-      // --- City filter (addresses[].city exact match) ---
-      const matchesCity =
-        !cityFilter ||
-        (Array.isArray(doc?.addresses) &&
-          doc.addresses.some((a: any) => String(a?.city ?? "").toLowerCase() === String(cityFilter).toLowerCase()));
 
       // --- Specialty filter (specialist exact match) ---
       const matchesSpecialty =
@@ -260,7 +332,6 @@ const handlePackageSelect = (pkg: Package) => {
 
       return (
         matchesSearch &&
-        matchesCity &&
         matchesSpecialty &&
         matchesExp &&
         matchesRating &&
@@ -284,130 +355,320 @@ console.log("packagesData",packagesData?.data);
 
   return (
     <div className="flex flex-col gap-6">
+      {/* City selection guide — shown until the client picks a city */}
+      {!hasCityFilter && (citiesData?.data?.length ?? 0) > 0 && (
+        <div
+          className="rounded-2xl border-2 border-[#62a0f6]/40 bg-gradient-to-r from-[#eff6fe] to-white p-5 shadow-sm"
+          role="status"
+        >
+          <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+            <div className="flex gap-3 items-start">
+              <div className="shrink-0 w-10 h-10 rounded-full bg-[#62a0f6] flex items-center justify-center">
+                <MapPin className="w-5 h-5 text-white" aria-hidden />
+              </div>
+              <div>
+                <h3 className="font-bold text-[#143087] text-lg mb-1">
+                  {t("step2.cityGuideTitle")}
+                </h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  {t("step2.cityGuideDescription")}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={focusCitySelect}
+              className="shrink-0 px-5 py-2.5 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] font-medium text-sm transition-colors"
+            >
+              {t("step2.cityGuideCta")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {hasCityFilter && selectedCityName && (
+        <div
+          className="flex flex-wrap items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+          role="status"
+        >
+          <Info className="w-4 h-4 shrink-0" aria-hidden />
+          <span>{t("step2.citySelectedHint", { city: selectedCityName })}</span>
+          {nearbyDoctorsCount > 0 && (
+            <span className="text-green-700/90">
+              · {t("step2.nearbyDoctorsCount", { count: nearbyDoctorsCount })}
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Search & Filters */}
-      <div className="bg-white rounded-2xl shadow-md p-6">
-        <div className="flex flex-col gap-4">
+      <div
+        className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-md"
+        data-tour="tour-doctor-filters"
+      >
+        {/* Search */}
+        <div className="border-b border-gray-100 bg-gradient-to-l from-[#eff6fe]/80 to-white p-5">
+          <label htmlFor="doctor-search" className={filterLabelClass}>
+            {t("step2.searchLabel")}
+          </label>
           <div className="relative">
             <input
+              id="doctor-search"
               type="text"
               placeholder={t("step2.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full p-4 pr-12 border border-gray-300 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6]"
+              className="h-12 w-full rounded-xl border border-gray-200 bg-white pe-12 ps-4 text-sm shadow-sm transition-all placeholder:text-gray-400 hover:border-[#62a0f6]/40 focus:border-[#62a0f6] focus:outline-none focus:ring-2 focus:ring-[#62a0f6]/25"
               aria-label={t("step2.searchLabel")}
             />
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <span className="pointer-events-none absolute end-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg bg-[#eff6fe] text-[#62a0f6]">
+              <Search className="h-4 w-4" aria-hidden />
+            </span>
           </div>
+        </div>
 
-          <div className="flex flex-wrap gap-4 items-center">
+        {/* Primary filters */}
+        <div className="p-5">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-[#143087]">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#eff6fe]">
+                <SlidersHorizontal className="h-4 w-4 text-[#62a0f6]" aria-hidden />
+              </span>
+              <span className="text-sm font-bold">{t("step2.filters")}</span>
+            </div>
             <button
+              type="button"
               onClick={() => setShowFilters((s) => !s)}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                showFilters
+                  ? "bg-[#143087] text-white shadow-md"
+                  : "border border-gray-200 bg-white text-gray-700 shadow-sm hover:border-[#62a0f6]/50 hover:bg-[#eff6fe]/50"
+              }`}
+              aria-expanded={showFilters}
               aria-label={t("step2.toggleFilters")}
             >
-              <Filter className="w-4 h-4" />
-              {t("step2.filters")}
+              <Filter className="h-4 w-4" />
+              {showFilters ? t("step2.hideAdvancedFilters") : t("step2.showAdvancedFilters")}
             </button>
-
-            <select
-              value={bookingData.searchFilters.city}
-              onChange={(e) => handleFilterChange("city", e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg"
-              aria-label={t("step2.city")}
-            >
-              <option value="">{t("step2.allCities")}</option>
-              <option value="riyadh">{t("step2.riyadh")}</option>
-              <option value="jeddah">{t("step2.jeddah")}</option>
-              <option value="dammam">{t("step2.dammam")}</option>
-            </select>
-
-            <select
-              value={bookingData.searchFilters.specialty}
-              onChange={(e) => handleFilterChange("specialty", e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg"
-              aria-label={t("step2.specialty")}
-            >
-              <option value="">{t("step2.allSpecialties")}</option>
-              {bookingData.selectedCategory ? (
-                <option value={bookingData.selectedCategory.name}>
-                  {bookingData.selectedCategory.name}
-                </option>
-              ) : (
-                <>
-                  <option value="علاج طبيعي">{t("step2.physiotherapy")}</option>
-                  <option value="عظام">{t("step2.orthopedics")}</option>
-                  <option value="أعصاب">{t("step2.neurology")}</option>
-                  <option value="أطفال">{t("step2.pediatrics")}</option>
-                </>
-              )}
-            </select>
-
-            <select
-              value={bookingData.searchFilters.experience}
-              onChange={(e) => handleFilterChange("experience", e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg"
-              aria-label={t("step2.experience")}
-            >
-              <option value="">{t("step2.experienceYears")}</option>
-              <option value="2">{t("step2.moreThan2")}</option>
-              <option value="5">{t("step2.moreThan5")}</option>
-              <option value="10">{t("step2.moreThan10")}</option>
-            </select>
           </div>
 
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {/* City */}
+            <div
+              className={`sm:col-span-2 lg:col-span-1 ${
+                !hasCityFilter ? "rounded-2xl bg-[#eff6fe]/60 p-3 ring-1 ring-[#62a0f6]/30" : ""
+              }`}
+            >
+              <label
+                htmlFor="doctor-city-filter"
+                className={`${filterLabelClass} ${
+                  !hasCityFilter ? "!text-[#143087]" : ""
+                }`}
+              >
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {t("step2.citySort")}
+                  {!hasCityFilter && <span className="text-[#62a0f6]">*</span>}
+                </span>
+              </label>
+              <div className="relative">
+                <select
+                  id="doctor-city-filter"
+                  ref={citySelectRef}
+                  value={
+                    bookingData.searchFilters.cityId === ""
+                      ? ""
+                      : String(bookingData.searchFilters.cityId)
+                  }
+                  onChange={(e) =>
+                    handleFilterChange(
+                      "cityId",
+                      e.target.value === "" ? "" : Number(e.target.value)
+                    )
+                  }
+                  className={`${filterSelectClass} ${
+                    !hasCityFilter
+                      ? "!border-[#62a0f6]/60 !bg-white !ring-2 !ring-[#62a0f6]/20"
+                      : ""
+                  }`}
+                  aria-label={t("step2.citySort")}
+                  aria-describedby={!hasCityFilter ? "city-filter-hint" : undefined}
+                >
+                  <option value="">{t("step2.allCities")}</option>
+                  {(citiesData?.data ?? []).map((city) => (
+                    <option key={city.id} value={String(city.id)}>
+                      {city.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown
+                  className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                  aria-hidden
+                />
+              </div>
+              {!hasCityFilter && (
+                <p id="city-filter-hint" className="mt-1.5 text-xs leading-snug text-[#62a0f6]">
+                  {t("step2.cityFilterHint")}
+                </p>
+              )}
+            </div>
+
+            {/* Gender */}
+            <div>
+              <span className={filterLabelClass}>{t("step2.genderPreference")}</span>
+              <div
+                className="flex h-11 rounded-xl border border-gray-200 bg-gray-50/80 p-1 shadow-sm"
+                role="group"
+                aria-label={t("step2.genderPreference")}
+              >
+                {(["", "male", "female"] as const).map((g) => (
+                  <button
+                    key={g || "any"}
+                    type="button"
+                    onClick={() => handleGenderPreference(g)}
+                    className={`flex-1 rounded-lg px-2 text-xs font-semibold transition-all sm:text-sm ${
+                      bookingData.searchFilters.gender === g
+                        ? "bg-white text-[#143087] shadow-sm ring-1 ring-[#62a0f6]/30"
+                        : "text-gray-600 hover:text-[#143087]"
+                    }`}
+                  >
+                    {g === ""
+                      ? t("step2.genderAny")
+                      : g === "male"
+                        ? t("step1.male")
+                        : t("step1.female")}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Specialty */}
+            <div>
+              <label htmlFor="doctor-specialty-filter" className={filterLabelClass}>
+                {t("step2.specialty")}
+              </label>
+              <div className="relative">
+                <select
+                  id="doctor-specialty-filter"
+                  value={bookingData.searchFilters.specialty}
+                  onChange={(e) => handleFilterChange("specialty", e.target.value)}
+                  className={filterSelectClass}
+                  aria-label={t("step2.specialty")}
+                >
+                  <option value="">{t("step2.allSpecialties")}</option>
+                  {bookingData.selectedCategory ? (
+                    <option value={bookingData.selectedCategory.name}>
+                      {bookingData.selectedCategory.name}
+                    </option>
+                  ) : (
+                    <>
+                      <option value="علاج طبيعي">{t("step2.physiotherapy")}</option>
+                      <option value="عظام">{t("step2.orthopedics")}</option>
+                      <option value="أعصاب">{t("step2.neurology")}</option>
+                      <option value="أطفال">{t("step2.pediatrics")}</option>
+                    </>
+                  )}
+                </select>
+                <ChevronDown
+                  className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                  aria-hidden
+                />
+              </div>
+            </div>
+
+            {/* Experience */}
+            <div>
+              <label htmlFor="doctor-experience-filter" className={filterLabelClass}>
+                {t("step2.experience")}
+              </label>
+              <div className="relative">
+                <select
+                  id="doctor-experience-filter"
+                  value={bookingData.searchFilters.experience}
+                  onChange={(e) => handleFilterChange("experience", e.target.value)}
+                  className={filterSelectClass}
+                  aria-label={t("step2.experience")}
+                >
+                  <option value="">{t("step2.experienceYears")}</option>
+                  <option value="2">{t("step2.moreThan2")}</option>
+                  <option value="5">{t("step2.moreThan5")}</option>
+                  <option value="10">{t("step2.moreThan10")}</option>
+                </select>
+                <ChevronDown
+                  className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                  aria-hidden
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Advanced filters */}
           {showFilters && (
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="mt-5 rounded-2xl border border-dashed border-[#62a0f6]/25 bg-gradient-to-br from-[#eff6fe]/40 to-white p-5">
+              <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#143087]">
+                <Sparkles className="h-4 w-4 text-[#62a0f6]" aria-hidden />
+                {t("step2.advancedFiltersTitle")}
+              </div>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium mb-2">{t("step2.rating")}</label>
-                  <div className="flex gap-2">
+                  <span className={filterLabelClass}>{t("step2.rating")}</span>
+                  <div className="flex flex-wrap gap-2">
                     {[5, 4, 3, 2, 1].map((rating) => (
                       <button
                         key={rating}
+                        type="button"
                         onClick={() => handleFilterChange("rating", rating)}
-                        className={`flex items-center gap-1 px-3 py-2 rounded-lg border ${
+                        className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-medium transition-all ${
                           bookingData.searchFilters.rating === rating
-                            ? "border-[#62a0f6] bg-[#eff6fe]"
-                            : "border-gray-300 hover:bg-gray-50"
+                            ? "border-[#62a0f6] bg-white text-[#143087] shadow-md ring-2 ring-[#62a0f6]/20"
+                            : "border-gray-200 bg-white text-gray-600 shadow-sm hover:border-[#62a0f6]/40 hover:bg-[#eff6fe]/30"
                         }`}
                         aria-label={`${t("step2.filterByRating")} ${rating}`}
                       >
-                        <span className="text-sm">{rating}</span>
-                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                        <span>{rating}</span>
+                        <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                       </button>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">{t("step2.priceRange")}</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      placeholder={t("step2.from")}
-                      value={(bookingData.searchFilters.priceRange ?? [0, 1000])[0]}
-                      onChange={(e) =>
-                        handleFilterChange("priceRange", [
-                          Number.parseInt(e.target.value) || 0,
-                          (bookingData.searchFilters.priceRange ?? [0, 1000])[1],
-                        ])
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                      aria-label={t("step2.minPrice")}
-                    />
-                    <input
-                      type="number"
-                      placeholder={t("step2.to")}
-                      value={(bookingData.searchFilters.priceRange ?? [0, 1000])[1]}
-                      onChange={(e) =>
-                        handleFilterChange("priceRange", [
-                          (bookingData.searchFilters.priceRange ?? [0, 1000])[0],
-                          Number.parseInt(e.target.value) || 1000,
-                        ])
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                      aria-label={t("step2.maxPrice")}
-                    />
+                  <span className={filterLabelClass}>{t("step2.priceRange")}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex-1">
+                      <input
+                        type="number"
+                        placeholder={t("step2.from")}
+                        value={(bookingData.searchFilters.priceRange ?? [0, 1000])[0]}
+                        onChange={(e) =>
+                          handleFilterChange("priceRange", [
+                            Number.parseInt(e.target.value) || 0,
+                            (bookingData.searchFilters.priceRange ?? [0, 1000])[1],
+                          ])
+                        }
+                        className="h-11 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm shadow-sm transition-all focus:border-[#62a0f6] focus:outline-none focus:ring-2 focus:ring-[#62a0f6]/25"
+                        aria-label={t("step2.minPrice")}
+                      />
+                    </div>
+                    <span className="text-sm font-medium text-gray-400">—</span>
+                    <div className="relative flex-1">
+                      <input
+                        type="number"
+                        placeholder={t("step2.to")}
+                        value={(bookingData.searchFilters.priceRange ?? [0, 1000])[1]}
+                        onChange={(e) =>
+                          handleFilterChange("priceRange", [
+                            (bookingData.searchFilters.priceRange ?? [0, 1000])[0],
+                            Number.parseInt(e.target.value) || 1000,
+                          ])
+                        }
+                        className="h-11 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm shadow-sm transition-all focus:border-[#62a0f6] focus:outline-none focus:ring-2 focus:ring-[#62a0f6]/25"
+                        aria-label={t("step2.maxPrice")}
+                      />
+                    </div>
+                    <span className="shrink-0 text-xs font-medium text-gray-500">
+                      {t("step2.price")}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -496,6 +757,9 @@ console.log("packagesData",packagesData?.data);
               {filteredDoctors.map((doctor: any) => {
                 const img = getDoctorImage(doctor);
                 const rateNum = toNum(doctor?.rate, 4);
+                const cityName = getDoctorCityName(doctor, locale);
+                const inYourCity =
+                  sortCityId != null && isDoctorInCity(doctor, sortCityId);
 
                 return (
                   <div
@@ -524,12 +788,25 @@ console.log("packagesData",packagesData?.data);
                         <div className="flex flex-col gap-3">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h3 className="text-xl font-semibold text-[#1e1e1e]">
-                                {doctor?.name}
-                              </h3>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h3 className="text-xl font-semibold text-[#1e1e1e]">
+                                  {doctor?.name}
+                                </h3>
+                                {inYourCity && (
+                                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[#eff6fe] text-[#62a0f6] border border-[#62a0f6]/30">
+                                    {t("step2.inYourCity")}
+                                  </span>
+                                )}
+                              </div>
                               <p className="text-sm text-gray-600">
                                 {doctor?.doctor_role ?? doctor?.specialist ?? t("step2.doctorRole")}
                               </p>
+                              {cityName && (
+                                <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+                                  <MapPin className="w-3.5 h-3.5" />
+                                  {cityName}
+                                </p>
+                              )}
                             </div>
                             <div className="flex">
                               {Array.from({ length: Math.max(1, Math.min(5, rateNum)) }).map(

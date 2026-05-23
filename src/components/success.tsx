@@ -177,14 +177,18 @@ const ReceiptDocument = ({ bookingData, reservationId }: { bookingData: BookingD
           <Text style={styles.value}>{bookingData.pricing.subTotal} ريال</Text>
           <Text style={styles.label}>المبلغ الأساسي:</Text>
         </View>
-        <View style={styles.row}>
-          <Text style={styles.value}>{bookingData.pricing.fees} ريال</Text>
-          <Text style={styles.label}>رسوم الزيارة:</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.value}>{bookingData.pricing.tax} ريال</Text>
-          <Text style={styles.label}>الضريبة:</Text>
-        </View>
+        {bookingData.pricing.fees > 0 && (
+          <View style={styles.row}>
+            <Text style={styles.value}>{bookingData.pricing.fees} ريال</Text>
+            <Text style={styles.label}>رسوم الزيارة:</Text>
+          </View>
+        )}
+        {bookingData.pricing.tax > 0 && (
+          <View style={styles.row}>
+            <Text style={styles.value}>{bookingData.pricing.tax} ريال</Text>
+            <Text style={styles.label}>الضريبة:</Text>
+          </View>
+        )}
         {bookingData.pricing.discount > 0 && (
           <View style={styles.row}>
             <Text style={[styles.value, { color: "#16a34a" }]}>-{bookingData.pricing.discount} ريال</Text>
@@ -380,18 +384,22 @@ export default function PaymentSuccess() {
               </span>
               <span className="text-gray-600">المبلغ الأساسي</span>
             </div>
-            <div className="flex justify-between">
-              <span className="font-medium">
-                {bookingData.pricing.fees} ريال
-              </span>
-              <span className="text-gray-600">رسوم الزيارة</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-medium">
-                {bookingData.pricing.tax} ريال
-              </span>
-              <span className="text-gray-600">الضريبة</span>
-            </div>
+            {bookingData.pricing.fees > 0 && (
+              <div className="flex justify-between">
+                <span className="font-medium">
+                  {bookingData.pricing.fees} ريال
+                </span>
+                <span className="text-gray-600">رسوم الزيارة</span>
+              </div>
+            )}
+            {bookingData.pricing.tax > 0 && (
+              <div className="flex justify-between">
+                <span className="font-medium">
+                  {bookingData.pricing.tax} ريال
+                </span>
+                <span className="text-gray-600">الضريبة</span>
+              </div>
+            )}
             {bookingData.pricing.discount > 0 && (
               <div className="flex justify-between text-green-600">
                 <span className="font-medium">

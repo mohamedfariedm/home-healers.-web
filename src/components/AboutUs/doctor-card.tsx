@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Star, MapPin, Clock } from 'lucide-react';
 import type { Doctor } from "@/types/doctors";
 import { getDoctorImage, getExperienceText, getDoctorRating } from "@/utils/doctor-helpers";
+import { getDoctorCityName } from "@/lib/doctor-city";
 import type { DoctorsTranslations } from "@/translations/doctors";
 
 interface DoctorCardProps {
@@ -23,6 +24,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
   const doctorImage = getDoctorImage(doctor);
   const rating = getDoctorRating(doctor);
   const experienceText = getExperienceText(doctor.experience, locale);
+  const cityName = getDoctorCityName(doctor, locale);
 
   return (
     <motion.div
@@ -64,16 +66,16 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
           {doctor.specialist || doctor.department}
         </p>
 
-        {/* Experience and Clinic */}
-        <div className="flex items-center justify-center gap-4 mb-3 text-xs">
+        {/* Experience and location */}
+        <div className="flex items-center justify-center gap-4 mb-3 text-xs flex-wrap">
           <div className="flex items-center gap-1">
             <Clock size={12} />
             <span>{experienceText}</span>
           </div>
-          {doctor.clinic_name && (
+          {(cityName || doctor.clinic_name) && (
             <div className="flex items-center gap-1">
               <MapPin size={12} />
-              <span className="line-clamp-1">{doctor.clinic_name}</span>
+              <span className="line-clamp-1">{cityName || doctor.clinic_name}</span>
             </div>
           )}
         </div>

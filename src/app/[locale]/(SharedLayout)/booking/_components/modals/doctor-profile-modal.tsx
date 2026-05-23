@@ -2,7 +2,8 @@
 import { X, Star, Clock, User, MapPin, Phone, Mail, Award } from "lucide-react"
 import Image from "next/image"
 import { toast } from "sonner"
-import type { BookingData, Doctor } from "@/types/booking"
+import type { BookingData, Doctor } from "@/types/booking";
+import { getDoctorCityName } from "@/lib/doctor-city";
 
 interface DoctorProfileModalProps {
   isOpen: boolean
@@ -10,6 +11,7 @@ interface DoctorProfileModalProps {
   doctor: Doctor | null
   updateBookingData: (updates: Partial<BookingData>) => void
   onSelectDoctor: () => void
+  locale?: string
 }
 
 export default function DoctorProfileModal({
@@ -18,6 +20,7 @@ export default function DoctorProfileModal({
   doctor,
   updateBookingData,
   onSelectDoctor,
+  locale = "ar",
 }: DoctorProfileModalProps) {
   if (!isOpen || !doctor) return null
 
@@ -61,6 +64,7 @@ console.log(doctor);
   const displayCertification = doctor.certification !== "rerum" ? doctor.certification : "البورد السعودي"
   const displayEmail = doctor.email !== "ansel25@example.org" ? doctor.email : "غير متوفر"
   const displayLanguages = doctor.languages_spoken !== "velit" ? doctor.languages_spoken : "العربية، الإنجليزية"
+  const cityName = getDoctorCityName(doctor, locale)
 
   return (
     <div
@@ -148,6 +152,16 @@ console.log(doctor);
                       <p className="font-semibold">{doctor.clinic_name}</p>
                     </div>
                   </div>
+
+                  {cityName && (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <MapPin className="w-5 h-5 text-[#62a0f6]" />
+                      <div>
+                        <p className="text-sm text-gray-600">المدينة</p>
+                        <p className="font-semibold">{cityName}</p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                     <Clock className="w-5 h-5 text-[#62a0f6]" />

@@ -1,3 +1,11 @@
+export interface DoctorCity {
+  id: number;
+  name: string | {
+    en: string;
+    ar: string;
+  };
+}
+
 export interface DoctorNationality {
   id: number;
   name: string | {
@@ -53,6 +61,8 @@ export interface Doctor {
   specialist: string;
   sub_specialist?: string | null;
   clinic_name: string;
+  city_id?: number | null;
+  city?: DoctorCity | null;
   from: string;
   to: string;
   addresses: any[];

@@ -58,6 +58,11 @@ export interface Doctor {
       id: number
     }>
   } | null // Added from data
+  city_id?: number | null
+  city?: {
+    id: number
+    name: string | { en: string; ar: string }
+  } | null
   addresses: Array<{
     city?: string
     district?: string
@@ -126,6 +131,7 @@ export interface Location {
   title: string;
   address: string;
   city: string;
+  cityId?: number;
   state?: string;       // new: administrative area / region
   country: string;
   latitude?: number;
@@ -140,6 +146,7 @@ export interface Patient {
   birthDate: string
   relationship: string | undefined
   nationality: string
+  nationality_id?: number
   idNumber: string
   phone: string
   email: string
@@ -155,7 +162,10 @@ export interface BookingData {
   selectedDoctor: Doctor | null
   selectedPackage: Package | null
   searchFilters: {
-    city: string
+    /** @deprecated Use cityId — kept for localStorage migration */
+    city?: string
+    cityId: number | ""
+    gender: "" | "male" | "female"
     district: string
     specialty: string
     experience: string

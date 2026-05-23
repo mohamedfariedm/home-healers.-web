@@ -21,6 +21,14 @@ import { useLocalStorage } from "@/Hooks/use-local-storage";
 import ClientAPI from "@/app/api/api";
 import { useRouter } from "next/navigation";
 import { doctorMatchesCategoryId } from "@/lib/doctor-matches-category";
+import { applyReservationPricingFromApi } from "@/lib/reservation-pricing";
+import BookingReservationTour from "@/components/booking/BookingReservationTour";
+import {
+  isBookingTourCompleted,
+  resetBookingTour,
+} from "@/lib/booking-tour-storage";
+import { useSearchParams } from "next/navigation";
+import { Compass } from "lucide-react";
 
 function addDaysLocalISO(daysFromToday: number): string {
   const d = new Date();
@@ -34,21 +42,27 @@ function addDaysLocalISO(daysFromToday: number): string {
 type BookingStep = 1 | 2 | 3 | 4 | 5 | 6;
 
 interface BookingFlowProps {
+  locale: string;
   doctorsData: any;
   servicesData: any;
   packagesData: any;
   categoriesData: any;
   countriesData: any;
   statesData: any;
+  citiesData: any;
+  nationalitiesData: any;
 }
 
 export default function BookingFlow({
+  locale,
   doctorsData,
   servicesData,
   packagesData,
   categoriesData,
   countriesData,
   statesData,
+  citiesData,
+  nationalitiesData,
 }: BookingFlowProps) {
   const { t } = useTranslation("booking");
   const [currentStep, setCurrentStep] = useState<BookingStep>(1);
@@ -59,6 +73,8 @@ export default function BookingFlow({
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
   const [reservationId, setReservationId] = useState<number | null>(null); // Store reservation ID
+  const [tourActive, setTourActive] = useState(false);
+  const searchParams = useSearchParams();
   let route = useRouter();
   const [bookingData, setBookingData] = useLocalStorage<BookingData>(
     "bookingData",
@@ -69,7 +85,8 @@ export default function BookingFlow({
       selectedDoctor: null,
       selectedPackage: null,
       searchFilters: {
-        city: "",
+        cityId: "",
+        gender: "",
         district: "",
         specialty: "",
         experience: "",
@@ -105,11 +122,24 @@ export default function BookingFlow({
     },
     {
       // Fresh specialty/service each visit; other draft fields (location, patients, etc.) still restore.
-      deserialize: (parsed) => ({
-        ...parsed,
-        selectedCategory: null,
-        selectedService: null,
-      }),
+      deserialize: (parsed) => {
+        const filters = parsed.searchFilters ?? {};
+        const { city: _legacyCity, ...restFilters } = filters;
+        return {
+          ...parsed,
+          selectedCategory: null,
+          selectedService: null,
+          searchFilters: {
+            cityId: restFilters.cityId ?? "",
+            gender: restFilters.gender ?? "",
+            district: restFilters.district ?? "",
+            specialty: restFilters.specialty ?? "",
+            experience: restFilters.experience ?? "",
+            rating: restFilters.rating ?? 0,
+            priceRange: restFilters.priceRange ?? [0, 1000],
+          },
+        };
+      },
     }
   );
 
@@ -127,12 +157,24 @@ export default function BookingFlow({
     symptomsSearch: false,
     doctorProfile: false,
   });
+  const [doctorsList, setDoctorsList] = useState(doctorsData?.data || []);
   const [filteredDoctors, setFilteredDoctors] = useState(
     doctorsData?.data || []
   );
+  const [doctorsLoading, setDoctorsLoading] = useState(false);
 
   const defaultDatesSeededRef = useRef(false);
   const step1DefaultsAppliedRef = useRef(false);
+
+  useEffect(() => {
+    if (searchParams.get("booking_tour") === "1") {
+      resetBookingTour();
+    }
+    if (!isBookingTourCompleted()) {
+      const timer = window.setTimeout(() => setTourActive(true), 600);
+      return () => window.clearTimeout(timer);
+    }
+  }, [searchParams]);
 
   const clearTransientReservationData = () => {
     setBookingData((prev) => ({
@@ -158,12 +200,64 @@ export default function BookingFlow({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Initial filter when component mounts or doctorsData changes
-  useEffect(() => {
-    if (doctorsData?.data && doctorsData.data.length > 0) {
-      handleDoctorSearch();
+  const resolveCityIdForDoctorSort = (): number | undefined => {
+    const fromFilter = bookingData.searchFilters?.cityId;
+    if (fromFilter !== "" && fromFilter != null) {
+      return Number(fromFilter);
     }
-  }, [doctorsData]);
+    const fromLocation = bookingData.selectedLocation?.cityId;
+    if (fromLocation != null) return Number(fromLocation);
+    const locationCityName = bookingData.selectedLocation?.city?.trim();
+    if (locationCityName && citiesData?.data) {
+      const match = citiesData.data.find(
+        (c: { id: number; name: string }) =>
+          String(c.name).toLowerCase() === locationCityName.toLowerCase()
+      );
+      if (match) return Number(match.id);
+    }
+    return undefined;
+  };
+
+  // Refetch doctors when sort hints change (server-side sort, not filter)
+  useEffect(() => {
+    let cancelled = false;
+    const loadDoctors = async () => {
+      setDoctorsLoading(true);
+      try {
+        const cityId = resolveCityIdForDoctorSort();
+        const gender = bookingData.searchFilters?.gender;
+        const params: { city_id?: number; gender?: "male" | "female" } = {};
+        if (cityId != null && !Number.isNaN(cityId)) params.city_id = cityId;
+        if (gender === "male" || gender === "female") params.gender = gender;
+
+        const response = await ClientAPI.getDoctors(locale, params);
+        if (!cancelled && Array.isArray(response?.data)) {
+          setDoctorsList(response.data);
+        }
+      } catch (err) {
+        console.error("Failed to load doctors:", err);
+        if (!cancelled) setDoctorsList(doctorsData?.data || []);
+      } finally {
+        if (!cancelled) setDoctorsLoading(false);
+      }
+    };
+    loadDoctors();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    locale,
+    bookingData.searchFilters?.cityId,
+    bookingData.searchFilters?.gender,
+    bookingData.selectedLocation?.cityId,
+    bookingData.selectedLocation?.city,
+  ]);
+
+  useEffect(() => {
+    handleDoctorSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doctorsList, bookingData.selectedCategory]);
 
   // Step 1: default first category (and first service in that category when services exist), once per visit
   useEffect(() => {
@@ -306,10 +400,6 @@ export default function BookingFlow({
     bookingData.selectedPatients,
   ]);
 
-  useEffect(() => {
-    handleDoctorSearch();
-  }, [bookingData.searchFilters, bookingData.selectedCategory]);
-
   const calculatePricing = () => {
     let subTotal = 0;
     const hasPackage = !!bookingData.selectedPackage;
@@ -322,15 +412,9 @@ export default function BookingFlow({
       subTotal = 300 * bookingData.sessionsCount;
     }
 
-    // 2. Determine if patient is Saudi
-    const firstPatient = bookingData.selectedPatients?.[0];
-    const isSaudi = firstPatient?.nationality === "السعودية";
-
-    // 3. Fees: 15% if NOT Saudi, else 0
-    const fees = isSaudi ? 0 : Math.round(subTotal * 0.15);
-
-    // 4. Tax: You can keep 0 or apply VAT if needed
-    const tax = 0; // or e.g., subTotal * 0.15 for 15% VAT
+    // Fees/VAT come from the server after reservation create; do not compute 15% client-side
+    const fees = 0;
+    const tax = 0;
 
     // 5. Discount from package + coupon
     let discount = 0;
@@ -411,7 +495,7 @@ export default function BookingFlow({
   };
 
   const handleDoctorSearch = async () => {
-    let doctors = doctorsData?.data || [];
+    let doctors = doctorsList.length > 0 ? doctorsList : doctorsData?.data || [];
 
     let fullCategory = bookingData.selectedCategory as Category | null;
     if (fullCategory && categoriesData?.data) {
@@ -675,6 +759,9 @@ export default function BookingFlow({
           country: bookingData.selectedLocation?.country || "N/A",
 
           nationality: guest.nationality,
+          ...(guest.nationality_id != null
+            ? { guest_nationality_id: guest.nationality_id }
+            : {}),
           date_of_birth: guest.birthDate,
           gender: guest.gender,
           national_id: guest.idNumber,
@@ -704,7 +791,9 @@ export default function BookingFlow({
         : await ClientAPI.createReservation(reservationData, "ar");
       console.log("response", response);
 
-      setReservationId(response.data[0].id);
+      const created = response.data[0];
+      setReservationId(created.id);
+      setBookingData((prev) => applyReservationPricingFromApi(prev, created));
       // Reservation created: ensure old coupon state is cleared so user applies fresh coupon for this reservation
       clearTransientReservationData();
       toast.success(t("messages.bookingCreated"));
@@ -795,12 +884,15 @@ export default function BookingFlow({
           <Step2DoctorSelection
             doctorsData={{ data: filteredDoctors }}
             packagesData={packagesData}
+            citiesData={citiesData}
             bookingData={bookingData}
             updateBookingData={updateBookingData}
             onNext={nextStep}
             onPrev={prevStep}
             onOpenProfile={(doctor) => openModal("doctorProfile", doctor)}
-            isLoading={isLoading}
+            isLoading={isLoading || doctorsLoading}
+            locale={locale}
+            sortCityId={resolveCityIdForDoctorSort()}
           />
         );
       case 3:
@@ -866,7 +958,10 @@ export default function BookingFlow({
     >
       <div className="w-full h-[180px] sm:h-[200px] md:h-[247px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-27/dw6xSVLu5N.png)] bg-[length:100%_100%] bg-no-repeat absolute top-0 left-0 -z-10" />
 
-      <div className="relative w-full max-w-[800px] mt-4 sm:mt-6 md:mt-8 px-2">
+      <div
+        className="relative w-full max-w-[800px] mt-4 sm:mt-6 md:mt-8 px-2"
+        data-tour="booking-stepper"
+      >
         {/* Mobile: Compact step indicators */}
         <div className="flex sm:hidden justify-between items-center gap-1 w-full">
           {steps.map(({ step, active }, i) => (
@@ -936,7 +1031,20 @@ export default function BookingFlow({
         </div>
       </div>
 
-      <div className="w-full max-w-[1280px] mt-6 sm:mt-8 md:mt-10 px-1 sm:px-2">
+      <div className="w-full max-w-[1280px] mt-6 sm:mt-8 md:mt-10 px-1 sm:px-2 relative">
+        {!tourActive && isBookingTourCompleted() && (
+          <button
+            type="button"
+            onClick={() => setTourActive(true)}
+            className="fixed bottom-5 end-5 z-[100] inline-flex items-center gap-2 rounded-full bg-[#143087] text-white shadow-[0_4px_20px_rgba(20,48,135,0.35)] ring-2 ring-white ps-4 pe-5 py-3 hover:bg-[#0f2470] hover:shadow-[0_6px_24px_rgba(20,48,135,0.45)] active:scale-[0.98] transition-all sm:bottom-8 sm:end-8"
+            aria-label={t("tour.restart")}
+          >
+            <Compass className="h-5 w-5 shrink-0" aria-hidden />
+            <span className="text-sm font-semibold whitespace-nowrap">
+              {t("tour.restart")}
+            </span>
+          </button>
+        )}
         {renderStepContent()}
       </div>
 
@@ -970,6 +1078,14 @@ export default function BookingFlow({
         doctor={profileDoctor}
         updateBookingData={updateBookingData}
         onSelectDoctor={nextStep}
+        locale={locale}
+      />
+
+      <BookingReservationTour
+        active={tourActive}
+        onClose={() => setTourActive(false)}
+        currentBookingStep={currentStep}
+        onBookingStepChange={(step) => setCurrentStep(step)}
       />
     </div>
   );

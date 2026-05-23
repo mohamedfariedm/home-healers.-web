@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
 import BookingFlow from "./_components/booking-flow";
@@ -38,17 +39,24 @@ async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const categoriesData = await ClientAPI.getCategories(locale);
   const countriesData = await ClientAPI.getCountries(locale);
   const statesData = await ClientAPI.getStates(locale);
+  const citiesData = await ClientAPI.getCities(locale);
+  const nationalitiesData = await ClientAPI.getNationalities(locale);
   const servicesData = await ClientAPI.getAllServices(locale);
 
   return (
-    <BookingFlow
-      doctorsData={doctorsData}
-      servicesData={servicesData}
-      packagesData={packagesData}
-      categoriesData={categoriesData}
-      countriesData={countriesData}
-      statesData={statesData}
-    />
+    <Suspense fallback={null}>
+      <BookingFlow
+        locale={locale}
+        doctorsData={doctorsData}
+        servicesData={servicesData}
+        packagesData={packagesData}
+        categoriesData={categoriesData}
+        countriesData={countriesData}
+        statesData={statesData}
+        citiesData={citiesData}
+        nationalitiesData={nationalitiesData}
+      />
+    </Suspense>
   );
 }
 

@@ -83,8 +83,13 @@ const ClientAPI = {
     fetchData('client/nationalities', locale),
 
   // Doctors
-  getDoctors: (locale: string) =>
-    fetchData('client/doctors', locale),
+  getDoctors: (
+    locale: string,
+    params?: { city_id?: number; gender?: "male" | "female" }
+  ) =>
+    fetchData("client/doctors", locale, {
+      params: params ?? {},
+    }),
 
 
   // Client Reviews

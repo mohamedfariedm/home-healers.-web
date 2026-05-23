@@ -267,7 +267,10 @@ export default function Step1SpecialtySelection({
   return (
     <>
       {/* ====================== MAIN UI ====================== */}
-      <div className="flex flex-col gap-8 bg-white rounded-2xl shadow-md p-6">
+      <div
+        className="flex flex-col gap-8 bg-white rounded-2xl shadow-md p-6"
+        data-tour="tour-specialty"
+      >
         {/* Quick Booking Button */}
         <div className="flex flex-col items-start gap-4 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
           <h2 className="text-lg sm:text-xl font-bold leading-7 text-[#1e1e1e]">

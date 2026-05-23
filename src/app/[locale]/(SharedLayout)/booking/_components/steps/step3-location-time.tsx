@@ -107,7 +107,7 @@ export default function Step3LocationTime({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-tour="tour-location">
       {/* Location Selection */}
       <div className="bg-white rounded-2xl shadow-md p-6">
         <h2 className="text-xl font-bold mb-6 flex items-center gap-2">

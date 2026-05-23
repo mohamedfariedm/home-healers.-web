@@ -279,7 +279,7 @@ export default function Step5Payment({
 
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8" data-tour="tour-payment">
       {/* Left Column - Booking Summary & Payment Methods */}
       <div className="space-y-6">
         {/* Booking Summary */}

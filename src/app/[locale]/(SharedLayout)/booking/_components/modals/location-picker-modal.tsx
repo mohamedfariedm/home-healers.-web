@@ -293,11 +293,15 @@ export default function LocationPickerModal({
           ? `https://www.google.com/maps?q=${lat},${lng}`
           : "";
 
+      const matchedCity = availableCities.find(
+        (c: { id?: number; name: string }) => c.name === formData.city
+      );
       const location: Location = {
         id: isEditing && editingLocationId ? editingLocationId : Date.now(),
         title: formData.title,
         address: formData.address,
         city: formData.city,
+        ...(matchedCity?.id != null ? { cityId: Number(matchedCity.id) } : {}),
         state: formData.state,
         country: formData.country,
         latitude: lat || undefined,

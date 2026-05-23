@@ -184,14 +184,18 @@ const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => (
           <Text style={styles.value}>{bookingData.pricing.subTotal} ريال</Text>
           <Text style={styles.label}>المبلغ الأساسي:</Text>
         </View>
-        <View style={styles.row}>
-          <Text style={styles.value}>{bookingData.pricing.fees} ريال</Text>
-          <Text style={styles.label}>رسوم الزيارة:</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.value}>{bookingData.pricing.tax} ريال</Text>
-          <Text style={styles.label}>الضريبة:</Text>
-        </View>
+        {bookingData.pricing.fees > 0 && (
+          <View style={styles.row}>
+            <Text style={styles.value}>{bookingData.pricing.fees} ريال</Text>
+            <Text style={styles.label}>رسوم الزيارة:</Text>
+          </View>
+        )}
+        {bookingData.pricing.tax > 0 && (
+          <View style={styles.row}>
+            <Text style={styles.value}>{bookingData.pricing.tax} ريال</Text>
+            <Text style={styles.label}>الضريبة:</Text>
+          </View>
+        )}
         {bookingData.pricing.discount > 0 && (
           <View style={styles.row}>
             <Text style={[styles.value, { color: "#16a34a" }]}>-{bookingData.pricing.discount} ريال</Text>
@@ -248,7 +252,7 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8" data-tour="tour-confirmation">
       {/* Success Header */}
       <div className="text-center py-12">
         <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -357,18 +361,22 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
               </span>
               <span className="text-gray-600">{t("step5.baseAmount")}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="font-medium">
-                {bookingData.pricing.fees} {t("step5.currency")}
-              </span>
-              <span className="text-gray-600">{t("step6.visitFees")}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-medium">
-                {bookingData.pricing.tax} {t("step5.currency")}
-              </span>
-              <span className="text-gray-600">{t("step6.tax")}</span>
-            </div>
+            {bookingData.pricing.fees > 0 && (
+              <div className="flex justify-between">
+                <span className="font-medium">
+                  {bookingData.pricing.fees} {t("step5.currency")}
+                </span>
+                <span className="text-gray-600">{t("step6.visitFees")}</span>
+              </div>
+            )}
+            {bookingData.pricing.tax > 0 && (
+              <div className="flex justify-between">
+                <span className="font-medium">
+                  {bookingData.pricing.tax} {t("step5.currency")}
+                </span>
+                <span className="text-gray-600">{t("step6.tax")}</span>
+              </div>
+            )}
             {bookingData.pricing.discount > 0 && (
               <div className="flex justify-between text-green-600">
                 <span className="font-medium">

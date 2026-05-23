@@ -212,7 +212,7 @@ export default function Step4PatientInfo({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-tour="tour-patient">
       {bookingData.selectedDoctor && (
         <div className="bg-white rounded-2xl shadow-md p-6">
           <h2 className="text-xl font-bold mb-4">{t("step4.selectedDoctorInfo") || "بيانات الطبيب المختار"}</h2>
