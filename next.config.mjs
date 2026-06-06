@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
+  // Wait for generateMetadata before sending HTML so title/canonical appear in view-source
+  htmlLimitedBots: /.*/,
   images: {
     remotePatterns: [
       {

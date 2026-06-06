@@ -15,11 +15,15 @@ export async function generateMetadata({
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data[0]?.setting?.seo["blogs"];
   const { data } = await ClientAPI.getSingleBlog(blogID, locale);
+  const blogSlug =
+    (typeof data?.slug === "object" ? data?.slug?.[locale] : data?.slug) || blogID;
+  const path = `/blog/${blogSlug}`;
 
   // Base metadata from global blogs seo then override with blog-specific meta
-  const baseMeta = createMetadata(seo, locale, "/blog", {
+  const baseMeta = createMetadata(seo, locale, path, {
     title: data?.meta_title[locale] ||data?.meta_title|| "Home Hellers",
-  });
+    ogType: "article",
+  }, { preferPathCanonical: true });
 
   return {
     ...baseMeta,
@@ -38,9 +42,6 @@ async function page({
 
   return (
     <div className="main-container w-full  mx-auto relative">
-      <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-        {data?.meta_title[locale]|| data?.meta_title || "Blog Details"}
-      </h1>
       <div
         className="w-full h-[250px] relative bg-no-repeat bg-cover bg-center"
         style={{

@@ -1,6 +1,7 @@
 import initTranslations from "@/app/i18n";
 import ClientAPI from "@/app/api/api";
 import DoctorRegistrationForm from "@/components/doctor-registration-form";
+import { buildCanonicalUrl, buildLanguageAlternates } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,9 @@ export async function generateMetadata({
   const { t } = await initTranslations(locale, ["doctor-apply"]);
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data[0]?.setting?.seo["doctor-apply"] || {};
+
+  const path = "/doctors-apply";
+  const canonical = seo?.canonical || buildCanonicalUrl(locale, path);
 
   return {
     title: t("seo.title", {
@@ -29,14 +33,14 @@ export async function generateMetadata({
         "Home Hellers, doctor application, healthcare, medical professionals",
     }),
     alternates: {
-      canonical:
-        seo?.canonical ||
-        `https://home-hellers.com${locale === "ar" ? "" : "/en"}/doctor-apply`,
+      canonical,
+      languages: buildLanguageAlternates(path),
     },
     icons: {
       icon: "/assets/images/favicon.ico",
     },
     openGraph: {
+      type: "website",
       title: t("seo.og_title", {
         defaultValue: seo?.og_title || "Join Home Hellers Medical Team",
       }),
@@ -45,9 +49,7 @@ export async function generateMetadata({
           seo?.og_description ||
           "Apply to become a doctor in our world-class healthcare network",
       }),
-      url:
-        seo?.canonical ||
-        `https://home-hellers.com${locale === "ar" ? "" : "/en"}/doctor-apply`,
+      url: seo?.canonical || buildCanonicalUrl(locale, path),
       images: [
         {
           url: seo?.og_image || "/assets/images/doctor-apply-og.jpg",

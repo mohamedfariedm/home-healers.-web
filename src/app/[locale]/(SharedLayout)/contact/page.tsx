@@ -27,17 +27,11 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
   const { t } = await initTranslations(locale, ["contactUs"]);
   const settings = await ClientAPI.getSettings(locale);
 
-  const seo = settings?.data[0]?.setting?.seo["contact"];
-
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
     (banner: any) => banner.page === "contact"&& banner.type === "web"
   );
   return (
     <>
-      <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-        {seo?.[locale]?.title}
-      </h1>
-
       <div className="main-container w-full bg-white relative overflow-hidden mx-auto">
         <div
           className="w-full h-[250px] relative bg-no-repeat bg-cover bg-center"
@@ -73,9 +67,9 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
 
             {/* Center Content */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-              <div className="text-white text-[24px] font-semibold leading-[32px]">
+              <h1 className="text-white text-[24px] font-semibold leading-[32px]">
                 {t("hero.title")}
-              </div>
+              </h1>
               <div className="mt-2 flex justify-center items-center gap-2">
                 <span className="text-[#62a0f6] text-sm font-semibold">
                   {t("hero.breadcrumb")}

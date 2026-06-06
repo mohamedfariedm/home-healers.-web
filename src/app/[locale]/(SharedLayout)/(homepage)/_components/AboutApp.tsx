@@ -8,7 +8,7 @@ import { Pagination, Autoplay } from "swiper/modules";
 import { ShowMore } from "@/components/Animations/ShowMore";
 import { AboutAppTwoColumns } from ".";
 import { useState } from "react";
-import parse from "html-react-parser";
+import { parseCmsHtml } from "@/lib/parse-cms-html";
 import "swiper/css";
 import "swiper/css/pagination";
 
@@ -99,7 +99,7 @@ console.log(services);
                       {service.name}
                     </h3>
                     <div className="text-sm font-light leading-8 mt-1 max-h-[96px] overflow-hidden text-ellipsis">
-                      {parse(service?.description || "")}
+                      {parseCmsHtml(service?.description || "")}
                     </div>
                   </div>
                 </div>

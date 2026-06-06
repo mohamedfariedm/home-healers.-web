@@ -1,39 +1,45 @@
 import initTranslations from "@/app/i18n";
-import ClientAPI from "@/app/api/api";
 import { HeroBanner } from "@/components/AboutUs";
+import { getCachedSettings } from "@/lib/cached-api";
+import { createMetadata } from "@/lib/seo";
+import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: { locale: string } };
-
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
-  const settings = await ClientAPI.getSettings(locale);
-  const seo = settings?.data[0]?.setting?.seo["about-us"];
+  const { t } = await initTranslations(locale, ["terms"]);
+  const settings = await getCachedSettings(locale);
+  const seo = settings?.data?.[0]?.setting?.seo?.["terms"];
+  const terms = settings?.data?.[0]?.setting?.terms?.[locale];
 
-  const { createMetadata } = await import("@/lib/seo");
-  return createMetadata(seo, locale, "/terms", { title: "Terms & Conditions" });
+  return createMetadata(seo, locale, "/terms", {
+    title: terms?.title || t("title"),
+    description: t("introduction"),
+    keywords: "Home Healers, terms and conditions, terms of use, healthcare",
+  });
 }
 
-export default async function TermsPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function TermsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   const { t } = await initTranslations(locale, ["common", "terms"]);
-  const settings = await ClientAPI.getSettings(locale);
+  const settings = await getCachedSettings(locale);
 
-  const pages = settings?.data[0]?.setting;
-  const terms = pages?.terms?.[locale];
+  const terms = settings?.data?.[0]?.setting?.terms?.[locale];
 
   return (
     <>
       <div className="min-h-screen bg-white">
-        {/* Page Title (behind hero like About Us) */}
-        <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-          {terms?.title}
-        </h1>
-
-        {/* HERO SECTION */}
         <HeroBanner
-          title={terms?.title}
+          title={terms?.title || t("title", { ns: "terms" })}
           breadcrumbItems={[
             { label: t("home", { ns: "common" }) },
             {
@@ -43,10 +49,8 @@ export default async function TermsPage({ params }: { params: Promise<{ locale: 
           ]}
         />
 
-        {/* CONTENT */}
         <div className="flex flex-col items-center gap-14 mt-24 w-full mx-auto px-4">
           <div className="max-w-4xl w-full">
-            {/* Sections */}
             <div className="space-y-10">
               {terms?.sections?.map((section: any, index: number) => (
                 <div
@@ -61,7 +65,6 @@ export default async function TermsPage({ params }: { params: Promise<{ locale: 
             transition-all duration-300
           "
                 >
-                  {/* Heading */}
                   <h2
                     className="
               text-2xl 
@@ -75,7 +78,6 @@ export default async function TermsPage({ params }: { params: Promise<{ locale: 
                     {section.heading}
                   </h2>
 
-                  {/* Content */}
                   <div
                     className="
               text-gray-700 

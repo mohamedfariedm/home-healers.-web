@@ -24,6 +24,10 @@ export const metadata: Metadata = {
   icons: {
     icon: "/assets/images/favicon.ico",
   },
+  openGraph: {
+    type: "website",
+    siteName: "Home Healers",
+  },
 };
 
 export function generateStaticParams() {
@@ -75,6 +79,23 @@ y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         {/* Tawk.to live chat */}
         <Script id="tawk-to" strategy="afterInteractive">
           {`var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+  var pageTitle=document.title;
+  var titleEl=document.querySelector("title");
+  if(!titleEl)return;
+  function isTawkTitleNotification(title){
+    return/رسالة\\s*جديدة/i.test(title)||/^\\(\\d+\\)\\s/.test(title)||/^\\d+\\s+new\\s+message/i.test(title)||/^new\\s+message/i.test(title);
+  }
+  function guardTitle(){
+    var current=document.title;
+    if(isTawkTitleNotification(current)){
+      if(titleEl.textContent!==pageTitle)titleEl.textContent=pageTitle;
+      return;
+    }
+    if(current!==pageTitle)pageTitle=current;
+  }
+  new MutationObserver(guardTitle).observe(titleEl,{childList:true,characterData:true,subtree:true});
+})();
 Tawk_API.customStyle={
   visibility:{
     desktop:{position:'br',xOffset:16,yOffset:16},

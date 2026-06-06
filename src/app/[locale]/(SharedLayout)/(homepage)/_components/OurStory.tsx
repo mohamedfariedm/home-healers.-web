@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import parse from "html-react-parser";
+import { parseCmsHtml } from "@/lib/parse-cms-html";
 import { ShowMore } from "@/components/Animations/ShowMore";
 
 export default function OurStory({
@@ -101,7 +101,7 @@ export default function OurStory({
                 {featuredArticle.name}
               </h3>
               <div className="text-[#1e1e1e] text-base font-light leading-[28px] line-clamp-6 ">
-                {parse(featuredArticle.description)}
+                {parseCmsHtml(featuredArticle.description)}
               </div>
             </div>
           </motion.div>
@@ -142,7 +142,7 @@ export default function OurStory({
                   {article.name}
                 </h4>
                 <div className="text-sm text-[#1e1e1e] leading-6 font-light line-clamp-4">
-                  {parse(article.description)}
+                  {parseCmsHtml(article.description)}
                 </div>
               </div>
             </motion.div>

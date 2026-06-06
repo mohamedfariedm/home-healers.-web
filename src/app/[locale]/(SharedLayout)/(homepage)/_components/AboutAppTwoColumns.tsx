@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { ShowMore } from "@/components/Animations/ShowMore";
-import parse from "html-react-parser";
+import { parseCmsHtml } from "@/lib/parse-cms-html";
 
 function AboutApp({
   locale,
@@ -52,7 +52,7 @@ function AboutApp({
             </h2>
             <div className="text-lg leading-8 text-[#1e1e1e]">
               {aboutHomeSection?.Posts?.[0]?.description
-                ? parse(aboutHomeSection?.Posts[0]?.description)
+                ? parseCmsHtml(aboutHomeSection?.Posts[0]?.description)
                 : ""}
             </div>
           </div>

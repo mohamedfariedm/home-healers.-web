@@ -29,9 +29,9 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ title, breadcrumbItems }) => {
 
         {/* Center Content */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-          <div className="text-white text-[24px] font-semibold leading-[32px]">
+          <h1 className="text-white text-[24px] font-semibold leading-[32px]">
             {title}
-          </div>
+          </h1>
           <div className="mt-2 flex justify-center items-center gap-2">
             {breadcrumbItems.map((item, index) => (
               <React.Fragment key={index}>

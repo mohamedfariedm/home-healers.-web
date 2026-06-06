@@ -6,7 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import parse from "html-react-parser";
+import { parseCmsHtml } from "@/lib/parse-cms-html";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -126,7 +126,7 @@ export default function PackagesSection({ locale, data }: PackagesSectionProps) 
                     {pkg.name}
                   </h3>
                   <div className="text-sm text-gray-600 mt-2 h-[60px] overflow-hidden">
-                    {parse(pkg.description || "")}
+                    {parseCmsHtml(pkg.description || "")}
                   </div>
                 </div>
 

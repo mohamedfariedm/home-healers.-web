@@ -11,7 +11,7 @@ import Link from "next/link";
 import Image from "next/image";
 import ClientAPI from "@/app/api/api";
 import { ArrowLeft } from "lucide-react";
-import parse from "html-react-parser";
+import { parseCmsHtml } from "@/lib/parse-cms-html";
 
 interface LandingSliderProps {
   section: any;
@@ -214,7 +214,7 @@ export default function LandingSlider({
                   </h3>
                   <div className="text-sm font-light leading-8 mt-1 max-h-[96px] overflow-hidden text-ellipsis">
                     {typeof item.description === "string"
-                      ? parse(item.description)
+                      ? parseCmsHtml(item.description)
                       : item.description}
                   </div>
                 </div>
@@ -460,7 +460,7 @@ export default function LandingSlider({
           if (typeof faqAnswer === "string") {
             // Check if it contains HTML tags
             if (faqAnswer.includes("<") && faqAnswer.includes(">")) {
-              return parse(faqAnswer);
+              return parseCmsHtml(faqAnswer);
             }
             return faqAnswer;
           }

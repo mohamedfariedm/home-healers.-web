@@ -10,15 +10,15 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; token: string }> }) {
-  const { locale } = await params;
+  const { locale, token } = await params;
   const { t } = await initTranslations(locale, ["invite-doctor"]);
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data?.[0]?.setting?.seo?.["invite-doctor"];
 
-  return createMetadata(seo, locale, "/invite-doctor", {
+  return createMetadata(seo, locale, `/invite-doctor/${token}`, {
     title: t("meta.title"),
     description: t("meta.description"),
-  });
+  }, { preferPathCanonical: true });
 }
 
 async function InviteDoctorPage({ params }: { params: Promise<{ locale: string; token: string }> }) {

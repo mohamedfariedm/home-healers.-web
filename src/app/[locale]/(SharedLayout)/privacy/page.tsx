@@ -1,42 +1,45 @@
 import initTranslations from "@/app/i18n";
-import ClientAPI from "@/app/api/api";
 import { HeroBanner } from "@/components/AboutUs";
+import { getCachedSettings } from "@/lib/cached-api";
+import { createMetadata } from "@/lib/seo";
+import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: { locale: string } };
-
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
-  const settings = await ClientAPI.getSettings(locale);
-  const seo = settings?.data[0]?.setting?.seo["about-us"];
+  const { t } = await initTranslations(locale, ["privacy"]);
+  const settings = await getCachedSettings(locale);
+  const seo = settings?.data?.[0]?.setting?.seo?.["privacy"];
+  const conditions = settings?.data?.[0]?.setting?.conditions?.[locale];
 
-  // Use shared helper so about/privacy/terms follow same structure
-  const { createMetadata } = await import("@/lib/seo");
   return createMetadata(seo, locale, "/privacy", {
-    title: "General Conditions",
+    title: conditions?.title || t("title"),
+    description: t("introduction"),
+    keywords: "Home Healers, privacy policy, data protection, healthcare",
   });
 }
 
-export default async function ConditionsPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function ConditionsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   const { t } = await initTranslations(locale, ["common", "privacy"]);
-  const settings = await ClientAPI.getSettings(locale);
+  const settings = await getCachedSettings(locale);
 
-  const pages = settings?.data[0]?.setting;
-  const conditions = pages?.conditions?.[locale];
+  const conditions = settings?.data?.[0]?.setting?.conditions?.[locale];
 
   return (
     <>
       <div className="min-h-screen bg-white">
-        {/* Title behind hero */}
-        <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-          {conditions?.title}
-        </h1>
-
-        {/* HERO */}
         <HeroBanner
-          title={conditions?.title}
+          title={conditions?.title || t("title", { ns: "privacy" })}
           breadcrumbItems={[
             { label: t("home", { ns: "common" }) },
             {
@@ -46,10 +49,8 @@ export default async function ConditionsPage({ params }: { params: Promise<{ loc
           ]}
         />
 
-        {/* CONTENT BODY */}
         <div className="flex flex-col items-center gap-14 mt-24 w-full mx-auto px-4">
           <div className="max-w-4xl w-full">
-            {/* Items list */}
             <div className="space-y-10">
               {conditions?.items?.map((item: any, index: number) => (
                 <div
@@ -64,7 +65,6 @@ export default async function ConditionsPage({ params }: { params: Promise<{ loc
             transition-all duration-300
           "
                 >
-                  {/* Heading */}
                   <h2
                     className="
               text-2xl 
@@ -78,7 +78,6 @@ export default async function ConditionsPage({ params }: { params: Promise<{ loc
                     {item.heading}
                   </h2>
 
-                  {/* Content */}
                   <div
                     className="
               text-gray-700 

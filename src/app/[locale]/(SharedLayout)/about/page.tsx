@@ -24,7 +24,7 @@ export async function generateMetadata({
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data[0]?.setting?.seo["about-us"];
 
-  return createMetadata(seo, locale, "/about-us", {
+  return createMetadata(seo, locale, "/about", {
     title: "Home Hellers",
   });
 }
@@ -36,8 +36,6 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
   const doctorsData = await ClientAPI.getDoctors(locale);
   const faqsData = await ClientAPI.getFAQs(locale);
   const settings = await ClientAPI.getSettings(locale);
-
-  const seo = settings?.data[0]?.setting?.seo["about-us"];
 
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
     (banner: any) => banner.page === "about-us"&& banner.type === "web"
@@ -64,10 +62,6 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
   return (
     <>
       <div className="min-h-screen bg-white">
-        <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-          {seo?.[locale]?.title}
-        </h1>
-
         <HeroBanner
           title={t("breadcrumb.title")}
           breadcrumbItems={[

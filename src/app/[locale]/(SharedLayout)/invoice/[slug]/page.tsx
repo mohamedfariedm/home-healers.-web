@@ -1,6 +1,7 @@
 import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
 import InvoiceView from "@/components/invoiceView";
+import { buildCanonicalUrl, buildLanguageAlternates } from "@/lib/seo";
 import { log } from "console";
 export const dynamic = "force-dynamic";
 
@@ -16,9 +17,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const title = t("invoice_page.title", { invoiceId: slug });
   const description = t("invoice_page.description");
   const keywords = t("invoice_page.keywords");
-  const canonical = `https://home-hellers.com/${
-    locale === "ar" ? "" : "en"
-  }/invoice/${slug}`;
+  const path = `/invoice/${slug}`;
+  const canonical = buildCanonicalUrl(locale, path);
 
   return {
     title,
@@ -26,11 +26,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     keywords,
     alternates: {
       canonical,
+      languages: buildLanguageAlternates(path),
     },
     icons: {
       icon: "/assets/images/favicon.ico",
     },
     openGraph: {
+      type: "website",
       title,
       description,
       url: canonical,

@@ -1,6 +1,7 @@
 import ClientAPI from "@/app/api/api";
 import { notFound } from "next/navigation";
 import LandingPageRenderer from "@/components/LandingPage/LandingPageRenderer";
+import { buildCanonicalUrl, buildLanguageAlternates } from "@/lib/seo";
 import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +33,9 @@ export async function generateMetadata({
     const metaTitle = seo.meta_title?.[locale] || landingPage.meta_title?.[locale] || landingPage.title?.[locale];
     const metaDescription = seo.meta_description?.[locale] || landingPage.meta_description?.[locale] || landingPage.description?.[locale];
 
+    const path = `/${slug}`;
+    const canonical = seo.canonical_url || buildCanonicalUrl(locale, path);
+
     return {
       title: metaTitle,
       description: metaDescription,
@@ -42,7 +46,7 @@ export async function generateMetadata({
         description: seo.og_description?.[locale] || metaDescription,
         images: seo.og_image ? [seo.og_image] : [],
         type: seo.og_type || "website",
-        url: seo.og_url || `https://home-healers.com/${locale === "ar" ? "" : "en"}/${slug}`,
+        url: seo.og_url || canonical,
         siteName: seo.og_site_name || "Home Healers",
         locale: seo.og_locale?.[locale] || (locale === "ar" ? "ar_SA" : "en_US"),
       },
@@ -56,7 +60,8 @@ export async function generateMetadata({
       },
       robots: seo.meta_robots || "index, follow",
       alternates: {
-        canonical: seo.canonical_url || `https://home-healers.com/${locale === "ar" ? "" : "en"}/${slug}`,
+        canonical,
+        languages: buildLanguageAlternates(path),
       },
     };
   } catch (error) {

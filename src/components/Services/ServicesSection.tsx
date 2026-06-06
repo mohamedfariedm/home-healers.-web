@@ -1,26 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import parse from "html-react-parser";
+import { parseCmsHtml } from "@/lib/parse-cms-html";
 
 const AnimatedServicesSection = ({
   locale,
   data,
+  pageTitleAsH1 = false,
+  activeSlug,
 }: {
   locale: string;
   data: any;
+  pageTitleAsH1?: boolean;
+  activeSlug?: string;
 }) => {
   const pathname = usePathname();
-  const [activeIndex, setActiveIndex] = useState(0);
 
   // Ensure services is an array, fallback to empty array if undefined
   const services = Array.isArray(data) ? data : [];
-  const activeService = services[activeIndex] || {};
-  console.log("Active Service:", activeService);
 
   // Helper to get localized value
   const getLocalized = (value: any, loc: string) => {
@@ -33,23 +34,26 @@ const AnimatedServicesSection = ({
     return value || "";
   };
 
-  // Extract slug from pathname and set activeIndex
-  useEffect(() => {
-    if (!pathname || !services.length) return;
+  const activeIndex = useMemo(() => {
+    if (!services.length) return 0;
 
-    const pathParts = pathname.split("/");
-    const currentSlug = decodeURIComponent(pathParts[pathParts.length - 1]);
+    const slugFromPath = activeSlug
+      ? decodeURIComponent(activeSlug)
+      : pathname
+        ? decodeURIComponent(pathname.split("/").pop() || "")
+        : "";
 
     const foundIndex = services.findIndex(
-      (service: any) => getLocalized(service.slug, locale) === currentSlug
+      (service: any) => getLocalized(service.slug, locale) === slugFromPath,
     );
 
-    if (foundIndex !== -1) {
-      setActiveIndex(foundIndex);
-    } else {
-      setActiveIndex(0); // Fallback to first service if no match
-    }
-  }, [pathname, locale, services]);
+    return foundIndex !== -1 ? foundIndex : 0;
+  }, [activeSlug, pathname, services, locale]);
+
+  const activeService = services[activeIndex] || {};
+  const serviceTitle =
+    getLocalized(activeService.name, locale) || "خدمة غير متوفرة";
+  const TitleTag = pageTitleAsH1 ? "h1" : "h3";
 
   return (
     <motion.div
@@ -141,12 +145,12 @@ const AnimatedServicesSection = ({
           aria-label={`صورة الخدمة ${getLocalized(activeService.name, locale)}`}
         />
         <div className="text-start flex flex-col gap-6">
-          <h3 className="text-2xl font-medium text-[#1e1e1e]">
-            {getLocalized(activeService.name, locale) || "خدمة غير متوفرة"}
-          </h3>
+          <TitleTag className="text-2xl font-medium text-[#1e1e1e]">
+            {serviceTitle}
+          </TitleTag>
           <div className="text-lg leading-8 text-[#475467] overflow-hidden">
             {activeService.description
-              ? parse(activeService.description)
+              ? parseCmsHtml(activeService.description)
               : "وصف الخدمة غير متوفر حالياً."}
           </div>
           <Link

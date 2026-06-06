@@ -337,11 +337,11 @@ export default function BlogRelatedSection({
           </span>
 
           <div className={`flex flex-col gap-6 ${justifyStart}`}>
-            <h2
+            <h1
               className={`${textDir} text-2xl md:text-[30px] font-medium text-[#1e1e1e]`}
             >
               {getLocalized(data?.name, locale)}
-            </h2>
+            </h1>
 
             <div
               className="editor-content"
