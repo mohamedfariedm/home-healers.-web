@@ -2,7 +2,9 @@ import ClientAPI from "@/app/api/api";
 import { Footer, Header } from "@/components/Layout";
 import FloatingContact from "@/components/FloatingContact";
 import { IS_RAMADAN_ACTIVE } from "@/constants/ramadan";
+import { IS_WORLD_CUP_ACTIVE } from "@/constants/world-cup";
 import RamadanBanner, { RamadanBackgroundDecorations } from "@/components/RamadanOverlay";
+import WorldCupAside from "@/components/WorldCupAside";
 import { i18nRouterConfig } from "@/i18nRouterConfig";
 import { redirect } from "next/navigation";
 
@@ -26,6 +28,7 @@ export default async function Layout({
   const settings = await ClientAPI.getSettings(locale);
   return (
     <>
+      {IS_WORLD_CUP_ACTIVE && <WorldCupAside />}
       <Header locale={locale} />
       {IS_RAMADAN_ACTIVE && <RamadanBanner position="top" />}
       {IS_RAMADAN_ACTIVE && <RamadanBackgroundDecorations />}
