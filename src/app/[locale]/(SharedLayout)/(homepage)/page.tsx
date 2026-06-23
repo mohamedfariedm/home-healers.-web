@@ -91,7 +91,7 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: renderJsonLd(breadcrumbSchema) }}
       />
-      <div className="w-full xl:w-[489.058px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-05/Xam6EEVohV.png)] bg-[length:100%_100%] bg-no-repeat relative" />
+      <div className="w-full xl:w-[489.058px] bg-[url(/assets/images/homepage/home-decoration.png)] bg-[length:100%_100%] bg-no-repeat relative" />
       <div>
         <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
           {seo?.[locale]?.title}

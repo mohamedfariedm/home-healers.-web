@@ -6,13 +6,13 @@ const DownloadButtons= ({locale}:{locale:string}) => {
       <DownloadButton
       locale={locale}
         store="App Store"
-        icon="https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/oJwqjVBUsX.png"
+        icon="/assets/images/homepage/download-app-store.svg"
       />
 
       <DownloadButton
             locale={locale}
         store="Google Play"
-        icon="https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/XbpF97k1LW.png"
+        icon="/assets/images/homepage/download-google-play.svg"
       />
     </div>
   );

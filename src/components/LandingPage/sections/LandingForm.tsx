@@ -242,7 +242,7 @@ export default function LandingForm({ section, locale, settings }: LandingFormPr
           <div className="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden bg-gradient-to-br from-gray-50 to-white transition-all duration-300 focus-within:border-[#143087] focus-within:ring-4 focus-within:ring-[#143087]/10 focus-within:shadow-lg">
             <div className="bg-gradient-to-br from-[#143087] to-[#0f245f] px-4 py-3 flex items-center gap-2 shadow-md">
               <img 
-                src="https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/SUr7AzvBDd.png" 
+                src="/assets/images/shared/contact/sa-flag.png" 
                 className="w-6 h-6" 
                 alt="flag" 
               />
@@ -449,17 +449,17 @@ export default function LandingForm({ section, locale, settings }: LandingFormPr
           >
             {[
               businessAddress && {
-                icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/fxFV5KXUD4.png",
+                icon: "/assets/images/shared/contact/contact-icon-address.svg",
                 title: locale === "ar" ? "زيارتنا" : "Visit Us",
                 description: businessAddress,
               },
               businessEmail && {
-                icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/RKCBiHeaWM.png",
+                icon: "/assets/images/shared/contact/contact-icon-email.svg",
                 title: locale === "ar" ? "أرسل لنا بريد إلكتروني" : "Send Us Email",
                 description: businessEmail,
               },
               contactPhone && {
-                icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/pyxgUkH7d4.png",
+                icon: "/assets/images/shared/contact/contact-icon-phone.svg",
                 title: locale === "ar" ? "اتصل بنا" : "Call Us",
                 description: contactPhone,
               },

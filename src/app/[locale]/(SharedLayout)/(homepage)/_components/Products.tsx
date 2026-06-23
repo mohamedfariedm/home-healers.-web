@@ -182,7 +182,7 @@ function Products() {
             oldPrice="2250 ر.س"
             newPrice="150 ر.س"
             title="كرسي طبي لاصابات عضلية"
-            ratingImage="https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-05/b20e670d-e7c4-4683-8a9e-3ffbf3eda321.png"
+            ratingImage="/assets/images/shared/products-rating.png"
           />
         ))}
       </div>
@@ -198,7 +198,7 @@ function Products() {
         <div className="w-2.5 h-2.5 bg-[#cee2fc] rounded-full" />
         <div className="w-2.5 h-2.5 bg-[#cee2fc] rounded-full" />
         <div
-          className="w-2.5 h-2.5 rounded-full bg-[url('https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-05/axec0AGszx.png')] bg-cover bg-no-repeat"
+          className="w-2.5 h-2.5 rounded-full bg-[url('/assets/images/homepage/hero-pagination-dot.svg')] bg-cover bg-no-repeat"
           aria-hidden="true"
         />
       </motion.div>

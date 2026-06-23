@@ -369,7 +369,7 @@ export default function BlogRelatedSection({
               className="w-6 h-6 bg-cover bg-no-repeat"
               style={{
                 backgroundImage:
-                  "url('https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/ZPsHKGyuOB.png')",
+                  "url('/assets/images/shared/blog-section-bg.svg')",
               }}
             />
           </div>

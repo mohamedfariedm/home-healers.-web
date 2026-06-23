@@ -89,7 +89,7 @@ export default function LanguageChanger() {
       onClick={() => setDropdownOpen((prev) => !prev)}
       ref={dropdownRef}
     >
-      <div className="w-[24px] h-[24px] shrink-0 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-08/YQshacmVLQ.png)] bg-cover bg-no-repeat relative overflow-hidden z-[4]" />
+      <div className="w-[24px] h-[24px] shrink-0 bg-[url(/assets/images/shared/language-globe.png)] bg-cover bg-no-repeat relative overflow-hidden z-[4]" />
       <div className="flex w-[28px] gap-[10px] justify-center items-center shrink-0 relative z-[50]">
         <span className="h-[20px]  text-[14px] font-medium leading-[20px] text-[#1e1e1e] whitespace-nowrap z-[6]">
           {currentLocale === "ar" ? "Eng" : "عربى"}

@@ -14,8 +14,8 @@ async function Header({ locale }: { locale: string }) {
             href={`/${locale === "ar" ? "" : "en"}`}
             className="relative z-[38] flex shrink-0 flex-wrap items-center gap-[14.075px] xl:w-[134.191px]"
           >
-            <div className="relative z-40 h-[71.814px] w-[40px] shrink-0 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-08/HmiEst2KoS.png)] bg-[length:100%_100%] bg-no-repeat sm:w-[57.058px]" />
-            <div className="relative z-[39] h-[60.301px] w-[45px] shrink-0 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-08/QdoKKytofo.png)] bg-[length:100%_100%] bg-no-repeat" />
+            <div className="relative z-40 h-[71.814px] w-[40px] shrink-0 bg-[url(/assets/images/layout/header-logo-symbol.svg)] bg-[length:100%_100%] bg-no-repeat sm:w-[57.058px]" />
+            <div className="relative z-[39] h-[60.301px] w-[45px] shrink-0 bg-[url(/assets/images/layout/header-logo-text.svg)] bg-[length:100%_100%] bg-no-repeat" />
           </Link>
           <div className="hidden md:flex">
             <MenuItemsDesktop locale={locale} />

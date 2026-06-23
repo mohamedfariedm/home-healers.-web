@@ -57,14 +57,14 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
           className="w-full h-[250px] relative bg-no-repeat bg-cover bg-center"
           style={{
             backgroundImage:
-              "url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/DFhQezQ5hS.png)",
+              "url(/assets/images/shared/hero-banner/hero-bg-main.png)",
           }}
         >
           <div
             className="absolute inset-0 w-full h-full bg-no-repeat bg-cover"
             style={{
               backgroundImage:
-                "url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/0owx2TM42T.png)",
+                "url(/assets/images/shared/hero-banner/hero-layer-2.png)",
             }}
           >
             {/* Top Right Decorative Icons */}
@@ -73,14 +73,14 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
                 className="w-[29px] h-[29px] bg-no-repeat bg-cover"
                 style={{
                   backgroundImage:
-                    "url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/4QUzxCKOhU.png)",
+                    "url(/assets/images/shared/hero-banner/hero-deco-1.svg)",
                 }}
               />
               <div
                 className="w-[29px] h-[29px] mt-[83px] bg-no-repeat bg-cover"
                 style={{
                   backgroundImage:
-                    "url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/803XMdkNFA.png)",
+                    "url(/assets/images/shared/hero-banner/hero-deco-2.svg)",
                 }}
               />
             </div>
@@ -98,7 +98,7 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
                   className="w-4 h-4 bg-no-repeat bg-cover"
                   style={{
                     backgroundImage:
-                      "url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/5HzeZiBmtr.png)",
+                      "url(/assets/images/shared/hero-banner/hero-breadcrumb-arrow.svg)",
                   }}
                 />
                 <span className="text-white text-sm font-semibold">
@@ -112,21 +112,21 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
               className="absolute top-[34%] left-[14.44%] w-[2.01%] h-[11.6%] bg-no-repeat bg-cover"
               style={{
                 backgroundImage:
-                  "url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/e0Abrtvom6.png)",
+                  "url(/assets/images/shared/hero-banner/hero-deco-3.svg)",
               }}
             />
             <div
               className="absolute top-[41.6%] left-[93.13%] w-[2.01%] h-[11.6%] bg-no-repeat bg-cover"
               style={{
                 backgroundImage:
-                  "url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/1XdOKqGhLn.png)",
+                  "url(/assets/images/shared/hero-banner/hero-deco-4.svg)",
               }}
             />
             <div
               className="absolute top-[62.8%] left-[6.88%] w-[1.67%] h-[9.6%] bg-no-repeat bg-cover"
               style={{
                 backgroundImage:
-                  "url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/3yY0wTn197.png)",
+                  "url(/assets/images/shared/hero-banner/hero-deco-5.svg)",
               }}
             />
           </div>

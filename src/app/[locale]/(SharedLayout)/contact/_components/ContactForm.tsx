@@ -88,7 +88,7 @@ export default function ContactSection({ settings }: { settings?: any }) {
             <label htmlFor="phone" className="block text-start text-sm font-medium text-[#1e1e1e]">{t("formSection.phoneLabel")}</label>
             <div className="flex items-center border border-[#d0d5dd] rounded-md overflow-hidden">
               <div className="bg-[#e8eaf3]/50 px-3 py-2 flex items-center gap-2">
-                <img src="https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/SUr7AzvBDd.png" className="w-6 h-6" alt="flag" />
+                <img src="/assets/images/shared/contact/sa-flag.png" className="w-6 h-6" alt="flag" />
                 <span className="text-sm font-medium">+966</span>
               </div>
               <input
@@ -137,17 +137,17 @@ export default function ContactSection({ settings }: { settings?: any }) {
       >
         {[
           {
-            icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/fxFV5KXUD4.png",
+            icon: "/assets/images/shared/contact/contact-icon-address.svg",
             title: t("contactInfo.visitUs"),
             description: businessAddress,
           },
           {
-            icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/RKCBiHeaWM.png",
+            icon: "/assets/images/shared/contact/contact-icon-email.svg",
             title: t("contactInfo.sendEmail"),
             description: businessEmail,
           },
           {
-            icon: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/pyxgUkH7d4.png",
+            icon: "/assets/images/shared/contact/contact-icon-phone.svg",
             title: t("contactInfo.callUs"),
             description: contactPhone,
           },

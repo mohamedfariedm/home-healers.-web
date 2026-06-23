@@ -21,7 +21,7 @@ const ContactCard: React.FC<ContactCardProps> = ({
       ar: "مرحبا، لدي استفسار",
       en: "Hello, I have a question"
     },
-    image: "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/S1rR4aJeNK.png"
+    image: "/assets/images/shared/contact/contact-card.svg"
   }
 }) => {
   const isRTL = locale === "ar";

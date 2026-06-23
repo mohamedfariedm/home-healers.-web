@@ -957,7 +957,7 @@ export default function BookingFlow({
       className="main-container w-full mx-auto flex flex-col items-center relative my-0 px-2 sm:px-4 md:px-6 lg:px-8"
       dir="rtl"
     >
-      <div className="w-full h-[180px] sm:h-[200px] md:h-[247px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-27/dw6xSVLu5N.png)] bg-[length:100%_100%] bg-no-repeat absolute top-0 left-0 -z-10" />
+      <div className="w-full h-[180px] sm:h-[200px] md:h-[247px] bg-[url(/assets/images/shared/booking-header.png)] bg-[length:100%_100%] bg-no-repeat absolute top-0 left-0 -z-10" />
 
       <div
         className="relative w-full max-w-[800px] mt-4 sm:mt-6 md:mt-8 px-2"

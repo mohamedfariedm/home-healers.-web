@@ -58,24 +58,18 @@ function Card({ locale, section }: CardProps) {
   const cardStyles = [
     {
       bgColor: "#00b5b4",
-      iconUrl:
-        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/oyagdjg0Uw.png",
-      bgUrl:
-        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/MYzDAtQX71.png",
+      iconUrl: "/assets/images/homepage/card-icon-1.svg",
+      bgUrl: "/assets/images/homepage/card-bg-1.svg",
     },
     {
       bgColor: "#62a0f6",
-      iconUrl:
-        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/rLXfmB2tP2.png",
-      bgUrl:
-        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/KFeLeCb3fU.png",
+      iconUrl: "/assets/images/homepage/card-icon-2.svg",
+      bgUrl: "/assets/images/homepage/card-bg-2.svg",
     },
     {
       bgColor: "#5ad0ae",
-      iconUrl:
-        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/vqOoD1wwb0.png",
-      bgUrl:
-        "https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/TzRKwKqjBT.png",
+      iconUrl: "/assets/images/homepage/card-icon-3.svg",
+      bgUrl: "/assets/images/homepage/card-bg-3.svg",
     },
   ];
 
@@ -205,7 +199,7 @@ function Card({ locale, section }: CardProps) {
             className="holographic-card w-[480px] h-[290px] flex justify-center items-center relative overflow-hidden rounded-[15px] transition-all duration-500 ease-in-out bg-cover bg-center"
             style={{
               backgroundImage:
-                "url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/Z6UVEmXVtZ.png)",
+                "url(/assets/images/homepage/card-holographic.png)",
               backgroundPosition: "center center",
               backgroundSize: "cover",
             }}

@@ -99,10 +99,10 @@ export default function NotFound() {
 
       {/* Decorative Icons (similar to HeroBanner) */}
       <div className="hidden lg:block absolute top-1/4 left-20 opacity-20 animate-pulse">
-        <div className="w-8 h-8 bg-no-repeat bg-contain" style={{ backgroundImage: 'url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/4QUzxCKOhU.png)' }} />
+        <div className="w-8 h-8 bg-no-repeat bg-contain" style={{ backgroundImage: 'url(/assets/images/shared/hero-banner/hero-deco-1.svg)' }} />
       </div>
       <div className="hidden lg:block absolute bottom-1/4 right-20 opacity-20 animate-bounce">
-        <div className="w-10 h-10 bg-no-repeat bg-contain" style={{ backgroundImage: 'url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-18/1XdOKqGhLn.png)' }} />
+        <div className="w-10 h-10 bg-no-repeat bg-contain" style={{ backgroundImage: 'url(/assets/images/shared/hero-banner/hero-deco-4.svg)' }} />
       </div>
     </div>
   );

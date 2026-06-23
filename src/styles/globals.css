@@ -178,7 +178,7 @@ html {
   overflow: hidden;
   border-radius: 15px;
   transition: all 0.5s ease;
-  background-image:url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-13/Z6UVEmXVtZ.png);
+  background-image:url(/assets/images/homepage/card-holographic.png);
   background-position:center center;
   background-size:cover;
   

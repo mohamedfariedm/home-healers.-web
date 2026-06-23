@@ -569,7 +569,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
             <div className="flex w-full max-w-[736px] flex-col gap-3 items-end">
               <div className="flex w-full gap-4 sm:gap-6 justify-center items-center">
                 {/* Icon */}
-                <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-06-25/jrXCqZ0F4w.png)] bg-cover bg-no-repeat flex-shrink-0" />
+                <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-[url(/assets/images/layout/footer-contact-icon.svg)] bg-cover bg-no-repeat flex-shrink-0" />
 
                 {/* Text Content */}
                 <div className="flex flex-col w-full gap-3">
@@ -609,7 +609,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
               }
             >
               <div className="w-6 h-6 relative overflow-hidden">
-                <div className="w-5 h-5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-06-25/nc3zMu9Qh4.png)] bg-cover bg-no-repeat mt-0.5 ml-0.5" />
+                <div className="w-5 h-5 bg-[url(/assets/images/layout/footer-whatsapp-icon.svg)] bg-cover bg-no-repeat mt-0.5 ml-0.5" />
               </div>
               <span className="text-base sm:text-lg font-medium leading-7 whitespace-nowrap">
                 {t.whatsappButton}
@@ -627,8 +627,8 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                 {/* Logo */}
                 <div className="flex flex-col gap-6 items-center">
                   <div className="flex gap-[14px] items-center">
-                    <div className="w-[63px] h-[60px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/SKp7H4bUnm.png)] bg-cover bg-no-repeat" />
-                    <div className="w-[57px] h-[72px] bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/PWe640v7e4.png)] bg-cover bg-no-repeat" />
+                    <div className="w-[63px] h-[60px] bg-[url(/assets/images/layout/footer-logo-part1.svg)] bg-cover bg-no-repeat" />
+                    <div className="w-[57px] h-[72px] bg-[url(/assets/images/layout/footer-logo-part2.svg)] bg-cover bg-no-repeat" />
                   </div>
                   <div className="flex flex-col gap-1 items-center text-xs font-light leading-4 text-[#1e1e1e] text-center max-w-[321px]">
                     {brandRegistrationText.map((text, index) => (
@@ -679,7 +679,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                   <h3 className="text-xl font-semibold leading-[30px] text-[#143087]">
                     {t.quickLinks}
                   </h3>
-                  <div className="w-10 h-1.5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/1tXT90JNoT.png)] bg-cover bg-no-repeat" />
+                  <div className="w-10 h-1.5 bg-[url(/assets/images/layout/footer-underline-quick-links.svg)] bg-cover bg-no-repeat" />
                 </div>
 
                 <ul className="flex flex-col gap-4 items-start">
@@ -726,7 +726,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                   <h3 className="text-xl font-semibold leading-[30px] text-[#143087]">
                     {t.downloadApp}
                   </h3>
-                  <div className="w-10 h-1.5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/Q6CctxZby4.png)] bg-cover bg-no-repeat" />
+                  <div className="w-10 h-1.5 bg-[url(/assets/images/layout/footer-underline-download.svg)] bg-cover bg-no-repeat" />
                 </div>
 
                 <div className="flex flex-col gap-3 items-start">
@@ -744,7 +744,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     whileTap="tap"
                     aria-label={`${t.appDownload.text} ${t.appDownload.googlePlay}`}
                   >
-                    <div className="w-8 h-8 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/f3GhWRCGPf.png)] bg-cover bg-no-repeat" />
+                    <div className="w-8 h-8 bg-[url(/assets/images/layout/footer-google-play.svg)] bg-cover bg-no-repeat" />
                     <div className="flex flex-col gap-1 items-start">
                       <span className="text-xs font-normal leading-4 text-white">
                         {t.appDownload.text}
@@ -769,7 +769,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     whileTap="tap"
                     aria-label={`${t.appDownload.text} ${t.appDownload.appStore}`}
                   >
-                    <div className="w-8 h-8 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/GrVtXLn6Og.png)] bg-cover bg-no-repeat" />
+                    <div className="w-8 h-8 bg-[url(/assets/images/layout/footer-app-store.svg)] bg-cover bg-no-repeat" />
                     <div className="flex flex-col gap-1 items-start">
                       <span className="text-xs font-normal leading-4 text-white">
                         {t.appDownload.text}
@@ -788,7 +788,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                   <h3 className="text-xl font-semibold leading-[30px] text-[#143087]">
                     {t.contactUs}
                   </h3>
-                  <div className="w-10 h-1.5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/JsXDV3xffp.png)] bg-cover bg-no-repeat" />
+                  <div className="w-10 h-1.5 bg-[url(/assets/images/layout/footer-underline-contact.svg)] bg-cover bg-no-repeat" />
                 </div>
 
                 <address className="flex flex-col gap-6 items-start not-italic">
@@ -809,7 +809,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     }
                   >
                     <div className="w-6 h-6 flex-shrink-0 mt-0.5">
-                      <div className="w-4 h-5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/KZx9WMQ2oO.png)] bg-cover bg-no-repeat ml-1" />
+                      <div className="w-4 h-5 bg-[url(/assets/images/layout/footer-address-icon.svg)] bg-cover bg-no-repeat ml-1" />
                     </div>
                     <span className="text-sm font-normal leading-5 text-[#1e1e1e] max-w-[180px]">
                       {businessAddress}
@@ -829,7 +829,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     }
                   >
                     <div className="w-6 h-6 flex-shrink-0">
-                      <div className="w-5 h-4 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/YMvEXnJGd2.png)] bg-cover bg-no-repeat mt-1 ml-0.5" />
+                      <div className="w-5 h-4 bg-[url(/assets/images/layout/footer-email-icon.svg)] bg-cover bg-no-repeat mt-1 ml-0.5" />
                     </div>
                     <span className="text-sm font-normal leading-5 text-[#1e1e1e]">
                       {businessEmail}
@@ -845,7 +845,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     aria-label={locale === "ar" ? "اتصل بنا" : "Call us"}
                   >
                     <div className="w-6 h-6 flex-shrink-0">
-                      <div className="w-5 h-5 bg-[url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-12/c4wQnrL1nf.png)] bg-cover bg-no-repeat mt-0.5 ml-0.5" />
+                      <div className="w-5 h-5 bg-[url(/assets/images/layout/footer-phone-icon.svg)] bg-cover bg-no-repeat mt-0.5 ml-0.5" />
                     </div>
                     <span className="text-sm font-normal leading-5 text-[#1e1e1e]">
                       {contactPhone}

@@ -37,7 +37,7 @@ function Hero({ locale, section }: { locale: string; section: any }) {
             key={i}
             className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
               activeIndex === i
-                ? "bg-[url('https://codia-f2c.s3.us-west-1.amazonaws.com/image/2025-05-05/FVk8PDuEGs.png')] bg-cover bg-no-repeat"
+                ? "bg-[url(/assets/images/homepage/hero-pagination-dot.svg)] bg-cover bg-no-repeat"
                 : "bg-[#cee2fc]"
             }`}
           />
