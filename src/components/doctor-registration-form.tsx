@@ -238,8 +238,7 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
       //@ts-ignore
       delete submissionData.attachment_ids // Remove attachment_ids as it's not in the request body
       const response = await ClientAPI.doctorApplayment(submissionData, locale)
-      console.log("response", response)
-        toast.success(
+              toast.success(
           tr("form.messages.success_title", "تم إرسال الطلب بنجاح"),
           { description: tr("form.messages.success", "Your application has been submitted successfully") }
         )

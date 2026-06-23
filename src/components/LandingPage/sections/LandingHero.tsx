@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 interface LandingHeroProps {
@@ -38,19 +38,6 @@ export default function LandingHero({ section, locale }: LandingHeroProps) {
   const content = section.content?.[locale] || "";
   const image = getImageUrl(section);
   const buttons = section.buttons || [];
-
-  // Debug: Log image URL for troubleshooting
-  useEffect(() => {
-    console.log("🖼️ LandingHero Debug:", {
-      hasImage: !!section.image,
-      hasAttachment: !!section.attachment,
-      imageValue: section.image,
-      attachmentOriginal: section.attachment?.original,
-      extractedImageUrl: image,
-      imageType: typeof section.image,
-      attachmentType: typeof section.attachment,
-    });
-  }, [image, section]);
 
   // Handle slider mode for hero - redirect to LandingSlider
   if (section.display_mode === "slider") {
@@ -163,9 +150,6 @@ export default function LandingHero({ section, locale }: LandingHeroProps) {
                   target.style.display = "flex";
                   target.style.alignItems = "center";
                   target.style.justifyContent = "center";
-                }}
-                onLoad={() => {
-                  console.log("✅ Image loaded successfully:", image);
                 }}
               />
             </div>

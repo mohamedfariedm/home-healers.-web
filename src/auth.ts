@@ -65,9 +65,7 @@ export const {
   },
   callbacks: {
     async jwt({ token, user }) {
-      console.log("loggs-jwt-user", user);
-      console.log("loggs-jwt-token", token);
-      if (user) {
+                  if (user) {
         token.id = user.id;
         token.email = user.email;
         token.role = user.role;
@@ -75,15 +73,12 @@ export const {
       return token;
     },
     async session({ session, token }) {
-      console.log("loggs-session-session", session);
-      console.log("loggs-session-token", token);
-      if (token) {
+                  if (token) {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.role = token.role as string | undefined;
       }
-      console.log("loggs-session-session-after", session);
-
+      
       return session;
     },
   },
@@ -103,14 +98,11 @@ export const {
           const { email, password } = parsedCredentials.data;
           try {
             const user = await fetchUser(email, password);
-            console.log("loggs-authorize-user", user);
-
+            
             return user;
           } catch (error) {
-            console.log("loggs-authorize-error", error);
-            if (error instanceof Error) {
-              console.log("error.inside", error.message);
-              switch (error.message) {
+                        if (error instanceof Error) {
+                            switch (error.message) {
                 case "UserNotRegistered":
                   throw new UserNotRegisteredError();
                 case "EmailNotVerified":
@@ -140,8 +132,7 @@ async function fetchUser(email: string, password: string) {
 
   if (!response.ok) {
     const errorData = await response.json();
-    console.log("loggs-fetch-errorData", errorData);
-
+    
     throw new Error(errorData.error);
   }
 

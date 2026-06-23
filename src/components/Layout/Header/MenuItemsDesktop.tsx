@@ -16,8 +16,7 @@ export default function MenuItemsDesktop({
 }) {
   const pathname = usePathname();
   const { t } = useTranslation("common");
-  console.log(pathname);
-
+  
   const menuItems = [
     { label: t("home"), href: "/", width: "w-[70px]" },
     { label: t("about"), href: "/about", width: "w-[118px]" },

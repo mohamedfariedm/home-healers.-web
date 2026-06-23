@@ -208,14 +208,12 @@ export default function Step1SpecialtySelection({
           address_state: "",
           address_link: "",
         });
-        console.log({ res });
-        const reservationId = res.data[0].id;
+                const reservationId = res.data[0].id;
         const responceTelr = await ClientAPI.payReservationWithTelr(
           reservationId,
           "ar",
         );
-        console.log("responceTelr", responceTelr);
-
+        
         route.push(responceTelr.redirect_url);
       } else
         toast.error(

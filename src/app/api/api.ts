@@ -30,22 +30,25 @@ const fetchData = async (endpoint: string, locale: string, params: Record<string
       headers["Accept"] = "application/json";
     }
 
+    const method = params.method || "GET";
+    const isMutation = method === "POST" || method === "PUT" || method === "DELETE";
+
     const fetchOptions: RequestInit = {
-      method: params.method || "GET",
+      method,
       headers,
-      cache: "no-store",
+      ...(isMutation || params.noCache
+        ? { cache: "no-store" }
+        : { next: { revalidate: params.revalidate ?? 60 } }),
     };
 
-    // Add body for POST requests
-    if (params.method === "POST" || params.method === "PUT") {
+    if (isMutation) {
       fetchOptions.body = params.isFormData ? params.body : JSON.stringify(params.body);
     }
 
     const response = await fetch(url.toString(), fetchOptions);
 
     if (!response.ok) {
-      console.log("API Fetch Error:", response);
-      // throw new Error(`HTTP error! Status: ${response.status}`);
+            // throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
     return await response.json();
@@ -115,14 +118,12 @@ const ClientAPI = {
       requiresAuth: true,
     }),
 
-  createReservationWithPackage: (payload: any, locale: string) => {
-    console.log("createReservationWithPackage", payload);
-    return fetchData('client/booking-with-packages', locale, {
+  createReservationWithPackage: (payload: any, locale: string) =>
+    fetchData('client/booking-with-packages', locale, {
       method: 'POST',
       body: payload,
       requiresAuth: true,
-    });
-  },
+    }),
 
   applyCouponOnReservation: (
     payload: { reservationId: number; coupon_id: number },
@@ -192,8 +193,7 @@ const ClientAPI = {
     }),
 
   doctorApplayment: (formData: any, locale: string) => {
-    console.log("Submitting doctor application with data:", formData);
-
+    
     fetchData('client/doctors-apply-registration', locale, {
       method: 'POST',
       body: formData,
@@ -231,8 +231,7 @@ const ClientAPI = {
       });
 
       if (!response.ok) {
-        console.log("API Fetch Error:", response);
-      }
+              }
 
       return await response.json();
     } catch (error) {
@@ -327,18 +326,11 @@ const ClientAPI = {
     ].filter(Boolean) as string[];
 
     try {
-      console.log(`${ROBOTS_LOG_PREFIX} fetch start`, {
-        nextPublicApiUrl: API_BASE_URL || null,
-        serverApiUrl: SERVER_API_BASE_URL || null,
-        websiteUrl: WEBSITE_URL,
-        candidates: candidateBaseUrls,
-      });
-
+      
       for (const baseUrl of candidateBaseUrls) {
         const url = new URL(`${baseUrl}/sitemaps/robots.txt`);
         try {
-          console.log(`${ROBOTS_LOG_PREFIX} trying candidate`, { url: url.toString() });
-          const response = await fetch(url.toString(), {
+                    const response = await fetch(url.toString(), {
             method: "GET",
             headers: { Accept: "text/plain" },
             cache: "no-store",
@@ -357,12 +349,7 @@ const ClientAPI = {
 
           const robotsTxt = await response.text();
           if (robotsTxt && robotsTxt.trim().length > 0) {
-            console.log(`${ROBOTS_LOG_PREFIX} success`, {
-              url: url.toString(),
-              length: robotsTxt.length,
-              preview: robotsTxt.slice(0, 200),
-            });
-            return robotsTxt;
+                        return robotsTxt;
           }
 
           console.error(`${ROBOTS_LOG_PREFIX} empty body`, {

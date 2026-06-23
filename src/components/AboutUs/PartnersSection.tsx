@@ -42,8 +42,7 @@ const NavigationArrow: React.FC<NavigationArrowProps> = ({
 };
 
 const PartnersSection = ({ data, locale }: { data: any; locale: string }) => {
-  console.log("PartnersSection data:", data, "locale:", locale);
-
+  
   const partnerLogos: string[] =
     data?.Posts?.[0]?.attachment?.map((att: any) => att.original) || [];
 

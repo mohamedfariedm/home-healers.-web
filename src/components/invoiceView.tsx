@@ -71,7 +71,6 @@ const taxRateFrom = (tp?: string) => {
 
 export default function InvoiceView({ invoiceData }: InvoiceViewProps) {
   const invoiceRef = useRef<HTMLDivElement>(null);
-console.log("Invoice Data:", invoiceData);
 
   // Header tax (used only as fallback if a detail doesn't include its own)
   const headerTaxRate = useMemo(() => taxRateFrom(invoiceData.tax_percentage), [invoiceData.tax_percentage]);

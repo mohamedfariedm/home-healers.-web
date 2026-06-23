@@ -192,8 +192,7 @@ export default function BlogRelatedSection({
   const textDir = isRTL ? "text-right" : "text-left";
   const justifyStart = isRTL ? "items-start" : "items-start"; // same, but kept for clarity
   const tagContainerJustify = isRTL ? "justify-start" : "justify-start"; // both fine
-  console.log(data?.description);
-
+  
   return (
     <motion.div
       className={`flex flex-col lg:flex-row my-[106px] gap-10 max-w-screen-xl mx-auto`}

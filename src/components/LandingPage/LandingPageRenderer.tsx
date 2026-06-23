@@ -18,9 +18,7 @@ export default function LandingPageRenderer({
   locale,
   settings,
 }: LandingPageRendererProps) {
-  console.log("🎨 Rendering landing page with sections:", sections);
-  console.log("🌐 Locale:", locale);
-  
+      
   if (!sections || sections.length === 0) {
     console.warn("⚠️ No sections to render!");
     return (
@@ -48,16 +46,7 @@ export default function LandingPageRenderer({
     <>
       {activeSections.map((section, index) => {
         const key = `${section.type}-${section.order}-${index}`;
-        console.log(`📦 Rendering section ${index + 1}/${activeSections.length}:`, {
-          type: section.type,
-          order: section.order,
-          display_mode: section.display_mode,
-          active: section.active,
-          hasTitle: !!section.title?.[locale],
-          hasContent: !!section.content?.[locale],
-          hasImage: !!(section.image || section.attachment?.original),
-        });
-
+        
         switch (section.type) {
           case "hero":
             return (

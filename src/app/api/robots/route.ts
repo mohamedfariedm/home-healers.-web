@@ -8,11 +8,7 @@ export async function GET() {
     const robotsTxt = typeof response === "string" ? response : JSON.stringify(response);
 
     // Debug log for upstream robots payload.
-    console.log("robots.txt response:", {
-      length: robotsTxt.length,
-      preview: robotsTxt.slice(0, 500),
-    });
-
+    
     return new Response(robotsTxt, {
       status: 200,
       headers: {

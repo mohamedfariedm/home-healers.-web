@@ -30,10 +30,7 @@ export default function LanguageChanger() {
     const currentSlug = pathParts[pathParts.length - 1]
     const section = pathParts[pathParts.length - 2] || ""
 
-    console.log("🔍 currentPathname:", currentPathname)
-    console.log("📍 pathWithoutLocale:", pathWithoutLocale)
-    console.log("📍 section:", section, "slug:", currentSlug)
-
+            
     let translatedSlug = currentSlug
 
     try {
@@ -41,13 +38,11 @@ export default function LanguageChanger() {
         const res = await ClientAPI.getSingleBlog(currentSlug, currentLocale)
         const blog = res?.data
         translatedSlug = blog?.slug?.[newLocale] || currentSlug
-        console.log("🔄 Blog translated slug:", translatedSlug)
-      } else if (section === "our-services" && currentSlug) {
+              } else if (section === "our-services" && currentSlug) {
         const res = await ClientAPI.getAllServicesSlug(currentLocale, currentSlug)
         const service = res?.data
         translatedSlug = service?.slug?.[newLocale] || currentSlug
-        console.log("🔄 Service translated slug:", translatedSlug)
-      }
+              }
     } catch (err) {
       console.error("❌ Failed to fetch translated slug:", err)
     }
@@ -65,8 +60,7 @@ export default function LanguageChanger() {
     }
     // For Arabic, newPath already has no prefix
 
-    console.log("🚀 Redirecting to:", newPath)
-
+    
     i18n.changeLanguage(newLocale)
     router.push(newPath)
     setDropdownOpen(false)

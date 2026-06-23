@@ -42,8 +42,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
 
 const FeaturesSection = ({ data, locale }: { data: any; locale: string }) => {
   // Map the Posts array to the features structure
-  console.log(data?.Posts);
-  
+    
   const features = data?.Posts.filter((post: any) => post.id !== 12).map(
     (post: any) => ({
       icon: post.attachment?.[0]?.original || "https://via.placeholder.com/52", // Fallback image if none provided

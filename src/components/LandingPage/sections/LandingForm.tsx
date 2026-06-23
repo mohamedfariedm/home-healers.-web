@@ -42,7 +42,6 @@ export default function LandingForm({ section, locale, settings }: LandingFormPr
     message: string;
   }>({ type: null, message: "" });
 
-  console.log("section", section);
   const title = section.title?.[locale] || "";
   const content = section.content?.[locale] || "";
   const formFields = section.form_fields || [];
@@ -352,9 +351,6 @@ export default function LandingForm({ section, locale, settings }: LandingFormPr
                     console.error("❌ Form image failed to load:", image);
                     const target = e.target as HTMLImageElement;
                     target.style.display = "none";
-                  }}
-                  onLoad={() => {
-                    console.log("✅ Form image loaded successfully:", image);
                   }}
                 />
                 

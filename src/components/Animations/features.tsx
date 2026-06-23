@@ -16,8 +16,7 @@ interface StatsDataType {
 function Features() {
   const { t, i18n } = useTranslation("blog");
   const id = useParams();
-  console.log(id.blogID);
-
+  
   const [statsData, setStatsData] = useState<StatsDataType | null>(null);
   const locale = i18n.language || "ar";
 
@@ -37,8 +36,7 @@ function Features() {
   //   fetchData();
   // }, [id.blogID, locale]);
 
-  console.log("Stats Data:", statsData);
-
+  
   return (
     <>
       <div className="p-2  xl:p-0">

@@ -1,26 +1,27 @@
-import initTranslations from "@/app/i18n";
+import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import {
   AboutApp,
   Hero,
-  OurStory,
-  BeCloser,
-  DownloadApp,
   Bannar,
-  Card,
-  ReservationReviewsSection,
 } from "./_components";
 import ClientAPI from "../../../api/api";
 import { createMetadata } from "@/lib/seo";
-import PackagesSection from "./_components/PackagesSection";
 import { createBreadcrumbSchema, renderJsonLd } from "@/lib/structured-data";
-import ClientReviewsSection from "./_components/ClientReviewsSection";
-export const dynamic = "force-dynamic";
+import { getCachedHomeData, getCachedSettings } from "@/lib/cached-api";
+import { getHeroImageUrls } from "@/lib/image-url";
+import {
+  DeferredClientReviews,
+  DeferredOurStory,
+  DeferredPackages,
+  DeferredReservationReviews,
+} from "./_components/DeferredSections";
 
+const BeCloser = dynamic(() => import("./_components/BeCloser"));
+const DownloadApp = dynamic(() => import("./_components/DownloadApp"));
+const Card = dynamic(() => import("./_components/Card"));
 
-type props = {
-  params: { locale: string };
-};
-
+export const revalidate = 60;
 
 export async function generateMetadata({
   params,
@@ -28,7 +29,9 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const settings = await ClientAPI.getSettings(locale);
+  const [settings] = await Promise.all([
+    getCachedSettings(locale),
+  ]);
   const seo = settings?.data[0]?.setting?.seo;
 
   return createMetadata(seo?.["home"], locale, "", {
@@ -36,47 +39,42 @@ export async function generateMetadata({
     description: "Home Hellers app",
   });
 }
+
 async function page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const homeData = await ClientAPI.getHomeData(locale);
-  const blogData = await ClientAPI.getAllBlogs(locale);
-  const packageData = await ClientAPI.getPackages(locale);
-  const servicesData = await ClientAPI.getAllServices(locale);
-  const reservationReviews = await ClientAPI.getActiveReservationReviews(locale, {
-    limit: 10,
-    page: 1,
-  });
-  const clientReviews = await ClientAPI.getClientReviews(locale, { active: true });
-  console.log("clientReviews response:", clientReviews);
+  const [homeData, settings, servicesData] = await Promise.all([
+    getCachedHomeData(locale),
+    getCachedSettings(locale),
+    ClientAPI.getAllServices(locale),
+  ]);
 
-  // Find sections by ID
   const heroSection = homeData?.data?.sections?.find(
-    (section: any) => section?.id === 12
+    (section: { id: number }) => section?.id === 12,
   );
+  const heroImages = getHeroImageUrls(heroSection?.Posts?.[0]?.attachment);
+  const heroImage = heroImages[0];
   const aboutAppSection = homeData?.data?.sections?.find(
-    (section: any) => section?.id === 1
+    (section: { id: number }) => section?.id === 1,
   );
   const aboutHomeSection = homeData?.data?.sections?.find(
-    (section: any) => section?.id === 2
+    (section: { id: number }) => section?.id === 2,
   );
   const beCloserSection = homeData?.data?.sections?.find(
-    (section: any) => section?.id === 3
+    (section: { id: number }) => section?.id === 3,
   );
   const downloadAppSection = homeData?.data?.sections?.find(
-    (section: any) => section?.id === 4
+    (section: { id: number }) => section?.id === 4,
   );
   const cardSection = homeData?.data?.sections?.find(
-    (section: any) => section?.id === 5
+    (section: { id: number }) => section?.id === 5,
   );
 
-  const settings = await ClientAPI.getSettings(locale);
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
-    (banner: any) => banner.page === "home" && banner.type === "web"
+    (banner: { page: string; type: string }) =>
+      banner.page === "home" && banner.type === "web",
   );
   const seo = settings?.data[0]?.setting?.seo["home"];
 
-  console.log({ homeBanners });
-  // Generate breadcrumb schema for homepage
   const breadcrumbSchema = createBreadcrumbSchema([
     {
       name: "Home",
@@ -86,12 +84,13 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
 
   return (
     <div className="main-container w-full xl:w-[1440px] bg-[#fff] relative overflow-hidden mx-auto my-0">
-      {/* Breadcrumb Schema */}
+      {heroImage ? (
+        <link rel="preload" as="image" href={heroImage} fetchPriority="high" />
+      ) : null}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: renderJsonLd(breadcrumbSchema) }}
       />
-      <div className="w-full xl:w-[489.058px] bg-[url(/assets/images/homepage/home-decoration.png)] bg-[length:100%_100%] bg-no-repeat relative" />
       <div>
         <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
           {seo?.[locale]?.title}
@@ -106,29 +105,28 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
         />
         <BeCloser locale={locale} section={beCloserSection} />
         <DownloadApp section={downloadAppSection} locale={locale} />
-        {packageData?.data && packageData?.data?.length > 0 && (
-          <PackagesSection locale={locale} data={packageData?.data} />
-        )}
+        <Suspense fallback={null}>
+          <DeferredPackages locale={locale} />
+        </Suspense>
         {homeBanners?.length > 0 &&
-          homeBanners.map((banner: any, index: number) => (
-            <Bannar key={index} banner={banner} />
-          ))}
-
-        <OurStory data={blogData?.data} locale={locale} />
-{clientReviews?.data && clientReviews?.data?.length > 0 && (
-          <ClientReviewsSection locale={locale} reviews={clientReviews.data} />
-        )}
-        {reservationReviews?.data && reservationReviews?.data?.length > 0 && (
-          <ReservationReviewsSection
-            reviews={reservationReviews.data}
-            locale={locale}
-          />
-        )}
+          homeBanners.map(
+            (banner: { id?: number }, index: number) => (
+              <Bannar key={banner.id ?? index} banner={banner} />
+            ),
+          )}
+        <Suspense fallback={null}>
+          <DeferredOurStory locale={locale} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <DeferredClientReviews locale={locale} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <DeferredReservationReviews locale={locale} />
+        </Suspense>
         <Card locale={locale} section={cardSection} />
-
       </div>
     </div>
   );
-};
+}
 
 export default page;

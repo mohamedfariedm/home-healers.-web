@@ -542,8 +542,7 @@ export default function BookingFlow({
   };
 
   const saveLocation = (location: Location) => {
-    console.log("Saving location:", location);
-    const existingIndex = savedLocations.findIndex(
+        const existingIndex = savedLocations.findIndex(
       (loc) =>
         loc.id === location.id ||
         (loc.latitude === location.latitude &&
@@ -578,8 +577,7 @@ export default function BookingFlow({
   };
 
   const savePatient = (patient: Patient, isEditing: boolean = false) => {
-    console.log(isEditing ? "Updating patient:" : "Saving patient:", patient);
-    if (isEditing) {
+        if (isEditing) {
       const updatedPatients = savedPatients.map((p) =>
         p.id === patient.id ? patient : p
       );
@@ -632,8 +630,7 @@ export default function BookingFlow({
         break;
       case 2:
         if (!bookingData.selectedDoctor) {
-          console.log(bookingData.selectedDoctor);
-
+          
           setError(t("validation.selectDoctor"));
           toast.error(t("validation.selectDoctor"));
           return false;
@@ -679,16 +676,11 @@ export default function BookingFlow({
     try {
       setIsLoading(true);
       setError(null);
-      console.log("bookingData", bookingData);
-
+      
       // Upload attachments and get their IDs
       const attachmentIds: number[] = [];
       for (const file of bookingData.healthInfo.attachments || []) {
-        console.log(
-          "Uploading attachment:",
-          bookingData.healthInfo.attachments
-        );
-
+        
         const formData = new FormData();
         formData.append("attachment[]", file);
         const attachmentResponse = await ClientAPI.uploadAttachment(
@@ -706,14 +698,7 @@ export default function BookingFlow({
       const selectedCategory = bookingData.selectedCategory as (Category & { has_service?: boolean }) | null;
       const categoryHasNoService = selectedCategory?.has_service === false;
       
-      console.log("submitBooking - Category has_service:", {
-        categoryId: selectedCategory?.id,
-        categoryName: selectedCategory?.name,
-        has_service: selectedCategory?.has_service,
-        categoryHasNoService,
-        service_id: categoryHasNoService ? null : bookingData.selectedService?.id,
-      });
-      
+            
       const reservationData: any = {
         service_id: categoryHasNoService ? null : bookingData.selectedService?.id,
         category_id: bookingData.selectedCategory?.id,
@@ -789,8 +774,7 @@ export default function BookingFlow({
       const response = bookingData.selectedPackage
         ? await ClientAPI.createReservationWithPackage(reservationData, "ar")
         : await ClientAPI.createReservation(reservationData, "ar");
-      console.log("response", response);
-
+      
       const created = response.data[0];
       setReservationId(created.id);
       setBookingData((prev) => applyReservationPricingFromApi(prev, created));
@@ -829,8 +813,7 @@ export default function BookingFlow({
           reservationId,
           "ar"
         );
-        console.log("responceTelr", responceTelr);
-        // prevent stale booking/coupon data after redirect
+                // prevent stale booking/coupon data after redirect
         localStorage.removeItem("bookingData");
         route.push(responceTelr.redirect_url);
       }

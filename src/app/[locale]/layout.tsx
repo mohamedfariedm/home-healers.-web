@@ -60,8 +60,10 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={dir(locale)}>
       <head>
+        <link rel="preconnect" href="https://backend.home-healers.com" />
+        <link rel="dns-prefetch" href="https://backend.home-healers.com" />
         {/* Google Tag Manager */}
-        <Script id="gtm-script" strategy="afterInteractive">
+        <Script id="gtm-script" strategy="lazyOnload">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -69,67 +71,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','GTM-TDDDW3G3');`}
         </Script>
         {/* Microsoft Clarity */}
-        <Script id="microsoft-clarity" strategy="afterInteractive">
+        <Script id="microsoft-clarity" strategy="lazyOnload">
           {`(function(c,l,a,r,i,t,y){
 c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
 t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
 y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
 })(window,document,"clarity","script","wc9sy4cx56");`}
-        </Script>
-        {/* Tawk.to live chat */}
-        <Script id="tawk-to" strategy="afterInteractive">
-          {`var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-(function(){
-  var pageTitle=document.title;
-  var titleEl=document.querySelector("title");
-  if(!titleEl)return;
-  function isTawkTitleNotification(title){
-    return/رسالة\\s*جديدة/i.test(title)||/^\\(\\d+\\)\\s/.test(title)||/^\\d+\\s+new\\s+message/i.test(title)||/^new\\s+message/i.test(title);
-  }
-  function guardTitle(){
-    var current=document.title;
-    if(isTawkTitleNotification(current)){
-      if(titleEl.textContent!==pageTitle)titleEl.textContent=pageTitle;
-      return;
-    }
-    if(current!==pageTitle)pageTitle=current;
-  }
-  new MutationObserver(guardTitle).observe(titleEl,{childList:true,characterData:true,subtree:true});
-})();
-Tawk_API.customStyle={
-  visibility:{
-    desktop:{position:'br',xOffset:16,yOffset:16},
-    mobile:{position:'br',xOffset:12,yOffset:12}
-  }
-};
-Tawk_API.onLoad=function(){
-  Tawk_API.hideWidget();
-  if(window.__tawkOpenOnLoad){
-    Tawk_API.maximize();
-    window.__tawkOpenOnLoad=false;
-    document.body.classList.add('tawk-chat-open');
-    document.body.style.setProperty('--tawk-chat-bottom','13rem');
-    window.dispatchEvent(new Event('tawk-chat-opened'));
-  }
-};
-Tawk_API.onChatMaximized=function(){
-  document.body.classList.add('tawk-chat-open');
-  document.body.style.setProperty('--tawk-chat-bottom','13rem');
-  window.dispatchEvent(new Event('tawk-chat-opened'));
-};
-Tawk_API.onChatMinimized=function(){
-  Tawk_API.hideWidget();
-  document.body.classList.remove('tawk-chat-open');
-  window.dispatchEvent(new Event('tawk-chat-closed'));
-};
-(function(){
-var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-s1.async=true;
-s1.src='https://embed.tawk.to/6a086137c744531c43731fa0/1joobngld';
-s1.charset='UTF-8';
-s1.setAttribute('crossorigin','*');
-s0.parentNode.insertBefore(s1,s0);
-})();`}
         </Script>
       </head>
       <body className={alexandria.className}>

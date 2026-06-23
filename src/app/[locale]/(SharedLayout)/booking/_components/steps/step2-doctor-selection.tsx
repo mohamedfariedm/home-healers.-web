@@ -160,9 +160,7 @@ export default function Step2DoctorSelection({
       return;
     }
 
-    console.log("🔍 Step2 - Looking for package ID:", pkgId);
-    console.log("📦 Step2 - Available packages:", packagesData.data.map((p: Package) => ({ id: p.id, name: p.name })));
-
+        
     // Find package with matching ID
     const selectedPkg = packagesData.data.find((pkg: Package) => {
       const pkgIdNum = Number(pkg.id);
@@ -171,8 +169,7 @@ export default function Step2DoctorSelection({
     });
 
     if (selectedPkg) {
-      console.log("✅ Step2 - Found package:", { id: selectedPkg.id, name: selectedPkg.name });
-      
+            
       // Mark as processed
       packageProcessedRef.current = packageId;
       
@@ -181,12 +178,7 @@ export default function Step2DoctorSelection({
         selectedPackage: selectedPkg,
         sessionsCount: selectedPkg.sessions_count || 1
       });
-      console.log("💾 Step2 - Package saved to bookingData:", { 
-        id: selectedPkg.id, 
-        name: selectedPkg.name,
-        sessionsCount: selectedPkg.sessions_count 
-      });
-      
+            
       toast.success(`${t("step2.packageSelected")}: ${selectedPkg.name}`);
     } else {
       console.warn("❌ Step2 - Package not found with ID:", pkgId, "Available IDs:", packagesData.data.map((p: Package) => p.id));
@@ -292,14 +284,7 @@ const handlePackageSelect = (pkg: Package) => {
     const selectedCategory = bookingData?.selectedCategory;
     const categoryId = selectedCategory?.id;
 
-    console.log("=== Step2 Filtering ===", {
-      totalDoctors: list.length,
-      selectedCategory: selectedCategory
-        ? { id: selectedCategory.id, name: selectedCategory.name }
-        : null,
-      filterByCategoryId: categoryId ?? null,
-    });
-
+    
     const expFilter = bookingData?.searchFilters?.experience
       ? parseInt(String(bookingData.searchFilters.experience))
       : null;
@@ -324,17 +309,8 @@ const handlePackageSelect = (pkg: Package) => {
     });
   }, [doctorsData, searchQuery, bookingData]);
 
-  // Log filtered results
-  useEffect(() => {
-    console.log("=== Step2 Filtered Results ===", {
-      filteredCount: filteredDoctors.length,
-      filteredDoctors: filteredDoctors.map((d: any) => ({ id: d.id, name: d.name })),
-    });
-  }, [filteredDoctors]);
-
   const isDoctorsEmpty = !doctorsData?.data?.length || !filteredDoctors.length;
   const isPackagesEmpty = !packagesData?.data?.length;
-console.log("packagesData",packagesData?.data);
 
   return (
     <div className="flex flex-col gap-6">

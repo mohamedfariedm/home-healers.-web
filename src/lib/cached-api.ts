@@ -1,6 +1,10 @@
 import ClientAPI from "@/app/api/api";
 import { cache } from "react";
 
+export const getCachedHomeData = cache((locale: string) =>
+  ClientAPI.getHomeData(locale),
+);
+
 export const getCachedSettings = cache((locale: string) =>
   ClientAPI.getSettings(locale),
 );

@@ -19,19 +19,14 @@ export const authConfig = {
       return true;
     },
     async jwt({ token, user }) {
-      console.log("loggs-jwt-user", user);
-      console.log("loggs-jwt-token", token);
-      //if (user) token.user = user;
+                  //if (user) token.user = user;
 
       return token;
     },
     async session({ session, token }) {
-      console.log("loggs-session-session", session);
-      console.log("loggs-session-token", token);
-
+            
       //session.user = token.user as any;
-      console.log("loggs-session-session-after", session);
-      return session;
+            return session;
     },
   },
   providers: [], // Add providers with an empty array for now

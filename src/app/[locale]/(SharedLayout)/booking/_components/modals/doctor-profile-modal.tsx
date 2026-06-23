@@ -24,8 +24,7 @@ export default function DoctorProfileModal({
 }: DoctorProfileModalProps) {
   if (!isOpen || !doctor) return null
 
-  console.log("Doctor Profile Modal Data:", doctor)
-
+  
   // Default specializations
   const defaultConditions = [
     "التهاب الشعب الهوائية والجيوب الأنفية",
@@ -54,7 +53,6 @@ export default function DoctorProfileModal({
       : doctor.gender?.toLowerCase() === "female"
         ? "/assets/images/doctorFemale.jpeg"
         : "/default-doctor.png");
-console.log(doctor);
 
   // Validate placeholder fields
   const displayRole = doctor.doctor_role !== "atque" ? doctor.doctor_role : doctor.specialist

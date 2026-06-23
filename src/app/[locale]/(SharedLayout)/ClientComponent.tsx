@@ -3,8 +3,7 @@
 
 function ClientComponent() {
   // const session = useSession();
-  // console.log("session", session);
-
+  // 
   return <div>ClientComponent</div>;
 }
 

@@ -75,27 +75,20 @@ export async function generateMetadata({
 async function LandingPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
   const { locale, slug } = await params;
   try {
-    console.log("🔍 Landing Page Request:", { locale, slug });
-    
+        
     // Get landing page from settings (landing_pages array)
     const settings = await ClientAPI.getSettings(locale);
-    console.log("📦 Settings received:", !!settings);
-    
+        
     const landingPages = settings?.data?.[0]?.setting?.landing_pages || [];
-    console.log("📄 Total landing pages found:", landingPages.length);
-    console.log("🔎 Looking for slug:", slug);
-    console.log("📋 Available slugs:", landingPages.map((p: any) => p.slug));
-    
+                
     const landingPage = landingPages.find((page: any) => page.slug === slug);
-    console.log("✅ Landing page found:", !!landingPage);
-
+    
     if (!landingPage) {
       console.error("❌ Landing page not found for slug:", slug);
       notFound();
     }
     
-    console.log("📊 Landing page sections:", landingPage.sections?.length || 0);
-
+    
     // Sort sections by order
     const sortedSections = (landingPage.sections || []).sort(
       (a: any, b: any) => (a.order || 0) - (b.order || 0)

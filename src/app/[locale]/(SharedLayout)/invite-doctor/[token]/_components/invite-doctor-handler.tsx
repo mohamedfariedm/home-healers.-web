@@ -25,8 +25,7 @@ export default function InviteDoctorHandler({
   const handleAccept = async () => {
     setIsProcessing(true);
     try {
-      console.log("Accepting reservation with token:", token);
-      
+            
       const response = await ClientAPI.acceptReservationInvite(token, locale);
       
       if (response?.success || response?.status === true) {

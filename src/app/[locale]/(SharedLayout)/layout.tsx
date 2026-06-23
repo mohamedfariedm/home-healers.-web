@@ -1,6 +1,6 @@
-import ClientAPI from "@/app/api/api";
+import { getCachedHomeData, getCachedSettings } from "@/lib/cached-api";
 import { Footer, Header } from "@/components/Layout";
-import FloatingContact from "@/components/FloatingContact";
+import DeferredFloatingContact from "@/components/DeferredFloatingContact";
 import { IS_RAMADAN_ACTIVE } from "@/constants/ramadan";
 import { IS_WORLD_CUP_ACTIVE } from "@/constants/world-cup";
 import RamadanBanner, { RamadanBackgroundDecorations } from "@/components/RamadanOverlay";
@@ -21,11 +21,13 @@ export default async function Layout({
     redirect("/ar/notfound/404");
   }
 
-  const homeData = await ClientAPI.getHomeData(locale);
+  const [homeData, settings] = await Promise.all([
+    getCachedHomeData(locale),
+    getCachedSettings(locale),
+  ]);
   const footerSection = homeData?.data?.sections.find(
     (section: any) => section?.id === 6
   );
-  const settings = await ClientAPI.getSettings(locale);
   return (
     <>
       {IS_WORLD_CUP_ACTIVE && <WorldCupAside />}
@@ -35,7 +37,7 @@ export default async function Layout({
       {children}
       {IS_RAMADAN_ACTIVE && <RamadanBanner position="bottom" />}
       <Footer settings={settings} section={footerSection} locale={locale} />
-      <FloatingContact settings={settings} locale={locale} />
+      <DeferredFloatingContact settings={settings} locale={locale} />
     </>
   );
 }

@@ -40,8 +40,7 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
     (banner: any) => banner.page === "about-us"&& banner.type === "web"
   );
-  console.log("aboutData", aboutData);
-
+  
   // Find sections by ID
   const aboutSection = aboutData?.data?.sections?.find(
     (section: any) => section?.id === 7

@@ -33,8 +33,7 @@ interface CardProps {
 
 function Card({ locale, section }: CardProps) {
   // Refs for different sections
-  console.log("Card Section Data:", section);
-
+  
   const sectionRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
   const cardImageRef = useRef<HTMLDivElement>(null);

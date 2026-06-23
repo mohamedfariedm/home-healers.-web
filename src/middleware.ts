@@ -8,13 +8,11 @@ export function middleware(request: NextRequest) {
   const hasEnPrefix = pathname.startsWith("/en/") || pathname === "/en"
   const hasArPrefix = pathname.startsWith("/ar/") || pathname === "/ar"
 
-  console.log("➡️ Incoming:", pathname)
-
+  
   // If path already has a locale prefix, just pass through
   if (hasEnPrefix || hasArPrefix) {
     const locale = hasEnPrefix ? "en" : "ar"
-    console.log(`✅ Locale prefix detected → ${locale} mode`)
-    const response = NextResponse.next()
+        const response = NextResponse.next()
     response.cookies.set("NEXT_LOCALE", locale, { path: "/" })
     response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
     return response
@@ -24,8 +22,7 @@ export function middleware(request: NextRequest) {
   const isServicesPage = pathname === "/services" || pathname === "/en/services" || pathname === "/ar/services"
 
   if (isServicesPage) {
-    console.log(`🗑️ Defunct page detected: ${pathname} → Returning 410 Gone`)
-    return new NextResponse(
+        return new NextResponse(
       `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -113,8 +110,7 @@ export function middleware(request: NextRequest) {
 
   // For paths without locale prefix, rewrite to /ar/* (default locale)
   // This avoids redirects by using rewrites instead
-  console.log("🌍 No prefix → Rewriting to Arabic (default)")
-
+  
   const url = request.nextUrl.clone()
   url.pathname = `/ar${pathname}`
 

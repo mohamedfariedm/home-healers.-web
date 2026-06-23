@@ -47,8 +47,7 @@ export default function Step5Payment({
         const response = await ClientAPI.getCoupons(locale);
         const list = Array.isArray(response?.data) ? response.data : [];
         setCoupons(list);
-        console.log("coupons response:", response);
-      } catch (error) {
+              } catch (error) {
         console.error("Failed to load coupons:", error);
         setCoupons([]);
       } finally {
@@ -182,8 +181,7 @@ export default function Step5Payment({
       { reservationId, coupon_id: matched.id },
       locale
     );
-    console.log("apply coupon response:", applyResponse);
-
+    
     updateBookingData({
       couponCode: code,
       couponId: matched.id,
@@ -205,8 +203,7 @@ export default function Step5Payment({
         { reservationId, coupon_id: bookingData.couponId },
         locale
       );
-      console.log("remove coupon response:", removeResponse);
-    }
+          }
     updateBookingData({
       couponCode: "",
       couponId: undefined,
