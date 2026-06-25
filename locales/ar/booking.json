@@ -255,8 +255,10 @@
     "totalAmount": "المبلغ الإجمالي",
     "currency": "ريال",
     "confirmPayment": "تأكيد الدفع والحجز",
+    "confirmCashOnDelivery": "تأكيد الحجز — الدفع عند الاستلام",
     "telrPayment": "Telr Payment",
-    "cashOnDelivery": "الدفع عند الاستلام"
+    "cashOnDelivery": "الدفع عند الاستلام",
+    "cashOnDeliveryDesc": "ادفع نقداً عند وصول الطبيب إلى موقعك"
   },
   "step6": {
     "title": "تم تأكيد الحجز",

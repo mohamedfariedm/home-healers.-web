@@ -42,11 +42,16 @@ export async function generateMetadata({
 
 async function page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const [homeData, settings, servicesData] = await Promise.all([
+  const [homeData, settings, categoriesData] = await Promise.all([
     getCachedHomeData(locale),
     getCachedSettings(locale),
-    ClientAPI.getAllServices(locale),
+    ClientAPI.getCategories(locale),
   ]);
+
+  console.log(
+    "[Homepage Categories API Response]",
+    JSON.stringify(categoriesData, null, 2),
+  );
 
   const heroSection = homeData?.data?.sections?.find(
     (section: { id: number }) => section?.id === 12,
@@ -99,7 +104,7 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
         <Hero locale={locale} section={heroSection} />
         <AboutApp
           locale={locale}
-          data={servicesData?.data}
+          data={categoriesData?.data}
           aboutHomeSection={aboutHomeSection}
           section={aboutAppSection}
         />

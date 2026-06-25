@@ -107,7 +107,7 @@ export default function BookingFlow({
         notes: "",
         attachments: [],
       },
-      paymentMethod: "apple_pay",
+      paymentMethod: "cash_on_delivery",
       couponCode: "",
       couponId: undefined,
       couponType: undefined,
@@ -348,11 +348,11 @@ export default function BookingFlow({
     });
   }, [savedPatients]);
 
-  // Step 5: ensure a payment method (first available)
+  // Step 5: ensure a payment method (default to cash on delivery)
   useEffect(() => {
     setBookingData((prev) => {
       if (prev.paymentMethod) return prev;
-      return { ...prev, paymentMethod: "apple_pay" };
+      return { ...prev, paymentMethod: "cash_on_delivery" };
     });
   }, []);
 

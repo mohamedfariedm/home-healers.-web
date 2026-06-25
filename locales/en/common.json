@@ -13,6 +13,7 @@
   "home": "Home",
   "about": "About Home Healers",
   "servic": "Our Services",
+  "specialties": "Our Specialties",
   "products": "Medical Products",
   "blogs": "Blog",
   "contact": "Contact Us",
@@ -36,6 +37,13 @@
     "hero": {
       "title": "Our Services",
       "breadcrumb": "Our Services",
+      "home": "Home"
+    }
+  },
+  "categories": {
+    "hero": {
+      "title": "Our Specialties",
+      "breadcrumb": "Specialties",
       "home": "Home"
     }
   },

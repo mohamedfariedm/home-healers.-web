@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { CreditCard, Receipt, Tag, Gift, Check } from "lucide-react";
+import { CreditCard, Receipt, Tag, Gift, Check, Banknote } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { BookingData } from "@/types/booking";
 import { toast } from "sonner";
@@ -30,7 +30,12 @@ export default function Step5Payment({
   const [isCouponsLoading, setIsCouponsLoading] = useState(false);
 
   const paymentMethods = [
-    // { id: "cash_on_delivery", name: t("step5.cashOnDelivery"), icon: <FaCashRegister className="w-6 h-6" /> },
+    {
+      id: "cash_on_delivery",
+      name: t("step5.cashOnDelivery"),
+      icon: <Banknote className="w-6 h-6 text-[#62a0f6]" />,
+      description: t("step5.cashOnDeliveryDesc"),
+    },
     { id: "apple_pay", name: "Apple Pay", icon: "🍎" },
     { id: "telr", name: t("step5.telrPayment"), icon: "💳" },
   ];
@@ -343,20 +348,28 @@ export default function Step5Payment({
             {paymentMethods.map((method) => (
               <button
                 key={method.id}
+                type="button"
                 onClick={() => handlePaymentMethodChange(method.id)}
-                className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
+                className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 text-right ${
                   bookingData.paymentMethod === method.id
                     ? "border-[#62a0f6] bg-[#eff6fe]"
                     : "border-gray-200 hover:border-[#62a0f6]"
                 }`}
               >
-                <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center shrink-0">
                   {bookingData.paymentMethod === method.id && (
                     <Check className="w-4 h-4 text-[#62a0f6]" />
                   )}
                 </div>
-                {method.icon}
-                <span className="font-medium">{method.name}</span>
+                <span className="shrink-0">{method.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="font-medium block">{method.name}</span>
+                  {"description" in method && method.description && (
+                    <span className="text-sm text-gray-500 block mt-0.5">
+                      {method.description}
+                    </span>
+                  )}
+                </div>
               </button>
             ))}
           </div>
@@ -502,6 +515,11 @@ export default function Step5Payment({
                <>
                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                  {t("step5.processing")}
+               </>
+             ) : bookingData.paymentMethod === "cash_on_delivery" ? (
+               <>
+                 <Banknote className="w-5 h-5" />
+                 {t("step5.confirmCashOnDelivery")}
                </>
              ) : (
                <>

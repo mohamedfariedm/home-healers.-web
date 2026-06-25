@@ -20,6 +20,7 @@ export default function MenuItemsDesktop({
   const menuItems = [
     { label: t("home"), href: "/", width: "w-[70px]" },
     { label: t("about"), href: "/about", width: "w-[118px]" },
+    { label: t("specialties"), href: "/categories", width: "w-[90px]" },
     { label: t("servic"), href: "/our-services", width: "w-[64px]" },
     // { label: t("products"), href: "/products", width: "w-[121px]" },
     { label: t("blogs"), href: "/blog", width: "w-[67px]" },

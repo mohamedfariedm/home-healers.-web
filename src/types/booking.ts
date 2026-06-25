@@ -109,6 +109,7 @@ export interface Service {
   }>
   name: string
   description: string
+  slug?: Record<string, string>
   category: {
     id: number
     name: string

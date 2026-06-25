@@ -8,7 +8,6 @@ import { Pagination, Autoplay } from "swiper/modules";
 import { ShowMore } from "@/components/Animations/ShowMore";
 import { AboutAppTwoColumns } from ".";
 import { useState } from "react";
-import { parseCmsHtml } from "@/lib/parse-cms-html";
 import "swiper/css";
 import "swiper/css/pagination";
 
@@ -25,8 +24,8 @@ function AboutApp({
 }) {
   const [activeDot, setActiveDot] = useState(0);
 
-  // Use provided data or fallback to empty array
-  const services = data || [];
+  const categories = data || [];
+  const prefix = locale === "ar" ? "" : "/en";
   return (
     <div className="flex w-full xl:w-[1280px] flex-col gap-[100px] items-start flex-nowrap relative z-[487] mt-[91px] mx-auto">
       {/* Section Header */}
@@ -44,13 +43,13 @@ function AboutApp({
           <h2 className="text-2xl sm:text-3xl font-semibold leading-10 text-gray-900">
             {locale === "ar" ? (
               <>
-                مجموعة من <span className="text-primary">الخدمات</span> الطبية
+                مجموعة من <span className="text-primary">التخصصات</span> الطبية
                 المتنوعة
               </>
             ) : (
               <>
                 A range of{" "}
-                <span className="text-primary">medical services</span>
+                <span className="text-primary">medical specialties</span>
               </>
             )}
           </h2>
@@ -75,19 +74,17 @@ function AboutApp({
           }}
           className="w-full max-w-[1280px]"
         >
-          {services.map((service: any, i: number) => (
-            <SwiperSlide key={i}>
+          {categories.map((category: any, i: number) => (
+            <SwiperSlide key={category.id ?? i}>
               <Link
-                href={`${locale === "ar" ? "" : "/en"}/our-services/${
-                  service.slug?.[locale]
-                }`}
+                href={`${prefix}/categories/${category.id}`}
                 className="relative bg-[#0077b7] rounded-3xl w-[299px] h-[352px] px-2 py-10 hover:shadow-2xl hover:scale-105 transition-all duration-300 block mx-auto"
               >
                 <div className="absolute top-6 start-2 flex flex-col items-start w-full gap-4 px-2">
                   <div
                     style={{
                       backgroundImage: `url(${
-                        service.icon?.[0]?.original ||service.image?.[0]?.original||
+                        category.image?.[0]?.original ||
                         "/assets/images/homehellers/Injury.svg"
                       })`,
                     }}
@@ -95,11 +92,12 @@ function AboutApp({
                   ></div>
                   <div className="text-white">
                     <h3 className="text-lg font-semibold leading-7">
-                      {service.name}
+                      {category.name}
                     </h3>
-                    <div className="text-sm font-light leading-8 mt-1 max-h-[96px] overflow-hidden text-ellipsis">
-                      {parseCmsHtml(service?.description || "")}
-                    </div>
+                    <p className="text-sm font-light leading-8 mt-1">
+                      {category.services?.length || 0}{" "}
+                      {locale === "ar" ? "خدمة" : "services"}
+                    </p>
                   </div>
                 </div>
                 <ShowMore locale={locale} />
@@ -110,7 +108,7 @@ function AboutApp({
 
         {/* Custom Dots */}
         <div className="flex gap-6 mt-6 custom-dots justify-center">
-          {services.map((_: any, index: number) => (
+          {categories.map((_: any, index: number) => (
             <div
               key={index}
               className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${

@@ -255,8 +255,10 @@
     "totalAmount": "Total Amount",
     "currency": "SAR",
     "confirmPayment": "Confirm Payment and Booking",
+    "confirmCashOnDelivery": "Confirm Booking — Cash on Delivery",
     "telrPayment": "Telr Payment",
-    "cashOnDelivery": "Cash on Delivery"
+    "cashOnDelivery": "Cash on Delivery",
+    "cashOnDeliveryDesc": "Pay in cash when the doctor arrives at your location"
   },
   "step6": {
     "title": "Booking Confirmed",
