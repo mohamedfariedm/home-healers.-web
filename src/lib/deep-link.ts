@@ -53,18 +53,21 @@ export function isFacebookOrInstagram(userAgent: string): boolean {
   return /FBAN|FBAV|FB_IAB|Instagram/i.test(userAgent);
 }
 
-/**
- * Android App Link intent for the "Open in App" button.
- * No Play Store fallback — manual download is a separate button.
- */
+/** Android App Link intent. Pass fallbackUrl on mobile for auto Play Store redirect. */
 export function buildAndroidAppLinkIntentUrl(
   targetUrl: string,
+  fallbackUrl?: string,
   packageName = "com.home.healers.app",
 ): string {
   const url = new URL(targetUrl);
   const intentPath = `${url.host}${url.pathname}${url.search}`;
-  return `intent://${intentPath}#Intent;scheme=https;package=${packageName};end`;
+  const fallback = fallbackUrl
+    ? `;S.browser_fallback_url=${encodeURIComponent(fallbackUrl)}`
+    : "";
+  return `intent://${intentPath}#Intent;scheme=https;package=${packageName}${fallback};end`;
 }
+
+export const STORE_FALLBACK_MS = 2500;
 
 export const DEEP_LINK_COPY: Record<
   DeepLinkRoute,

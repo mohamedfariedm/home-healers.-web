@@ -1,8 +1,37 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { i18nRouterConfig } from "./i18nRouterConfig"
+import {
+  buildMobileDeepLinkRedirectHtml,
+  isMobileUserAgent,
+  matchDeepLinkPath,
+} from "./lib/deep-link-mobile-html"
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const userAgent = request.headers.get("user-agent") || ""
+
+  // Mobile deep links: redirect to app or store immediately (no landing page)
+  const deepLinkPath = matchDeepLinkPath(pathname)
+  if (deepLinkPath && isMobileUserAgent(userAgent)) {
+    const targetUrl = `${request.nextUrl.origin}${deepLinkPath}${request.nextUrl.search}`
+    const isAndroid = /android/i.test(userAgent)
+    const isFacebookOrInstagram = /FBAN|FBAV|FB_IAB|Instagram/i.test(userAgent)
+
+    return new NextResponse(
+      buildMobileDeepLinkRedirectHtml({
+        targetUrl,
+        isAndroid,
+        isFacebookOrInstagram,
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+        },
+      },
+    )
+  }
 
   // Check if path already has locale prefix
   const hasEnPrefix = pathname.startsWith("/en/") || pathname === "/en"
