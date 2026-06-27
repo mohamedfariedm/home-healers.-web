@@ -1,0 +1,22 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "PPD9X797M6.com.home.healers.app",
+        "paths": [
+          "/doctor",
+          "/doctor/*",
+          "/service",
+          "/service/*",
+          "/reservation",
+          "/reservation/*",
+          "/offers",
+          "/offers/*",
+          "/home",
+          "/home/*"
+        ]
+      }
+    ]
+  }
+}
