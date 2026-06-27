@@ -48,21 +48,22 @@ export function getMobilePlatform(userAgent: string): MobilePlatform {
   return "desktop";
 }
 
-export function buildAndroidIntentUrl(
-  targetUrl: string,
-  fallbackUrl: string,
-  packageName = "com.home.healers.app",
-): string {
-  const path = `open?target_url=${encodeURIComponent(targetUrl)}`;
-  return `intent://${path}#Intent;scheme=${APP_SCHEME};package=${packageName};S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`;
+/** Facebook / Instagram in-app browser only. */
+export function isFacebookOrInstagram(userAgent: string): boolean {
+  return /FBAN|FBAV|FB_IAB|Instagram/i.test(userAgent);
 }
 
-export const APP_OPEN_TIMEOUT_MS = 2500;
-
-export function isInAppBrowser(userAgent: string): boolean {
-  return /FBAN|FBAV|FB_IAB|Instagram|Line\/|Twitter|LinkedInApp/i.test(
-    userAgent,
-  );
+/**
+ * Android App Link intent for the "Open in App" button.
+ * No Play Store fallback — manual download is a separate button.
+ */
+export function buildAndroidAppLinkIntentUrl(
+  targetUrl: string,
+  packageName = "com.home.healers.app",
+): string {
+  const url = new URL(targetUrl);
+  const intentPath = `${url.host}${url.pathname}${url.search}`;
+  return `intent://${intentPath}#Intent;scheme=https;package=${packageName};end`;
 }
 
 export const DEEP_LINK_COPY: Record<
