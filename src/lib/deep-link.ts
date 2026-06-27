@@ -39,6 +39,26 @@ export function buildAppOpenUrl(targetUrl: string): string {
   return `${APP_SCHEME}://open?target_url=${encodeURIComponent(targetUrl)}`;
 }
 
+export type MobilePlatform = "android" | "ios" | "desktop";
+
+export function getMobilePlatform(userAgent: string): MobilePlatform {
+  const ua = userAgent.toLowerCase();
+  if (/android/i.test(ua)) return "android";
+  if (/iphone|ipad|ipod/i.test(ua)) return "ios";
+  return "desktop";
+}
+
+export function buildAndroidIntentUrl(
+  targetUrl: string,
+  fallbackUrl: string,
+  packageName = "com.home.healers.app",
+): string {
+  const path = `open?target_url=${encodeURIComponent(targetUrl)}`;
+  return `intent://${path}#Intent;scheme=${APP_SCHEME};package=${packageName};S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`;
+}
+
+export const APP_OPEN_TIMEOUT_MS = 2500;
+
 export function isInAppBrowser(userAgent: string): boolean {
   return /FBAN|FBAV|FB_IAB|Instagram|Line\/|Twitter|LinkedInApp/i.test(
     userAgent,

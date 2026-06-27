@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
+  buildAndroidIntentUrl,
   buildAppOpenUrl,
-  isInAppBrowser,
+  getMobilePlatform,
+  APP_OPEN_TIMEOUT_MS,
   type DeepLinkRoute,
   DEEP_LINK_COPY,
 } from "@/lib/deep-link";
@@ -17,6 +19,43 @@ type DeepLinkLandingProps = {
   iosUrl: string;
 };
 
+type ViewState = "detecting" | "landing" | "redirecting";
+
+function tryOpenApp(
+  platform: "android" | "ios",
+  appOpenUrl: string,
+  targetUrl: string,
+  storeUrl: string,
+) {
+  if (platform === "android") {
+    window.location.href = buildAndroidIntentUrl(targetUrl, storeUrl);
+    return;
+  }
+
+  window.location.href = appOpenUrl;
+
+  const startedAt = Date.now();
+  const fallbackTimer = window.setTimeout(() => {
+    if (document.hidden || Date.now() - startedAt > APP_OPEN_TIMEOUT_MS + 500) {
+      return;
+    }
+    window.location.href = storeUrl;
+  }, APP_OPEN_TIMEOUT_MS);
+
+  const onVisibilityChange = () => {
+    if (document.hidden) {
+      window.clearTimeout(fallbackTimer);
+    }
+  };
+
+  document.addEventListener("visibilitychange", onVisibilityChange);
+
+  return () => {
+    window.clearTimeout(fallbackTimer);
+    document.removeEventListener("visibilitychange", onVisibilityChange);
+  };
+}
+
 export default function DeepLinkLanding({
   route,
   locale,
@@ -27,19 +66,36 @@ export default function DeepLinkLanding({
   const copy = DEEP_LINK_COPY[route][locale === "en" ? "en" : "ar"];
   const appOpenUrl = buildAppOpenUrl(targetUrl);
   const isRtl = locale !== "en";
+  const [view, setView] = useState<ViewState>("detecting");
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    const platform = getMobilePlatform(navigator.userAgent || "");
 
-    const ua = navigator.userAgent || "";
-    if (!isInAppBrowser(ua)) return;
+    if (platform === "desktop") {
+      setView("landing");
+      return;
+    }
 
-    window.location.href = appOpenUrl;
-  }, [appOpenUrl]);
+    setView("redirecting");
+    const storeUrl = platform === "android" ? androidUrl : iosUrl;
+    return tryOpenApp(platform, appOpenUrl, targetUrl, storeUrl);
+  }, [appOpenUrl, targetUrl, androidUrl, iosUrl]);
 
-  const openApp = () => {
-    window.location.href = appOpenUrl;
-  };
+  if (view !== "landing") {
+    return (
+      <div
+        dir={isRtl ? "rtl" : "ltr"}
+        className="min-h-[60vh] flex items-center justify-center px-4 py-16"
+      >
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#143087] border-t-transparent" />
+          <p className="text-base font-medium text-[#143087]">
+            {locale === "en" ? "Opening Home Healers..." : "جاري فتح هوم هيلرز..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -47,13 +103,6 @@ export default function DeepLinkLanding({
       className="min-h-[60vh] flex items-center justify-center px-4 py-16"
     >
       <div className="w-full max-w-lg text-center flex flex-col items-center gap-8">
-        <Image
-          src="/assets/images/logo.svg"
-          alt="Home Healers"
-          width={160}
-          height={48}
-          className="h-12 w-auto"
-        />
 
         <div className="flex flex-col gap-3">
           <h1 className="text-2xl md:text-3xl font-bold text-[#143087]">
@@ -65,19 +114,11 @@ export default function DeepLinkLanding({
         </div>
 
         <div className="flex flex-col gap-3 w-full max-w-xs">
-          <button
-            type="button"
-            onClick={openApp}
-            className="w-full px-6 py-4 bg-[#143087] text-white font-semibold rounded-xl hover:bg-[#0f2666] transition-colors"
-          >
-            {locale === "en" ? "Open in App" : "افتح في التطبيق"}
-          </button>
-
           <a
             href={androidUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full px-6 py-4 bg-white border-2 border-[#143087] text-[#143087] font-semibold rounded-xl hover:bg-[#f0f4ff] transition-colors"
+            className="w-full px-6 py-4 bg-[#143087] text-white font-semibold rounded-xl hover:bg-[#0f2666] transition-colors"
           >
             {locale === "en" ? "Get it on Google Play" : "حمّل من Google Play"}
           </a>
