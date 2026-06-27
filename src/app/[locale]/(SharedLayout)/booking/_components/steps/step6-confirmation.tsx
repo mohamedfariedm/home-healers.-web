@@ -211,8 +211,8 @@ const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => (
         </View>
         <View style={styles.row}>
           <Text style={styles.value}>
-            {bookingData.paymentMethod === "cash_on_delivery"
-              ? "الدفع عند الاستلام"
+            {bookingData.paymentMethod === "cash"
+              ? "نقداً"
               : bookingData.paymentMethod === "telr"
               ? "Telr Payment"
               : "Apple Pay"}
@@ -397,8 +397,8 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-green-800 text-sm">
               ✅ {t("step6.paymentSuccess")} {t("step6.via")}{" "}
-              {bookingData.paymentMethod === "cash_on_delivery"
-                ? t("step5.cashOnDelivery")
+              {bookingData.paymentMethod === "cash"
+                ? t("step5.cash")
                 : bookingData.paymentMethod === "telr"
                 ? t("step5.telrPayment")
                 : "Apple Pay"}

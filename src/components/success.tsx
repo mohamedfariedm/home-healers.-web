@@ -204,8 +204,8 @@ const ReceiptDocument = ({ bookingData, reservationId }: { bookingData: BookingD
         </View>
         <View style={styles.row}>
           <Text style={styles.value}>
-            {bookingData.paymentMethod === "cash_on_delivery"
-              ? "الدفع عند الاستلام"
+            {bookingData.paymentMethod === "cash"
+              ? "نقداً"
               : bookingData.paymentMethod === "telr"
               ? "Telr Payment"
               : "Apple Pay"}

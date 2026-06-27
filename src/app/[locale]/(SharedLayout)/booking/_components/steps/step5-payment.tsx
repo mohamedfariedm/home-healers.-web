@@ -31,10 +31,10 @@ export default function Step5Payment({
 
   const paymentMethods = [
     {
-      id: "cash_on_delivery",
-      name: t("step5.cashOnDelivery"),
+      id: "cash",
+      name: t("step5.cash"),
       icon: <Banknote className="w-6 h-6 text-[#62a0f6]" />,
-      description: t("step5.cashOnDeliveryDesc"),
+      description: t("step5.cashDesc"),
     },
     { id: "apple_pay", name: "Apple Pay", icon: "🍎" },
     { id: "telr", name: t("step5.telrPayment"), icon: "💳" },
@@ -516,10 +516,10 @@ export default function Step5Payment({
                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                  {t("step5.processing")}
                </>
-             ) : bookingData.paymentMethod === "cash_on_delivery" ? (
+             ) : bookingData.paymentMethod === "cash" ? (
                <>
                  <Banknote className="w-5 h-5" />
-                 {t("step5.confirmCashOnDelivery")}
+                 {t("step5.confirmCash")}
                </>
              ) : (
                <>

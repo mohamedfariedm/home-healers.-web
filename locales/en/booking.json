@@ -255,10 +255,10 @@
     "totalAmount": "Total Amount",
     "currency": "SAR",
     "confirmPayment": "Confirm Payment and Booking",
-    "confirmCashOnDelivery": "Confirm Booking — Cash on Delivery",
+    "confirmCash": "Confirm Booking — Cash",
     "telrPayment": "Telr Payment",
-    "cashOnDelivery": "Cash on Delivery",
-    "cashOnDeliveryDesc": "Pay in cash when the doctor arrives at your location"
+    "cash": "Cash",
+    "cashDesc": "Pay in cash at your visit"
   },
   "step6": {
     "title": "Booking Confirmed",
@@ -388,7 +388,7 @@
     "patientUpdated": "Patient updated successfully",
     "bookingCreated": "Booking created successfully, please complete payment",
     "bookingFailed": "Failed to create booking",
-    "bookingConfirmed": "Booking confirmed successfully! Payment will be made upon delivery.",
+    "bookingConfirmed": "Booking confirmed successfully! Pay in cash at your visit.",
     "paymentFailed": "Failed to confirm payment",
     "error": "An error occurred",
     "reservationIdMissing": "Reservation ID not available"

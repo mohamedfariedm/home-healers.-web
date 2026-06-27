@@ -255,10 +255,10 @@
     "totalAmount": "المبلغ الإجمالي",
     "currency": "ريال",
     "confirmPayment": "تأكيد الدفع والحجز",
-    "confirmCashOnDelivery": "تأكيد الحجز — الدفع عند الاستلام",
+    "confirmCash": "تأكيد الحجز — نقداً",
     "telrPayment": "Telr Payment",
-    "cashOnDelivery": "الدفع عند الاستلام",
-    "cashOnDeliveryDesc": "ادفع نقداً عند وصول الطبيب إلى موقعك"
+    "cash": "نقداً",
+    "cashDesc": "ادفع نقداً عند الزيارة"
   },
   "step6": {
     "title": "تم تأكيد الحجز",
@@ -388,7 +388,7 @@
     "patientUpdated": "تم تعديل المريض بنجاح",
     "bookingCreated": "تم إنشاء الحجز بنجاح، يرجى إكمال الدفع",
     "bookingFailed": "فشل في إنشاء الحجز",
-    "bookingConfirmed": "تم تأكيد الحجز بنجاح! سيتم الدفع عند الاستلام.",
+    "bookingConfirmed": "تم تأكيد الحجز بنجاح! ادفع نقداً عند الزيارة.",
     "paymentFailed": "فشل في تأكيد الدفع",
     "error": "حدث خطأ",
     "reservationIdMissing": "معرف الحجز غير متوفر"

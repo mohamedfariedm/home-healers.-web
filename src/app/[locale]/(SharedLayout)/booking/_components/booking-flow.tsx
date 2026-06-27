@@ -30,6 +30,16 @@ import {
 import { useSearchParams } from "next/navigation";
 import { Compass } from "lucide-react";
 
+function toApiPaymentMethod(method: string): "cash" | "web" {
+  if (method === "cash" || method === "cash_on_delivery") return "cash";
+  return "web";
+}
+
+function normalizePaymentMethod(method: string | undefined): string {
+  if (!method || method === "cash_on_delivery") return "cash";
+  return method;
+}
+
 function addDaysLocalISO(daysFromToday: number): string {
   const d = new Date();
   d.setDate(d.getDate() + daysFromToday);
@@ -107,7 +117,7 @@ export default function BookingFlow({
         notes: "",
         attachments: [],
       },
-      paymentMethod: "cash_on_delivery",
+      paymentMethod: "cash",
       couponCode: "",
       couponId: undefined,
       couponType: undefined,
@@ -127,6 +137,7 @@ export default function BookingFlow({
         const { city: _legacyCity, ...restFilters } = filters;
         return {
           ...parsed,
+          paymentMethod: normalizePaymentMethod(parsed.paymentMethod),
           selectedCategory: null,
           selectedService: null,
           searchFilters: {
@@ -348,11 +359,15 @@ export default function BookingFlow({
     });
   }, [savedPatients]);
 
-  // Step 5: ensure a payment method (default to cash on delivery)
+  // Step 5: ensure a payment method (default to cash)
   useEffect(() => {
     setBookingData((prev) => {
+      const method = normalizePaymentMethod(prev.paymentMethod);
+      if (method !== prev.paymentMethod) {
+        return { ...prev, paymentMethod: method };
+      }
       if (prev.paymentMethod) return prev;
-      return { ...prev, paymentMethod: "cash_on_delivery" };
+      return { ...prev, paymentMethod: "cash" };
     });
   }, []);
 
@@ -726,6 +741,7 @@ export default function BookingFlow({
           time_period: date.time_period,
         })),
         attachments: attachmentIds,
+        payment_method: toApiPaymentMethod(bookingData.paymentMethod),
       };
       if (bookingData.selectedPackage) {
         reservationData.package_id = bookingData.selectedPackage.id;
@@ -800,14 +816,12 @@ export default function BookingFlow({
         throw new Error(t("messages.reservationIdMissing"));
       }
 
-      if (bookingData.paymentMethod === "cash_on_delivery") {
-        // Cash on Delivery: No API call needed, just confirm the booking
+      if (bookingData.paymentMethod === "cash") {
+        // Cash: no online payment gateway — booking already created with payment_method: cash
         localStorage.removeItem("bookingData");
         toast.success(t("messages.bookingConfirmed"));
-        setCurrentStep(6); // Proceed to confirmation
-      }
-      //  if (bookingData.paymentMethod === "telr")
-      else {
+        setCurrentStep(6);
+      } else {
         // Telr Payment
         const responceTelr = await ClientAPI.payReservationWithTelr(
           reservationId,
