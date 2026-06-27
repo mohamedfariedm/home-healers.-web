@@ -9,9 +9,9 @@ This folder hosts the website files required for **Android App Links** and **iOS
 | File | Platform | Served at |
 |------|----------|-----------|
 | `assetlinks.json` | Android | `https://home-healers.com/.well-known/assetlinks.json` |
-| `apple-app-site-association.json` | iOS | `https://home-healers.com/.well-known/apple-app-site-association` |
+| `apple-app-site-association` | iOS | `https://home-healers.com/.well-known/apple-app-site-association` |
 
-> **Important (iOS):** Apple expects the file **without** a `.json` extension. Ask the web team to either rename/copy it to `apple-app-site-association` or add a Next.js rewrite so both URLs work.
+> **Status:** Served via static file + Next.js `beforeFiles` rewrite (no `.json` in URL). Both URLs return **200** with `Content-Type: application/json`.
 
 ---
 
@@ -36,6 +36,20 @@ This folder hosts the website files required for **Android App Links** and **iOS
 ```
 
 Only URLs matching these paths will open in the app. Other paths (e.g. `/blog/...`) stay in the browser.
+
+### Web fallback pages
+
+When the app is not installed (or the link opens in a browser), these routes show a landing page with App Store / Play Store links and auto-redirect in Facebook/Instagram in-app browsers:
+
+| Route | Example URL |
+|-------|-------------|
+| Doctor | `https://home-healers.com/doctor?doctorId=123` or `/doctor/123` |
+| Service | `https://home-healers.com/service?categoryId=5` |
+| Reservation | `https://home-healers.com/reservation?reservationId=99` |
+| Offers | `https://home-healers.com/offers` |
+| Home | `https://home-healers.com/home` |
+
+In-app browser redirect scheme: `homehealers://open?target_url=<encoded-url>`
 
 ---
 
@@ -263,10 +277,9 @@ Files to edit:
 
 ## Quick checklist
 
-- [ ] `assetlinks.json` live at production URL
-- [ ] `apple-app-site-association` live **without** `.json` extension
-- [ ] Android intent filter with `autoVerify="true"`
-- [ ] iOS Associated Domains: `applinks:home-healers.com`
-- [ ] Flutter listens to initial link + link stream
-- [ ] Paths `/doctor`, `/service`, `/reservation`, `/offers`, `/home` handled in navigation
+- [x] `assetlinks.json` live at production URL
+- [x] `apple-app-site-association` live **without** `.json` extension (rewrite + static file)
+- [x] Web routes for `/doctor`, `/service`, `/reservation`, `/offers`, `/home`
+- [x] Redirect to `homehealers://open?target_url=...` from in-app browsers (Facebook/Instagram)
+- [ ] Confirm `/.well-known/` is not blocked by Cloudflare/WAF (ops)
 - [ ] Tested on real devices (not only emulator/simulator)

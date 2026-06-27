@@ -44,22 +44,46 @@ const nextConfig = {
       },
     ];
   },
-    async rewrites() {
-return [
-    {
-      source: '/sitemap.xml',
-      destination: '/api/sitemap', // not /api/:slug
-    },
-    {
-      source: '/google8cb9aef7afb925eb.html',
-      destination: '/api/google8cb9aef7afb925eb', // not /api/:slug
-    },
-    {
-      source: '/robots.txt',
-      destination: '/api/robots',
-    },
-  ];
-    },
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: "/.well-known/apple-app-site-association",
+          destination: "/.well-known/apple-app-site-association.json",
+        },
+      ],
+      afterFiles: [
+        {
+          source: "/sitemap.xml",
+          destination: "/api/sitemap",
+        },
+        {
+          source: "/google8cb9aef7afb925eb.html",
+          destination: "/api/google8cb9aef7afb925eb",
+        },
+        {
+          source: "/robots.txt",
+          destination: "/api/robots",
+        },
+      ],
+    };
+  },
+  async headers() {
+    return [
+      {
+        source: "/.well-known/apple-app-site-association",
+        headers: [{ key: "Content-Type", value: "application/json" }],
+      },
+      {
+        source: "/.well-known/apple-app-site-association.json",
+        headers: [{ key: "Content-Type", value: "application/json" }],
+      },
+      {
+        source: "/.well-known/assetlinks.json",
+        headers: [{ key: "Content-Type", value: "application/json" }],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
