@@ -3,16 +3,12 @@
 import { MessageCircle, MessagesSquare, Phone } from "lucide-react";
 import Link from "next/link";
 import { openTawkLiveChat } from "@/lib/tawk";
+import { WHATSAPP_URL } from "@/constants/whatsapp";
 
 interface FloatingContactProps {
   settings?: any;
   locale?: string;
 }
-
-const whatsappMessage = {
-  ar: "مرحبا، لدي استفسار",
-  en: "Hello, I have a question",
-};
 
 const labels = {
   ar: {
@@ -44,12 +40,7 @@ export default function FloatingContact({
   const businessInfo = settingsData?.business_info || {};
 
   const contactPhone = businessInfo.contact || "0118289771";
-  const whatsappPhone = businessInfo.whatsapp || "0118289771";
   const phoneNumber = formatWhatsAppNumber(contactPhone);
-  const whatsappNumber = formatWhatsAppNumber(whatsappPhone);
-
-  const message = whatsappMessage[isArabic ? "ar" : "en"];
-  const encodedMsg = encodeURIComponent(message);
 
   const sideClass = isArabic ? "right-2 sm:right-4" : "left-2 sm:left-4";
   const rowClass = isArabic ? "flex-row" : "flex-row-reverse";
@@ -64,7 +55,7 @@ export default function FloatingContact({
     {
       id: "whatsapp",
       label: t.whatsapp,
-      href: `https://wa.me/${whatsappNumber}?text=${encodedMsg}`,
+      href: WHATSAPP_URL,
       external: true,
       className: "bg-green-500 hover:bg-green-600",
       icon: MessageCircle,

@@ -15,6 +15,7 @@ import {
   X,
   Ghost,
 } from "lucide-react";
+import { WHATSAPP_URL } from "@/constants/whatsapp";
 
 // Custom Icons for TikTok and Snapchat since they might not be in all Lucide versions or for specific styling
 const TiktokIcon = ({
@@ -214,7 +215,6 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
   };
 
   // Get business info with fallbacks
-  const whatsappNumber = businessInfo.whatsapp || "0118289771";
   const contactPhone = businessInfo.contact || "0118289771";
   const businessEmail = businessInfo.email || t.contact.email;
   const businessAddress = businessInfo.address || t.contact.address;
@@ -595,9 +595,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
 
             {/* WhatsApp Button */}
             <motion.a
-              href={`https://wa.me/${formatWhatsAppNumber(
-                whatsappNumber
-              )}?text=${encodeURIComponent(t.whatsappMessage)}`}
+              href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="flex w-full sm:w-auto min-w-[200px] h-14 px-4 py-2 gap-2 justify-center items-center bg-[#12b669] rounded-xl text-white hover:bg-[#0ea55c] transition-colors"

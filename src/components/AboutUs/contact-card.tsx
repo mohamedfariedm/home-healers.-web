@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { MessageCircle, Phone, ArrowLeft, ArrowRight, Headphones } from 'lucide-react';
 import type { FaqTranslations } from "@/translations/faq";
 import type { ContactInfo } from "@/types/faq";
+import { WHATSAPP_URL } from "@/constants/whatsapp";
 
 interface ContactCardProps {
   translations: FaqTranslations;
@@ -26,10 +27,6 @@ const ContactCard: React.FC<ContactCardProps> = ({
 }) => {
   const isRTL = locale === "ar";
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
-  const whatsappMessage = typeof contactInfo.whatsappMessage === "string" 
-    ? contactInfo.whatsappMessage 
-    : contactInfo.whatsappMessage[locale as keyof typeof contactInfo.whatsappMessage];
-
   const buttonVariants = {
     hover: {
       scale: 1.05,
@@ -122,7 +119,7 @@ const ContactCard: React.FC<ContactCardProps> = ({
           <div className="flex flex-col sm:flex-row gap-3 w-full">
             {/* WhatsApp Button */}
             <motion.a
-              href={`https://wa.me/${contactInfo.phone}?text=${encodeURIComponent(whatsappMessage)}`}
+              href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 bg-[#25D366] hover:bg-[#20b358] text-white flex items-center justify-center gap-3 rounded-xl px-6 py-4 font-semibold transition-colors duration-300 shadow-lg"
@@ -151,7 +148,7 @@ const ContactCard: React.FC<ContactCardProps> = ({
 
           {/* Main Contact Button */}
           <motion.a
-            href={`https://wa.me/${contactInfo.phone}?text=${encodeURIComponent(whatsappMessage)}`}
+            href={WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full bg-gradient-to-r from-[#143087] to-[#1a3ca7] text-white flex items-center justify-center gap-3 rounded-xl px-8 py-4 font-bold text-lg shadow-xl"
