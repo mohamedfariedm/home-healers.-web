@@ -22,6 +22,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import type { BookingData, Category, Doctor, Package } from "@/types/booking";
 import { doctorMatchesCategoryId } from "@/lib/doctor-matches-category";
 import { getDoctorCityName, isDoctorInCity } from "@/lib/doctor-city";
+import { getPackageCategoryList } from "@/lib/package-categories";
 
 // ===== Helpers for the new data shape =====
 const isImageUrl = (url?: string | null) =>
@@ -83,7 +84,6 @@ export default function Step2DoctorSelection({
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const packageProcessedRef = useRef<string | null>(null);
   const genderFromUrlSynced = useRef(false);
   const citySelectRef = useRef<HTMLSelectElement>(null);
 
@@ -133,59 +133,6 @@ export default function Step2DoctorSelection({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto-select package from URL parameter
-  useEffect(() => {
-    const packageId = searchParams.get("packageId") || searchParams.get("packageid");
-    
-    if (!packageId || !packagesData?.data || !Array.isArray(packagesData.data)) {
-      return;
-    }
-
-    // Skip if already processed this package ID
-    if (packageProcessedRef.current === packageId) {
-      return;
-    }
-
-    const pkgId = Number.parseInt(packageId, 10);
-    if (Number.isNaN(pkgId)) {
-      console.warn("Invalid package ID:", packageId);
-      return;
-    }
-
-    // Check if this package is already selected
-    const currentPkgId = bookingData.selectedPackage?.id ? Number(bookingData.selectedPackage.id) : null;
-    if (currentPkgId === pkgId) {
-      // Already selected, mark as processed
-      packageProcessedRef.current = packageId;
-      return;
-    }
-
-        
-    // Find package with matching ID
-    const selectedPkg = packagesData.data.find((pkg: Package) => {
-      const pkgIdNum = Number(pkg.id);
-      const targetIdNum = Number(pkgId);
-      return pkgIdNum === targetIdNum;
-    });
-
-    if (selectedPkg) {
-            
-      // Mark as processed
-      packageProcessedRef.current = packageId;
-      
-      // Update bookingData with the selected package and sessions count
-      updateBookingData({ 
-        selectedPackage: selectedPkg,
-        sessionsCount: selectedPkg.sessions_count || 1
-      });
-            
-      toast.success(`${t("step2.packageSelected")}: ${selectedPkg.name}`);
-    } else {
-      console.warn("❌ Step2 - Package not found with ID:", pkgId, "Available IDs:", packagesData.data.map((p: Package) => p.id));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, packagesData]);
-
   // Build a robust image picker for the doctor
   const getDoctorImage = (doctor: any) => {
     // 1) doctor.image
@@ -233,7 +180,12 @@ export default function Step2DoctorSelection({
     toast.info(t("step2.filtersUpdated"));
   };
 
-  const categories: Category[] = categoriesData?.data ?? [];
+  const allCategories: Category[] = categoriesData?.data ?? [];
+  const packageScopedCategories = getPackageCategoryList(
+    bookingData.selectedPackage,
+    allCategories
+  );
+  const categories: Category[] = packageScopedCategories ?? allCategories;
 
   const handleCategoryFilterChange = (categoryIdStr: string) => {
     if (categoryIdStr === "") {
@@ -258,20 +210,36 @@ const handlePackageSelect = (pkg: Package) => {
   const pkgId = Number(pkg.id);
   
   if (currentPkgId === pkgId) {
-    // If already selected → unselect it
     updateBookingData({ 
       selectedPackage: null,
-      sessionsCount: 1 // Reset to default
+      sessionsCount: 1,
+      selectedCategory: null,
+      selectedService: null,
     });
     toast.info(`${t("step2.packageUnselected")}: ${pkg.name}`);
-  } else {
-    // Otherwise → select it and update sessions count
-    updateBookingData({ 
-      selectedPackage: pkg,
-      sessionsCount: pkg.sessions_count || 1
-    });
-    toast.success(`${t("step2.packageSelected")}: ${pkg.name}`);
+    return;
   }
+
+  const packageCategories = getPackageCategoryList(pkg, allCategories);
+  const updates: Partial<BookingData> = {
+    selectedPackage: pkg,
+    sessionsCount: pkg.sessions_count || 1,
+    selectedService: null,
+  };
+
+  if (packageCategories?.length === 1) {
+    updates.selectedCategory = packageCategories[0];
+  } else if (packageCategories && packageCategories.length > 1) {
+    const stillValid = packageCategories.some(
+      (c) => c.id === bookingData.selectedCategory?.id
+    );
+    if (!stillValid) {
+      updates.selectedCategory = null;
+    }
+  }
+
+  updateBookingData(updates);
+  toast.success(`${t("step2.packageSelected")}: ${pkg.name}`);
 };
 
   // Main filtering

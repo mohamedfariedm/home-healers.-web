@@ -30,7 +30,7 @@ export default function PackagesSection({ locale, data }: PackagesSectionProps) 
   const [activeDot, setActiveDot] = useState(0);
   const packages = data || [];
   const router = useRouter();
-
+console.log({packages});
   const handlePackageClick = (pkg: PackageItem) => {
     router.push(`/${locale}/booking?packageId=${pkg.id}`);
   };

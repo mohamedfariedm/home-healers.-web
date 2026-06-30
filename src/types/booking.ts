@@ -125,6 +125,8 @@ export interface Package {
   image?: any
   type: string
   sessions_count?: number // Added to align with offers
+  category_ids?: number[] | null
+  categories?: Category[]
 }
 
 export interface Location {

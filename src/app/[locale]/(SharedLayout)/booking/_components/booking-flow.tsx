@@ -29,6 +29,11 @@ import {
 } from "@/lib/booking-tour-storage";
 import { useSearchParams } from "next/navigation";
 import { Compass } from "lucide-react";
+import { SHOW_SERVICE_SELECTION_STEP } from "@/lib/booking-config";
+import {
+  getPackageCategoryList,
+  type PackageWithCategories,
+} from "@/lib/package-categories";
 
 function toApiPaymentMethod(method: string): "cash" | "web" {
   if (method === "cash" || method === "cash_on_delivery") return "cash";
@@ -176,6 +181,9 @@ export default function BookingFlow({
 
   const defaultDatesSeededRef = useRef(false);
   const step1DefaultsAppliedRef = useRef(false);
+  const packageInitRef = useRef(false);
+  const bookingDataRef = useRef(bookingData);
+  bookingDataRef.current = bookingData;
 
   useEffect(() => {
     if (searchParams.get("booking_tour") === "1") {
@@ -186,6 +194,58 @@ export default function BookingFlow({
       return () => window.clearTimeout(timer);
     }
   }, [searchParams]);
+
+  // Auto-select package from URL and handle category scoping / auto-advance
+  useEffect(() => {
+    const packageId =
+      searchParams.get("packageId") || searchParams.get("packageid");
+    if (!packageId || !packagesData?.data || packageInitRef.current) return;
+
+    const pkgId = Number.parseInt(packageId, 10);
+    if (Number.isNaN(pkgId)) return;
+
+    const selectedPkg = packagesData.data.find(
+      (p: PackageWithCategories) => Number(p.id) === pkgId
+    );
+    if (!selectedPkg) return;
+
+    packageInitRef.current = true;
+    step1DefaultsAppliedRef.current = true;
+
+    const allCategories: Category[] = categoriesData?.data ?? [];
+    const packageCategories = getPackageCategoryList(
+      selectedPkg,
+      allCategories
+    );
+
+    const baseUpdates: Partial<BookingData> = {
+      selectedPackage: selectedPkg,
+      sessionsCount: selectedPkg.sessions_count || 1,
+      selectedService: null,
+    };
+
+    if (packageCategories?.length === 1) {
+      setBookingData((prev) => ({
+        ...prev,
+        ...baseUpdates,
+        selectedCategory: packageCategories[0],
+      }));
+      setCurrentStep(2);
+      toast.success(
+        `${t("step2.packageSelected")}: ${selectedPkg.name}`
+      );
+    } else {
+      setBookingData((prev) => ({
+        ...prev,
+        ...baseUpdates,
+        selectedCategory: null,
+      }));
+      toast.success(
+        `${t("step2.packageSelected")}: ${selectedPkg.name}`
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, packagesData, categoriesData]);
 
   const clearTransientReservationData = () => {
     setBookingData((prev) => ({
@@ -270,17 +330,30 @@ export default function BookingFlow({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doctorsList, bookingData.selectedCategory]);
 
-  // Step 1: default first category (and first service in that category when services exist), once per visit
+  // Step 1: default first category (and first service when enabled), once per visit
   useEffect(() => {
+    const packageId =
+      searchParams.get("packageId") || searchParams.get("packageid");
+    if (packageId || packageInitRef.current) return;
+
     const firstCat = categoriesData?.data?.[0];
     if (!firstCat || step1DefaultsAppliedRef.current) return;
 
     setBookingData((prev:any) => {
-      if (prev.selectedCategory || prev.selectedService) {
+      if (prev.selectedCategory || prev.selectedService || prev.selectedPackage) {
         step1DefaultsAppliedRef.current = true;
         return prev;
       }
       step1DefaultsAppliedRef.current = true;
+
+      if (!SHOW_SERVICE_SELECTION_STEP) {
+        return {
+          ...prev,
+          selectedCategory: firstCat,
+          selectedService: null,
+        };
+      }
+
       const catServices = (servicesData?.data ?? []).filter(
         (s: any) => s.category?.id === firstCat.id
       );
@@ -302,7 +375,7 @@ export default function BookingFlow({
         selectedService: null,
       };
     });
-  }, [categoriesData, servicesData]);
+  }, [categoriesData, servicesData, searchParams]);
 
   // Step 2: default first doctor in current filtered list when none selected or selection not in list
   useEffect(() => {
@@ -533,7 +606,11 @@ export default function BookingFlow({
   };
 
   const updateBookingData = (updates: Partial<BookingData>) => {
-    setBookingData((prev) => ({ ...prev, ...updates }));
+    setBookingData((prev) => {
+      const next = { ...prev, ...updates };
+      bookingDataRef.current = next;
+      return next;
+    });
   };
 
   const openModal = (modalName: keyof typeof modals, doctor?: Doctor) => {
@@ -635,16 +712,25 @@ export default function BookingFlow({
   };
 
   const validateStep = (step: BookingStep): boolean => {
+    const data = bookingDataRef.current;
     switch (step) {
       case 1:
-        if (!bookingData.selectedCategory && !bookingData.selectedService) {
+        if (!SHOW_SERVICE_SELECTION_STEP) {
+          if (!data.selectedCategory) {
+            setError(t("validation.selectCategoryOrService"));
+            toast.error(t("validation.selectCategoryOrService"));
+            return false;
+          }
+          break;
+        }
+        if (!data.selectedCategory && !data.selectedService) {
           setError(t("validation.selectCategoryOrService"));
           toast.error(t("validation.selectCategoryOrService"));
           return false;
         }
         break;
       case 2:
-        if (!bookingData.selectedDoctor) {
+        if (!data.selectedDoctor) {
           
           setError(t("validation.selectDoctor"));
           toast.error(t("validation.selectDoctor"));
@@ -652,31 +738,31 @@ export default function BookingFlow({
         }
         break;
       case 3:
-        if (!bookingData.selectedLocation) {
+        if (!data.selectedLocation) {
           setError(t("validation.selectLocation"));
           toast.error(t("validation.selectLocation"));
           return false;
         }
-        if (bookingData.selectedDates.length < 1) {
+        if (data.selectedDates.length < 1) {
           setError(t("validation.selectAtLeastOneAppointment"));
           toast.error(t("validation.selectAtLeastOneAppointment"));
           return false;
         }
         break;
       case 4:
-        if (bookingData.selectedPatients.length === 0) {
+        if (data.selectedPatients.length === 0) {
           setError(t("validation.selectAtLeastOnePatient"));
           toast.error(t("validation.selectAtLeastOnePatient"));
           return false;
         }
-        if (!bookingData.healthInfo.painLocation.trim()) {
+        if (!data.healthInfo.painLocation.trim()) {
           setError(t("validation.specifyPainLocation"));
           toast.error(t("validation.specifyPainLocation"));
           return false;
         }
         break;
       case 5:
-        if (!bookingData.paymentMethod) {
+        if (!data.paymentMethod) {
           setError(t("validation.selectPaymentMethod"));
           toast.error(t("validation.selectPaymentMethod"));
           return false;
@@ -874,6 +960,7 @@ export default function BookingFlow({
             bookingData={bookingData}
             updateBookingData={updateBookingData}
             onNext={nextStep}
+            showServiceSelection={SHOW_SERVICE_SELECTION_STEP}
           />
         );
       case 2:

@@ -8,6 +8,7 @@ import type { BookingData, Category, Service, Location } from "@/types/booking";
 import { useRouter } from "next/navigation";
 import ClientAPI from "@/app/api/api";
 import LocationPickerModal from "../modals/location-picker-modal";
+import { getPackageCategoryList } from "@/lib/package-categories";
 
 /* ------------------------------------------------------------------ */
 /* -------------------------- COMPONENT ------------------------------ */
@@ -18,6 +19,7 @@ export default function Step1SpecialtySelection({
   bookingData,
   updateBookingData,
   onNext,
+  showServiceSelection = false,
 }: Step1Props) {
   const { t } = useTranslation("booking");
   const router = useRouter();
@@ -67,6 +69,10 @@ export default function Step1SpecialtySelection({
 
   /* Match tab to pre-filled booking (e.g. defaults from parent) */
   useEffect(() => {
+    if (!showServiceSelection) {
+      setSelectedType("category");
+      return;
+    }
     if (bookingData.selectedService) {
       setSelectedType("service");
       return;
@@ -78,6 +84,7 @@ export default function Step1SpecialtySelection({
       setSelectedType(hasServicesForCategory ? "service" : "category");
     }
   }, [
+    showServiceSelection,
     bookingData.selectedCategory?.id,
     bookingData.selectedService?.id,
     servicesData?.data,
@@ -92,8 +99,15 @@ export default function Step1SpecialtySelection({
   };
 
   /* ------------------- FILTERS ------------------- */
+  const allCategories: Category[] = categoriesData?.data ?? [];
+  const packageScopedCategories = getPackageCategoryList(
+    bookingData.selectedPackage,
+    allCategories
+  );
+  const visibleCategories = packageScopedCategories ?? allCategories;
+
   const filteredCategories =
-    categoriesData?.data?.filter((c: Category) =>
+    visibleCategories.filter((c: Category) =>
       c.name.toLowerCase().includes(searchQuery.toLowerCase()),
     ) || [];
 
@@ -115,6 +129,13 @@ export default function Step1SpecialtySelection({
     flushSync(() => {
       updateBookingData({ selectedCategory: category, selectedService: null });
     });
+
+    if (!showServiceSelection) {
+      toast.success(`${t("step1.categorySelected")}: ${category.name}`);
+      onNext();
+      return;
+    }
+
     const catServices =
       servicesData?.data?.filter(
         (s: Service) => s.category?.id === category.id,
@@ -144,14 +165,16 @@ export default function Step1SpecialtySelection({
   };
 
   const categoryHasServices =
+    showServiceSelection &&
     !!bookingData.selectedCategory &&
     (servicesData?.data ?? []).some(
       (s: Service) => s.category?.id === bookingData.selectedCategory?.id
     );
 
-  const canContinueStep1 =
-    !!bookingData.selectedService ||
-    (!!bookingData.selectedCategory && !categoryHasServices);
+  const canContinueStep1 = showServiceSelection
+    ? !!bookingData.selectedService ||
+      (!!bookingData.selectedCategory && !categoryHasServices)
+    : !!bookingData.selectedCategory;
 
   const handleContinueStep1 = () => {
     if (!canContinueStep1) return;
@@ -256,10 +279,16 @@ export default function Step1SpecialtySelection({
   };
 
   /* ------------------- UI HELPERS ------------------- */
-  const isCategoriesEmpty = !categoriesData?.data?.length;
+  const isCategoriesEmpty = !visibleCategories.length;
   const isServicesEmpty =
-    !servicesData?.data?.length ||
-    (selectedType === "service" && filteredServices.length === 0);
+    showServiceSelection &&
+    (!servicesData?.data?.length ||
+      (selectedType === "service" && filteredServices.length === 0));
+
+  const showCategoryGrid =
+    !isCategoriesEmpty && (selectedType === "category" || !showServiceSelection);
+  const showServiceGrid =
+    showServiceSelection && selectedType === "service" && !isServicesEmpty;
 
   /* ------------------------------------------------------------------ */
   return (
@@ -289,34 +318,48 @@ export default function Step1SpecialtySelection({
 
         <div className="w-full h-px bg-gray-200" />
 
-        {/* Tabs */}
-        <div className="flex gap-4 mb-6">
-          <button
-            onClick={() => setSelectedType("category")}
-            disabled={selectedType === "category"}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              selectedType === "category"
-                ? "bg-[#62a0f6] text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            {t("step1.selectCategory")}
-          </button>
-          <button
-            onClick={() => setSelectedType("service")}
-            disabled={selectedType === "service"}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              selectedType === "service"
-                ? "bg-[#62a0f6] text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            {t("step1.selectService")}
-          </button>
-        </div>
+        {bookingData.selectedPackage && packageScopedCategories && (
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+            {t("step1.packageCategoryHint") ||
+              "اختر التخصص المناسب ضمن باقتك:"}{" "}
+            <span className="font-semibold">
+              {bookingData.selectedPackage.name}
+            </span>
+          </div>
+        )}
+
+        {/* Tabs — service selection optional via showServiceSelection */}
+        {showServiceSelection && (
+          <div className="flex gap-4 mb-6">
+            <button
+              onClick={() => setSelectedType("category")}
+              disabled={selectedType === "category"}
+              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                selectedType === "category"
+                  ? "bg-[#62a0f6] text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {t("step1.selectCategory")}
+            </button>
+            <button
+              onClick={() => setSelectedType("service")}
+              disabled={selectedType === "service"}
+              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                selectedType === "service"
+                  ? "bg-[#62a0f6] text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {t("step1.selectService")}
+            </button>
+          </div>
+        )}
 
         {/* Back button */}
-        {selectedType === "service" && bookingData.selectedCategory && (
+        {showServiceSelection &&
+          selectedType === "service" &&
+          bookingData.selectedCategory && (
           <button
             onClick={handleBackToCategories}
             className="flex items-center gap-2 text-[#62a0f6] hover:text-[#5090e6] font-medium mb-4"
@@ -353,15 +396,15 @@ export default function Step1SpecialtySelection({
         )}
 
         {/* Grid */}
-        {!isCategoriesEmpty && !isServicesEmpty && (
+        {(showCategoryGrid || showServiceGrid) && (
           <div>
             <h2 className="text-lg sm:text-xl font-bold leading-7 text-[#1e1e1e] mb-6">
-              {selectedType === "category"
+              {selectedType === "category" || !showServiceSelection
                 ? t("step1.selectCategory")
                 : t("step1.selectService")}
             </h2>
 
-            {selectedType === "category" ? (
+            {selectedType === "category" || !showServiceSelection ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredCategories.map((c: Category) => (
                   <button
@@ -446,12 +489,8 @@ export default function Step1SpecialtySelection({
           <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-green-800 font-medium">
               {t("step1.selected") || "تم اختيار"}:{" "}
-              {bookingData.selectedCategory && !bookingData.selectedService ? (
-                <>
-                  {bookingData.selectedCategory.name} (
-                  {t("step1.category") || "تخصص"})
-                </>
-              ) : (
+              {showServiceSelection &&
+              bookingData.selectedService ? (
                 <>
                   {bookingData.selectedService?.name} (
                   {t("step1.service") || "خدمة"})
@@ -463,7 +502,12 @@ export default function Step1SpecialtySelection({
                     </>
                   )}
                 </>
-              )}
+              ) : bookingData.selectedCategory ? (
+                <>
+                  {bookingData.selectedCategory.name} (
+                  {t("step1.category") || "تخصص"})
+                </>
+              ) : null}
             </p>
           </div>
         )}
@@ -957,6 +1001,7 @@ interface Step1Props {
   bookingData: BookingData;
   updateBookingData: (updates: Partial<BookingData>) => void;
   onNext: () => void;
+  showServiceSelection?: boolean;
 }
 
 /* Form styles are now inline using Tailwind classes for better consistency */
