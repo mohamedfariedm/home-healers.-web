@@ -23,16 +23,9 @@ export async function generateMetadata({
   }, { preferPathCanonical: true });
 }
 
-async function page({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
-  const { t } = await initTranslations(locale, ["aboutUs"]);
-  const servicesData = await ClientAPI.getAllServices(locale);
-  const settings = await ClientAPI.getSettings(locale);
-
-  const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
-    (banner: any) => banner.page === "services"&& banner.type === "web"
-  );
-  return <PaymentFail />;
+async function page({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  const { slug } = await params;
+  return <PaymentFail orderRef={slug} />;
 }
 
 export default page;

@@ -22,6 +22,16 @@ import ClientAPI from "@/app/api/api";
 import { useRouter } from "next/navigation";
 import { doctorMatchesCategoryId } from "@/lib/doctor-matches-category";
 import { applyReservationPricingFromApi } from "@/lib/reservation-pricing";
+import {
+  applyPaymentSummaryToBooking,
+  extractApiMessage,
+  type PaymentSummaryData,
+} from "@/lib/payment-summary";
+import { extractTelrRedirectUrl } from "@/lib/payment-api";
+import { persistReservationId, clearCheckoutStorage } from "@/lib/checkout-storage";
+import {
+  resolveNationalityId,
+} from "@/lib/saudi-nationality";
 import BookingReservationTour from "@/components/booking/BookingReservationTour";
 import {
   isBookingTourCompleted,
@@ -35,13 +45,9 @@ import {
   type PackageWithCategories,
 } from "@/lib/package-categories";
 
-function toApiPaymentMethod(method: string): "cash" | "web" {
-  if (method === "cash" || method === "cash_on_delivery") return "cash";
-  return "web";
-}
-
 function normalizePaymentMethod(method: string | undefined): string {
   if (!method || method === "cash_on_delivery") return "cash";
+  if (method === "apple_pay" || method === "wallet") return "telr";
   return method;
 }
 
@@ -132,6 +138,7 @@ export default function BookingFlow({
         fees: 0,
         tax: 0,
         discount: 0,
+        couponDiscount: 0,
         total: 0,
       },
     },
@@ -482,11 +489,23 @@ export default function BookingFlow({
   }, [
     bookingData.selectedPackage,
     bookingData.sessionsCount,
-    bookingData.couponCode,
-    bookingData.couponType,
-    bookingData.couponValue,
     bookingData.selectedPatients,
   ]);
+
+  const nationalityOptions: { id: number; name: string }[] = Array.isArray(
+    nationalitiesData?.data
+  )
+    ? nationalitiesData.data
+    : [];
+
+  const getPatientNationalityContext = () => {
+    const patient = bookingData.selectedPatients?.[0];
+    const nationalityName = patient?.nationality;
+    const nationalityId =
+      patient?.nationality_id ??
+      resolveNationalityId(nationalityName, nationalityOptions);
+    return { nationalityName, nationalityId };
+  };
 
   const calculatePricing = () => {
     let subTotal = 0;
@@ -500,8 +519,7 @@ export default function BookingFlow({
       subTotal = 300 * bookingData.sessionsCount;
     }
 
-    // Fees/VAT come from the server after reservation create; do not compute 15% client-side
-    const fees = 0;
+    // Nationality fee comes from payment summary after reservation is created
     const tax = 0;
 
     // 5. Discount from package + coupon
@@ -524,60 +542,21 @@ export default function BookingFlow({
           )
         : 0;
 
-    const payableBeforeCoupon = hasPackage
-      ? Math.max(0, subTotal + fees + tax)
-      : Math.max(0, subTotal + fees + tax - discount);
+    const payableBeforeDiscount = hasPackage
+      ? Math.max(0, subTotal)
+      : Math.max(0, subTotal - discount);
 
-    // Coupon % applies to subtotal + fees, then discount is capped to amount owed
-    const couponPercentBase = subTotal + fees;
-    let couponDiscount = 0;
-    let couponDiscountRaw = 0;
-    if (bookingData.couponType && bookingData.couponValue) {
-      if (bookingData.couponType === "percentage") {
-        couponDiscountRaw = Math.round(
-          (couponPercentBase * bookingData.couponValue) / 100
-        );
-      } else {
-        couponDiscountRaw = bookingData.couponValue;
-      }
-      couponDiscount = Math.max(
-        0,
-        Math.min(couponDiscountRaw, payableBeforeCoupon)
-      );
-    }
-
-    const couponTooLarge =
-      Boolean(bookingData.couponType && bookingData.couponValue) &&
-      (payableBeforeCoupon <= 0 || couponDiscountRaw >= payableBeforeCoupon);
-
-    const finalCouponDiscount = couponTooLarge ? 0 : couponDiscount;
-
-    // 6. Final total
-    // For packages: total = price (already discounted) + fees + tax
-    // For non-packages: total = subtotal + fees + tax - discount
-    const total = Math.max(
-      0,
-      hasPackage
-        ? subTotal + fees + tax - finalCouponDiscount
-        : subTotal + fees + tax - discount - finalCouponDiscount
-    );
+    const total = Math.max(0, payableBeforeDiscount);
 
     setBookingData((prev) => ({
       ...prev,
-      ...(couponTooLarge
-        ? {
-            couponCode: "",
-            couponId: undefined,
-            couponType: undefined,
-            couponValue: undefined,
-          }
-        : {}),
       pricing: {
         subTotal,
-        fees,
-        tax,
-        discount: hasPackage ? packageDiscount : discount, // Show discount for display
-        total,
+        fees: prev.paymentSummaryMethods?.length ? prev.pricing.fees : 0,
+        tax: prev.paymentSummaryMethods?.length ? prev.pricing.tax : tax,
+        discount: hasPackage ? packageDiscount : discount,
+        couponDiscount: prev.pricing.couponDiscount ?? 0,
+        total: prev.paymentSummaryMethods?.length ? prev.pricing.total : total,
       },
     }));
   };
@@ -605,9 +584,15 @@ export default function BookingFlow({
     setFilteredDoctors(doctors);
   };
 
-  const updateBookingData = (updates: Partial<BookingData>) => {
+  const updateBookingData = (
+    updates:
+      | Partial<BookingData>
+      | ((prev: BookingData) => Partial<BookingData>)
+  ) => {
     setBookingData((prev) => {
-      const next = { ...prev, ...updates };
+      const partial =
+        typeof updates === "function" ? updates(prev) : updates;
+      const next = { ...prev, ...partial };
       bookingDataRef.current = next;
       return next;
     });
@@ -800,6 +785,16 @@ export default function BookingFlow({
       const categoryHasNoService = selectedCategory?.has_service === false;
       
             
+      const { nationalityName, nationalityId } = getPatientNationalityContext();
+      const primaryPatient = bookingData.selectedPatients?.[0];
+      const resolvedNationalityId =
+        nationalityId ??
+        primaryPatient?.nationality_id ??
+        resolveNationalityId(
+          primaryPatient?.nationality ?? nationalityName,
+          nationalityOptions
+        );
+
       const reservationData: any = {
         service_id: categoryHasNoService ? null : bookingData.selectedService?.id,
         category_id: bookingData.selectedCategory?.id,
@@ -808,8 +803,7 @@ export default function BookingFlow({
           bookingData.selectedPackage?.sessions_count ??
           bookingData.sessionsCount,
         sub_total: bookingData.pricing.subTotal,
-        fees: bookingData.pricing.fees,
-        total_amount: bookingData.pricing.total,
+        total_amount: bookingData.pricing.subTotal,
         transaction_reference: `txn_${Date.now()}`,
         pain_location: bookingData.healthInfo.painLocation,
         notes: [
@@ -827,7 +821,9 @@ export default function BookingFlow({
           time_period: date.time_period,
         })),
         attachments: attachmentIds,
-        payment_method: toApiPaymentMethod(bookingData.paymentMethod),
+        ...(resolvedNationalityId != null
+          ? { nationality_id: resolvedNationalityId }
+          : {}),
       };
       if (bookingData.selectedPackage) {
         reservationData.package_id = bookingData.selectedPackage.id;
@@ -844,16 +840,18 @@ export default function BookingFlow({
           address: bookingData.selectedLocation?.address || "N/A",
           city: bookingData.selectedLocation?.city || "N/A",
           country: bookingData.selectedLocation?.country || "N/A",
-
           nationality: guest.nationality,
-          ...(guest.nationality_id != null
-            ? { guest_nationality_id: guest.nationality_id }
+          ...(resolvedNationalityId != null
+            ? {
+                nationality_id: resolvedNationalityId,
+                guest_nationality_id: resolvedNationalityId,
+              }
             : {}),
           date_of_birth: guest.birthDate,
           gender: guest.gender,
-          national_id: guest.idNumber,
-          blood_group: guest.bloodType,
-          languages_spoken: "ar", // or dynamically set from user input
+          national_id: guest.idNumber?.trim() || "",
+          blood_group: guest.bloodType || "",
+          languages_spoken: "ar",
         };
         reservationData.address_city =
           bookingData.selectedLocation?.city || "N/A";
@@ -874,14 +872,29 @@ export default function BookingFlow({
 
       // Send request
       const response = bookingData.selectedPackage
-        ? await ClientAPI.createReservationWithPackage(reservationData, "ar")
-        : await ClientAPI.createReservation(reservationData, "ar");
+        ? await ClientAPI.createReservationWithPackage(reservationData, locale)
+        : await ClientAPI.createReservation(reservationData, locale);
       
       const created = response.data[0];
       setReservationId(created.id);
+      persistReservationId(created.id);
       setBookingData((prev) => applyReservationPricingFromApi(prev, created));
-      // Reservation created: ensure old coupon state is cleared so user applies fresh coupon for this reservation
-      clearTransientReservationData();
+
+      try {
+        const summaryResponse = await ClientAPI.getPaymentSummary(created.id, locale);
+        if (summaryResponse?.data) {
+          setBookingData((prev) =>
+            applyPaymentSummaryToBooking(
+              prev,
+              summaryResponse.data as PaymentSummaryData,
+              prev.paymentMethod
+            )
+          );
+        }
+      } catch (summaryError) {
+        console.error("Failed to load payment summary:", summaryError);
+      }
+
       toast.success(t("messages.bookingCreated"));
       setCurrentStep(5);
     } catch (error: any) {
@@ -902,26 +915,45 @@ export default function BookingFlow({
         throw new Error(t("messages.reservationIdMissing"));
       }
 
+      persistReservationId(reservationId);
+
+      const summaryResponse = await ClientAPI.getPaymentSummary(
+        reservationId,
+        locale
+      );
+      if (summaryResponse?.data) {
+        setBookingData((prev) =>
+          applyPaymentSummaryToBooking(
+            prev,
+            summaryResponse.data as PaymentSummaryData,
+            prev.paymentMethod
+          )
+        );
+      }
+
       if (bookingData.paymentMethod === "cash") {
-        // Cash: no online payment gateway — booking already created with payment_method: cash
-        localStorage.removeItem("bookingData");
-        toast.success(t("messages.bookingConfirmed"));
+        const cashResponse = await ClientAPI.payReservationWithCash(
+          reservationId,
+          locale
+        );
+        setBookingData((prev) => ({
+          ...prev,
+          paymentMethod: "cash",
+          paymentStatus: "cash_pending",
+        }));
+        clearCheckoutStorage();
+        toast.success(
+          extractApiMessage(cashResponse, t("messages.cashPendingConfirmed"))
+        );
         setCurrentStep(6);
       } else {
-        // Telr Payment
-        const responceTelr = await ClientAPI.payReservationWithTelr(
+        const telrResponse = await ClientAPI.payReservationWithTelr(
           reservationId,
-          "ar"
+          locale
         );
-                // prevent stale booking/coupon data after redirect
-        localStorage.removeItem("bookingData");
-        route.push(responceTelr.redirect_url);
+        const redirectUrl = extractTelrRedirectUrl(telrResponse);
+        route.push(redirectUrl);
       }
-      //  else {
-      //   // Default payment (Apple Pay or others)
-      //   const responceTap = await ClientAPI.payReservation(reservationId, "ar");
-      //   route.push(responceTap.data.redirect_url);
-      // }
     } catch (error: any) {
       console.error("Payment Error:", error);
       setError(error.message || t("messages.error"));
@@ -1026,7 +1058,12 @@ export default function BookingFlow({
           />
         );
       case 6:
-        return <Step6Confirmation bookingData={bookingData} />;
+        return (
+          <Step6Confirmation
+            bookingData={bookingData}
+            reservationId={reservationId}
+          />
+        );
       default:
         return null;
     }
@@ -1138,6 +1175,7 @@ export default function BookingFlow({
         onClose={() => closeModal("addPatient")}
         onSave={savePatient}
         patient={editingPatient}
+        nationalityOptions={nationalityOptions}
       />
       <LocationPickerModal
         isOpen={modals.locationPicker}

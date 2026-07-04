@@ -24,10 +24,11 @@ const fetchData = async (endpoint: string, locale: string, params: Record<string
       headers["Content-Type"] = "application/json";
     }
 
-    // Add authorization header if required (optional, as requiresAuth is removed)
-    if (params.requiresAuth) {
-      headers["Content-Type"] = "application/json";
+    if (params.requiresAuth || params.authToken) {
       headers["Accept"] = "application/json";
+      if (params.authToken) {
+        headers["Authorization"] = `Bearer ${params.authToken}`;
+      }
     }
 
     const method = params.method || "GET";
@@ -46,15 +47,29 @@ const fetchData = async (endpoint: string, locale: string, params: Record<string
     }
 
     const response = await fetch(url.toString(), fetchOptions);
+    const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-            // throw new Error(`HTTP error! Status: ${response.status}`);
+      const message =
+        typeof data?.message === "string"
+          ? data.message
+          : data?.errors
+            ? Object.values(data.errors as Record<string, string[]>)
+                .flat()
+                .join(", ")
+            : `HTTP error! Status: ${response.status}`;
+
+      if (params.throwOnError) {
+        throw new Error(message);
+      }
     }
 
-    return await response.json();
+    return data;
   } catch (error) {
     console.error("API Fetch Error:", error);
-    // throw error;
+    if (params.throwOnError) {
+      throw error;
+    }
   }
 };
 
@@ -64,8 +79,22 @@ const ClientAPI = {
     fetchData('client/categories', locale),
 
   // Coupons
-  getCoupons: (locale: string) =>
-    fetchData('client/coupons', locale),
+  getCoupons: (
+    locale: string,
+    query?: { name?: string; code?: string; limit?: number; page?: number },
+    authToken?: string
+  ) =>
+    fetchData("client/coupons", locale, {
+      params: {
+        is_active: 1,
+        limit: query?.limit ?? 20,
+        page: query?.page ?? 1,
+        ...(query?.name ? { name: query.name } : {}),
+        ...(query?.code ? { code: query.code } : {}),
+      },
+      requiresAuth: true,
+      authToken,
+    }),
 
   // Packages
   getPackages: (locale: string) =>
@@ -126,39 +155,66 @@ const ClientAPI = {
     }),
 
   applyCouponOnReservation: (
-    payload: { reservationId: number; coupon_id: number },
-    locale: string
+    payload: { reservationId: number; coupon_id: string },
+    locale: string,
+    authToken?: string
   ) =>
     fetchData("client/reservations/apply-coupon", locale, {
       method: "POST",
       body: payload,
       requiresAuth: true,
+      authToken,
+      throwOnError: true,
     }),
 
   removeCouponFromReservation: (
-    payload: { reservationId: number; coupon_id: number },
-    locale: string
+    payload: { reservationId: number; coupon_id: string },
+    locale: string,
+    authToken?: string
   ) =>
     fetchData("client/reservations/remove-coupon", locale, {
       method: "POST",
       body: payload,
       requiresAuth: true,
+      authToken,
+      throwOnError: true,
     }),
 
-  // Payment - Apple Pay or default payment
-  payReservation: (reservationId: number, locale: string) =>
-    fetchData('payment/pay', locale, {
-      method: 'POST',
-      body: { reservation_id: reservationId, method: "web" },
-      requiresAuth: true,
+  getPaymentSummary: (
+    reservationId: number,
+    locale: string,
+    authToken?: string
+  ) =>
+    fetchData(`client/payment/summary/${reservationId}`, locale, {
+      authToken,
+      noCache: true,
     }),
 
-  // Payment - Telr Payment
+  getReservation: (reservationId: number | string, locale: string) =>
+    fetchData(`client/reservations/${reservationId}`, locale, {
+      noCache: true,
+    }),
+
+  payReservationWithWallet: (reservationId: number, locale: string) =>
+    fetchData("client/payment/wallet/pay", locale, {
+      method: "POST",
+      body: { reservation_id: reservationId },
+      throwOnError: true,
+    }),
+
+  payReservationWithCash: (reservationId: number, locale: string) =>
+    fetchData("client/payment/cash/pay", locale, {
+      method: "POST",
+      body: { reservation_id: reservationId },
+      throwOnError: true,
+    }),
+
+  // Payment - Telr (website checkout)
   payReservationWithTelr: (reservationId: number, locale: string) =>
-    fetchData('payment/telr/pay', locale, {
-      method: 'POST',
+    fetchData("client/payment/telr/pay", locale, {
+      method: "POST",
       body: { reservation_id: reservationId, method: "web" },
-      requiresAuth: true,
+      throwOnError: true,
     }),
 
   // Reservation Review

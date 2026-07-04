@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import {
   CheckCircle,
@@ -8,20 +9,26 @@ import {
   CreditCard,
   Download,
   Home,
+  Loader2,
 } from "lucide-react";
 import type { BookingData } from "@/types/booking";
 import { Document, Page, Text, View, StyleSheet, Font, pdf } from "@react-pdf/renderer";
 import { toast } from "sonner";
 import { useLocalStorage } from "@/Hooks/use-local-storage";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import ClientAPI from "@/app/api/api";
+import {
+  clearCheckoutStorage,
+  getPersistedReservationId,
+} from "@/lib/checkout-storage";
+import { parseReservationRecord } from "@/lib/payment-api";
+import { useTranslation } from "react-i18next";
 
-// Register Amiri font
 Font.register({
   family: "Amiri",
   src: "https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHqUp.ttf",
 });
 
-// PDF Styles (same as Step6Confirmation)
 const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
@@ -109,8 +116,13 @@ const styles = StyleSheet.create({
   },
 });
 
-// PDF Document Component (same as Step6Confirmation)
-const ReceiptDocument = ({ bookingData, reservationId }: { bookingData: BookingData; reservationId: number | null }) => (
+const ReceiptDocument = ({
+  bookingData,
+  reservationId,
+}: {
+  bookingData: BookingData;
+  reservationId: number | null;
+}) => (
   <Document>
     <Page size="A4" style={styles.page}>
       <Text style={styles.header}>إيصال الحجز - هوم هيلرز</Text>
@@ -124,241 +136,171 @@ const ReceiptDocument = ({ bookingData, reservationId }: { bookingData: BookingD
           <Text style={styles.label}>التاريخ:</Text>
         </View>
       </View>
-
-      <Text style={styles.subHeader}>تفاصيل الحجز</Text>
-      <View style={styles.section}>
-        <View style={styles.row}>
-          <Text style={styles.value}>
-            {bookingData.selectedPatients?.map((p) => p.name).join(", ") || "غير محدد"}
-          </Text>
-          <Text style={styles.label}>اسم المريض:</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.value}>{bookingData.selectedDoctor?.name || "غير محدد"}</Text>
-          <Text style={styles.label}>الطبيب المعالج:</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.value}>{bookingData.selectedDoctor?.specialist || "غير محدد"}</Text>
-          <Text style={styles.label}>التخصص:</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.value}>{bookingData.healthInfo.painLocation || "غير محدد"}</Text>
-          <Text style={styles.label}>المشكلة الصحية:</Text>
-        </View>
-        {bookingData.selectedPackage && (
-          <View style={styles.row}>
-            <Text style={styles.value}>{bookingData.selectedPackage.name || "غير محدد"}</Text>
-            <Text style={styles.label}>الباقة المختارة:</Text>
-          </View>
-        )}
-      </View>
-
-      <Text style={styles.subHeader}>الموقع والمواعيد</Text>
-      <View style={styles.section}>
-        <View style={styles.row}>
-          <Text style={styles.value}>{bookingData.selectedLocation?.title || "غير محدد"}</Text>
-          <Text style={styles.label}>موقع الزيارة:</Text>
-        </View>
-        <Text style={[styles.text, { paddingHorizontal: 10 }]}>
-          {bookingData.selectedLocation?.address || "غير محدد"}
-        </Text>
-        <View style={styles.divider} />
-        <Text style={[styles.text, { paddingHorizontal: 10 }]}>المواعيد المحجوزة:</Text>
-        {bookingData.selectedDates.map((dateTime, index) => (
-          <Text key={index} style={[styles.text, { paddingHorizontal: 10 }]}>
-            {dateTime.date} - {dateTime.time}
-          </Text>
-        ))}
-      </View>
-
       <Text style={styles.subHeader}>ملخص الدفع</Text>
       <View style={styles.section}>
         <View style={styles.row}>
-          <Text style={styles.value}>{bookingData.pricing.subTotal} ريال</Text>
+          <Text style={styles.value}>{bookingData.pricing?.subTotal ?? 0} ريال</Text>
           <Text style={styles.label}>المبلغ الأساسي:</Text>
         </View>
-        {bookingData.pricing.fees > 0 && (
-          <View style={styles.row}>
-            <Text style={styles.value}>{bookingData.pricing.fees} ريال</Text>
-            <Text style={styles.label}>رسوم الزيارة:</Text>
-          </View>
-        )}
-        {bookingData.pricing.tax > 0 && (
-          <View style={styles.row}>
-            <Text style={styles.value}>{bookingData.pricing.tax} ريال</Text>
-            <Text style={styles.label}>الضريبة:</Text>
-          </View>
-        )}
-        {bookingData.pricing.discount > 0 && (
-          <View style={styles.row}>
-            <Text style={[styles.value, { color: "#16a34a" }]}>-{bookingData.pricing.discount} ريال</Text>
-            <Text style={styles.label}>الخصم:</Text>
-          </View>
-        )}
         <View style={styles.divider} />
         <View style={styles.row}>
           <Text style={[styles.value, styles.bold, { color: "#143087" }]}>
-            {bookingData.pricing.total} ريال
+            {bookingData.pricing?.total ?? 0} ريال
           </Text>
           <Text style={[styles.label, styles.bold]}>المبلغ الإجمالي:</Text>
         </View>
-        <View style={styles.row}>
-          <Text style={styles.value}>
-            {bookingData.paymentMethod === "cash"
-              ? "نقداً"
-              : bookingData.paymentMethod === "telr"
-              ? "Telr Payment"
-              : "Apple Pay"}
-          </Text>
-          <Text style={styles.label}>طريقة الدفع:</Text>
-        </View>
       </View>
-
-      <Text style={styles.footer}>
-        فريق هوم هيلرز - support@homehealers.com | للتواصل: +966 50 000 0000
-      </Text>
     </Page>
   </Document>
 );
 
-export default function PaymentSuccess() {
+type PaymentSuccessProps = {
+  orderRef?: string;
+};
+
+export default function PaymentSuccess({ orderRef }: PaymentSuccessProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [bookingData, setBookingData] = useLocalStorage<BookingData>("bookingData", {} as BookingData);
+  const { t, i18n } = useTranslation("booking");
+  const locale = i18n.language?.startsWith("en") ? "en" : "ar";
+  const [bookingData] = useLocalStorage<BookingData>("bookingData", {} as BookingData);
   const [reservationId, setReservationId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [paymentVerified, setPaymentVerified] = useState(false);
 
   useEffect(() => {
-    // Retrieve reservationId from query parameters or localStorage
-    const resId = searchParams.get("reservationId");
-    if (resId) {
-      setReservationId(Number(resId));
-    } else if (localStorage.getItem("reservationId")) {
-      setReservationId(Number(localStorage.getItem("reservationId")));
-    }
+    const verifyPayment = async () => {
+      const persistedId = getPersistedReservationId();
+      if (!persistedId) {
+        toast.error(t("messages.reservationIdMissing"));
+        router.push("/");
+        return;
+      }
 
-    // Check if bookingData is available
-    if (!bookingData || !Object.keys(bookingData).length) {
-      toast.error("لم يتم العثور على بيانات الحجز. يرجى المحاولة مرة أخرى.");
-      router.push("/");
-    }
-    setIsLoading(false);
-  }, [bookingData, router, searchParams]);
+      setReservationId(persistedId);
+
+      try {
+        const response = await ClientAPI.getReservation(persistedId, locale);
+        const reservation = parseReservationRecord(response);
+        const paymentStatus = reservation?.payment_status;
+
+        if (paymentStatus === "paid") {
+          setPaymentVerified(true);
+          clearCheckoutStorage();
+        } else {
+          toast.error(t("paymentReturn.notPaidYet"));
+          router.push(`/${locale}/failed/${orderRef ?? "unknown"}`);
+          return;
+        }
+      } catch (error) {
+        console.error("Failed to verify payment:", error);
+        toast.error(t("paymentReturn.verifyFailed"));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    verifyPayment();
+  }, [locale, orderRef, router, t]);
 
   const handleDownloadReceipt = async () => {
+    if (!bookingData?.pricing) return;
     try {
-      const blob = await pdf(<ReceiptDocument bookingData={bookingData} reservationId={reservationId} />).toBlob();
+      const blob = await pdf(
+        <ReceiptDocument bookingData={bookingData} reservationId={reservationId} />
+      ).toBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
       link.download = `HomeHealers_Receipt_HH-${reservationId || Date.now()}.pdf`;
       link.click();
       URL.revokeObjectURL(url);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error generating PDF:", error);
-      toast.error("فشل في إنشاء إيصال الحجز. حاول مرة أخرى.");
+      toast.error(t("step6.pdfError"));
     }
   };
 
   const handleGoHome = () => {
-    localStorage.removeItem("bookingData");
-    localStorage.removeItem("reservationId");
+    clearCheckoutStorage();
     router.push("/");
   };
+
+  const hasBookingDetails =
+    bookingData &&
+    Object.keys(bookingData).length > 0 &&
+    bookingData.selectedPatients?.length;
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#143087]"></div>
+        <Loader2 className="h-10 w-10 animate-spin text-[#143087]" />
       </div>
     );
   }
 
+  if (!paymentVerified) {
+    return null;
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-8 py-12" dir="rtl">
-      {/* Success Header */}
       <div className="text-center py-12">
         <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle className="w-12 h-12 text-green-600" />
         </div>
         <h1 className="text-3xl font-bold text-green-800 mb-4">
-          تم تأكيد الدفع بنجاح!
+          {t("paymentReturn.successTitle")}
         </h1>
         <p className="text-lg text-gray-600 mb-6">
-          شكراً لك لاستخدام منصة هوم هيلرز. سيتم التواصل معك قريباً لتأكيد موعد الزيارة.
+          {t("paymentReturn.successMessage")}
         </p>
         <div className="inline-flex items-center gap-2 px-6 py-3 bg-green-50 border border-green-200 rounded-lg">
-          <span className="text-green-800 font-medium">رقم الحجز:</span>
-          <span className="text-green-600 font-bold">HH-{reservationId || Date.now()}</span>
+          <span className="text-green-800 font-medium">{t("step6.reservationNumber")}:</span>
+          <span className="text-green-600 font-bold">HH-{reservationId}</span>
         </div>
+        {orderRef && (
+          <p className="text-sm text-gray-500 mt-3">
+            {t("paymentReturn.orderRef")}: {orderRef}
+          </p>
+        )}
       </div>
 
-      {/* Booking Details */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Patient & Doctor Info */}
-        <div className="bg-white rounded-2xl shadow-md p-6">
-          <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-            <User className="w-6 h-6 text-[#62a0f6]" />
-            تفاصيل الحجز
-          </h2>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="font-medium">
-                {bookingData.selectedPatients?.map((p) => p.name).join(", ") || "غير محدد"}
-              </span>
-              <span className="text-gray-600">اسم المريض</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="font-medium">
-                {bookingData.selectedDoctor?.name || "غير محدد"}
-              </span>
-              <span className="text-gray-600">الطبيب المعالج</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="font-medium">
-                {bookingData.selectedDoctor?.specialist || "غير محدد"}
-              </span>
-              <span className="text-gray-600">التخصص</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="font-medium">
-                {bookingData.healthInfo.painLocation || "غير محدد"}
-              </span>
-              <span className="text-gray-600">المشكلة الصحية</span>
-            </div>
-            {bookingData.selectedPackage && (
-              <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                <span className="font-medium text-blue-800">
-                  {bookingData.selectedPackage.name || "غير محدد"}
+      {hasBookingDetails && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="bg-white rounded-2xl shadow-md p-6">
+            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+              <User className="w-6 h-6 text-[#62a0f6]" />
+              {t("step6.bookingDetails")}
+            </h2>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                <span className="font-medium">
+                  {bookingData.selectedPatients?.map((p) => p.name).join(", ")}
                 </span>
-                <span className="text-blue-600">الباقة المختارة</span>
+                <span className="text-gray-600">{t("step5.patientName")}</span>
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Location & Schedule */}
-        <div className="bg-white rounded-2xl shadow-md p-6">
-          <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-            <MapPin className="w-6 h-6 text-[#62a0f6]" />
-            الموقع والمواعيد
-          </h2>
-          <div className="space-y-4">
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <h3 className="font-medium text-gray-600 mb-1">موقع الزيارة</h3>
-              <p className="font-medium">
-                {bookingData.selectedLocation?.title || "غير محدد"}
-              </p>
-              <p className="text-sm text-gray-600">
-                {bookingData.selectedLocation?.address || "غير محدد"}
-              </p>
+              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                <span className="font-medium">
+                  {bookingData.selectedDoctor?.name || t("step5.notSpecified")}
+                </span>
+                <span className="text-gray-600">{t("step6.treatingDoctor")}</span>
+              </div>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <h3 className="font-medium text-gray-600 mb-2">
-                المواعيد المحجوزة
-              </h3>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-md p-6">
+            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+              <MapPin className="w-6 h-6 text-[#62a0f6]" />
+              {t("step6.locationAndSchedule")}
+            </h2>
+            <div className="space-y-4">
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="font-medium">
+                  {bookingData.selectedLocation?.title || t("step5.notSpecified")}
+                </p>
+              </div>
               <div className="space-y-2">
-                {bookingData.selectedDates.map((dateTime, index) => (
+                {bookingData.selectedDates?.map((dateTime, index) => (
                   <div key={index} className="flex items-center gap-2 text-sm">
                     <Calendar className="w-4 h-4 text-gray-500" />
                     <span>{dateTime.date}</span>
@@ -369,141 +311,38 @@ export default function PaymentSuccess() {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Payment Summary */}
-        <div className="bg-white rounded-2xl shadow-md p-6">
-          <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-            <CreditCard className="w-6 h-6 text-[#62a0f6]" />
-            ملخص الدفع
-          </h2>
-          <div className="space-y-3 p-4 bg-[#eff6fe] rounded-lg">
-            <div className="flex justify-between">
-              <span className="font-medium">
-                {bookingData.pricing.subTotal} ريال
-              </span>
-              <span className="text-gray-600">المبلغ الأساسي</span>
-            </div>
-            {bookingData.pricing.fees > 0 && (
-              <div className="flex justify-between">
-                <span className="font-medium">
-                  {bookingData.pricing.fees} ريال
-                </span>
-                <span className="text-gray-600">رسوم الزيارة</span>
-              </div>
-            )}
-            {bookingData.pricing.tax > 0 && (
-              <div className="flex justify-between">
-                <span className="font-medium">
-                  {bookingData.pricing.tax} ريال
-                </span>
-                <span className="text-gray-600">الضريبة</span>
-              </div>
-            )}
-            {bookingData.pricing.discount > 0 && (
-              <div className="flex justify-between text-green-600">
-                <span className="font-medium">
-                  -{bookingData.pricing.discount} ريال
-                </span>
-                <span>الخصم</span>
-              </div>
-            )}
-            <div className="border-t border-gray-300 pt-3">
-              <div className="flex justify-between text-lg font-bold">
-                <span className="text-[#62a0f6]">
-                  {bookingData.pricing.total} ريال
-                </span>
-                <span>المبلغ الإجمالي</span>
-              </div>
-            </div>
-          </div>
-          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-800 text-sm">
-              ✅ تم الدفع بنجاح عبر{" "}
-              {bookingData.paymentMethod === "telr" ? "Telr Payment" : "Apple Pay"}
-            </p>
-          </div>
-        </div>
-
-        {/* Next Steps */}
-        <div className="bg-white rounded-2xl shadow-md p-6">
-          <h2 className="text-xl font-bold mb-6">الخطوات التالية</h2>
-          <div className="space-y-4">
-            <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-              <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                1
-              </div>
-              <div>
-                <h3 className="font-medium">تأكيد الموعد</h3>
-                <p className="text-sm text-gray-600">
-                  سيتم التواصل معك خلال 24 ساعة لتأكيد الموعد
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-              <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                2
-              </div>
-              <div>
-                <h3 className="font-medium">تحضير الزيارة</h3>
-                <p className="text-sm text-gray-600">
-                  تأكد من توفر جميع الأدوية والتقارير الطبية
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-              <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                3
-              </div>
-              <div>
-                <h3 className="font-medium">يوم الزيارة</h3>
-                <p className="text-sm text-gray-600">
-                  سيصل الطبيب في الموعد المحدد إلى الموقع المختار
-                </p>
-              </div>
+          <div className="bg-white rounded-2xl shadow-md p-6 lg:col-span-2">
+            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+              <CreditCard className="w-6 h-6 text-[#62a0f6]" />
+              {t("step6.paymentSummary")}
+            </h2>
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-green-800 text-sm">
+                ✅ {t("step6.paymentSuccess")} {t("step6.via")} {t("step5.telrPayment")}
+              </p>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
-        <button
-          onClick={handleDownloadReceipt}
-          className="flex items-center justify-center gap-2 px-8 py-3 border border-[#62a0f6] text-[#62a0f6] rounded-lg hover:bg-[#eff6fe] transition-colors"
-        >
-          <Download className="w-5 h-5" />
-          تحميل الإيصال
-        </button>
+        {hasBookingDetails && (
+          <button
+            onClick={handleDownloadReceipt}
+            className="flex items-center justify-center gap-2 px-8 py-3 border border-[#62a0f6] text-[#62a0f6] rounded-lg hover:bg-[#eff6fe] transition-colors"
+          >
+            <Download className="w-5 h-5" />
+            {t("step6.downloadReceipt")}
+          </button>
+        )}
         <button
           onClick={handleGoHome}
           className="flex items-center justify-center gap-2 px-8 py-3 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] transition-colors"
         >
           <Home className="w-5 h-5" />
-          العودة للرئيسية
+          {t("step6.goHome")}
         </button>
-      </div>
-
-      {/* Contact Info */}
-      <div className="text-center p-6 bg-gray-50 rounded-lg">
-        <h3 className="font-bold mb-2">هل تحتاج مساعدة؟</h3>
-        <p className="text-gray-600 mb-4">
-          فريق خدمة العملاء متاح على مدار الساعة لمساعدتك
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a
-            href="tel:+966500000000"
-            className="text-[#62a0f6] hover:underline"
-          >
-            📞 +966 50 000 0000
-          </a>
-          <a
-            href="mailto:support@homehealers.com"
-            className="text-[#62a0f6] hover:underline"
-          >
-            ✉️ support@homehealers.com
-          </a>
-        </div>
       </div>
     </div>
   );

@@ -195,15 +195,25 @@ export interface BookingData {
     attachments: File[]
   }
   paymentMethod: string
+  paymentStatus?: "pending" | "paid" | "cash_pending" | "failed"
   couponCode: string
-  couponId?: number
+  couponId?: string
   couponType?: "percentage" | "fixed"
   couponValue?: number
+  paymentSummaryMethods?: Array<{
+    type: string
+    discount: number
+    fees: number
+    total: number
+    available?: boolean
+    insufficient_balance?: boolean
+  }>
   pricing: {
     subTotal: number
     fees: number
     tax: number
     discount: number
+    couponDiscount: number
     total: number
   }
   clientId?: number
@@ -217,7 +227,7 @@ export interface ReservationRequest {
   address_id: number
   doctor_id: number
   package_id?: number
-  coupon_id?: number
+  coupon_id?: string
   sessions_count: number
   sub_total: number
   fees: number

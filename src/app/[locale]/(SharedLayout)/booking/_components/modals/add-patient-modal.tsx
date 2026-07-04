@@ -9,6 +9,7 @@ interface AddPatientModalProps {
   onClose: () => void;
   onSave: (patient: Patient, isEditing?: boolean) => void;
   patient: Patient | null;
+  nationalityOptions?: { id: number; name: string }[];
 }
 
 export default function AddPatientModal({
@@ -16,11 +17,13 @@ export default function AddPatientModal({
   onClose,
   onSave,
   patient,
+  nationalityOptions = [],
 }: AddPatientModalProps) {
   const [formData, setFormData] = useState<Omit<Patient, "id">>({
     name: "",
     relationship: "",
     nationality: "",
+    nationality_id: undefined,
     idNumber: "",
     phone: "",
     email: "",
@@ -36,10 +39,15 @@ export default function AddPatientModal({
     "الزوج", "الزوجة", "الجد", "الجدة", "أخرى"
   ];
 
-  const nationalities = [
+  const fallbackNationalities = [
     "السعودية", "الإمارات", "الكويت", "قطر", "البحرين", "عمان",
     "مصر", "الأردن", "لبنان", "سوريا", "أخرى"
   ];
+
+  const nationalityChoices =
+    nationalityOptions.length > 0
+      ? nationalityOptions
+      : fallbackNationalities.map((name, index) => ({ id: index + 1, name }));
 
   const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
@@ -49,6 +57,7 @@ export default function AddPatientModal({
         name: patient.name,
         relationship: patient.relationship,
         nationality: patient.nationality,
+        nationality_id: patient.nationality_id,
         idNumber: patient.idNumber,
         phone: patient.phone,
         email: patient.email,
@@ -61,6 +70,7 @@ export default function AddPatientModal({
         name: "",
         relationship: "",
         nationality: "",
+        nationality_id: undefined,
         idNumber: "",
         phone: "",
         email: "",
@@ -109,6 +119,7 @@ export default function AddPatientModal({
           name: "",
           relationship: "",
           nationality: "",
+          nationality_id: undefined,
           idNumber: "",
           phone: "",
           email: "",
@@ -197,16 +208,34 @@ export default function AddPatientModal({
                 * الجنسية
               </label>
               <select
-                value={formData.nationality}
-                onChange={(e) => handleInputChange("nationality", e.target.value)}
+                value={
+                  formData.nationality_id != null
+                    ? String(formData.nationality_id)
+                    : formData.nationality
+                }
+                onChange={(e) => {
+                  const selected = nationalityChoices.find(
+                    (option) => String(option.id) === e.target.value
+                  );
+                  if (selected) {
+                    setFormData((prev) => ({
+                      ...prev,
+                      nationality: selected.name,
+                      nationality_id: selected.id,
+                    }));
+                    if (errors.nationality) {
+                      setErrors((prev) => ({ ...prev, nationality: "" }));
+                    }
+                  }
+                }}
                 className={`w-full p-3 border rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6] ${
                   errors.nationality ? "border-red-500" : "border-gray-300"
                 }`}
               >
                 <option value="">اختر الجنسية</option>
-                {nationalities.map((nat) => (
-                  <option key={nat} value={nat}>
-                    {nat}
+                {nationalityChoices.map((nat) => (
+                  <option key={nat.id} value={String(nat.id)}>
+                    {nat.name}
                   </option>
                 ))}
               </select>

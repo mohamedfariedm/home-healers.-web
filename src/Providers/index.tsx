@@ -32,7 +32,9 @@ export default async function GlobalProvider({
             locale={locale}
             resources={resources}
           >
-              {children}{" "}
+            <ClientComponentsAuthSessionProvider>
+              {children}
+            </ClientComponentsAuthSessionProvider>
             <Toaster />
           </ClientComponentsTranslationsProvider>
         </RamadanProvider>

@@ -184,16 +184,24 @@ const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => (
           <Text style={styles.value}>{bookingData.pricing.subTotal} ريال</Text>
           <Text style={styles.label}>المبلغ الأساسي:</Text>
         </View>
-        {bookingData.pricing.fees > 0 && (
-          <View style={styles.row}>
-            <Text style={styles.value}>{bookingData.pricing.fees} ريال</Text>
-            <Text style={styles.label}>رسوم الزيارة:</Text>
-          </View>
-        )}
         {bookingData.pricing.tax > 0 && (
           <View style={styles.row}>
             <Text style={styles.value}>{bookingData.pricing.tax} ريال</Text>
-            <Text style={styles.label}>الضريبة:</Text>
+            <Text style={styles.label}>رسوم الجنسية (15%):</Text>
+          </View>
+        )}
+        {bookingData.pricing.fees > 0 && (
+          <View style={styles.row}>
+            <Text style={styles.value}>{bookingData.pricing.fees} ريال</Text>
+            <Text style={styles.label}>رسوم مزود الدفع:</Text>
+          </View>
+        )}
+        {(bookingData.pricing.couponDiscount ?? 0) > 0 && (
+          <View style={styles.row}>
+            <Text style={[styles.value, { color: "#16a34a" }]}>
+              -{bookingData.pricing.couponDiscount} ريال
+            </Text>
+            <Text style={styles.label}>خصم الكوبون:</Text>
           </View>
         )}
         {bookingData.pricing.discount > 0 && (
@@ -215,7 +223,9 @@ const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => (
               ? "نقداً"
               : bookingData.paymentMethod === "telr"
               ? "Telr Payment"
-              : "Apple Pay"}
+              : bookingData.paymentMethod === "wallet"
+              ? "المحفظة"
+              : "غير محدد"}
           </Text>
           <Text style={styles.label}>طريقة الدفع:</Text>
         </View>
@@ -231,6 +241,18 @@ const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => (
 
 export default function Step6Confirmation({ bookingData, reservationId }: Step6Props) {
   const { t } = useTranslation("booking");
+  const isCashPending =
+    bookingData.paymentStatus === "cash_pending" ||
+    (bookingData.paymentMethod === "cash" && bookingData.paymentStatus !== "paid");
+
+  const paymentMethodLabel =
+    bookingData.paymentMethod === "cash"
+      ? t("step5.cash")
+      : bookingData.paymentMethod === "telr"
+      ? t("step5.telrPayment")
+      : bookingData.paymentMethod === "wallet"
+      ? t("step5.wallet")
+      : t("step5.notSpecified");
   const handleDownloadReceipt = async () => {
     try {
       const blob = await pdf(<ReceiptDocument bookingData={bookingData} reservationId={reservationId} />).toBlob();
@@ -361,20 +383,28 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
               </span>
               <span className="text-gray-600">{t("step5.baseAmount")}</span>
             </div>
-            {bookingData.pricing.fees > 0 && (
-              <div className="flex justify-between">
-                <span className="font-medium">
-                  {bookingData.pricing.fees} {t("step5.currency")}
-                </span>
-                <span className="text-gray-600">{t("step6.visitFees")}</span>
-              </div>
-            )}
             {bookingData.pricing.tax > 0 && (
               <div className="flex justify-between">
                 <span className="font-medium">
                   {bookingData.pricing.tax} {t("step5.currency")}
                 </span>
-                <span className="text-gray-600">{t("step6.tax")}</span>
+                <span className="text-gray-600">{t("step5.nationalityTax")}</span>
+              </div>
+            )}
+            {bookingData.pricing.fees > 0 && (
+              <div className="flex justify-between">
+                <span className="font-medium">
+                  {bookingData.pricing.fees} {t("step5.currency")}
+                </span>
+                <span className="text-gray-600">{t("step5.providerFees")}</span>
+              </div>
+            )}
+            {(bookingData.pricing.couponDiscount ?? 0) > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span className="font-medium">
+                  -{bookingData.pricing.couponDiscount} {t("step5.currency")}
+                </span>
+                <span>{t("step5.couponDiscount")}</span>
               </div>
             )}
             {bookingData.pricing.discount > 0 && (
@@ -396,12 +426,14 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
           </div>
           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-green-800 text-sm">
-              ✅ {t("step6.paymentSuccess")} {t("step6.via")}{" "}
-              {bookingData.paymentMethod === "cash"
-                ? t("step5.cash")
-                : bookingData.paymentMethod === "telr"
-                ? t("step5.telrPayment")
-                : "Apple Pay"}
+              {isCashPending ? (
+                <>💵 {t("step6.cashPendingMessage")}</>
+              ) : (
+                <>
+                  ✅ {t("step6.paymentSuccess")} {t("step6.via")}{" "}
+                  {paymentMethodLabel}
+                </>
+              )}
             </p>
           </div>
         </div>

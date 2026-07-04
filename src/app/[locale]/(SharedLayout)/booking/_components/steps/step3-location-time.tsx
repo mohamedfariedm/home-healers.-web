@@ -138,10 +138,18 @@ export default function Step3LocationTime({
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {savedLocations.map((location) => (
-                <button
+                <div
                   key={location.id}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => handleLocationSelect(location)}
-                  className={`p-4 rounded-lg border-2 text-right transition-all group relative ${
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleLocationSelect(location);
+                    }
+                  }}
+                  className={`p-4 rounded-lg border-2 text-right transition-all group relative cursor-pointer ${
                     bookingData.selectedLocation?.id === location.id
                       ? "border-[#62a0f6] bg-[#eff6fe]"
                       : "border-gray-200 hover:border-[#62a0f6]"
@@ -172,7 +180,7 @@ export default function Step3LocationTime({
                   </div>
                   <p className="text-sm text-gray-600">{location.address}</p>
                   <p className="text-sm text-gray-600">{location.city}, {location.country}</p>
-                </button>
+                </div>
               ))}
             </div>
           )}

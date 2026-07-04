@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertTriangle, Home, RefreshCw, User, Loader2 } from "lucide-react";
+import { Ban, Home, RefreshCw, User, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useLocalStorage } from "@/Hooks/use-local-storage";
 import { useRouter } from "next/navigation";
@@ -11,11 +11,11 @@ import { extractTelrRedirectUrl } from "@/lib/payment-api";
 import { getPersistedReservationId } from "@/lib/checkout-storage";
 import { useTranslation } from "react-i18next";
 
-type PaymentFailProps = {
+type PaymentCanceledProps = {
   orderRef?: string;
 };
 
-export default function PaymentFail({ orderRef }: PaymentFailProps) {
+export default function PaymentCanceled({ orderRef }: PaymentCanceledProps) {
   const router = useRouter();
   const { t, i18n } = useTranslation("booking");
   const locale = i18n.language?.startsWith("en") ? "en" : "ar";
@@ -72,19 +72,19 @@ export default function PaymentFail({ orderRef }: PaymentFailProps) {
   return (
     <div className="max-w-4xl mx-auto space-y-8 py-12" dir="rtl">
       <div className="text-center py-12">
-        <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <AlertTriangle className="w-12 h-12 text-red-600" />
+        <div className="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Ban className="w-12 h-12 text-amber-600" />
         </div>
-        <h1 className="text-3xl font-bold text-red-800 mb-4">
-          {t("paymentReturn.failTitle")}
+        <h1 className="text-3xl font-bold text-amber-800 mb-4">
+          {t("paymentReturn.canceledTitle")}
         </h1>
         <p className="text-lg text-gray-600 mb-6">
-          {t("paymentReturn.failMessage")}
+          {t("paymentReturn.canceledMessage")}
         </p>
         {reservationId && (
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-red-50 border border-red-200 rounded-lg">
-            <span className="text-red-800 font-medium">{t("step6.reservationNumber")}:</span>
-            <span className="text-red-600 font-bold">HH-{reservationId}</span>
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <span className="text-amber-800 font-medium">{t("step6.reservationNumber")}:</span>
+            <span className="text-amber-700 font-bold">HH-{reservationId}</span>
           </div>
         )}
         {orderRef && (
@@ -100,20 +100,11 @@ export default function PaymentFail({ orderRef }: PaymentFailProps) {
             <User className="w-6 h-6 text-[#62a0f6]" />
             {t("paymentReturn.bookingSummary")}
           </h2>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="font-medium">
-                {bookingData.selectedPatients?.map((p) => p.name).join(", ") ||
-                  t("step5.notSpecified")}
-              </span>
-              <span className="text-gray-600">{t("step5.patientName")}</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="font-medium">
-                {bookingData.pricing?.total ?? 0} {t("step5.currency")}
-              </span>
-              <span className="text-gray-600">{t("step5.totalAmount")}</span>
-            </div>
+          <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+            <span className="font-medium">
+              {bookingData.pricing?.total ?? 0} {t("step5.currency")}
+            </span>
+            <span className="text-gray-600">{t("step5.totalAmount")}</span>
           </div>
         </div>
       )}

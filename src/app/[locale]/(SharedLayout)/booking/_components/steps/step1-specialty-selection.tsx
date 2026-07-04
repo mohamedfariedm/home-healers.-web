@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import ClientAPI from "@/app/api/api";
 import LocationPickerModal from "../modals/location-picker-modal";
 import { getPackageCategoryList } from "@/lib/package-categories";
+import { extractTelrRedirectUrl } from "@/lib/payment-api";
+import { persistReservationId } from "@/lib/checkout-storage";
 
 /* ------------------------------------------------------------------ */
 /* -------------------------- COMPONENT ------------------------------ */
@@ -231,13 +233,14 @@ export default function Step1SpecialtySelection({
           address_state: "",
           address_link: "",
         });
-                const reservationId = res.data[0].id;
-        const responceTelr = await ClientAPI.payReservationWithTelr(
+        const reservationId = res.data[0].id;
+        persistReservationId(reservationId);
+        const telrResponse = await ClientAPI.payReservationWithTelr(
           reservationId,
           "ar",
         );
-        
-        route.push(responceTelr.redirect_url);
+
+        router.push(extractTelrRedirectUrl(telrResponse));
       } else
         toast.error(
           t("step1.quickBookingFailed") || "فشل الإرسال، حاول مرة أخرى.",
