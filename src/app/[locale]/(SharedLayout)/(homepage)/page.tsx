@@ -78,7 +78,7 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
     (banner: { page: string; type: string }) =>
       banner.page === "home" && banner.type === "web",
   );
-  const seo = settings?.data[0]?.setting?.seo["home"];
+  const seo = settings?.data[0]?.setting?.seo?.["home"];
 
   const breadcrumbSchema = createBreadcrumbSchema([
     {
