@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { MessageCircle, Phone, ArrowLeft, ArrowRight, Headphones } from 'lucide-react';
 import type { FaqTranslations } from "@/translations/faq";
 import type { ContactInfo } from "@/types/faq";
-import { WHATSAPP_URL } from "@/constants/whatsapp";
+import { buildWhatsAppUrl, WHATSAPP_DEFAULT_MESSAGE } from "@/constants/whatsapp";
 
 interface ContactCardProps {
   translations: FaqTranslations;
@@ -19,13 +19,14 @@ const ContactCard: React.FC<ContactCardProps> = ({
   contactInfo = {
     phone: "966551172232",
     whatsappMessage: {
-      ar: "مرحبا، لدي استفسار",
-      en: "Hello, I have a question"
+      ar: WHATSAPP_DEFAULT_MESSAGE,
+      en: WHATSAPP_DEFAULT_MESSAGE,
     },
     image: "/assets/images/shared/contact/contact-card.svg"
   }
 }) => {
   const isRTL = locale === "ar";
+  const whatsappUrl = buildWhatsAppUrl(contactInfo.phone);
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
   const buttonVariants = {
     hover: {
@@ -119,7 +120,7 @@ const ContactCard: React.FC<ContactCardProps> = ({
           <div className="flex flex-col sm:flex-row gap-3 w-full">
             {/* WhatsApp Button */}
             <motion.a
-              href={WHATSAPP_URL}
+              href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 bg-[#25D366] hover:bg-[#20b358] text-white flex items-center justify-center gap-3 rounded-xl px-6 py-4 font-semibold transition-colors duration-300 shadow-lg"
@@ -148,7 +149,7 @@ const ContactCard: React.FC<ContactCardProps> = ({
 
           {/* Main Contact Button */}
           <motion.a
-            href={WHATSAPP_URL}
+            href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full bg-gradient-to-r from-[#143087] to-[#1a3ca7] text-white flex items-center justify-center gap-3 rounded-xl px-8 py-4 font-bold text-lg shadow-xl"

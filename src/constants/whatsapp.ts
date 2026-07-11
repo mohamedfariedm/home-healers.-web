@@ -1,2 +1,25 @@
-export const WHATSAPP_URL =
-  "https://api.whatsapp.com/send?phone=966118289771&text=%D8%A7%D8%B6%D8%BA%D8%B7%20%D8%A7%D8%B1%D8%B3%D8%A7%D9%84%20%D8%A7%D9%84%D8%A7%D9%86%20%D9%84%D8%AA%D8%AA%D9%85%D8%AA%D8%B9%20%D8%A8%D8%B9%D8%B1%D9%88%D8%B6%D9%86%D8%A7%20-%20website";
+export const WHATSAPP_DEFAULT_MESSAGE =
+  "اضغط ارسال الان لتتمتع بعروضنا - website";
+
+export const formatWhatsAppNumber = (phone: string): string => {
+  if (!phone) return "";
+  const digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("966")) return digits;
+  const cleaned = digits.replace(/^0+/, "");
+  return `966${cleaned}`;
+};
+
+export const buildWhatsAppUrl = (
+  phone: string,
+  message: string = WHATSAPP_DEFAULT_MESSAGE
+): string => {
+  const formattedPhone = formatWhatsAppNumber(phone);
+  if (!formattedPhone) return "https://api.whatsapp.com/send";
+
+  const url = new URL("https://api.whatsapp.com/send");
+  url.searchParams.set("phone", formattedPhone);
+  if (message) {
+    url.searchParams.set("text", message);
+  }
+  return url.toString();
+};

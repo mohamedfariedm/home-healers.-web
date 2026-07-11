@@ -15,7 +15,10 @@ import {
   X,
   Ghost,
 } from "lucide-react";
-import { WHATSAPP_URL } from "@/constants/whatsapp";
+import {
+  buildWhatsAppUrl,
+  formatWhatsAppNumber,
+} from "@/constants/whatsapp";
 
 // Custom Icons for TikTok and Snapchat since they might not be in all Lucide versions or for specific styling
 const TiktokIcon = ({
@@ -200,6 +203,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
   const t =
     translations[locale as keyof typeof translations] || translations.ar;
   const isRTL = locale === "ar";
+  console.log({settings});
   // Extract dynamic content from settings
   const settingsData = settings?.data?.[0]?.setting;
   const socialMedia = settingsData?.social || {};
@@ -207,15 +211,11 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
   const androidLink = settingsData?.android_link;
   const businessInfo = settingsData?.business_info || {};
 
-  // Helper function to format phone number for WhatsApp (remove leading 0 and add country code)
-  const formatWhatsAppNumber = (phone: string) => {
-    if (!phone) return "";
-    const cleaned = phone.replace(/^0+/, ""); // Remove leading zeros
-    return `966${cleaned}`; // Add Saudi Arabia country code
-  };
-
   // Get business info with fallbacks
+  const whatsappPhone =
+    businessInfo.whatsapp || businessInfo.contact || "0118289771";
   const contactPhone = businessInfo.contact || "0118289771";
+  const whatsappUrl = buildWhatsAppUrl(whatsappPhone);
   const businessEmail = businessInfo.email || t.contact.email;
   const businessAddress = businessInfo.address || t.contact.address;
   const knownNumber = businessInfo.known_number || "217470";
@@ -595,7 +595,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
 
             {/* WhatsApp Button */}
             <motion.a
-              href={WHATSAPP_URL}
+              href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex w-full sm:w-auto min-w-[200px] h-14 px-4 py-2 gap-2 justify-center items-center bg-[#12b669] rounded-xl text-white hover:bg-[#0ea55c] transition-colors"

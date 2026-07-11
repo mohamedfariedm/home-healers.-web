@@ -8,6 +8,7 @@ import { faqTranslations, type FaqTranslations } from "@/translations/faq";
 import { formatFaqData, parseSubtitle } from "@/utils/faq-helpers";
 import FaqItem from "./faq-item";
 import ContactCard from "./contact-card";
+import { formatWhatsAppNumber, WHATSAPP_DEFAULT_MESSAGE } from "@/constants/whatsapp";
 
 interface FaqSectionProps {
   data?: FaqSectionData;
@@ -39,14 +40,8 @@ const FaqSection: React.FC<FaqSectionProps> = ({
   const settingsData = settings?.data?.[0]?.setting;
   const businessInfo = settingsData?.business_info || {};
 
-  // Helper function to format phone number for WhatsApp (remove leading 0 and add country code)
-  const formatWhatsAppNumber = (phone: string) => {
-    if (!phone) return "";
-    const cleaned = phone.replace(/^0+/, ""); // Remove leading zeros
-    return `966${cleaned}`; // Add Saudi Arabia country code
-  };
-
-  const whatsappNumber = businessInfo.whatsapp || "0118289771";
+  const whatsappNumber =
+    businessInfo.whatsapp || businessInfo.contact || "0118289771";
   const contactPhone = businessInfo.contact || "0118289771";
 
   // Construct dynamic contact info from settings if available
@@ -55,8 +50,8 @@ const FaqSection: React.FC<FaqSectionProps> = ({
       return {
         phone: formatWhatsAppNumber(whatsappNumber),
         whatsappMessage: {
-          ar: translations.whatsappMessage || "مرحبا، لدي استفسار",
-          en: translations.whatsappMessage || "Hello, I have a question"
+          ar: WHATSAPP_DEFAULT_MESSAGE,
+          en: WHATSAPP_DEFAULT_MESSAGE,
         },
         image: contactInfo?.image // Preserve image if passed, or could be from settings if available
       };
@@ -64,8 +59,8 @@ const FaqSection: React.FC<FaqSectionProps> = ({
     return contactInfo || {
       phone: "966551172232",
       whatsappMessage: {
-        ar: "مرحبا، لدي استفسار",
-        en: "Hello, I have a question"
+        ar: WHATSAPP_DEFAULT_MESSAGE,
+        en: WHATSAPP_DEFAULT_MESSAGE,
       }
     };
   }, [settings, whatsappNumber, translations, contactInfo]);

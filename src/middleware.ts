@@ -2,6 +2,8 @@ import { type NextRequest, NextResponse } from "next/server"
 import { i18nRouterConfig } from "./i18nRouterConfig"
 import {
   buildMobileDeepLinkRedirectHtml,
+  isBookingPath,
+  isDesktopUserAgent,
   isMobileUserAgent,
   matchDeepLinkPath,
 } from "./lib/deep-link-mobile-html"
@@ -31,6 +33,12 @@ export function middleware(request: NextRequest) {
         },
       },
     )
+  }
+
+  // Booking is mobile-only — desktop users go to homepage
+  if (isDesktopUserAgent(userAgent) && isBookingPath(pathname)) {
+    const locale = pathname.startsWith("/en") ? "en" : "ar"
+    return NextResponse.redirect(new URL(`/${locale}`, request.url))
   }
 
   // Check if path already has locale prefix

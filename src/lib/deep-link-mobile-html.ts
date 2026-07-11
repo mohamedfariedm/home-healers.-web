@@ -27,6 +27,19 @@ export function isMobileUserAgent(userAgent: string): boolean {
   return /android|iphone|ipad|ipod/i.test(userAgent);
 }
 
+export function isDesktopUserAgent(userAgent: string): boolean {
+  return !isMobileUserAgent(userAgent);
+}
+
+export function isBookingPath(pathname: string): boolean {
+  const normalized = pathname.replace(/\/$/, "") || pathname;
+  return (
+    normalized === "/booking" ||
+    normalized === "/ar/booking" ||
+    normalized === "/en/booking"
+  );
+}
+
 export function buildMobileDeepLinkRedirectHtml({
   targetUrl,
   isAndroid,
