@@ -2,12 +2,16 @@ import ClientAPI from "@/app/api/api";
 import DeepLinkLanding from "@/components/DeepLink/DeepLinkLanding";
 import {
   buildDeepLinkPath,
+  buildWebsiteRedirectPath,
   DEFAULT_APP_STORE_URL,
   DEFAULT_PLAY_STORE_URL,
   DEEP_LINK_COPY,
+  getMobilePlatform,
   type DeepLinkRoute,
 } from "@/lib/deep-link";
 import { buildCanonicalUrl, createMetadata } from "@/lib/seo";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_WEBSITE_URL || "https://home-healers.com";
@@ -61,10 +65,17 @@ export default async function DeepLinkPage({
 }: DeepLinkPageProps) {
   const { locale, segments } = await params;
   const resolvedSearchParams = await searchParams;
+  const queryId = getQueryId(route, resolvedSearchParams);
+
+  const headersList = await headers();
+  const userAgent = headersList.get("user-agent") || "";
+  if (getMobilePlatform(userAgent) === "desktop") {
+    redirect(buildWebsiteRedirectPath(locale));
+  }
+
   const settings = await ClientAPI.getSettings(locale);
   const settingsData = settings?.data?.[0]?.setting;
 
-  const queryId = getQueryId(route, resolvedSearchParams);
   const path = buildDeepLinkPath(route, segments, queryId);
   const targetUrl = `${SITE_URL}${path}`;
 

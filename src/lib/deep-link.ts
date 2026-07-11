@@ -5,6 +5,14 @@ export type DeepLinkRoute =
   | "offers"
   | "home";
 
+export const DEEP_LINK_ROUTE_NAMES: DeepLinkRoute[] = [
+  "doctor",
+  "service",
+  "reservation",
+  "offers",
+  "home",
+];
+
 export const APP_SCHEME = "homehealers";
 export const DEFAULT_PLAY_STORE_URL =
   "https://play.google.com/store/apps/details?id=com.home.healers.app";
@@ -33,6 +41,43 @@ export function buildDeepLinkPath(
   }
 
   return `/${route}`;
+}
+
+export function extractLocaleFromPathname(pathname: string): string {
+  if (pathname.startsWith("/en/") || pathname === "/en") return "en";
+  return "ar";
+}
+
+export function parseDeepLinkRequest(
+  pathname: string,
+  searchParams: URLSearchParams,
+): { locale: string; route: DeepLinkRoute; id?: string } | null {
+  const locale = extractLocaleFromPathname(pathname);
+  const normalized = pathname.replace(/^\/(en|ar)(?=\/|$)/, "") || pathname;
+
+  for (const route of DEEP_LINK_ROUTE_NAMES) {
+    if (normalized === `/${route}` || normalized.startsWith(`/${route}/`)) {
+      const queryKey = ROUTE_QUERY_KEYS[route];
+      let id: string | undefined;
+
+      if (queryKey) {
+        id = searchParams.get(queryKey) ?? undefined;
+      }
+
+      if (!id && normalized.startsWith(`/${route}/`)) {
+        id = normalized.slice(`/${route}/`.length).split("/")[0] || undefined;
+      }
+
+      return { locale, route, id };
+    }
+  }
+
+  return null;
+}
+
+/** Desktop deep links always go to the homepage. */
+export function buildWebsiteRedirectPath(locale: string): string {
+  return locale === "en" ? "/en" : "/";
 }
 
 export function buildAppOpenUrl(targetUrl: string): string {

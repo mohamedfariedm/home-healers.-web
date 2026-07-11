@@ -3,13 +3,9 @@ const PLAY_STORE =
 const APP_STORE =
   "https://apps.apple.com/sa/app/home-healers/id123456789";
 
-export const DEEP_LINK_ROUTE_NAMES = [
-  "doctor",
-  "service",
-  "reservation",
-  "offers",
-  "home",
-] as const;
+import { DEEP_LINK_ROUTE_NAMES } from "./deep-link";
+
+export { DEEP_LINK_ROUTE_NAMES };
 
 export function matchDeepLinkPath(pathname: string): string | null {
   const normalized = pathname.replace(/^\/(en|ar)(?=\/|$)/, "") || pathname;
@@ -25,19 +21,6 @@ export function matchDeepLinkPath(pathname: string): string | null {
 
 export function isMobileUserAgent(userAgent: string): boolean {
   return /android|iphone|ipad|ipod/i.test(userAgent);
-}
-
-export function isDesktopUserAgent(userAgent: string): boolean {
-  return !isMobileUserAgent(userAgent);
-}
-
-export function isBookingPath(pathname: string): boolean {
-  const normalized = pathname.replace(/\/$/, "") || pathname;
-  return (
-    normalized === "/booking" ||
-    normalized === "/ar/booking" ||
-    normalized === "/en/booking"
-  );
 }
 
 export function buildMobileDeepLinkRedirectHtml({

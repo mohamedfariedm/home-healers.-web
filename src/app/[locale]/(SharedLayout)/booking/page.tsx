@@ -1,11 +1,8 @@
 import { Suspense } from "react";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
 import BookingFlow from "./_components/booking-flow";
 import { createMetadata } from "@/lib/seo";
-import { isDesktopUserAgent } from "@/lib/deep-link-mobile-html";
 export const dynamic = "force-dynamic";
 
 type PageProps = {
@@ -36,12 +33,6 @@ export async function generateMetadata({
 
 async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const userAgent = (await headers()).get("user-agent") || "";
-
-  if (isDesktopUserAgent(userAgent)) {
-    redirect(`/${locale}`);
-  }
-
   const { t } = await initTranslations(locale, ["contactUs"]);
   const doctorsData = await ClientAPI.getDoctors(locale);
   const packagesData = await ClientAPI.getPackages(locale);

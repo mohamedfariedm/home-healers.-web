@@ -1,9 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { i18nRouterConfig } from "./i18nRouterConfig"
 import {
+  buildWebsiteRedirectPath,
+  parseDeepLinkRequest,
+} from "./lib/deep-link"
+import {
   buildMobileDeepLinkRedirectHtml,
-  isBookingPath,
-  isDesktopUserAgent,
   isMobileUserAgent,
   matchDeepLinkPath,
 } from "./lib/deep-link-mobile-html"
@@ -12,33 +14,35 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const userAgent = request.headers.get("user-agent") || ""
 
-  // Mobile deep links: redirect to app or store immediately (no landing page)
+  // Deep links: mobile → app/store; desktop → website equivalent
   const deepLinkPath = matchDeepLinkPath(pathname)
-  if (deepLinkPath && isMobileUserAgent(userAgent)) {
-    const targetUrl = `${request.nextUrl.origin}${deepLinkPath}${request.nextUrl.search}`
-    const isAndroid = /android/i.test(userAgent)
-    const isFacebookOrInstagram = /FBAN|FBAV|FB_IAB|Instagram/i.test(userAgent)
+  if (deepLinkPath) {
+    if (isMobileUserAgent(userAgent)) {
+      const targetUrl = `${request.nextUrl.origin}${deepLinkPath}${request.nextUrl.search}`
+      const isAndroid = /android/i.test(userAgent)
+      const isFacebookOrInstagram = /FBAN|FBAV|FB_IAB|Instagram/i.test(userAgent)
 
-    return new NextResponse(
-      buildMobileDeepLinkRedirectHtml({
-        targetUrl,
-        isAndroid,
-        isFacebookOrInstagram,
-      }),
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "text/html; charset=utf-8",
-          "Cache-Control": "no-cache, no-store, must-revalidate",
+      return new NextResponse(
+        buildMobileDeepLinkRedirectHtml({
+          targetUrl,
+          isAndroid,
+          isFacebookOrInstagram,
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "text/html; charset=utf-8",
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+          },
         },
-      },
-    )
-  }
+      )
+    }
 
-  // Booking is mobile-only — desktop users go to homepage
-  if (isDesktopUserAgent(userAgent) && isBookingPath(pathname)) {
-    const locale = pathname.startsWith("/en") ? "en" : "ar"
-    return NextResponse.redirect(new URL(`/${locale}`, request.url))
+    const parsed = parseDeepLinkRequest(pathname, request.nextUrl.searchParams)
+    if (parsed) {
+      const redirectPath = buildWebsiteRedirectPath(parsed.locale)
+      return NextResponse.redirect(new URL(redirectPath, request.url))
+    }
   }
 
   // Check if path already has locale prefix
