@@ -13,6 +13,7 @@ import {
   getPaymentMethodAvailability,
   type PaymentSummaryData,
 } from "@/lib/payment-summary";
+import BookingStepNav from "../booking-step-nav";
 
 interface Step5Props {
   bookingData: BookingData;
@@ -394,7 +395,8 @@ export default function Step5Payment({
     (bookingData.pricing.couponDiscount ?? 0) > 0;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8" data-tour="tour-payment">
+    <div className="relative" data-tour="tour-payment" data-booking-step>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Left Column - Booking Summary & Payment Methods */}
       <div className="space-y-6">
         {/* Booking Summary */}
@@ -656,21 +658,25 @@ export default function Step5Payment({
           </div>
         </div>
 
-        {/* Payment Button */}
-        <button
-          onClick={onNext}
-          disabled={
-            !bookingData.paymentMethod ||
-            !isMethodSelectable(bookingData.paymentMethod) ||
-            isLoading ||
-            couponBusy ||
-            isSummaryLoading
-          }
-          className="w-full p-4 bg-[#143087] text-white rounded-lg font-semibold text-lg hover:bg-[#0f2470] disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          {isLoading ? (
+        {/* Payment Button - moved to floating nav */}
+      </div>
+    </div>
+
+    <BookingStepNav
+      onPrev={onPrev}
+      onNext={onNext}
+      prevDisabled={isLoading || couponBusy}
+      nextDisabled={
+        !bookingData.paymentMethod ||
+        !isMethodSelectable(bookingData.paymentMethod) ||
+        isLoading ||
+        couponBusy ||
+        isSummaryLoading
+      }
+        nextContent={
+          isLoading ? (
             <>
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
               {t("step5.processing")}
             </>
           ) : bookingData.paymentMethod === "cash" ? (
@@ -683,20 +689,14 @@ export default function Step5Payment({
               <CreditCard className="w-5 h-5" />
               {t("step5.confirmPayment")}
             </>
-          )}
-        </button>
-      </div>
-
-      {/* Navigation */}
-      <div className="lg:col-span-2 flex justify-between">
-        <button
-          onClick={onPrev}
-          disabled={isLoading || couponBusy}
-          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-        >
-          {t("step2.previous")}
-        </button>
-      </div>
+          )
+        }
+        nextLabel={
+          bookingData.paymentMethod === "cash"
+            ? t("step5.confirmCash")
+            : t("step5.confirmPayment")
+        }
+      />
     </div>
   );
 }

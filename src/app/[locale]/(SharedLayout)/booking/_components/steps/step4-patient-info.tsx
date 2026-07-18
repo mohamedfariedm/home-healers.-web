@@ -5,6 +5,7 @@ import { User, Plus, FileText, Mic, Paperclip, Edit2, Trash2, Play, Pause } from
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import type { BookingData, Patient } from "@/types/booking";
+import BookingStepNav from "../booking-step-nav";
 
 interface Step4Props {
   bookingData: BookingData;
@@ -212,7 +213,7 @@ export default function Step4PatientInfo({
   };
 
   return (
-    <div className="space-y-6" data-tour="tour-patient">
+    <div className="space-y-6" data-tour="tour-patient" data-booking-step>
       {bookingData.selectedDoctor && (
         <div className="bg-white rounded-2xl shadow-md p-6">
           <h2 className="text-xl font-bold mb-4">{t("step4.selectedDoctorInfo") || "بيانات الطبيب المختار"}</h2>
@@ -519,21 +520,14 @@ export default function Step4PatientInfo({
         </div>
       </div>
 
-      <div className="flex justify-between">
-        <button
-          onClick={onPrev}
-          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-        >
-          {t("step2.previous")}
-        </button>
-        <button
-          onClick={onNext}
-          disabled={!bookingData.selectedPatients.length || !bookingData.healthInfo.painLocation.trim()}
-          className="px-6 py-3 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] disabled:bg-gray-300 disabled:cursor-not-allowed"
-        >
-          {t("step2.next")}
-        </button>
-      </div>
+      <BookingStepNav
+        onPrev={onPrev}
+        onNext={onNext}
+        nextDisabled={
+          !bookingData.selectedPatients.length ||
+          !bookingData.healthInfo.painLocation.trim()
+        }
+      />
     </div>
   );
 }

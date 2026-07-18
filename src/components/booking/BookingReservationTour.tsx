@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import { X, ChevronRight, ChevronLeft, Compass, Sparkles } from "lucide-react";
 import { markBookingTourCompleted } from "@/lib/booking-tour-storage";
@@ -84,20 +84,62 @@ type SpotlightRect = {
 interface BookingReservationTourProps {
   active: boolean;
   onClose: () => void;
-  /** Kept for re-measure when parent step changes */
   currentBookingStep: BookingTourBookingStep;
   onBookingStepChange: (step: BookingTourBookingStep) => void;
+}
+
+function waitForElement(
+  selector: string,
+  timeoutMs = 2500
+): Promise<HTMLElement | null> {
+  return new Promise((resolve) => {
+    const existing = document.querySelector(selector);
+    if (existing instanceof HTMLElement) {
+      resolve(existing);
+      return;
+    }
+    const start = Date.now();
+    const tick = window.setInterval(() => {
+      const el = document.querySelector(selector);
+      if (el instanceof HTMLElement) {
+        window.clearInterval(tick);
+        resolve(el);
+        return;
+      }
+      if (Date.now() - start >= timeoutMs) {
+        window.clearInterval(tick);
+        resolve(null);
+      }
+    }, 40);
+  });
+}
+
+function prefersReducedMotion() {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
+function sleep(ms: number) {
+  return new Promise<void>((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
 }
 
 export default function BookingReservationTour({
   active,
   onClose,
-  currentBookingStep,
+  currentBookingStep: _currentBookingStep,
   onBookingStepChange,
 }: BookingReservationTourProps) {
-  const { t } = useTranslation("booking");
+  const { t, i18n } = useTranslation("booking");
+  const isRtl = (i18n.language || "ar").startsWith("ar");
   const [tourIndex, setTourIndex] = useState(0);
   const [spotlight, setSpotlight] = useState<SpotlightRect | null>(null);
+  const [busy, setBusy] = useState(false);
+  const scrollLockRef = useRef(0);
+  const runIdRef = useRef(0);
 
   const step = TOUR_STEPS[tourIndex];
   const isWelcome = step?.target == null;
@@ -105,94 +147,216 @@ export default function BookingReservationTour({
   const isFirst = tourIndex === 0;
 
   const finishTour = useCallback(() => {
+    runIdRef.current += 1;
     markBookingTourCompleted();
     onBookingStepChange(1);
     setTourIndex(0);
+    setSpotlight(null);
+    setBusy(false);
     onClose();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
   }, [onClose, onBookingStepChange]);
 
-  useEffect(() => {
-    if (!active) return;
-    setTourIndex(0);
-    onBookingStepChange(1);
-    // Only re-run when the tour opens/closes, not when parent re-renders
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active]);
-
-  const goToTourStep = useCallback(
-    (index: number) => {
-      const next = TOUR_STEPS[index];
-      if (!next) return;
-      setTourIndex(index);
-      onBookingStepChange(next.bookingStep);
-    },
-    [onBookingStepChange]
-  );
-
-  const measureTarget = useCallback(() => {
-    if (!active || !step?.target) {
-      setSpotlight(null);
-      return;
-    }
-    const el = document.querySelector(`[data-tour="${step.target}"]`);
+  const measureTarget = useCallback((el: HTMLElement | null) => {
     if (!el) {
       setSpotlight(null);
       return;
     }
     const pad = 8;
     const r = el.getBoundingClientRect();
+    const maxH = Math.min(r.height + pad * 2, window.innerHeight * 0.52);
     setSpotlight({
-      top: r.top - pad,
-      left: r.left - pad,
-      width: r.width + pad * 2,
-      height: r.height + pad * 2,
+      top: Math.max(8, r.top - pad),
+      left: Math.max(8, r.left - pad),
+      width: Math.min(r.width + pad * 2, window.innerWidth - 16),
+      height: maxH,
     });
-  }, [active, step?.target]);
+  }, []);
+
+  const revealStep = useCallback(
+    async (index: number) => {
+      const next = TOUR_STEPS[index];
+      if (!next) return;
+
+      const runId = ++runIdRef.current;
+      setBusy(true);
+      setSpotlight(null);
+      setTourIndex(index);
+      onBookingStepChange(next.bookingStep);
+
+      const smooth = !prefersReducedMotion();
+
+      // Welcome — top of page, centered card
+      if (!next.target) {
+        window.scrollTo({ top: 0, behavior: smooth ? "smooth" : "auto" });
+        await sleep(smooth ? 300 : 40);
+        if (runId !== runIdRef.current) return;
+        setBusy(false);
+        return;
+      }
+
+      // Wait for the booking step UI to mount
+      await sleep(100);
+      if (runId !== runIdRef.current) return;
+
+      const selector = `[data-tour="${next.target}"]`;
+      const el = await waitForElement(selector);
+      if (runId !== runIdRef.current) return;
+
+      if (!el) {
+        setSpotlight(null);
+        setBusy(false);
+        return;
+      }
+
+      scrollLockRef.current += 1;
+      el.scrollIntoView({
+        behavior: smooth ? "smooth" : "auto",
+        block: "center",
+        inline: "nearest",
+      });
+
+      await sleep(smooth ? 480 : 60);
+      if (runId !== runIdRef.current) {
+        scrollLockRef.current = Math.max(0, scrollLockRef.current - 1);
+        return;
+      }
+
+      measureTarget(el);
+      await sleep(80);
+      if (runId !== runIdRef.current) {
+        scrollLockRef.current = Math.max(0, scrollLockRef.current - 1);
+        return;
+      }
+
+      const again = document.querySelector(selector);
+      if (again instanceof HTMLElement) measureTarget(again);
+
+      scrollLockRef.current = Math.max(0, scrollLockRef.current - 1);
+      setBusy(false);
+    },
+    [measureTarget, onBookingStepChange]
+  );
 
   useEffect(() => {
     if (!active) return;
-    const id = window.setTimeout(measureTarget, 350);
-    return () => window.clearTimeout(id);
-  }, [active, tourIndex, currentBookingStep, measureTarget]);
-
-  useEffect(() => {
-    if (!active) return;
-    const onResize = () => measureTarget();
-    window.addEventListener("resize", onResize);
-    window.addEventListener("scroll", onResize, true);
-    return () => {
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("scroll", onResize, true);
-    };
-  }, [active, measureTarget]);
-
-  useEffect(() => {
-    if (!active) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
+    void revealStep(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
+
+  useEffect(() => {
+    if (!active) return;
+    const sync = () => {
+      if (!step?.target) {
+        setSpotlight(null);
+        return;
+      }
+      const el = document.querySelector(`[data-tour="${step.target}"]`);
+      if (el instanceof HTMLElement) measureTarget(el);
+    };
+    window.addEventListener("resize", sync);
+    window.addEventListener("scroll", sync, true);
+    return () => {
+      window.removeEventListener("resize", sync);
+      window.removeEventListener("scroll", sync, true);
+    };
+  }, [active, step?.target, measureTarget]);
+
+  useEffect(() => {
+    if (!active) return;
+
+    const blockWheel = (e: WheelEvent) => {
+      if (scrollLockRef.current > 0) return;
+      e.preventDefault();
+    };
+    const blockTouch = (e: TouchEvent) => {
+      if (scrollLockRef.current > 0) return;
+      e.preventDefault();
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        finishTour();
+        return;
+      }
+      if (busy) return;
+      if (e.key === "Enter" || e.key === "ArrowRight" || e.key === "ArrowLeft") {
+        e.preventDefault();
+        const nextDir = isRtl ? e.key === "ArrowLeft" : e.key === "ArrowRight";
+        const goNext = e.key === "Enter" || nextDir;
+        if (goNext) {
+          if (isLast) finishTour();
+          else void revealStep(tourIndex + 1);
+        } else if (!isFirst) {
+          void revealStep(tourIndex - 1);
+        }
+        return;
+      }
+      if (
+        ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(
+          e.key
+        )
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener("wheel", blockWheel, { passive: false });
+    window.addEventListener("touchmove", blockTouch, { passive: false });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("wheel", blockWheel);
+      window.removeEventListener("touchmove", blockTouch);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [
+    active,
+    busy,
+    finishTour,
+    revealStep,
+    tourIndex,
+    isFirst,
+    isLast,
+    isRtl,
+  ]);
 
   if (!active || !step) return null;
 
   const handleNext = () => {
+    if (busy) return;
     if (isLast) {
       finishTour();
       return;
     }
-    goToTourStep(tourIndex + 1);
+    void revealStep(tourIndex + 1);
   };
 
   const handleBack = () => {
-    if (!isFirst) goToTourStep(tourIndex - 1);
+    if (busy || isFirst) return;
+    void revealStep(tourIndex - 1);
   };
 
-  const tooltipTop = spotlight
-    ? Math.min(spotlight.top + spotlight.height + 16, window.innerHeight - 220)
-    : undefined;
+  const BackIcon = isRtl ? ChevronRight : ChevronLeft;
+  const NextIcon = isRtl ? ChevronLeft : ChevronRight;
+
+  // Keep tooltip on screen: prefer below spotlight, flip above if needed
+  let tooltipStyle: CSSProperties | undefined;
+  if (isWelcome) {
+    tooltipStyle = undefined;
+  } else if (spotlight) {
+    const cardH = 220;
+    const gap = 14;
+    const below = spotlight.top + spotlight.height + gap;
+    const spaceBelow = window.innerHeight - below;
+    const top =
+      spaceBelow < cardH && spotlight.top > cardH + gap
+        ? Math.max(12, spotlight.top - cardH - gap)
+        : Math.min(below, window.innerHeight - cardH - 12);
+    tooltipStyle = { top };
+  }
 
   return (
     <div
@@ -200,13 +364,18 @@ export default function BookingReservationTour({
       role="dialog"
       aria-modal="true"
       aria-labelledby="booking-tour-title"
+      dir={isRtl ? "rtl" : "ltr"}
     >
-      {/* Dim overlay — welcome uses full screen; steps use box-shadow cutout */}
       {isWelcome || !spotlight ? (
-        <div className="absolute inset-0 bg-black/60" aria-hidden />
+        <div
+          className={`absolute inset-0 bg-black/60 transition-opacity duration-300 ${
+            busy ? "opacity-70" : "opacity-100"
+          }`}
+          aria-hidden
+        />
       ) : (
         <div
-          className="absolute rounded-2xl pointer-events-none transition-all duration-300"
+          className="absolute rounded-2xl pointer-events-none transition-all duration-300 ease-out"
           style={{
             top: spotlight.top,
             left: spotlight.left,
@@ -219,16 +388,15 @@ export default function BookingReservationTour({
         />
       )}
 
-      {/* Tooltip / welcome card */}
       <div
-        className={`absolute z-[20001] w-[min(420px,calc(100vw-2rem))] rounded-2xl bg-white p-5 shadow-2xl border border-gray-100 ${
+        className={`absolute z-[20001] w-[min(420px,calc(100vw-2rem))] rounded-2xl border border-gray-100 bg-white p-5 shadow-2xl transition-all duration-300 ${
           isWelcome
             ? "left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
             : "left-1/2 -translate-x-1/2"
-        }`}
-        style={!isWelcome && tooltipTop != null ? { top: tooltipTop } : undefined}
+        } ${busy ? "opacity-80" : "opacity-100"}`}
+        style={tooltipStyle}
       >
-        <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="mb-3 flex items-start justify-between gap-3">
           <div className="flex items-center gap-2 text-[#143087]">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#eff6fe]">
               {isWelcome ? (
@@ -241,7 +409,10 @@ export default function BookingReservationTour({
               <p className="text-xs font-semibold uppercase tracking-wide text-[#62a0f6]">
                 {t("tour.badge")} · {tourIndex + 1}/{TOUR_STEPS.length}
               </p>
-              <h2 id="booking-tour-title" className="text-lg font-bold leading-snug">
+              <h2
+                id="booking-tour-title"
+                className="text-lg font-bold leading-snug"
+              >
                 {t(step.titleKey)}
               </h2>
             </div>
@@ -256,16 +427,25 @@ export default function BookingReservationTour({
           </button>
         </div>
 
-        <p className="text-sm text-gray-600 leading-relaxed mb-5">{t(step.descKey)}</p>
+        <p className="mb-5 text-sm leading-relaxed text-gray-600">
+          {t(step.descKey)}
+        </p>
 
-        {/* Step dots */}
-        <div className="flex justify-center gap-1.5 mb-5">
+        <div className="mb-5 flex justify-center gap-1.5">
           {TOUR_STEPS.map((_, i) => (
-            <div
+            <button
               key={i}
+              type="button"
+              disabled={busy}
+              onClick={() => void revealStep(i)}
               className={`h-1.5 rounded-full transition-all ${
-                i === tourIndex ? "w-6 bg-[#62a0f6]" : "w-1.5 bg-gray-200"
+                i === tourIndex
+                  ? "w-6 bg-[#62a0f6]"
+                  : i < tourIndex
+                    ? "w-1.5 bg-[#12b669]"
+                    : "w-1.5 bg-gray-200 hover:bg-gray-300"
               }`}
+              aria-label={`${t("tour.badge")} ${i + 1}`}
             />
           ))}
         </div>
@@ -283,19 +463,21 @@ export default function BookingReservationTour({
               <button
                 type="button"
                 onClick={handleBack}
-                className="inline-flex items-center gap-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                disabled={busy}
+                className="inline-flex items-center gap-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
               >
-                <ChevronRight className="h-4 w-4" />
+                <BackIcon className="h-4 w-4" />
                 {t("tour.back")}
               </button>
             )}
             <button
               type="button"
               onClick={handleNext}
-              className="inline-flex items-center gap-1 rounded-xl bg-[#143087] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0f2470] shadow-md"
+              disabled={busy}
+              className="inline-flex items-center gap-1 rounded-xl bg-[#143087] px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-[#0f2470] disabled:opacity-50"
             >
               {isLast ? t("tour.finish") : t("tour.next")}
-              {!isLast && <ChevronLeft className="h-4 w-4" />}
+              {!isLast && <NextIcon className="h-4 w-4" />}
             </button>
           </div>
         </div>

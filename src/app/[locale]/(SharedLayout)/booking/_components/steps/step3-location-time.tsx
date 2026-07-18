@@ -4,6 +4,7 @@ import { MapPin, Calendar, Clock, Plus, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import type { BookingData, Location } from "@/types/booking";
+import BookingStepNav from "../booking-step-nav";
 
 interface Step3Props {
   bookingData: BookingData;
@@ -107,7 +108,7 @@ export default function Step3LocationTime({
   };
 
   return (
-    <div className="space-y-6" data-tour="tour-location">
+    <div className="space-y-6" data-tour="tour-location" data-booking-step>
       {/* Location Selection */}
       <div className="bg-white rounded-2xl shadow-md p-6">
         <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
@@ -306,22 +307,13 @@ export default function Step3LocationTime({
         )}
       </div>
 
-      {/* Navigation */}
-      <div className="flex justify-between">
-        <button
-          onClick={onPrev}
-          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-        >
-          {t("step2.previous")}
-        </button>
-        <button
-          onClick={handleNext}
-          disabled={!bookingData.selectedLocation || bookingData.selectedDates.length < 1}
-          className="px-6 py-3 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] disabled:bg-gray-300 disabled:cursor-not-allowed"
-        >
-          {t("step2.next")}
-        </button>
-      </div>
+      <BookingStepNav
+        onPrev={onPrev}
+        onNext={handleNext}
+        nextDisabled={
+          !bookingData.selectedLocation || bookingData.selectedDates.length < 1
+        }
+      />
     </div>
   );
 }

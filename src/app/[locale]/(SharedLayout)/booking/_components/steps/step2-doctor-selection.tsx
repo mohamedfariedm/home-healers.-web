@@ -23,6 +23,7 @@ import type { BookingData, Category, Doctor, Package } from "@/types/booking";
 import { doctorMatchesCategoryId } from "@/lib/doctor-matches-category";
 import { getDoctorCityName, isDoctorInCity } from "@/lib/doctor-city";
 import { getPackageCategoryList } from "@/lib/package-categories";
+import BookingStepNav from "../booking-step-nav";
 
 // ===== Helpers for the new data shape =====
 const isImageUrl = (url?: string | null) =>
@@ -281,7 +282,7 @@ const handlePackageSelect = (pkg: Package) => {
   const isPackagesEmpty = !packagesData?.data?.length;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6" data-booking-step>
       {/* City selection guide — shown until the client picks a city */}
       {!hasCityFilter && (citiesData?.data?.length ?? 0) > 0 && (
         <div
@@ -713,30 +714,17 @@ const handlePackageSelect = (pkg: Package) => {
         </div>
       </div>
 
-      {/* Navigation */}
-      <div className="flex justify-between">
-        <button
-          onClick={onPrev}
-          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-          aria-label={t("step2.previous")}
-        >
-          {t("step2.previous")}
-        </button>
-        <button
-          onClick={() => {
-            if (!bookingData.selectedDoctor) {
-              toast.error(t("step2.selectDoctorFirst"));
-              return;
-            }
-            onNext();
-          }}
-          className="px-6 py-3 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] disabled:bg-gray-400 disabled:cursor-not-allowed"
-          disabled={!bookingData.selectedDoctor}
-          aria-label={t("step2.next")}
-        >
-          {t("step2.next")}
-        </button>
-      </div>
+      <BookingStepNav
+        onPrev={onPrev}
+        onNext={() => {
+          if (!bookingData.selectedDoctor) {
+            toast.error(t("step2.selectDoctorFirst"));
+            return;
+          }
+          onNext();
+        }}
+        nextDisabled={!bookingData.selectedDoctor}
+      />
     </div>
   );
 }

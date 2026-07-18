@@ -1070,8 +1070,9 @@ export default function BookingFlow({
   };
 
   useEffect(() => {
+    if (tourActive) return;
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentStep]);
+  }, [currentStep, tourActive]);
 
   return (
     <div
@@ -1081,15 +1082,15 @@ export default function BookingFlow({
       <div className="w-full h-[180px] sm:h-[200px] md:h-[247px] bg-[url(/assets/images/shared/booking-header.png)] bg-[length:100%_100%] bg-no-repeat absolute top-0 left-0 -z-10" />
 
       <div
-        className="relative w-full max-w-[800px] mt-4 sm:mt-6 md:mt-8 px-2"
+        className="relative w-full max-w-[960px] mt-4 sm:mt-6 md:mt-8 px-2"
         data-tour="booking-stepper"
       >
         {/* Mobile: Compact step indicators */}
-        <div className="flex sm:hidden justify-between items-center gap-1 w-full">
+        <div className="flex sm:hidden justify-between items-center gap-1 w-full flex-nowrap">
           {steps.map(({ step, active }, i) => (
-            <div key={i} className="flex flex-col items-center gap-1 flex-1">
+            <div key={i} className="flex flex-col items-center gap-1 flex-1 min-w-0">
               <div
-                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all shrink-0 ${
                   active
                     ? "bg-[#12b669] text-white shadow-md"
                     : "bg-white/90 text-gray-400"
@@ -1098,7 +1099,7 @@ export default function BookingFlow({
                 {i + 1}
               </div>
               <span
-                className={`text-[10px] font-medium text-center leading-tight line-clamp-1 ${
+                className={`text-[10px] font-medium text-center leading-tight truncate w-full ${
                   active ? "text-[#12b669]" : "text-white/80"
                 }`}
               >
@@ -1113,15 +1114,15 @@ export default function BookingFlow({
           ))}
         </div>
 
-        {/* Tablet and Desktop: Full step indicators */}
-        <div className="hidden sm:flex flex-wrap justify-center gap-2 md:gap-4">
+        {/* Tablet and Desktop: Full step indicators — single row */}
+        <div className="hidden sm:flex flex-nowrap items-start justify-between gap-1 md:gap-2 w-full">
           {steps.map(({ step, desc, active }, i) => (
             <div
               key={i}
-              className="flex flex-col items-center gap-1.5 md:gap-2 min-w-[80px] md:min-w-[110px] lg:min-w-[120px]"
+              className="flex flex-col items-center gap-1.5 md:gap-2 flex-1 min-w-0"
             >
               <div
-                className={`w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-sm font-bold transition-all ${
+                className={`w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-sm font-bold transition-all shrink-0 ${
                   active
                     ? "bg-[#12b669] text-white shadow-md"
                     : "bg-white text-gray-400"
@@ -1130,14 +1131,14 @@ export default function BookingFlow({
                 {i + 1}
               </div>
               <span
-                className={`text-[10px] md:text-xs font-semibold text-center ${
+                className={`text-[10px] md:text-xs font-semibold text-center truncate w-full ${
                   active ? "text-[#12b669]" : "text-white"
                 }`}
               >
                 {step}
               </span>
               <span
-                className={`text-[9px] md:text-xs text-center hidden md:block ${
+                className={`text-[9px] md:text-xs text-center truncate w-full hidden md:block ${
                   active ? "text-[#12b669]" : "text-white/80"
                 }`}
               >

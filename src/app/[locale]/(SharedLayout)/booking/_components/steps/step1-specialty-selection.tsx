@@ -11,6 +11,7 @@ import LocationPickerModal from "../modals/location-picker-modal";
 import { getPackageCategoryList } from "@/lib/package-categories";
 import { extractTelrRedirectUrl } from "@/lib/payment-api";
 import { persistReservationId } from "@/lib/checkout-storage";
+import BookingStepNav from "../booking-step-nav";
 
 /* ------------------------------------------------------------------ */
 /* -------------------------- COMPONENT ------------------------------ */
@@ -300,6 +301,7 @@ export default function Step1SpecialtySelection({
       <div
         className="flex flex-col gap-8 bg-white rounded-2xl shadow-md p-6"
         data-tour="tour-specialty"
+        data-booking-step
       >
         {/* Quick Booking Button */}
         <div className="flex flex-col items-start gap-4 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
@@ -515,15 +517,11 @@ export default function Step1SpecialtySelection({
           </div>
         )}
 
-        {canContinueStep1 && (
-          <button
-            type="button"
-            onClick={handleContinueStep1}
-            className="w-full sm:w-auto px-8 py-3 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] font-semibold transition-colors"
-          >
-            {t("step2.next")}
-          </button>
-        )}
+        <BookingStepNav
+          showPrev={false}
+          showNext={canContinueStep1}
+          onNext={handleContinueStep1}
+        />
       </div>
 
       {/* ==================== QUICK BOOKING MODAL ==================== */}
