@@ -488,6 +488,7 @@ export default function BookingFlow({
     calculatePricing();
   }, [
     bookingData.selectedPackage,
+    bookingData.selectedDoctor,
     bookingData.sessionsCount,
     bookingData.selectedPatients,
   ]);
@@ -516,7 +517,8 @@ export default function BookingFlow({
       // For packages, the price is already after discount
       subTotal = Number.parseFloat(bookingData.selectedPackage.price);
     } else {
-      subTotal = 300 * bookingData.sessionsCount;
+      const sessionPrice = Number(bookingData.selectedDoctor?.session_price) || 0;
+      subTotal = sessionPrice * bookingData.sessionsCount;
     }
 
     // Nationality fee comes from payment summary after reservation is created

@@ -7,10 +7,10 @@ export default function Logo() {
   const pathname = usePathname();
 
   return (
-    <Link href={pathname.startsWith("/en") ? "/en" : "/ar"}>
+    <Link href={pathname.startsWith("/en") ? "/en" : "/"}>
       <div
         className={`w-[129px] h-[55px] bg-cover bg-no-repeat absolute top-0 rtl:start-0 ltr:end-0 overflow-hidden z-[7] ${
-          pathname === "/ar" || pathname === "/en"
+          pathname === "/" || pathname === "/en"
             ? "bg-[url('/assets/images/logo.svg')]"
             : "bg-[url('/assets/images/logo2.svg')]"
         }`}

@@ -49,18 +49,25 @@ export function middleware(request: NextRequest) {
   const hasEnPrefix = pathname.startsWith("/en/") || pathname === "/en"
   const hasArPrefix = pathname.startsWith("/ar/") || pathname === "/ar"
 
-  
-  // If path already has a locale prefix, just pass through
-  if (hasEnPrefix || hasArPrefix) {
-    const locale = hasEnPrefix ? "en" : "ar"
-        const response = NextResponse.next()
-    response.cookies.set("NEXT_LOCALE", locale, { path: "/" })
+  // Arabic is the default locale (no /ar prefix). Canonicalize /ar and /ar/* so
+  // Google does not index duplicate URLs that break reciprocal hreflang.
+  if (hasArPrefix) {
+    const unprefixedPath = pathname === "/ar" ? "/" : pathname.replace(/^\/ar/, "") || "/"
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = unprefixedPath
+    return NextResponse.redirect(redirectUrl, 301)
+  }
+
+  // English already has an explicit /en prefix — pass through
+  if (hasEnPrefix) {
+    const response = NextResponse.next()
+    response.cookies.set("NEXT_LOCALE", "en", { path: "/" })
     response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
     return response
   }
 
   // Handle defunct /services page with 410 Gone (for SEO/Google Indexing)
-  const isServicesPage = pathname === "/services" || pathname === "/en/services" || pathname === "/ar/services"
+  const isServicesPage = pathname === "/services" || pathname === "/en/services"
 
   if (isServicesPage) {
         return new NextResponse(

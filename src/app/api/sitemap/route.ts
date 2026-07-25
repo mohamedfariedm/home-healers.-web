@@ -11,6 +11,7 @@ export async function GET(request: Request) {
       status: 200,
       headers: {
         "Content-Type": "application/xml",
+        "Cache-Control": "no-store, max-age=0",
       },
     });
   } catch (error) {
@@ -19,6 +20,7 @@ export async function GET(request: Request) {
       status: 500,
       headers: {
         "Content-Type": "application/xml",
+        "Cache-Control": "no-store, max-age=0",
       },
     });
   }

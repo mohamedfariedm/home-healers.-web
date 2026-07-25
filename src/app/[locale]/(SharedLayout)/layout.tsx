@@ -18,7 +18,7 @@ export default async function Layout({
   const { locale } = await params;
 
   if (!i18nRouterConfig.locales.includes(locale as "ar" | "en")) {
-    redirect("/ar/notfound/404");
+    redirect("/notfound/404");
   }
 
   const [homeData, settings] = await Promise.all([

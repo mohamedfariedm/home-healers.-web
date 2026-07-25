@@ -2,7 +2,12 @@ import initTranslations from "@/app/i18n";
 import Features from "@/components/Animations/features";
 import BlogRelatedSection from "./_components/BlogSection";
 import ClientAPI from "@/app/api/api";
-import { createMetadata } from "@/lib/seo";
+import {
+  buildCanonicalUrl,
+  buildLocalizedSlugAlternates,
+  createMetadata,
+  getLocalizedValue,
+} from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
@@ -15,9 +20,9 @@ export async function generateMetadata({
   const settings = await ClientAPI.getSettings(locale);
   const seo = settings?.data[0]?.setting?.seo["blogs"];
   const { data } = await ClientAPI.getSingleBlog(blogID, locale);
-  const blogSlug =
-    (typeof data?.slug === "object" ? data?.slug?.[locale] : data?.slug) || blogID;
+  const blogSlug = getLocalizedValue(data?.slug, locale) || blogID;
   const path = `/blog/${blogSlug}`;
+  const canonical = buildCanonicalUrl(locale, path);
 
   // Base metadata from global blogs seo then override with blog-specific meta
   const baseMeta = createMetadata(seo, locale, path, {
@@ -29,6 +34,10 @@ export async function generateMetadata({
     ...baseMeta,
     title: data?.meta_title[locale] ||data?.meta_title|| baseMeta.title,
     description: data?.meta_description[locale] || data?.meta_description|| baseMeta.description,
+    alternates: {
+      canonical,
+      languages: buildLocalizedSlugAlternates("/blog", data?.slug, blogID),
+    },
   };
 }
 async function page({

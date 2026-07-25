@@ -16,9 +16,11 @@ export function getLocalizedValue(value: unknown, locale: string): string {
 }
 
 export function buildLanguageAlternates(path = ""): Record<string, string> {
+    const ar = buildCanonicalUrl("ar", path);
     return {
-        ar: buildCanonicalUrl("ar", path),
+        ar,
         en: buildCanonicalUrl("en", path),
+        "x-default": ar,
     };
 }
 
@@ -30,10 +32,12 @@ export function buildLocalizedSlugAlternates(
 ): Record<string, string> {
     const arSlug = getLocalizedValue(slug, "ar") || fallbackSlug;
     const enSlug = getLocalizedValue(slug, "en") || fallbackSlug;
+    const ar = buildCanonicalUrl("ar", `${basePath}/${arSlug}`);
 
     return {
-        ar: buildCanonicalUrl("ar", `${basePath}/${arSlug}`),
+        ar,
         en: buildCanonicalUrl("en", `${basePath}/${enSlug}`),
+        "x-default": ar,
     };
 }
 
