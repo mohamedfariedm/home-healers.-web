@@ -44,6 +44,8 @@ export default function Step1SpecialtySelection({
     notes: "",
     attachments: [] as File[],
     is_guest: true,
+    sub_total: 500,
+    total_amount: 500,
     guest_info: {
       name: "",
       email: "",
@@ -200,10 +202,23 @@ export default function Step1SpecialtySelection({
   const handleQuickBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
+
+    if (!quickForm.guest_info.nationality.trim()) {
+      toast.error(
+        t("modals.addPatient.nationalityRequired") || "الجنسية مطلوبة",
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const res = await ClientAPI.createQueiqReservation(quickForm, "ar");
+      const payload = {
+        ...quickForm,
+        sub_total: quickForm.sub_total || 500,
+        total_amount: quickForm.total_amount || 500,
+      };
+      const res = await ClientAPI.createQueiqReservation(payload, "ar");
 
       if (res?.success || res?.data) {
         toast.success(
@@ -215,6 +230,8 @@ export default function Step1SpecialtySelection({
           notes: "",
           attachments: [],
           is_guest: true,
+          sub_total: 500,
+          total_amount: 500,
           guest_info: {
             name: "",
             email: "",
@@ -676,11 +693,15 @@ export default function Step1SpecialtySelection({
                   {/* Nationality */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                      {t("step1.nationality")}
+                      {t("step1.nationality")} *
                     </label>
                     <input
                       type="text"
-                      placeholder="سعودي – مصري – أردني..."
+                      required
+                      placeholder={
+                        t("step1.nationalityPlaceholder") ||
+                        "سعودي – مصري – أردني..."
+                      }
                       value={quickForm.guest_info.nationality}
                       onChange={(e) =>
                         setQuickForm((p) => ({
