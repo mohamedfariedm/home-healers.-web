@@ -19,10 +19,14 @@ import BookingStepNav from "../booking-step-nav";
 export default function Step1SpecialtySelection({
   categoriesData,
   servicesData,
+  countriesData,
+  statesData,
+  nationalitiesData,
   bookingData,
   updateBookingData,
   onNext,
   showServiceSelection = false,
+  locale = "ar",
 }: Step1Props) {
   const { t } = useTranslation("booking");
   const router = useRouter();
@@ -33,13 +37,18 @@ export default function Step1SpecialtySelection({
     "category",
   );
   const [isQuickBookingOpen, setIsQuickBookingOpen] = useState(false);
-  const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false); // <-- NEW
-  const [savedLocations, setSavedLocations] = useState<Location[]>([]); // <-- NEW
-  let route = useRouter();
+  const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
+  const [savedLocations, setSavedLocations] = useState<Location[]>([]);
+  const [availableCities, setAvailableCities] = useState<
+    { id: number; name: string }[]
+  >([]);
+  const [availableStates, setAvailableStates] = useState<
+    { id: number; name: string }[]
+  >([]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [quickForm, setQuickForm] = useState({
+  const initialQuickForm = {
     pain_location: "",
     notes: "",
     attachments: [] as File[],
@@ -54,6 +63,7 @@ export default function Step1SpecialtySelection({
       city: "",
       country: "",
       nationality: "",
+      nationality_id: undefined as number | undefined,
       date_of_birth: "",
       gender: "male",
       national_id: "",
@@ -64,7 +74,29 @@ export default function Step1SpecialtySelection({
     address_country: "",
     address_state: "",
     address_link: "",
-  });
+  };
+
+  const [quickForm, setQuickForm] = useState(initialQuickForm);
+
+  const normalizeList = (raw: any): any[] => {
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    if (Array.isArray(raw.data)) return raw.data;
+    return [];
+  };
+
+  const isPublished = (item: any) =>
+    item.status === "Published" ||
+    item.status === "1" ||
+    item.status === 1 ||
+    item.status == null;
+
+  const nationalityOptions: { id: number; name: string }[] = normalizeList(
+    nationalitiesData,
+  ).map((n: any) => ({ id: n.id, name: n.name }));
+
+  const countries = normalizeList(countriesData).filter(isPublished);
+  const allStates = normalizeList(statesData).filter(isPublished);
 
   /* ------------------- LOAD SAVED LOCATIONS ------------------- */
   useEffect(() => {
@@ -198,6 +230,71 @@ export default function Step1SpecialtySelection({
       attachments: p.attachments.filter((_, idx) => idx !== i),
     }));
 
+  const resetLocationCascade = () => {
+    setAvailableCities([]);
+    setAvailableStates([]);
+  };
+
+  const handleCountryChange = (countryName: string) => {
+    setQuickForm((p) => ({
+      ...p,
+      guest_info: {
+        ...p.guest_info,
+        country: countryName,
+        city: "",
+      },
+      address_country: countryName,
+      address_city: "",
+      address_state: "",
+    }));
+
+    if (!countryName) {
+      resetLocationCascade();
+      return;
+    }
+
+    const selectedCountry = countries.find((c: any) => c.name === countryName);
+    const embeddedCities = (selectedCountry?.cities || []).filter(isPublished);
+    setAvailableCities(embeddedCities);
+    setAvailableStates([]);
+  };
+
+  const handleCityChange = (cityName: string) => {
+    setQuickForm((p) => ({
+      ...p,
+      guest_info: { ...p.guest_info, city: cityName },
+      address_city: cityName,
+      address_state: "",
+    }));
+
+    if (cityName) {
+      setAvailableStates(allStates);
+    } else {
+      setAvailableStates([]);
+    }
+  };
+
+  const handleStateChange = (stateName: string) => {
+    setQuickForm((p) => ({
+      ...p,
+      address_state: stateName,
+    }));
+  };
+
+  const handleNationalityChange = (value: string) => {
+    const selected = nationalityOptions.find(
+      (option) => String(option.id) === value,
+    );
+    setQuickForm((p) => ({
+      ...p,
+      guest_info: {
+        ...p.guest_info,
+        nationality: selected?.name ?? "",
+        nationality_id: selected?.id,
+      },
+    }));
+  };
+
   /* ------------------- QUICK BOOKING SUBMIT ------------------- */
   const handleQuickBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -210,6 +307,11 @@ export default function Step1SpecialtySelection({
       return;
     }
 
+    if (!quickForm.guest_info.country.trim() || !quickForm.guest_info.city.trim()) {
+      toast.error(t("step1.city") + " / " + t("step1.country"));
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -217,45 +319,27 @@ export default function Step1SpecialtySelection({
         ...quickForm,
         sub_total: quickForm.sub_total || 500,
         total_amount: quickForm.total_amount || 500,
+        guest_info: {
+          ...quickForm.guest_info,
+          ...(quickForm.guest_info.nationality_id != null
+            ? { nationality_id: quickForm.guest_info.nationality_id }
+            : {}),
+        },
       };
-      const res = await ClientAPI.createQueiqReservation(payload, "ar");
+      const res = await ClientAPI.createQueiqReservation(payload, locale);
 
       if (res?.success || res?.data) {
         toast.success(
           t("step1.quickBookingSuccess") || "تم إرسال طلب الحجز السريع بنجاح!",
         );
         setIsQuickBookingOpen(false);
-        setQuickForm({
-          pain_location: "",
-          notes: "",
-          attachments: [],
-          is_guest: true,
-          sub_total: 500,
-          total_amount: 500,
-          guest_info: {
-            name: "",
-            email: "",
-            mobile: "",
-            address: "",
-            city: "",
-            country: "",
-            nationality: "",
-            date_of_birth: "",
-            gender: "male",
-            national_id: "",
-            blood_group: "",
-            languages_spoken: "ar",
-          },
-          address_city: "",
-          address_country: "",
-          address_state: "",
-          address_link: "",
-        });
+        setQuickForm(initialQuickForm);
+        resetLocationCascade();
         const reservationId = res.data[0].id;
         persistReservationId(reservationId);
         const telrResponse = await ClientAPI.payReservationWithTelr(
           reservationId,
-          "ar",
+          locale,
         );
 
         router.push(extractTelrRedirectUrl(telrResponse));
@@ -279,19 +363,26 @@ export default function Step1SpecialtySelection({
       address_link?: string;
     },
   ) => {
-    // Fill the quick-booking fields
+    const countryName = loc.country ?? "";
+    const cityName = loc.address_city ?? loc.city ?? "";
+    const stateName = loc.address_state ?? loc.state ?? "";
+
+    const selectedCountry = countries.find((c: any) => c.name === countryName);
+    const embeddedCities = (selectedCountry?.cities || []).filter(isPublished);
+    setAvailableCities(embeddedCities);
+    setAvailableStates(cityName ? allStates : []);
+
     setQuickForm((p) => ({
       ...p,
-      address_city: loc.address_city ?? loc.city ?? "",
-      address_country: loc.country ?? "",
-      address_state: loc.address_state ?? loc.state ?? "",
+      address_city: cityName,
+      address_country: countryName,
+      address_state: stateName,
       address_link: loc.address_link ?? loc.link ?? "",
-      // also fill guest address (optional)
       guest_info: {
         ...p.guest_info,
-        address: loc.address ?? "",
-        city: loc.address_city ?? loc.city ?? "",
-        country: loc.country ?? "",
+        address: loc.address ?? p.guest_info.address,
+        city: cityName,
+        country: countryName,
       },
     }));
 
@@ -695,25 +786,25 @@ export default function Step1SpecialtySelection({
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                       {t("step1.nationality")} *
                     </label>
-                    <input
-                      type="text"
+                    <select
                       required
-                      placeholder={
-                        t("step1.nationalityPlaceholder") ||
-                        "سعودي – مصري – أردني..."
+                      value={
+                        quickForm.guest_info.nationality_id != null
+                          ? String(quickForm.guest_info.nationality_id)
+                          : ""
                       }
-                      value={quickForm.guest_info.nationality}
-                      onChange={(e) =>
-                        setQuickForm((p) => ({
-                          ...p,
-                          guest_info: {
-                            ...p.guest_info,
-                            nationality: e.target.value,
-                          },
-                        }))
-                      }
-                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400 transition-all"
-                    />
+                      onChange={(e) => handleNationalityChange(e.target.value)}
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="">
+                        {t("step1.nationalityPlaceholder") || "اختر الجنسية"}
+                      </option>
+                      {nationalityOptions.map((nat) => (
+                        <option key={nat.id} value={String(nat.id)}>
+                          {nat.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   {/* Date of Birth */}
@@ -851,66 +942,108 @@ export default function Step1SpecialtySelection({
                     />
                   </div>
 
-                  {/* City */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                      {t("step1.city")} *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="الرياض – جدة – الدمام..."
-                      value={quickForm.guest_info.city}
-                      onChange={(e) =>
-                        setQuickForm((p) => ({
-                          ...p,
-                          guest_info: { ...p.guest_info, city: e.target.value },
-                        }))
-                      }
-                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder:text-gray-400 transition-all"
-                    />
-                  </div>
-
                   {/* Country */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                       {t("step1.country")} *
                     </label>
-                    <input
-                      type="text"
+                    <select
                       required
-                      placeholder="السعودية – الكويت – الإمارات..."
                       value={quickForm.guest_info.country}
-                      onChange={(e) =>
-                        setQuickForm((p) => ({
-                          ...p,
-                          guest_info: {
-                            ...p.guest_info,
-                            country: e.target.value,
-                          },
-                        }))
-                      }
-                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder:text-gray-400 transition-all"
-                    />
+                      onChange={(e) => handleCountryChange(e.target.value)}
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="">
+                        {t("step1.countryPlaceholder") || "اختر الدولة"}
+                      </option>
+                      {countries.map((c: any) => (
+                        <option key={c.id ?? c.name} value={c.name}>
+                          {c.name}
+                        </option>
+                      ))}
+                      {quickForm.guest_info.country &&
+                        !countries.some(
+                          (c: any) => c.name === quickForm.guest_info.country,
+                        ) && (
+                          <option value={quickForm.guest_info.country}>
+                            {quickForm.guest_info.country}
+                          </option>
+                        )}
+                    </select>
                   </div>
 
-                  {/* State */}
+                  {/* City */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      {t("step1.city")} *
+                    </label>
+                    <select
+                      required
+                      value={quickForm.guest_info.city}
+                      onChange={(e) => handleCityChange(e.target.value)}
+                      disabled={!quickForm.guest_info.country}
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white transition-all appearance-none cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    >
+                      <option value="">
+                        {!quickForm.guest_info.country
+                          ? t("step1.selectCountryFirst") ||
+                            "اختر الدولة أولاً"
+                          : availableCities.length === 0 &&
+                              !quickForm.guest_info.city
+                            ? t("step1.noCitiesAvailable") ||
+                              "لا توجد مدن متاحة"
+                            : t("step1.cityPlaceholder") || "اختر المدينة"}
+                      </option>
+                      {availableCities.map((city) => (
+                        <option key={city.id ?? city.name} value={city.name}>
+                          {city.name}
+                        </option>
+                      ))}
+                      {quickForm.guest_info.city &&
+                        !availableCities.some(
+                          (c) => c.name === quickForm.guest_info.city,
+                        ) && (
+                          <option value={quickForm.guest_info.city}>
+                            {quickForm.guest_info.city}
+                          </option>
+                        )}
+                    </select>
+                  </div>
+
+                  {/* State / Area */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                       {t("step1.state") || "المنطقة / الولاية"}
                     </label>
-                    <input
-                      type="text"
-                      placeholder="منطقة الرياض..."
+                    <select
                       value={quickForm.address_state}
-                      onChange={(e) =>
-                        setQuickForm((p) => ({
-                          ...p,
-                          address_state: e.target.value,
-                        }))
-                      }
-                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder:text-gray-400 transition-all"
-                    />
+                      onChange={(e) => handleStateChange(e.target.value)}
+                      disabled={!quickForm.guest_info.city}
+                      className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white transition-all appearance-none cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    >
+                      <option value="">
+                        {!quickForm.guest_info.city
+                          ? t("step1.selectCityFirst") || "اختر المدينة أولاً"
+                          : availableStates.length === 0 &&
+                              !quickForm.address_state
+                            ? t("step1.noStatesAvailable") ||
+                              "لا توجد مناطق متاحة"
+                            : t("step1.statePlaceholder") || "اختر المنطقة"}
+                      </option>
+                      {availableStates.map((state) => (
+                        <option key={state.id ?? state.name} value={state.name}>
+                          {state.name}
+                        </option>
+                      ))}
+                      {quickForm.address_state &&
+                        !availableStates.some(
+                          (s) => s.name === quickForm.address_state,
+                        ) && (
+                          <option value={quickForm.address_state}>
+                            {quickForm.address_state}
+                          </option>
+                        )}
+                    </select>
                   </div>
 
                   {/* Location Picker */}
@@ -1009,6 +1142,8 @@ export default function Step1SpecialtySelection({
         onSave={handleLocationSaved}
         savedLocations={savedLocations}
         updateSavedLocations={updateSavedLocations}
+        countriesData={countriesData}
+        statesData={statesData}
       />
     </>
   );
@@ -1020,10 +1155,14 @@ export default function Step1SpecialtySelection({
 interface Step1Props {
   categoriesData: any;
   servicesData: any;
+  countriesData?: any;
+  statesData?: any;
+  nationalitiesData?: any;
   bookingData: BookingData;
   updateBookingData: (updates: Partial<BookingData>) => void;
   onNext: () => void;
   showServiceSelection?: boolean;
+  locale?: string;
 }
 
 /* Form styles are now inline using Tailwind classes for better consistency */

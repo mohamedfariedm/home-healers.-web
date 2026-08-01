@@ -26,8 +26,19 @@ import { useTranslation } from "react-i18next";
 
 Font.register({
   family: "Amiri",
-  src: "https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHqUp.ttf",
+  fonts: [
+    {
+      src: "https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/amiri/Amiri-Regular.ttf",
+      fontWeight: 400,
+    },
+    {
+      src: "https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/amiri/Amiri-Bold.ttf",
+      fontWeight: 700,
+    },
+  ],
 });
+
+Font.registerHyphenationCallback((word) => [word]);
 
 const styles = StyleSheet.create({
   page: {
@@ -35,12 +46,11 @@ const styles = StyleSheet.create({
     padding: 20,
     fontFamily: "Amiri",
     textAlign: "right",
-    direction: "rtl",
     backgroundColor: "#f9fafb",
   },
   header: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 700,
     marginBottom: 15,
     textAlign: "center",
     color: "#143087",
@@ -49,7 +59,7 @@ const styles = StyleSheet.create({
   },
   subHeader: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 700,
     marginTop: 15,
     marginBottom: 10,
     color: "#1e40af",
@@ -60,7 +70,7 @@ const styles = StyleSheet.create({
     color: "#374151",
   },
   bold: {
-    fontWeight: "bold",
+    fontWeight: 700,
   },
   section: {
     backgroundColor: "#ffffff",
@@ -68,40 +78,30 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 15,
     border: "1pt solid #e5e7eb",
-    boxShadow: "0 2pt 4pt rgba(0,0,0,0.1)",
     textAlign: "right",
-    direction: "rtl",
   },
   row: {
-    flexDirection: "row",
+    flexDirection: "row-reverse",
     justifyContent: "space-between",
     marginBottom: 8,
     paddingHorizontal: 10,
-    textAlign: "right",
-    direction: "rtl",
   },
   label: {
     fontSize: 12,
     color: "#6b7280",
     width: "40%",
     textAlign: "right",
-    direction: "rtl",
   },
   value: {
     fontSize: 12,
-    fontWeight: "medium",
+    fontWeight: 400,
     color: "#111827",
     width: "60%",
     textAlign: "right",
-    direction: "rtl",
   },
   divider: {
     borderBottom: "1pt solid #e5e7eb",
     marginVertical: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    textAlign: "right",
-    direction: "rtl",
   },
   footer: {
     position: "absolute",
@@ -212,7 +212,9 @@ export default function PaymentSuccess({ orderRef }: PaymentSuccessProps) {
       const link = document.createElement("a");
       link.href = url;
       link.download = `HomeHealers_Receipt_HH-${reservationId || Date.now()}.pdf`;
+      document.body.appendChild(link);
       link.click();
+      link.remove();
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error generating PDF:", error);

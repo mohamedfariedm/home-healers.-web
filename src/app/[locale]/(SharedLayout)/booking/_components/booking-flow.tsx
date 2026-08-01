@@ -991,10 +991,14 @@ export default function BookingFlow({
           <Step1SpecialtySelection
             categoriesData={categoriesData}
             servicesData={servicesData}
+            countriesData={countriesData}
+            statesData={statesData}
+            nationalitiesData={nationalitiesData}
             bookingData={bookingData}
             updateBookingData={updateBookingData}
             onNext={nextStep}
             showServiceSelection={SHOW_SERVICE_SELECTION_STEP}
+            locale={locale}
           />
         );
       case 2:
@@ -1158,17 +1162,33 @@ export default function BookingFlow({
 
       <div className="w-full max-w-[1280px] mt-6 sm:mt-8 md:mt-10 px-1 sm:px-2 relative">
         {!tourActive && isBookingTourCompleted() && (
-          <button
-            type="button"
-            onClick={() => setTourActive(true)}
-            className="fixed bottom-5 end-5 z-[100] inline-flex items-center gap-2 rounded-full bg-[#143087] text-white shadow-[0_4px_20px_rgba(20,48,135,0.35)] ring-2 ring-white ps-4 pe-5 py-3 hover:bg-[#0f2470] hover:shadow-[0_6px_24px_rgba(20,48,135,0.45)] active:scale-[0.98] transition-all sm:bottom-8 sm:end-8"
-            aria-label={t("tour.restart")}
+          <div
+            className={`group/tour fixed z-[100] bottom-4 sm:bottom-6 ${
+              locale === "ar" || locale?.startsWith("ar")
+                ? "left-2 sm:left-4"
+                : "right-2 sm:right-4"
+            }`}
           >
-            <Compass className="h-5 w-5 shrink-0" aria-hidden />
-            <span className="text-sm font-semibold whitespace-nowrap">
-              {t("tour.restart")}
-            </span>
-          </button>
+            <div className="relative">
+              <span
+                className={`pointer-events-none absolute top-1/2 -translate-y-1/2 whitespace-nowrap rounded-lg bg-white px-2.5 py-1 text-xs font-medium text-gray-700 shadow-md opacity-0 transition-opacity duration-200 group-hover/tour:opacity-100 group-focus-within/tour:opacity-100 ${
+                  locale === "ar" || locale?.startsWith("ar")
+                    ? "left-full ms-2 sm:ms-3"
+                    : "right-full me-2 sm:me-3"
+                }`}
+              >
+                {t("tour.restart")}
+              </span>
+              <button
+                type="button"
+                onClick={() => setTourActive(true)}
+                className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-[#143087] text-white shadow-lg transition-transform hover:scale-105 hover:bg-[#0f2470]"
+                aria-label={t("tour.restart")}
+              >
+                <Compass className="h-5 w-5" aria-hidden />
+              </button>
+            </div>
+          </div>
         )}
         {renderStepContent()}
       </div>

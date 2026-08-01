@@ -13,11 +13,23 @@ import type { BookingData } from "@/types/booking";
 import { Document, Page, Text, View, StyleSheet, Font, pdf } from "@react-pdf/renderer";
 import { toast } from "sonner";
 
-// Register Amiri font
+// Register Amiri (regular + bold). A single face + fontWeight "bold"/"medium" makes react-pdf throw.
 Font.register({
   family: "Amiri",
-  src: "https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHqUp.ttf", // Amiri font URL
+  fonts: [
+    {
+      src: "https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/amiri/Amiri-Regular.ttf",
+      fontWeight: 400,
+    },
+    {
+      src: "https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/amiri/Amiri-Bold.ttf",
+      fontWeight: 700,
+    },
+  ],
 });
+
+// Avoid hyphenation crashes with Arabic text
+Font.registerHyphenationCallback((word) => [word]);
 
 // Styles for the PDF
 const styles = StyleSheet.create({
@@ -26,12 +38,11 @@ const styles = StyleSheet.create({
     padding: 20,
     fontFamily: "Amiri",
     textAlign: "right",
-    direction: "rtl",
     backgroundColor: "#f9fafb",
   },
   header: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 700,
     marginBottom: 15,
     textAlign: "center",
     color: "#143087",
@@ -40,7 +51,7 @@ const styles = StyleSheet.create({
   },
   subHeader: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 700,
     marginTop: 15,
     marginBottom: 10,
     color: "#1e40af",
@@ -51,7 +62,7 @@ const styles = StyleSheet.create({
     color: "#374151",
   },
   bold: {
-    fontWeight: "bold",
+    fontWeight: 700,
   },
   section: {
     backgroundColor: "#ffffff",
@@ -59,40 +70,30 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 15,
     border: "1pt solid #e5e7eb",
-    boxShadow: "0 2pt 4pt rgba(0,0,0,0.1)",
-        textAlign: "right",
-    direction: "rtl",
+    textAlign: "right",
   },
   row: {
-    flexDirection: "row",
+    flexDirection: "row-reverse",
     justifyContent: "space-between",
     marginBottom: 8,
     paddingHorizontal: 10,
-        textAlign: "right",
-    direction: "rtl",
   },
   label: {
     fontSize: 12,
     color: "#6b7280",
     width: "40%",
     textAlign: "right",
-    direction: "rtl",
   },
   value: {
     fontSize: 12,
-    fontWeight: "medium",
+    fontWeight: 400,
     color: "#111827",
     width: "60%",
-        textAlign: "right",
-    direction: "rtl",
+    textAlign: "right",
   },
   divider: {
     borderBottom: "1pt solid #e5e7eb",
     marginVertical: 10,
-        flexDirection: "row",
-    justifyContent: "space-between",
-            textAlign: "right",
-    direction: "rtl",
   },
   footer: {
     position: "absolute",
@@ -113,131 +114,137 @@ interface Step6Props {
 }
 
 // PDF Document Component
-const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => (
-  <Document>
-    <Page size="A4"  style={styles.page}>
-      {/* Header */}
-      <Text style={styles.header}>إيصال الحجز - هوم هيلرز</Text>
-      <View style={styles.section}>
-        <View style={styles.row}>
-          <Text style={styles.value}>HH-{reservationId || Date.now()}</Text>
-          <Text style={styles.label}>رقم الحجز:</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.value}>{new Date().toLocaleDateString("ar-SA")}</Text>
-          <Text style={styles.label}>التاريخ:</Text>
-        </View>
-      </View>
+const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => {
+  const pricing = bookingData.pricing;
+  const dates = bookingData.selectedDates ?? [];
 
-      {/* Patient Info */}
-      <Text style={styles.subHeader}>تفاصيل الحجز</Text>
-      <View style={styles.section}>
-        <View style={styles.row}>
-          <Text style={styles.value}>
-            {bookingData.selectedPatients?.map((p) => p.name).join(", ") || "غير محدد"}
-          </Text>
-          <Text style={styles.label}>اسم المريض:</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.value}>{bookingData.selectedDoctor?.name || "غير محدد"}</Text>
-          <Text style={styles.label}>الطبيب المعالج:</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.value}>{bookingData.selectedDoctor?.specialist || "غير محدد"}</Text>
-          <Text style={styles.label}>التخصص:</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.value}>{bookingData.healthInfo.painLocation || "غير محدد"}</Text>
-          <Text style={styles.label}>المشكلة الصحية:</Text>
-        </View>
-        {bookingData.selectedPackage && (
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.header}>إيصال الحجز - هوم هيلرز</Text>
+        <View style={styles.section}>
           <View style={styles.row}>
-            <Text style={styles.value}>{bookingData.selectedPackage.name || "غير محدد"}</Text>
-            <Text style={styles.label}>الباقة المختارة:</Text>
+            <Text style={styles.value}>HH-{reservationId || Date.now()}</Text>
+            <Text style={styles.label}>رقم الحجز:</Text>
           </View>
-        )}
-      </View>
+          <View style={styles.row}>
+            <Text style={styles.value}>{new Date().toLocaleDateString("ar-SA")}</Text>
+            <Text style={styles.label}>التاريخ:</Text>
+          </View>
+        </View>
 
-      {/* Location & Schedule */}
-      <Text style={styles.subHeader}>الموقع والمواعيد</Text>
-      <View style={styles.section}>
-        <View style={styles.row}>
-          <Text style={styles.value}>{bookingData.selectedLocation?.title || "غير محدد"}</Text>
-          <Text style={styles.label}>موقع الزيارة:</Text>
-        </View>
-        <Text style={[styles.text, { paddingHorizontal: 10 }]}>
-          {bookingData.selectedLocation?.address || "غير محدد"}
-        </Text>
-        <View style={styles.divider} />
-        <Text style={[styles.text, { paddingHorizontal: 10 }]}>المواعيد المحجوزة:</Text>
-        {bookingData.selectedDates.map((dateTime, index) => (
-          <Text key={index} style={[styles.text, { paddingHorizontal: 10 }]}>
-            {dateTime.date} - {dateTime.time}
-          </Text>
-        ))}
-      </View>
-
-      {/* Payment Summary */}
-      <Text style={styles.subHeader}>ملخص الدفع</Text>
-      <View style={styles.section}>
-        <View style={styles.row}>
-          <Text style={styles.value}>{bookingData.pricing.subTotal} ريال</Text>
-          <Text style={styles.label}>المبلغ الأساسي:</Text>
-        </View>
-        {bookingData.pricing.tax > 0 && (
+        <Text style={styles.subHeader}>تفاصيل الحجز</Text>
+        <View style={styles.section}>
           <View style={styles.row}>
-            <Text style={styles.value}>{bookingData.pricing.tax} ريال</Text>
-            <Text style={styles.label}>رسوم الجنسية (15%):</Text>
-          </View>
-        )}
-        {bookingData.pricing.fees > 0 && (
-          <View style={styles.row}>
-            <Text style={styles.value}>{bookingData.pricing.fees} ريال</Text>
-            <Text style={styles.label}>رسوم مزود الدفع:</Text>
-          </View>
-        )}
-        {(bookingData.pricing.couponDiscount ?? 0) > 0 && (
-          <View style={styles.row}>
-            <Text style={[styles.value, { color: "#16a34a" }]}>
-              -{bookingData.pricing.couponDiscount} ريال
+            <Text style={styles.value}>
+              {bookingData.selectedPatients?.map((p) => p.name).join(", ") || "غير محدد"}
             </Text>
-            <Text style={styles.label}>خصم الكوبون:</Text>
+            <Text style={styles.label}>اسم المريض:</Text>
           </View>
-        )}
-        {bookingData.pricing.discount > 0 && (
           <View style={styles.row}>
-            <Text style={[styles.value, { color: "#16a34a" }]}>-{bookingData.pricing.discount} ريال</Text>
-            <Text style={styles.label}>الخصم:</Text>
+            <Text style={styles.value}>{bookingData.selectedDoctor?.name || "غير محدد"}</Text>
+            <Text style={styles.label}>الطبيب المعالج:</Text>
           </View>
-        )}
-        <View style={styles.divider} />
-        <View style={styles.row}>
-          <Text style={[styles.value, styles.bold, { color: "#143087" }]}>
-            {bookingData.pricing.total} ريال
-          </Text>
-          <Text style={[styles.label, styles.bold]}>المبلغ الإجمالي:</Text>
+          <View style={styles.row}>
+            <Text style={styles.value}>{bookingData.selectedDoctor?.specialist || "غير محدد"}</Text>
+            <Text style={styles.label}>التخصص:</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.value}>{bookingData.healthInfo?.painLocation || "غير محدد"}</Text>
+            <Text style={styles.label}>المشكلة الصحية:</Text>
+          </View>
+          {bookingData.selectedPackage && (
+            <View style={styles.row}>
+              <Text style={styles.value}>{bookingData.selectedPackage.name || "غير محدد"}</Text>
+              <Text style={styles.label}>الباقة المختارة:</Text>
+            </View>
+          )}
         </View>
-        <View style={styles.row}>
-          <Text style={styles.value}>
-            {bookingData.paymentMethod === "cash"
-              ? "نقداً"
-              : bookingData.paymentMethod === "telr"
-              ? "Telr Payment"
-              : bookingData.paymentMethod === "wallet"
-              ? "المحفظة"
-              : "غير محدد"}
-          </Text>
-          <Text style={styles.label}>طريقة الدفع:</Text>
-        </View>
-      </View>
 
-      {/* Footer */}
-      <Text style={styles.footer}>
-        فريق هوم هيلرز - support@homehealers.com | للتواصل: +966 50 000 0000
-      </Text>
-    </Page>
-  </Document>
-);
+        <Text style={styles.subHeader}>الموقع والمواعيد</Text>
+        <View style={styles.section}>
+          <View style={styles.row}>
+            <Text style={styles.value}>{bookingData.selectedLocation?.title || "غير محدد"}</Text>
+            <Text style={styles.label}>موقع الزيارة:</Text>
+          </View>
+          <Text style={[styles.text, { paddingHorizontal: 10 }]}>
+            {bookingData.selectedLocation?.address || "غير محدد"}
+          </Text>
+          <View style={styles.divider} />
+          <Text style={[styles.text, { paddingHorizontal: 10 }]}>المواعيد المحجوزة:</Text>
+          {dates.length > 0 ? (
+            dates.map((dateTime, index) => (
+              <Text key={index} style={[styles.text, { paddingHorizontal: 10 }]}>
+                {dateTime.date} - {dateTime.time}
+              </Text>
+            ))
+          ) : (
+            <Text style={[styles.text, { paddingHorizontal: 10 }]}>غير محدد</Text>
+          )}
+        </View>
+
+        <Text style={styles.subHeader}>ملخص الدفع</Text>
+        <View style={styles.section}>
+          <View style={styles.row}>
+            <Text style={styles.value}>{pricing?.subTotal ?? 0} ريال</Text>
+            <Text style={styles.label}>المبلغ الأساسي:</Text>
+          </View>
+          {(pricing?.tax ?? 0) > 0 && (
+            <View style={styles.row}>
+              <Text style={styles.value}>{pricing?.tax} ريال</Text>
+              <Text style={styles.label}>رسوم الجنسية (15%):</Text>
+            </View>
+          )}
+          {(pricing?.fees ?? 0) > 0 && (
+            <View style={styles.row}>
+              <Text style={styles.value}>{pricing?.fees} ريال</Text>
+              <Text style={styles.label}>رسوم مزود الدفع:</Text>
+            </View>
+          )}
+          {(pricing?.couponDiscount ?? 0) > 0 && (
+            <View style={styles.row}>
+              <Text style={[styles.value, { color: "#16a34a" }]}>
+                -{pricing?.couponDiscount} ريال
+              </Text>
+              <Text style={styles.label}>خصم الكوبون:</Text>
+            </View>
+          )}
+          {(pricing?.discount ?? 0) > 0 && (
+            <View style={styles.row}>
+              <Text style={[styles.value, { color: "#16a34a" }]}>
+                -{pricing?.discount} ريال
+              </Text>
+              <Text style={styles.label}>الخصم:</Text>
+            </View>
+          )}
+          <View style={styles.divider} />
+          <View style={styles.row}>
+            <Text style={[styles.value, styles.bold, { color: "#143087" }]}>
+              {pricing?.total ?? 0} ريال
+            </Text>
+            <Text style={[styles.label, styles.bold]}>المبلغ الإجمالي:</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.value}>
+              {bookingData.paymentMethod === "cash"
+                ? "نقداً"
+                : bookingData.paymentMethod === "telr"
+                ? "Telr Payment"
+                : bookingData.paymentMethod === "wallet"
+                ? "المحفظة"
+                : "غير محدد"}
+            </Text>
+            <Text style={styles.label}>طريقة الدفع:</Text>
+          </View>
+        </View>
+
+        <Text style={styles.footer}>
+          فريق هوم هيلرز - support@homehealers.com | للتواصل: +966 50 000 0000
+        </Text>
+      </Page>
+    </Document>
+  );
+};
 
 export default function Step6Confirmation({ bookingData, reservationId }: Step6Props) {
   const { t } = useTranslation("booking");
@@ -254,17 +261,22 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
       ? t("step5.wallet")
       : t("step5.notSpecified");
   const handleDownloadReceipt = async () => {
+    if (!bookingData?.pricing) return;
     try {
-      const blob = await pdf(<ReceiptDocument bookingData={bookingData} reservationId={reservationId} />).toBlob();
+      const blob = await pdf(
+        <ReceiptDocument bookingData={bookingData} reservationId={reservationId} />
+      ).toBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
       link.download = `HomeHealers_Receipt_HH-${reservationId || Date.now()}.pdf`;
+      document.body.appendChild(link);
       link.click();
+      link.remove();
       URL.revokeObjectURL(url);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error generating PDF:", error);
-      toast.error(t("step6.pdfError") || "فشل في إنشاء إيصال الحجز. حاول مرة أخرى.");
+      toast.error(t("step6.pdfError"));
     }
   };
 
@@ -498,7 +510,7 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
       </div>
 
       {/* Contact Info */}
-      <div className="text-center p-6 bg-gray-50 rounded-lg">
+      {/* <div className="text-center p-6 bg-gray-50 rounded-lg">
         <h3 className="font-bold mb-2">{t("step6.needHelp")}</h3>
         <p className="text-gray-600 mb-4">
           {t("step6.customerService")}
@@ -517,7 +529,7 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
             ✉️ support@homehealers.com
           </a>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
