@@ -410,7 +410,10 @@
     "walletPaid": "تم الدفع من المحفظة بنجاح.",
     "paymentFailed": "فشل في تأكيد الدفع",
     "error": "حدث خطأ",
-    "reservationIdMissing": "معرف الحجز غير متوفر"
+    "reservationIdMissing": "معرف الحجز غير متوفر",
+    "offerOutOfStockTitle": "هذا العرض لم يعد متاحاً",
+    "offerOutOfStockBody": "نفدت كمية هذا العرض ولا يمكن حجزه.",
+    "backToOffers": "العودة إلى العروض"
   },
   "paymentReturn": {
     "successTitle": "تم تأكيد الدفع بنجاح!",

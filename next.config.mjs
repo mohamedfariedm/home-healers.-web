@@ -4,7 +4,7 @@ const nextConfig = {
   // Wait for generateMetadata before sending HTML so title/canonical appear in view-source
   htmlLimitedBots: /.*/,
   images: {
-    formats: ["image/webp"],
+    formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 3600,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
@@ -81,6 +81,42 @@ const nextConfig = {
       {
         source: "/.well-known/assetlinks.json",
         headers: [{ key: "Content-Type", value: "application/json" }],
+      },
+      {
+        source: "/offers",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "s-maxage=300, stale-while-revalidate=600",
+          },
+        ],
+      },
+      {
+        source: "/offers/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "s-maxage=300, stale-while-revalidate=600",
+          },
+        ],
+      },
+      {
+        source: "/en/offers",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "s-maxage=300, stale-while-revalidate=600",
+          },
+        ],
+      },
+      {
+        source: "/en/offers/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "s-maxage=300, stale-while-revalidate=600",
+          },
+        ],
       },
     ];
   },

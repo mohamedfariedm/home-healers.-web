@@ -21,6 +21,7 @@ export default function MenuItemsDesktop({
     { label: t("home"), href: "/" },
     { label: t("about"), href: "/about" },
     { label: t("specialties"), href: "/categories" },
+    { label: t("offers"), href: "/offers" },
     { label: t("blogs"), href: "/blog" },
     { label: t("contact"), href: "/contact" },
   ];
@@ -33,8 +34,12 @@ export default function MenuItemsDesktop({
       )}
     >
       {menuItems.map((item, index) => {
+        const normalized = pathname.replace(/^\/(ar|en)/, "/") || "/";
         const isActive =
-          pathname.replace(/^\/(ar|en)/, "/") == `${item.href}`;
+          item.href === "/"
+            ? normalized === "/"
+            : normalized === item.href ||
+              normalized.startsWith(`${item.href}/`);
 
         return (
           <Link

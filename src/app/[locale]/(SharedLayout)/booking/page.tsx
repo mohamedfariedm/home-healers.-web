@@ -31,17 +31,48 @@ export async function generateMetadata({
   });
 }
 
-async function Page({ params }: { params: Promise<{ locale: string }> }) {
+async function Page({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { locale } = await params;
-  const { t } = await initTranslations(locale, ["contactUs"]);
-  const doctorsData = await ClientAPI.getDoctors(locale);
-  const packagesData = await ClientAPI.getPackages(locale);
-  const categoriesData = await ClientAPI.getCategories(locale);
-  const countriesData = await ClientAPI.getCountries(locale);
-  const statesData = await ClientAPI.getStates(locale);
-  const citiesData = await ClientAPI.getCities(locale);
-  const nationalitiesData = await ClientAPI.getNationalities(locale);
-  const servicesData = await ClientAPI.getAllServices(locale);
+  const sp = await searchParams;
+  const packageIdRaw = sp.packageId ?? sp.packageid;
+  const packageId = Array.isArray(packageIdRaw) ? packageIdRaw[0] : packageIdRaw;
+  const [
+    doctorsData,
+    packagesData,
+    categoriesData,
+    countriesData,
+    statesData,
+    citiesData,
+    nationalitiesData,
+    servicesData,
+    singlePackage,
+  ] = await Promise.all([
+    ClientAPI.getDoctors(locale),
+    ClientAPI.getPackages(locale, { limit: 100 }),
+    ClientAPI.getCategories(locale),
+    ClientAPI.getCountries(locale),
+    ClientAPI.getStates(locale),
+    ClientAPI.getCities(locale),
+    ClientAPI.getNationalities(locale),
+    ClientAPI.getAllServices(locale),
+    packageId ? ClientAPI.getPackageById(packageId, locale) : Promise.resolve(null),
+  ]);
+
+  const selectedPackage = singlePackage?.data?.[0];
+  if (selectedPackage && packagesData?.data) {
+    const exists = packagesData.data.some(
+      (pkg: { id: number }) => Number(pkg.id) === Number(selectedPackage.id),
+    );
+    if (!exists) {
+      packagesData.data = [selectedPackage, ...packagesData.data];
+    }
+  }
 
   return (
     <Suspense fallback={null}>

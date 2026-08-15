@@ -88,6 +88,7 @@ const translations = {
       about: "عن هوم هيليرز",
       services: "خدماتنا",
       categories: "تخصصاتنا",
+      offers: "العروض",
       blog: "المدونة",
       contact: "تواصل معنا",
     },
@@ -126,6 +127,7 @@ const translations = {
       about: "About Home Healers",
       services: "Our Services",
       categories: "Our Specialties",
+      offers: "Offers",
       blog: "Blog",
       contact: "Contact Us",
     },
@@ -699,6 +701,10 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     {
                       href: `${locale === "ar" ? "" : "/en"}/categories`,
                       text: t.navigation.categories,
+                    },
+                    {
+                      href: `${locale === "ar" ? "" : "/en"}/offers`,
+                      text: t.navigation.offers,
                     },
                     {
                       href: `${locale === "ar" ? "" : "/en"}/blog`,

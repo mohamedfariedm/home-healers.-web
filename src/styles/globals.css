@@ -382,3 +382,34 @@ body.tawk-chat-open .tawk-max-container {
     inset-inline-end: 0.5rem !important;
   }
 }
+
+.offer-prose {
+  @apply text-[#1e1e1e] text-base leading-7;
+}
+.offer-prose :where(p, ul, ol) {
+  @apply mb-3 last:mb-0;
+}
+.offer-prose :where(ul) {
+  @apply list-disc ps-5;
+}
+.offer-prose :where(ol) {
+  @apply list-decimal ps-5;
+}
+.offer-prose :where(li) {
+  @apply mb-1;
+}
+.offer-prose :where(strong, b) {
+  @apply font-semibold;
+}
+.offer-prose :where(a) {
+  @apply text-primary underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm;
+}
+.offer-prose :where(h2) {
+  @apply text-xl font-semibold text-[#143087] mt-6 mb-2;
+}
+.offer-prose :where(h3) {
+  @apply text-lg font-semibold text-[#143087] mt-5 mb-2;
+}
+.offer-prose :where(h4) {
+  @apply text-base font-semibold text-[#143087] mt-4 mb-2;
+}

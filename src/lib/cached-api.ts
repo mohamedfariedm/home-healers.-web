@@ -16,3 +16,7 @@ export const getCachedServiceBySlug = cache((locale: string, slug: string) =>
 export const getCachedSingleBlog = cache((blogID: string, locale: string) =>
   ClientAPI.getSingleBlog(blogID, locale),
 );
+
+export const getCachedOfferBySlug = cache((locale: string, slug: string) =>
+  ClientAPI.getOfferBySlug(slug, locale),
+);

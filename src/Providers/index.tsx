@@ -6,7 +6,7 @@ import ClientComponentsAuthSessionProvider from "./client-components-auth-sessio
 import { RamadanProvider } from "./ramadan-provider";
 import { IS_RAMADAN_ACTIVE } from "@/constants/ramadan";
 
-const i18nNamespaces = [ "homepage", "common", "contactUs", "blog", "complaints","products","faq","expo","doctor-apply","booking","review","invite-doctor"];
+const i18nNamespaces = [ "homepage", "common", "contactUs", "blog", "complaints","products","faq","expo","doctor-apply","booking","review","invite-doctor","offers"];
 
 export default async function GlobalProvider({
   children,

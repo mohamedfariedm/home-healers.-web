@@ -9,7 +9,6 @@ export const DEEP_LINK_ROUTE_NAMES: DeepLinkRoute[] = [
   "doctor",
   "service",
   "reservation",
-  "offers",
   "home",
 ];
 

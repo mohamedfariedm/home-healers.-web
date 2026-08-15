@@ -13,7 +13,7 @@ import { getHeroImageUrls } from "@/lib/image-url";
 import {
   DeferredClientReviews,
   DeferredOurStory,
-  DeferredPackages,
+  DeferredOffers,
   DeferredReservationReviews,
 } from "./_components/DeferredSections";
 
@@ -21,7 +21,7 @@ const BeCloser = dynamic(() => import("./_components/BeCloser"));
 const DownloadApp = dynamic(() => import("./_components/DownloadApp"));
 const Card = dynamic(() => import("./_components/Card"));
 
-export const revalidate = 60;
+export const revalidate = 300;
 
 export async function generateMetadata({
   params,
@@ -111,7 +111,7 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
         <BeCloser locale={locale} section={beCloserSection} />
         <DownloadApp section={downloadAppSection} locale={locale} />
         <Suspense fallback={null}>
-          <DeferredPackages locale={locale} />
+          <DeferredOffers locale={locale} />
         </Suspense>
         {homeBanners?.length > 0 &&
           homeBanners.map(

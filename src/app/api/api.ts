@@ -1,3 +1,7 @@
+import { ClientApiError } from "@/lib/client-api-error";
+import { compactQuery, one } from "@/lib/offers";
+import type { OffersListQuery } from "@/types/offers";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const SERVER_API_BASE_URL = process.env.API_URL;
 const WEBSITE_URL = process.env.NEXT_PUBLIC_WEBSITE_URL || "https://home-healers.com";
@@ -10,9 +14,10 @@ const fetchData = async (endpoint: string, locale: string, params: Record<string
 
     // Append query parameters for GET requests
     if (params.params) {
-      Object.keys(params.params).forEach((key) =>
-        url.searchParams.append(key, params.params[key])
-      );
+      Object.entries(params.params).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === "") return;
+        url.searchParams.append(key, String(value));
+      });
     }
 
     const headers: HeadersInit = {
@@ -42,6 +47,10 @@ const fetchData = async (endpoint: string, locale: string, params: Record<string
         : { next: { revalidate: params.revalidate ?? 60 } }),
     };
 
+    if (params.signal) {
+      fetchOptions.signal = params.signal;
+    }
+
     if (isMutation) {
       fetchOptions.body = params.isFormData ? params.body : JSON.stringify(params.body);
     }
@@ -60,12 +69,28 @@ const fetchData = async (endpoint: string, locale: string, params: Record<string
             : `HTTP error! Status: ${response.status}`;
 
       if (params.throwOnError) {
-        throw new Error(message);
+        throw new ClientApiError(
+          message,
+          response.status,
+          data?.errors,
+          data,
+        );
       }
     }
 
+    if (data && typeof data === "object") {
+      data._httpStatus = response.status;
+    }
+
     return data;
-  } catch (error) {
+    } catch (error) {
+    if (error instanceof ClientApiError) {
+      throw error;
+    }
+    if ((error as { name?: string })?.name === "AbortError") {
+      if (params.throwOnError) throw error;
+      return;
+    }
     console.error("API Fetch Error:", error);
     if (params.throwOnError) {
       throw error;
@@ -96,9 +121,53 @@ const ClientAPI = {
       authToken,
     }),
 
-  // Packages
-  getPackages: (locale: string) =>
-    fetchData('client/packages', locale),
+  // Packages / Offers (offers are packages with type=offer)
+  getPackages: (
+    locale: string,
+    query: OffersListQuery = {},
+    options?: { signal?: AbortSignal; revalidate?: number; noCache?: boolean },
+  ) => {
+    const params = compactQuery(query as Record<string, unknown>);
+    if (params.limit != null && Number(params.limit) > 100) {
+      params.limit = 100;
+    }
+    return fetchData("client/packages", locale, {
+      params,
+      signal: options?.signal,
+      revalidate:
+        options?.revalidate ?? (query.type === "offer" ? 300 : 60),
+      noCache: options?.noCache,
+    });
+  },
+
+  getPackageById: (id: string | number, locale: string) =>
+    fetchData(`client/packages/${id}`, locale, { revalidate: 300 }),
+
+  getOfferBySlug: (slug: string, locale: string) =>
+    fetchData(`client/offers/${encodeURIComponent(slug)}`, locale, {
+      revalidate: 300,
+    }),
+
+  getFeaturedPackage: (locale: string) =>
+    fetchData("client/packages-featured", locale, { revalidate: 300 }),
+
+  getRelatedPackages: (id: string | number, locale: string) =>
+    fetchData(`client/packages/${id}/related`, locale, { revalidate: 300 }),
+
+  toggleFavorite: (
+    packageId: number,
+    locale: string,
+    authToken?: string,
+  ) =>
+    fetchData("client/favorites-toggle", locale, {
+      method: "POST",
+      body: { package_id: packageId },
+      requiresAuth: true,
+      authToken,
+      throwOnError: true,
+    }),
+
+  one,
 
   // Countries & Cities
   getCountries: (locale: string) =>
@@ -151,7 +220,7 @@ const ClientAPI = {
     fetchData('client/booking-with-packages', locale, {
       method: 'POST',
       body: payload,
-      requiresAuth: true,
+      throwOnError: true,
     }),
 
   applyCouponOnReservation: (

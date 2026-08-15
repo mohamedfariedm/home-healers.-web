@@ -3,6 +3,18 @@ import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import type { BookingData, Location, Patient, Doctor, Category } from "@/types/booking";
+import Link from "next/link";
+import { isClientApiError } from "@/lib/client-api-error";
+import { localePath } from "@/lib/offers";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // Import all step components
 import Step1SpecialtySelection from "./steps/step1-specialty-selection";
@@ -95,6 +107,7 @@ export default function BookingFlow({
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
   const [reservationId, setReservationId] = useState<number | null>(null); // Store reservation ID
   const [tourActive, setTourActive] = useState(false);
+  const [outOfStock, setOutOfStock] = useState(false);
   const searchParams = useSearchParams();
   let route = useRouter();
   const [bookingData, setBookingData] = useLocalStorage<BookingData>(
@@ -189,6 +202,7 @@ export default function BookingFlow({
   const defaultDatesSeededRef = useRef(false);
   const step1DefaultsAppliedRef = useRef(false);
   const packageInitRef = useRef(false);
+  const submittingRef = useRef(false);
   const bookingDataRef = useRef(bookingData);
   bookingDataRef.current = bookingData;
 
@@ -761,6 +775,8 @@ export default function BookingFlow({
   };
 
   const submitBooking = async () => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     try {
       setIsLoading(true);
       setError(null);
@@ -831,6 +847,9 @@ export default function BookingFlow({
         reservationData.package_id = bookingData.selectedPackage.id;
         reservationData.sessions_count =
           bookingData.selectedPackage.sessions_count;
+        delete reservationData.sub_total;
+        delete reservationData.total_amount;
+        delete reservationData.fees;
       }
       // Handle guest booking
       if (isGuest && guest) {
@@ -901,9 +920,18 @@ export default function BookingFlow({
       setCurrentStep(5);
     } catch (error: any) {
       console.error(error);
-      setError(error.message || t("messages.error"));
+      if (isClientApiError(error) && error.isPackageOutOfStock()) {
+        setOutOfStock(true);
+        return;
+      }
+      const message =
+        (isClientApiError(error) && error.message) ||
+        error.message ||
+        t("messages.error");
+      setError(message);
       toast.error(t("messages.bookingFailed"));
     } finally {
+      submittingRef.current = false;
       setIsLoading(false);
     }
   };
@@ -1233,6 +1261,26 @@ export default function BookingFlow({
         currentBookingStep={currentStep}
         onBookingStepChange={(step) => setCurrentStep(step)}
       />
+
+      <AlertDialog open={outOfStock}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("messages.offerOutOfStockTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("messages.offerOutOfStockBody")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction asChild>
+              <Link href={localePath(locale, "/offers")}>
+                {t("messages.backToOffers")}
+              </Link>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

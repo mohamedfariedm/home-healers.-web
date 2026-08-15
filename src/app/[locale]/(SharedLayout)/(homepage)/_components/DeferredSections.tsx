@@ -2,7 +2,8 @@ import ClientAPI from "@/app/api/api";
 import OurStory from "./OurStory";
 import ClientReviewsSection from "./ClientReviewsSection";
 import ReservationReviewsSection from "./ReservationReviewsSection";
-import PackagesSection from "./PackagesSection";
+import FeaturedOfferBanner from "@/components/offers/FeaturedOfferBanner";
+import OffersTeaserRail from "@/components/offers/OffersTeaserRail";
 
 export async function DeferredOurStory({ locale }: { locale: string }) {
   const blogData = await ClientAPI.getAllBlogs(locale);
@@ -10,10 +11,30 @@ export async function DeferredOurStory({ locale }: { locale: string }) {
   return <OurStory data={blogData.data} locale={locale} />;
 }
 
-export async function DeferredPackages({ locale }: { locale: string }) {
-  const packageData = await ClientAPI.getPackages(locale);
-  if (!packageData?.data?.length) return null;
-  return <PackagesSection locale={locale} data={packageData.data} />;
+export async function DeferredOffers({ locale }: { locale: string }) {
+  const [featuredRes, teaserRes] = await Promise.all([
+    ClientAPI.getFeaturedPackage(locale).catch(() => null),
+    ClientAPI.getPackages(locale, {
+      type: "offer",
+      sort: "featured",
+      limit: 8,
+    }).catch(() => null),
+  ]);
+  const featured = featuredRes?.data?.[0] ?? null;
+  const offers = teaserRes?.data ?? [];
+  if (!featured && !offers.length) return null;
+  return (
+    <>
+      {featured?.slug ? (
+        <FeaturedOfferBanner offer={featured} locale={locale} />
+      ) : null}
+      <OffersTeaserRail
+        offers={offers}
+        locale={locale}
+        serverTime={teaserRes?.server_time}
+      />
+    </>
+  );
 }
 
 export async function DeferredClientReviews({ locale }: { locale: string }) {

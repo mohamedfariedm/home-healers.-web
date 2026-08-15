@@ -157,11 +157,11 @@ export default function LandingSlider({
             break;
 
           case "offers":
-            // Offers might be part of packages or a separate endpoint
-            const offersData = await ClientAPI.getPackages(locale);
-            fetchedData = (offersData?.data || []).filter(
-              (item: any) => item.type === "offer"
-            );
+            const offersData = await ClientAPI.getPackages(locale, {
+              type: "offer",
+              limit: 100,
+            });
+            fetchedData = offersData?.data || [];
             if (selectedIds.length > 0) {
               fetchedData = fetchedData.filter((item: any) =>
                 selectedIds.includes(item.id)

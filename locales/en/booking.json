@@ -410,7 +410,10 @@
     "walletPaid": "Wallet payment completed successfully.",
     "paymentFailed": "Failed to confirm payment",
     "error": "An error occurred",
-    "reservationIdMissing": "Reservation ID not available"
+    "reservationIdMissing": "Reservation ID not available",
+    "offerOutOfStockTitle": "This offer is no longer available",
+    "offerOutOfStockBody": "This offer is out of stock and cannot be booked.",
+    "backToOffers": "Back to offers"
   },
   "paymentReturn": {
     "successTitle": "Payment confirmed successfully!",
