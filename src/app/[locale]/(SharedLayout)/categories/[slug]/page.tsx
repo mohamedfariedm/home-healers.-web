@@ -1,5 +1,6 @@
 import { getCachedCategory } from "@/lib/cached-api";
 import {
+  buildCanonicalUrl,
   buildCategoryServiceAlternates,
   createMetadata,
 } from "@/lib/seo";
@@ -51,6 +52,7 @@ export async function generateMetadata({
   }
 
   const path = `/categories/${encodeURIComponent(loaded.categorySlug)}/${encodeURIComponent(loaded.serviceSlug)}`;
+  const canonical = buildCanonicalUrl(locale, path);
   const title = loaded.category.name
     ? `${loaded.category.name} | Home Healers`
     : "Home Healers | Category";
