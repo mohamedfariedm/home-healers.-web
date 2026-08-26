@@ -4,20 +4,22 @@ import { Button } from "@/components/ui/button";
 import { TFunction } from "i18next";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { blogHref, getBlogSlug, getNewsTitle } from "@/lib/slugs";
 
 interface ArticleData {
   id: any;
-  name: string;
+  name: string | { en?: string; ar?: string };
   description: string;
   image: any;
+  slug?: string | { en?: string; ar?: string };
 }
-function Blogs({ t,data }: {t: TFunction,data:ArticleData[] }) {
+function Blogs({ t, data, locale = "ar" }: { t: TFunction; data: ArticleData[]; locale?: string }) {
   return (
 <div className="flex w-full xl:w-[1152px] gap-[24px] items-center justify-center shrink-0 flex-wrap  relative z-[4]">
         {
         data?.map((article, index) => (
           <Link
-            href={`/blog/${article?.id}`}
+            href={blogHref(locale, getBlogSlug(article) || String(article?.id || ""))}
             key={index}
             className="flex w-full xs:w-[368px] xs:h-[465px] flex-col overflow-hidden items-start shrink-0 flex-nowrap relative z-[5] group"
           >
@@ -28,7 +30,7 @@ function Blogs({ t,data }: {t: TFunction,data:ArticleData[] }) {
             <div className="flex xs:h-[215px] pt-[16px] pr-[16px] pb-[24px] pl-[16px] flex-col gap-[24px] items-start self-stretch shrink-0 flex-nowrap bg-[#371f0b] group-hover:bg-[url(/assets/images/articles/hover.svg)] transition-all duration-300 bg-cover bg-no-repeat rounded-[16px] rounded-tl-none rounded-tr-none rounded-br-[16px] rounded-bl-[16px] relative z-[7]">
               <div className="flex w-full xs:w-[336px] flex-col gap-[12px] items-start shrink-0 flex-nowrap relative z-[8]">
                 <span className="flex w-full line-clamp-1 xs:w-[336px]  justify-start items-start shrink-0 basis-auto text-[16px] font-semibold leading-[29px] text-[#fff] relative text-start xs:whitespace-nowrap z-[9]">
-                  {article.name}
+                  {getNewsTitle(article, locale)}
                 </span>
                 <span className="flex w-full line-clamp-3 xs:w-[336px] xs:h-[81px] justify-start items-start shrink-0 text-[14px] font-normal leading-[27px] text-[#dbdbdb] relative text-start z-10">
                   {article.description}

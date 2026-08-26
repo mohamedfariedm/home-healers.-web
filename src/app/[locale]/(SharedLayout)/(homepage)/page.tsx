@@ -35,8 +35,8 @@ export async function generateMetadata({
   const seo = settings?.data[0]?.setting?.seo;
 
   return createMetadata(seo?.["home"], locale, "", {
-    title: "Home Hellers",
-    description: "Home Hellers app",
+    title: "Home healers",
+    description: "Home healers app",
   });
 }
 

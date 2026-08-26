@@ -22,6 +22,8 @@ const fetchData = async (endpoint: string, locale: string, params: Record<string
 
     const headers: HeadersInit = {
       "Accept-Language": locale,
+      language: locale,
+      Accept: "application/json",
     };
 
     // Only set Content-Type for JSON payloads
@@ -101,7 +103,10 @@ const fetchData = async (endpoint: string, locale: string, params: Record<string
 const ClientAPI = {
   // Categories & Services
   getCategories: (locale: string) =>
-    fetchData('client/categories', locale),
+    fetchData("client/categories", locale),
+
+  getCategory: (key: string, locale: string) =>
+    fetchData(`client/categories/${encodeURIComponent(key)}`, locale),
 
   // Coupons
   getCoupons: (
@@ -396,18 +401,40 @@ const ClientAPI = {
       body: payload,
     }),
 
+  submitCustomerSupport: (
+    payload: {
+      name: string;
+      mobile_phone: string;
+      notes: string;
+      type?: string;
+    },
+    locale: string,
+  ) =>
+    fetchData("client/customer-supports", locale, {
+      method: "POST",
+      body: {
+        name: payload.name,
+        mobile_phone: payload.mobile_phone,
+        notes: payload.notes,
+        type: payload.type || "seo",
+      },
+      throwOnError: true,
+      noCache: true,
+    }),
+
   getAllBlogs: (locale: string, params?: { page?: number; limit?: number; type?: string; show_home?: boolean }) =>
     fetchData('client/news', locale, { params }),
 
   getAllServices: (locale: string, params?: { page?: number; limit?: number; type?: string; show_home?: boolean }) =>
-    fetchData('client/services', locale),
-  getAllServicesSlug: (locale: string, slug: string, params?: { page?: number; limit?: number; type?: string; show_home?: boolean }) =>
-    fetchData(`client/services-slug/${slug}`, locale),
+    fetchData("client/services", locale),
+  getAllServicesSlug: (locale: string, slug: string) =>
+    fetchData(`client/services-slug/${encodeURIComponent(slug)}`, locale),
+  // GET /services/{id} currently 500s on the backend — do not call it.
   getSingleService: (id: string | number, locale: string) =>
     fetchData(`client/services/${id}`, locale),
 
-  getSingleBlog: (id: string | number, locale: string) =>
-    fetchData(`client/news-slug/${id}`, locale),
+  getSingleBlog: (slug: string, locale: string) =>
+    fetchData(`client/news-slug/${encodeURIComponent(slug)}`, locale),
 
   getSettings: (locale: string) =>
     fetchData('client/settings', locale),

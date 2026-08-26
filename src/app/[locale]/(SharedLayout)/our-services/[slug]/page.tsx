@@ -1,17 +1,32 @@
-import ClientAPI from "@/app/api/api";
-import initTranslations from "@/app/i18n";
-import { AnimatedServicesSection } from "@/components/Services";
-import { getCachedServiceBySlug, getCachedSettings } from "@/lib/cached-api";
+import {
+  getCachedServiceBySlug,
+  resolveServiceCategorySlug,
+} from "@/lib/cached-api";
 import {
   buildCanonicalUrl,
-  buildLocalizedSlugAlternates,
+  buildCategoryServiceAlternates,
   createMetadata,
-  getLocalizedValue,
 } from "@/lib/seo";
+import {
+  getServiceSlug,
+  isActiveRecord,
+  serviceHref,
+  unwrapDetail,
+} from "@/lib/slugs";
+import type { Service } from "@/types/booking";
 import { Metadata } from "next";
-import { Bannar } from "../../(homepage)/_components";
+import { notFound, permanentRedirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
+
+async function loadService(locale: string, slug: string) {
+  const decoded = decodeURIComponent(slug);
+  const res = await getCachedServiceBySlug(locale, decoded);
+  const service = unwrapDetail<Service>(res);
+  if (!service || !isActiveRecord(service)) return null;
+  const categorySlug = await resolveServiceCategorySlug(locale, service);
+  return { service, decoded, categorySlug };
+}
 
 export async function generateMetadata({
   params,
@@ -19,195 +34,70 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const fallbackPath = `/our-services/${slug}`;
-
-  try {
-    const [settings, serviceRes] = await Promise.all([
-      getCachedSettings(locale),
-      getCachedServiceBySlug(locale, slug).catch(() => null),
-    ]);
-
-    const globalSeo = settings?.data?.[0]?.setting?.seo?.["services"];
-    const serviceData = serviceRes?.data ?? null;
-    const localizedSlug = getLocalizedValue(serviceData?.slug, locale) || slug;
-    const path = `/our-services/${localizedSlug}`;
-    const canonical = buildCanonicalUrl(locale, path);
-
-    const title =
-      serviceData?.meta_title?.[locale] ||
-      globalSeo?.[locale]?.title ||
-      serviceData?.name?.[locale] ||
-      "Home Healers";
-
-    const description =
-      serviceData?.meta_description?.[locale] ||
-      globalSeo?.[locale]?.description ||
-      "Home Healers app";
-
-    const image =
-      serviceData?.image?.[0]?.original ||
-      globalSeo?.[locale]?.og_image ||
-      "/assets/images/favicon.ico";
-
-    const baseMeta = createMetadata(
-      globalSeo,
-      locale,
-      path,
-      { title, description },
-      { preferPathCanonical: true },
-    );
-
-    return {
-      ...baseMeta,
-      title,
-      description,
-      keywords:
-        globalSeo?.[locale]?.keywords ||
-        "Home Healers, services, healthcare, clinics",
-      alternates: {
-        canonical,
-        languages: buildLocalizedSlugAlternates("/our-services", serviceData?.slug, slug),
-      },
-      openGraph: {
-        ...baseMeta.openGraph,
-        title,
-        description,
-        url: canonical,
-        images: [{ url: image }],
-      },
-      twitter: {
-        ...baseMeta.twitter,
-        title,
-        description,
-        images: [image],
-      },
-    };
-  } catch (error) {
-    console.error("Error generating service metadata:", error);
-
+  const loaded = await loadService(locale, slug);
+  if (!loaded) {
     return createMetadata(
       null,
       locale,
-      fallbackPath,
+      `/our-services/${slug}`,
       { title: "Home Healers" },
       { preferPathCanonical: true },
     );
   }
+
+  const serviceSlug = getServiceSlug(loaded.service, locale) || loaded.decoded;
+  const path = loaded.categorySlug
+    ? `/categories/${encodeURIComponent(loaded.categorySlug)}/${encodeURIComponent(serviceSlug)}`
+    : `/our-services/${encodeURIComponent(serviceSlug)}`;
+  const canonical = buildCanonicalUrl(locale, path);
+  const title = loaded.service.name || "Home Healers";
+
+  const baseMeta = createMetadata(
+    null,
+    locale,
+    path,
+    { title },
+    { preferPathCanonical: true },
+  );
+
+  return {
+    ...baseMeta,
+    title,
+    alternates: {
+      canonical,
+      languages: loaded.categorySlug
+        ? buildCategoryServiceAlternates(
+            loaded.categorySlug,
+            loaded.service.slug,
+            serviceSlug,
+          )
+        : baseMeta.alternates?.languages,
+    },
+    openGraph: {
+      ...baseMeta.openGraph,
+      title,
+      url: canonical,
+    },
+  };
 }
 
-async function OurServicePage({
+export default async function OurServicePage({
   params,
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const { t } = await initTranslations(locale, ["common"]);
+  const loaded = await loadService(locale, slug);
 
-  const [servicesData, settings] = await Promise.all([
-    ClientAPI.getAllServices(locale),
-    getCachedSettings(locale),
-  ]);
-  const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
-    (banner: any) => banner.page === "services" && banner.type === "web",
-  );
+  if (!loaded) {
+    notFound();
+  }
 
-  return (
-    <>
-      <div className="main-container w-full  bg-[#fff] relative overflow-hidden mx-auto my-0">
-        {/* <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-          {title}
-        </h1> */}
+  const serviceSlug = getServiceSlug(loaded.service, locale) || loaded.decoded;
 
-        <div
-          className="w-full h-[250px] relative bg-no-repeat bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "url(/assets/images/shared/hero-banner/hero-bg-main.png)",
-          }}
-        >
-          <div
-            className="absolute inset-0 w-full h-full bg-no-repeat bg-cover"
-            style={{
-              backgroundImage:
-                "url(/assets/images/shared/hero-banner/hero-layer-2.png)",
-            }}
-          >
-            <div className="absolute top-[19.2%] left-[70.76%] w-[2.01%] h-[56.4%]">
-              <div
-                className="w-[29px] h-[29px] bg-no-repeat bg-cover"
-                style={{
-                  backgroundImage:
-                    "url(/assets/images/shared/hero-banner/hero-deco-1.svg)",
-                }}
-              />
-              <div
-                className="w-[29px] h-[29px] mt-[83px] bg-no-repeat bg-cover"
-                style={{
-                  backgroundImage:
-                    "url(/assets/images/shared/hero-banner/hero-deco-2.svg)",
-                }}
-              />
-            </div>
+  if (!loaded.categorySlug) {
+    notFound();
+  }
 
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-              <div className="text-white text-[24px] font-semibold leading-[32px]">
-                {t("services.hero.title", { ns: "common" })}
-              </div>
-              <div className="mt-2 flex justify-center items-center gap-2">
-                <span className="text-[#62a0f6] text-sm font-semibold">
-                  {t("services.hero.breadcrumb", { ns: "common" })}
-                </span>
-                <div
-                  className="w-4 h-4 bg-no-repeat bg-cover"
-                  style={{
-                    backgroundImage:
-                      "url(/assets/images/shared/hero-banner/hero-breadcrumb-arrow.svg)",
-                  }}
-                />
-                <span className="text-white text-sm font-semibold">
-                  {t("services.hero.home", { ns: "common" })}
-                </span>
-              </div>
-            </div>
-
-            <div
-              className="absolute top-[34%] left-[14.44%] w-[2.01%] h-[11.6%] bg-no-repeat bg-cover"
-              style={{
-                backgroundImage:
-                  "url(/assets/images/shared/hero-banner/hero-deco-3.svg)",
-              }}
-            />
-            <div
-              className="absolute top-[41.6%] left-[93.13%] w-[2.01%] h-[11.6%] bg-no-repeat bg-cover"
-              style={{
-                backgroundImage:
-                  "url(/assets/images/shared/hero-banner/hero-deco-4.svg)",
-              }}
-            />
-            <div
-              className="absolute top-[62.8%] left-[6.88%] w-[1.67%] h-[9.6%] bg-no-repeat bg-cover"
-              style={{
-                backgroundImage:
-                  "url(/assets/images/shared/hero-banner/hero-deco-5.svg)",
-              }}
-            />
-          </div>
-        </div>
-
-        <AnimatedServicesSection
-          data={servicesData?.data}
-          locale={locale}
-          activeSlug={slug}
-          pageTitleAsH1
-        />
-
-        {homeBanners?.length > 0 &&
-          homeBanners.map((banner: any, index: number) => (
-            <Bannar key={index} banner={banner} />
-          ))}
-      </div>
-    </>
-  );
+  permanentRedirect(serviceHref(locale, loaded.categorySlug, serviceSlug));
 }
-
-export default OurServicePage;

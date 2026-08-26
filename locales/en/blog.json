@@ -8,6 +8,23 @@
     "breadcrumb": "Blog",
     "home": "Home"
   },
+  "leadForm": {
+    "title": "Need help at home?",
+    "highlight": "Contact us",
+    "subtitle": "Leave your details and our team will get back to you shortly.",
+    "name": "Full name",
+    "namePlaceholder": "Enter your name",
+    "phone": "Phone number",
+    "phonePlaceholder": "5xxxxxxxx",
+    "notes": "Notes",
+    "notesPlaceholder": "Tell us how we can help",
+    "submit": "Send request",
+    "submitting": "Sending...",
+    "success": "Thank you! Your request has been sent successfully.",
+    "error": "Something went wrong. Please try again.",
+    "required": "This field is required",
+    "invalidPhone": "Please enter a valid Saudi mobile number"
+  },
   "description": "Welcome to the Nonda Coffee Blog, where we take you on an exciting journey into the world of coffee and its community. Discover the latest articles, tips, and news that will inspire and enrich your knowledge about coffee and everything related to it.",
   
   "articles": {

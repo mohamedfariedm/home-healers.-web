@@ -5,6 +5,13 @@ import { usePathname, useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next"
 import { motion } from "framer-motion"
 import ClientAPI from "@/app/api/api"
+import {
+  getBlogSlug,
+  getCategorySlug,
+  getServiceSlug,
+  serviceHref,
+  unwrapDetail,
+} from "@/lib/slugs"
 
 export default function LanguageChanger() {
   const { i18n } = useTranslation()
@@ -21,52 +28,86 @@ export default function LanguageChanger() {
 
     let pathWithoutLocale = currentPathname
 
-    // Remove /en prefix if present (for English pages)
     if (currentPathname.startsWith("/en/") || currentPathname === "/en") {
       pathWithoutLocale = currentPathname.replace(/^\/en/, "") || "/"
     }
 
     const pathParts = pathWithoutLocale.split("/").filter(Boolean)
-    const currentSlug = pathParts[pathParts.length - 1]
-    const section = pathParts[pathParts.length - 2] || ""
-
-            
-    let translatedSlug = currentSlug
-
-    try {
-      if (section === "blog" && currentSlug) {
-        const res = await ClientAPI.getSingleBlog(currentSlug, currentLocale)
-        const blog = res?.data
-        translatedSlug = blog?.slug?.[newLocale] || currentSlug
-              } else if (section === "our-services" && currentSlug) {
-        const res = await ClientAPI.getAllServicesSlug(currentLocale, currentSlug)
-        const service = res?.data
-        translatedSlug = service?.slug?.[newLocale] || currentSlug
-              }
-    } catch (err) {
-      console.error("❌ Failed to fetch translated slug:", err)
-    }
-
     let newPath = pathWithoutLocale
 
-    // Replace slug if it was translated
-    if (translatedSlug && currentSlug && translatedSlug !== currentSlug) {
-      newPath = newPath.replace(currentSlug, translatedSlug)
+    try {
+      if (pathParts[0] === "blog" && pathParts[1]) {
+        const res = await ClientAPI.getSingleBlog(
+          decodeURIComponent(pathParts[1]),
+          currentLocale,
+        )
+        const blog = unwrapDetail<{ slug?: unknown }>(res)
+        const translated = getBlogSlug(blog)
+        if (translated) {
+          newPath = `/blog/${encodeURIComponent(translated)}`
+        }
+      } else if (pathParts[0] === "our-services" && pathParts[1]) {
+        const currentServiceSlug = decodeURIComponent(pathParts[1])
+        const [res, listRes] = await Promise.all([
+          ClientAPI.getAllServicesSlug(currentLocale, currentServiceSlug),
+          ClientAPI.getAllServices(currentLocale),
+        ])
+        const service = unwrapDetail<{
+          id?: number
+          slug?: unknown
+          category?: { slug?: unknown }
+        }>(res)
+        const services = Array.isArray(listRes?.data) ? listRes.data : []
+        const match = services.find(
+          (item: { id?: number; slug?: unknown; category?: { slug?: unknown } }) =>
+            (service?.id != null && item.id === service.id) ||
+            getServiceSlug(item, currentLocale) === currentServiceSlug,
+        )
+        const categorySlug =
+          getCategorySlug(service?.category) || getCategorySlug(match?.category)
+        const translated = getServiceSlug(service, newLocale)
+        if (categorySlug && translated) {
+          newPath = serviceHref(newLocale, categorySlug, translated)
+          i18n.changeLanguage(newLocale)
+          router.push(newPath)
+          setDropdownOpen(false)
+          return
+        }
+      } else if (pathParts[0] === "categories" && pathParts.length >= 3) {
+        const res = await ClientAPI.getAllServicesSlug(
+          currentLocale,
+          decodeURIComponent(pathParts[2]),
+        )
+        const service = unwrapDetail<{
+          slug?: unknown
+          category?: { slug?: unknown }
+        }>(res)
+        const categorySlug =
+          getCategorySlug(service?.category) || decodeURIComponent(pathParts[1])
+        const translated =
+          getServiceSlug(service, newLocale) || decodeURIComponent(pathParts[2])
+        if (categorySlug && translated) {
+          newPath = serviceHref(newLocale, categorySlug, translated)
+          i18n.changeLanguage(newLocale)
+          router.push(newPath)
+          setDropdownOpen(false)
+          return
+        }
+      }
+      // `/categories/{slug}` is English-only — no translation needed
+    } catch (err) {
+      console.error("Failed to fetch translated slug:", err)
     }
 
-    // Add /en prefix for English, no prefix for Arabic
     if (newLocale === "en") {
       newPath = `/en${newPath}`
     }
-    // For Arabic, newPath already has no prefix
 
-    
     i18n.changeLanguage(newLocale)
     router.push(newPath)
     setDropdownOpen(false)
   }
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {

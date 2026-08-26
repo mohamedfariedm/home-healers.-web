@@ -25,9 +25,7 @@ export async function DeferredOffers({ locale }: { locale: string }) {
   if (!featured && !offers.length) return null;
   return (
     <>
-      {featured?.slug ? (
-        <FeaturedOfferBanner offer={featured} locale={locale} />
-      ) : null}
+      
       <OffersTeaserRail
         offers={offers}
         locale={locale}

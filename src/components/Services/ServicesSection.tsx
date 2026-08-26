@@ -6,6 +6,12 @@ import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { parseCmsHtml } from "@/lib/parse-cms-html";
+import {
+  getActiveServices,
+  getCategorySlug,
+  getServiceSlug,
+  serviceHref,
+} from "@/lib/slugs";
 
 const AnimatedServicesSection = ({
   locale,
@@ -21,7 +27,7 @@ const AnimatedServicesSection = ({
   const pathname = usePathname();
 
   // Ensure services is an array, fallback to empty array if undefined
-  const services = Array.isArray(data) ? data : [];
+  const services = getActiveServices(Array.isArray(data) ? data : []);
 
   // Helper to get localized value
   const getLocalized = (value: any, loc: string) => {
@@ -44,7 +50,7 @@ const AnimatedServicesSection = ({
         : "";
 
     const foundIndex = services.findIndex(
-      (service: any) => getLocalized(service.slug, locale) === slugFromPath,
+      (service: any) => getServiceSlug(service, locale) === slugFromPath,
     );
 
     return foundIndex !== -1 ? foundIndex : 0;
@@ -75,9 +81,11 @@ const AnimatedServicesSection = ({
         {services.length > 0 ? (
           services.map((service: any, idx: number) => {
             const isActive = idx === activeIndex;
-            const href = `${
-              locale === "ar" ? "" : "/en"
-            }/our-services/${getLocalized(service.slug, locale)}`;
+            const href = serviceHref(
+              locale,
+              getCategorySlug(service.category),
+              getServiceSlug(service, locale),
+            );
             const serviceName = getLocalized(service.name, locale);
 
             return (

@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { toast } from "sonner";
 import Link from "next/link";
+import { blogHref, formatApiDate, getBlogSlug, getNewsTitle } from "@/lib/slugs";
 
 // ---- Simple i18n dictionary ----
 const dict = {
@@ -85,47 +86,27 @@ export default function BlogRelatedSection({
 
   // Helper to get localized value from { ar?: string, en?: string } or plain string
   const getLocalized = (value: any, loc: Locale): string => {
+    if (typeof value === "string") return value;
     if (value && typeof value === "object") {
       if (loc in value) return value[loc] ?? "";
-      if ("ar" in value) return value.ar ?? ""; // fallback to Arabic
+      if ("en" in value) return value.en ?? "";
+      if ("ar" in value) return value.ar ?? "";
     }
     return value ?? "";
   };
 
-  // Strip HTML for plain text (for sharing)
-  const stripHtml = (html: string) => {
-    if (typeof document === "undefined") return html;
-    const tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
-  };
-
-  // Localized date
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    // Use Arabic Egypt for AR, and a sensible EN locale otherwise
-    const localeForDate = isRTL ? "ar-EG" : "en-US";
-    try {
-      return date.toLocaleDateString(localeForDate, {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      });
-    } catch {
-      return date.toDateString();
-    }
-  };
+  // Localized date — API sends DD-MM-YYYY
+  const formatDate = (dateString?: string) => formatApiDate(dateString, locale);
 
   // Related blogs from data
   const relatedBlogs =
     data?.related_blogs?.map((blog: any) => ({
       title:
-        getLocalized(blog.name, locale) ||
+        getNewsTitle(blog, locale) ||
         (isRTL ? "عنوان غير متوفر" : "Untitled"),
       date: formatDate(blog.date),
       image: blog.image?.[0]?.original || "/assets/images/placeholder.jpg",
-      slug: getLocalized(blog.slug, locale),
+      slug: getBlogSlug(blog),
     })) ?? [];
 
   // Tags (support both plain strings or localized objects)
@@ -134,9 +115,15 @@ export default function BlogRelatedSection({
       typeof tag === "string" ? tag : getLocalized(tag, locale)
     ) ?? [];
 
-  // Share payload
+  const stripHtml = (html: string) => {
+    if (typeof document === "undefined") return html;
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  };
+
   const shareData = useMemo(() => {
-    const title = getLocalized(data?.name, locale) || t.fallbackTitle;
+    const title = getNewsTitle(data, locale) || t.fallbackTitle;
     const text = data?.description
       ? stripHtml(data.description)
       : t.fallbackDesc;
@@ -195,7 +182,7 @@ export default function BlogRelatedSection({
   
   return (
     <motion.div
-      className={`flex flex-col lg:flex-row my-[106px] gap-10 max-w-screen-xl mx-auto`}
+      className={`flex flex-col lg:flex-row mt-[106px] mb-10 gap-10 max-w-screen-xl mx-auto px-4 xl:px-0`}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.3 }}
@@ -234,7 +221,7 @@ export default function BlogRelatedSection({
               index: number
             ) => (
               <Link
-                href={`${locale === "ar" ? "" : "/en"}/blog/${slug}`}
+                href={blogHref(locale, slug)}
                 key={`${slug}-${index}`}
               >
                 <motion.div
@@ -326,7 +313,7 @@ export default function BlogRelatedSection({
           role="img"
           aria-label={
             (isRTL ? "صورة المقال " : "Article image ") +
-            getLocalized(data?.name, locale)
+            getNewsTitle(data, locale)
           }
         />
 
@@ -339,7 +326,7 @@ export default function BlogRelatedSection({
             <h1
               className={`${textDir} text-2xl md:text-[30px] font-medium text-[#1e1e1e]`}
             >
-              {getLocalized(data?.name, locale)}
+              {getNewsTitle(data, locale)}
             </h1>
 
             <div

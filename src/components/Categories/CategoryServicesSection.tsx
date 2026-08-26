@@ -1,38 +1,57 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { parseCmsHtml } from "@/lib/parse-cms-html";
+import { localePath } from "@/lib/offers";
+import {
+  getActiveServices,
+  getCategorySlug,
+  getServiceSlug,
+  serviceHref,
+} from "@/lib/slugs";
 import type { Category, Service } from "@/types/booking";
 
-const getLocalized = (value: any, loc: string) => {
+const getLocalized = (value: unknown, loc: string) => {
+  if (typeof value === "string") return value;
   if (typeof value === "object" && value !== null && loc in value) {
-    return value[loc];
+    return (value as Record<string, string>)[loc];
   }
   if (typeof value === "object" && value !== null && "ar" in value) {
-    return value.ar;
+    return (value as Record<string, string>).ar;
   }
-  return value || "";
+  return "";
 };
 
 const CategoryServicesSection = ({
   locale,
   category,
+  activeServiceSlug,
 }: {
   locale: string;
   category: Category;
+  activeServiceSlug?: string;
 }) => {
-  const prefix = locale === "ar" ? "" : "/en";
-  const services: Service[] = category.services || [];
-  const [activeIndex, setActiveIndex] = useState(0);
+  const categorySlug = getCategorySlug(category) || String(category.id);
+  const services: Service[] = getActiveServices(category.services);
 
-  const activeService = services[activeIndex] || {};
+  const activeIndex = useMemo(() => {
+    if (!services.length) return 0;
+    if (!activeServiceSlug) return 0;
+    const decoded = decodeURIComponent(activeServiceSlug);
+    const found = services.findIndex(
+      (service) => getServiceSlug(service, locale) === decoded,
+    );
+    return found !== -1 ? found : 0;
+  }, [services, activeServiceSlug, locale]);
+
+  const activeService = services[activeIndex] || ({} as Service);
   const serviceTitle =
     getLocalized(activeService.name, locale) ||
     (locale === "ar" ? "خدمة غير متوفرة" : "Service unavailable");
-  const activeServiceSlug = getLocalized(activeService.slug, locale);
+  const activeSlug = getServiceSlug(activeService, locale);
 
   return (
     <motion.div
@@ -67,12 +86,16 @@ const CategoryServicesSection = ({
             {services.map((service, idx) => {
               const isActive = idx === activeIndex;
               const serviceName = getLocalized(service.name, locale);
+              const href = serviceHref(
+                locale,
+                categorySlug,
+                getServiceSlug(service, locale),
+              );
 
               return (
-                <button
+                <Link
                   key={service.id}
-                  type="button"
-                  onClick={() => setActiveIndex(idx)}
+                  href={href}
                   className={`flex items-center gap-[10px] p-3 border rounded-md transition-transform hover:scale-[1.02] text-start w-full ${
                     isActive
                       ? "bg-[#EFF6FE] border-[#62A0F6]"
@@ -97,7 +120,7 @@ const CategoryServicesSection = ({
                   <span className="text-[#62A0F6] text-base font-medium">
                     {serviceName}
                   </span>
-                </button>
+                </Link>
               );
             })}
           </div>
@@ -126,16 +149,16 @@ const CategoryServicesSection = ({
                     : "Service description is not available."}
               </div>
               <div className="flex flex-wrap gap-3 self-end">
-                {activeServiceSlug ? (
+                {activeSlug && !activeServiceSlug ? (
                   <Link
-                    href={`${prefix}/our-services/${activeServiceSlug}`}
+                    href={serviceHref(locale, categorySlug, activeSlug)}
                     className="border border-[#143087] text-[#143087] flex items-center hover:scale-105 duration-300 transition-all justify-center gap-2 px-6 py-3 rounded-xl"
                   >
                     {locale === "ar" ? "عرض تفاصيل الخدمة" : "View Service Details"}
                   </Link>
                 ) : null}
                 <Link
-                  href={`${prefix}/booking`}
+                  href={localePath(locale, "/booking")}
                   className="bg-[#143087] text-white flex items-center hover:scale-105 duration-300 transition-all justify-center gap-2 px-6 py-3 rounded-xl"
                 >
                   {locale === "ar"

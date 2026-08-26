@@ -4,6 +4,7 @@ import OfferDetailsView from "@/components/offers/OfferDetailsView";
 import {
   buildCanonicalUrl,
   buildLanguageAlternates,
+  ogLocale,
 } from "@/lib/seo";
 import { createBreadcrumbSchema, renderJsonLd } from "@/lib/structured-data";
 import {
@@ -80,7 +81,7 @@ export async function generateMetadata({
       description,
       url: canonical,
       siteName: "Home Healers",
-      locale: locale === "ar" ? "ar_SA" : "en_US",
+      locale: ogLocale(locale),
       images: [{ url: image, width: 1200, height: 630, alt: offer.name }],
     },
     twitter: {
@@ -91,7 +92,7 @@ export async function generateMetadata({
     },
     other: {
       "og:type": "product",
-      "og:locale:alternate": locale === "ar" ? "en_US" : "ar_SA",
+      "og:locale:alternate": locale === "ar" ? "en_SA" : "ar_SA",
       "product:price:amount": String(offer.price ?? ""),
       "product:price:currency": String(offer.currency || "SAR"),
     },

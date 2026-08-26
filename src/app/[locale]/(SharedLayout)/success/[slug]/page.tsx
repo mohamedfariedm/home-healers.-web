@@ -20,7 +20,7 @@ export async function generateMetadata({
   const seo = settings?.data[0]?.setting?.seo["services"];
 
   return createMetadata(seo, locale, `/success/${slug}`, {
-    title: "Home Hellers",
+    title: "Home Healers",
   }, { preferPathCanonical: true });
 }
 

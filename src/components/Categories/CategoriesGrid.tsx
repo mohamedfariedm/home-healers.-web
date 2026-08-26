@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import type { Category } from "@/types/booking";
+import { categoryFirstServiceHref, getActiveServices } from "@/lib/slugs";
 
 const CategoriesGrid = ({
   locale,
@@ -13,8 +14,6 @@ const CategoriesGrid = ({
   categories: Category[];
   className?: string;
 }) => {
-  const prefix = locale === "ar" ? "" : "/en";
-
   if (!categories.length) {
     return (
       <p className="text-center text-gray-600 w-full">
@@ -37,7 +36,7 @@ const CategoriesGrid = ({
           whileHover={{ scale: 1.03, boxShadow: "0 8px 24px rgba(98, 160, 246, 0.2)" }}
         >
           <Link
-            href={`${prefix}/categories/${category.id}`}
+            href={categoryFirstServiceHref(locale, category)}
             className="flex flex-col items-center gap-4 p-6 rounded-xl border-2 border-gray-200 bg-white hover:border-[#62a0f6] transition-all h-full"
           >
             <div className="w-20 h-20 bg-[#eff6fe] rounded-full flex items-center justify-center overflow-hidden">
@@ -53,7 +52,7 @@ const CategoriesGrid = ({
             <div className="text-center">
               <h3 className="font-semibold text-[#1e1e1e] mb-1">{category.name}</h3>
               <p className="text-sm text-[#62a0f6]">
-                {category.services?.length || 0}{" "}
+                {getActiveServices(category.services).length}{" "}
                 {locale === "ar" ? "خدمة" : "services"}
               </p>
             </div>

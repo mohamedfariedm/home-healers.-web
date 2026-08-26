@@ -5,6 +5,7 @@ import React, { useMemo, useState } from "react";
 import { ShowMore } from "../Animations/ShowMore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { blogHref, formatApiDate, getBlogSlug, getNewsTitle } from "@/lib/slugs";
 
 // ===== Settings =====
 const ITEMS_PER_PAGE = 9;
@@ -67,14 +68,7 @@ const BlogAnimationSection = ({
   const goPrev = () => setActivePage((p) => Math.max(1, p - 1));
   const goNext = () => setActivePage((p) => Math.min(totalPages, p + 1));
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString(isRTL ? "ar-EG" : "en-US", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-  };
+  const formatDate = (dateString: string) => formatApiDate(dateString, locale);
 
   // Strip HTML for teaser text
   const truncateDescription = (html: string, maxLength: number = 120) => {
@@ -109,9 +103,8 @@ const BlogAnimationSection = ({
           }`}
         >
           {currentCards.map((card: any) => {
-            const href = `${locale === "ar" ? "" : "/en"}/blog/${
-              card?.slug?.[locale] || card?.slug?.en || ""
-            }`;
+            const href = blogHref(locale, getBlogSlug(card));
+            const title = getNewsTitle(card, locale);
             const img =
               card?.image?.[0]?.original || "/assets/images/placeholder.jpg";
             return (
@@ -136,7 +129,7 @@ const BlogAnimationSection = ({
                       backgroundImage: `url(${img})`,
                       transformStyle: "preserve-3d",
                     }}
-                    aria-label={card?.name}
+                    aria-label={title}
                   />
 
                   {/* Content */}
@@ -149,7 +142,7 @@ const BlogAnimationSection = ({
                       {formatDate(card?.date)}
                     </span>
                     <h3 className="text-xl font-semibold text-[#1e1e1e]">
-                      {card?.name}
+                      {title}
                     </h3>
                     <p className="text-sm text-[#1e1e1e] leading-8 font-light">
                       {truncateDescription(card?.description)}

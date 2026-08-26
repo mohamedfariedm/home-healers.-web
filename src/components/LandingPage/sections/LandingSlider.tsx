@@ -12,6 +12,14 @@ import Image from "next/image";
 import ClientAPI from "@/app/api/api";
 import { ArrowLeft } from "lucide-react";
 import { parseCmsHtml } from "@/lib/parse-cms-html";
+import {
+  blogHref,
+  getBlogSlug,
+  getCategorySlug,
+  getNewsTitle,
+  getServiceSlug,
+  serviceHref,
+} from "@/lib/slugs";
 
 interface LandingSliderProps {
   section: any;
@@ -186,16 +194,17 @@ export default function LandingSlider({
 
   const renderSlide = (item: any, index: number) => {
     switch (slideType) {
-      case "services":
-        // Handle slug as object with locale keys or plain string
-        const serviceSlug = typeof item.slug === "object"
-          ? (item.slug?.[locale] || item.slug?.en || item.slug?.ar || "")
-          : (item.slug || "");
-        
+      case "services": {
+        const serviceSlug = getServiceSlug(item, locale);
+        const categorySlug = getCategorySlug(item.category);
+        const href = categorySlug && serviceSlug
+          ? serviceHref(locale, categorySlug, serviceSlug)
+          : `${locale === "ar" ? "" : "/en"}/our-services/${encodeURIComponent(serviceSlug)}`;
+
         return (
           <SwiperSlide key={item.id || index}>
             <Link
-              href={`${locale === "ar" ? "" : "/en"}/our-services/${serviceSlug}`}
+              href={href}
               className="relative bg-[#0077b7] rounded-3xl w-full h-[352px] px-2 py-10 hover:shadow-2xl hover:scale-105 transition-all duration-300 block mx-auto"
             >
               <div className="absolute top-6 start-2 flex flex-col items-start w-full gap-4 px-2">
@@ -222,6 +231,7 @@ export default function LandingSlider({
             </Link>
           </SwiperSlide>
         );
+      }
 
       case "doctors":
         return (
@@ -256,14 +266,9 @@ export default function LandingSlider({
           </SwiperSlide>
         );
 
-      case "blogs":
-        // Handle slug as object with locale keys or plain string
-        const blogSlug = typeof item.slug === "object" 
-          ? (item.slug?.[locale] || item.slug?.en || item.slug?.ar || "")
-          : (item.slug || item.id || "");
-        
-        // Get blog title (could be name or title)
-        const blogTitle = item.name || item.title || "";
+      case "blogs": {
+        const blogSlug = getBlogSlug(item) || String(item.id || "");
+        const blogTitle = getNewsTitle(item, locale) || item.title || "";
         
         // Get and clean description (strip HTML tags for preview)
         const getCleanDescription = (desc: any): string => {
@@ -300,7 +305,7 @@ export default function LandingSlider({
         return (
           <SwiperSlide key={item.id || index}>
             <Link
-              href={`${locale === "ar" ? "" : "/en"}/blog/${blogSlug}`}
+              href={blogHref(locale, blogSlug)}
               className="group flex flex-col bg-gradient-to-br from-white via-gray-50/50 to-white rounded-2xl shadow-lg hover:shadow-2xl overflow-hidden transition-all duration-500 h-full"
             >
               {/* Image Container with Overlay */}
@@ -366,6 +371,7 @@ export default function LandingSlider({
             </Link>
           </SwiperSlide>
         );
+      }
 
       case "packages":
       case "offers":

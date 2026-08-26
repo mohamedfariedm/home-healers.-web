@@ -90,9 +90,11 @@ export interface Doctor {
 export interface Category {
   id: number
   name: string
+  slug?: string
   image: any
   services: Service[]
-  has_service?: boolean // Added: indicates if category has services
+  has_service?: boolean
+  active?: number
 }
 
 export interface Service {
@@ -110,9 +112,13 @@ export interface Service {
   name: string
   description: string
   slug?: Record<string, string>
+  meta_title?: Record<string, string> | string | null
+  meta_description?: Record<string, string> | string | null
+  active?: number
   category: {
     id: number
     name: string
+    slug?: string
   }
 }
 

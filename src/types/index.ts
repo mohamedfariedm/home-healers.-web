@@ -35,6 +35,7 @@ export interface IBlog {
   publisher: any;
   avatar: string;
   created_at: string;
+  slug?: string | { en?: string; ar?: string };
 }
 
 export interface PageProps {

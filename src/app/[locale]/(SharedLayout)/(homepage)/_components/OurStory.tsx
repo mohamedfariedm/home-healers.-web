@@ -6,6 +6,12 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { parseCmsHtml } from "@/lib/parse-cms-html";
 import { ShowMore } from "@/components/Animations/ShowMore";
+import {
+  blogHref,
+  formatApiDate,
+  getBlogSlug,
+  getNewsTitle,
+} from "@/lib/slugs";
 
 export default function OurStory({
   locale,
@@ -17,14 +23,7 @@ export default function OurStory({
   const sectionRef = useRef<HTMLDivElement>(null);
   const isSectionInView = useInView(sectionRef, { once: true, amount: 0.2 });
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-  };
+  const formatDate = (dateString: string) => formatApiDate(dateString, locale);
 
   const visibleArticles = data?.filter((article) => article.show_in_home_page);
 
@@ -71,9 +70,7 @@ export default function OurStory({
       {featuredArticle && (
         <Link
           className="hover:scale-105 transition-all duration-500 block"
-          href={`${locale === "ar" ? "" : "/en"}/blog/${
-            featuredArticle.slug[locale]
-          }`}
+          href={blogHref(locale, getBlogSlug(featuredArticle))}
         >
           <motion.div
             className="mt-12 bg-[#eff6fe] rounded-3xl overflow-hidden flex flex-col lg:flex-row gap-6 p-6 cursor-pointer hover:shadow-xl transition"
@@ -98,7 +95,7 @@ export default function OurStory({
                 {formatDate(featuredArticle.date)}
               </span>
               <h3 className="text-xl font-bold text-[#1e1e1e]">
-                {featuredArticle.name}
+                {getNewsTitle(featuredArticle, locale)}
               </h3>
               <div className="text-[#1e1e1e] text-base font-light leading-[28px] line-clamp-6 ">
                 {parseCmsHtml(featuredArticle.description)}
@@ -114,9 +111,7 @@ export default function OurStory({
           <Link
             className="hover:scale-105 transition-all duration-500"
             key={article.id}
-            href={`${locale === "ar" ? "" : "/en"}/blog/${
-              article.slug[locale]
-            }`}
+            href={blogHref(locale, getBlogSlug(article))}
           >
             <motion.div
               className="bg-[#eff6fe] rounded-2xl p-5 h-full flex flex-col justify-between hover:shadow-md hover:scale-105 transition-all duration-500 "
@@ -139,7 +134,7 @@ export default function OurStory({
                   {formatDate(article.date)}
                 </span>
                 <h4 className="text-lg font-semibold text-[#1e1e1e]">
-                  {article.name}
+                  {getNewsTitle(article, locale)}
                 </h4>
                 <div className="text-sm text-[#1e1e1e] leading-6 font-light line-clamp-4">
                   {parseCmsHtml(article.description)}

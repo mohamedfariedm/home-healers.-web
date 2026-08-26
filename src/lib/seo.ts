@@ -1,5 +1,19 @@
 const SITE_URL = process.env.NEXT_PUBLIC_WEBSITE_URL || "https://home-healers.com";
 
+/** Google hreflang language-REGION. Routing locales stay `ar` / `en`. */
+export const HREFLANG = {
+    ar: "ar-SA",
+    en: "en-SA",
+} as const;
+
+export function htmlLang(locale: string): string {
+    return locale === "en" ? HREFLANG.en : HREFLANG.ar;
+}
+
+export function ogLocale(locale: string): string {
+    return locale === "en" ? "en_SA" : "ar_SA";
+}
+
 /** Build a locale-aware absolute URL. Path must start with "/" or be "" for homepage. */
 export function buildCanonicalUrl(locale: string, path = ""): string {
     const normalizedPath = path.startsWith("/") ? path : path ? `/${path}` : "";
@@ -18,8 +32,8 @@ export function getLocalizedValue(value: unknown, locale: string): string {
 export function buildLanguageAlternates(path = ""): Record<string, string> {
     const ar = buildCanonicalUrl("ar", path);
     return {
-        ar,
-        en: buildCanonicalUrl("en", path),
+        [HREFLANG.ar]: ar,
+        [HREFLANG.en]: buildCanonicalUrl("en", path),
         "x-default": ar,
     };
 }
@@ -30,13 +44,35 @@ export function buildLocalizedSlugAlternates(
     slug: unknown,
     fallbackSlug = "",
 ): Record<string, string> {
-    const arSlug = getLocalizedValue(slug, "ar") || fallbackSlug;
-    const enSlug = getLocalizedValue(slug, "en") || fallbackSlug;
+    const arSlug = encodeURIComponent(getLocalizedValue(slug, "ar") || fallbackSlug);
+    const enSlug = encodeURIComponent(getLocalizedValue(slug, "en") || fallbackSlug);
     const ar = buildCanonicalUrl("ar", `${basePath}/${arSlug}`);
 
     return {
-        ar,
-        en: buildCanonicalUrl("en", `${basePath}/${enSlug}`),
+        [HREFLANG.ar]: ar,
+        [HREFLANG.en]: buildCanonicalUrl("en", `${basePath}/${enSlug}`),
+        "x-default": ar,
+    };
+}
+
+/** Category slug is the same in both locales; service slug is locale-specific. */
+export function buildCategoryServiceAlternates(
+    categorySlug: string,
+    serviceSlug: unknown,
+    fallbackServiceSlug = "",
+): Record<string, string> {
+    const cat = encodeURIComponent(categorySlug);
+    const arService = encodeURIComponent(
+        getLocalizedValue(serviceSlug, "ar") || fallbackServiceSlug,
+    );
+    const enService = encodeURIComponent(
+        getLocalizedValue(serviceSlug, "en") || fallbackServiceSlug,
+    );
+    const ar = buildCanonicalUrl("ar", `/categories/${cat}/${arService}`);
+
+    return {
+        [HREFLANG.ar]: ar,
+        [HREFLANG.en]: buildCanonicalUrl("en", `/categories/${cat}/${enService}`),
         "x-default": ar,
     };
 }
@@ -51,9 +87,9 @@ export function createMetadata(
     const canonical = options?.preferPathCanonical
         ? buildCanonicalUrl(locale, path)
         : seo?.[locale]?.canonical || buildCanonicalUrl(locale, path);
-    const title = seo?.[locale]?.title || defaults.title || "Home Hellers";
-    const description = seo?.[locale]?.description || defaults.description || "Home Hellers app";
-    const keywords = seo?.[locale]?.keywords || defaults.keywords || "Home Hellers, services, healthcare, clinics";
+    const title = seo?.[locale]?.title || defaults.title || "Home Healers";
+    const description = seo?.[locale]?.description || defaults.description || "Home Healers app";
+    const keywords = seo?.[locale]?.keywords || defaults.keywords || "Home Healers, services, healthcare, clinics";
 
     const meta: any = {
         title,
@@ -70,7 +106,7 @@ export function createMetadata(
             description: seo?.[locale]?.og_description || description,
             url: canonical,
             siteName: seo?.[locale]?.og_site_name || "Home Healers",
-            locale: seo?.[locale]?.og_locale || (locale === "ar" ? "ar_SA" : "en_US"),
+            locale: seo?.[locale]?.og_locale || ogLocale(locale),
             images: [
                 {
                     url: seo?.[locale]?.og_image || "/assets/images/favicon.ico",

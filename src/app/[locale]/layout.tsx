@@ -13,6 +13,7 @@ import {
   defaultOrganizationData,
   renderJsonLd,
 } from "@/lib/structured-data";
+import { htmlLang } from "@/lib/seo";
 
 const alexandria = Alexandria({
   subsets: ['arabic'],
@@ -58,7 +59,7 @@ export default async function RootLayout({
   });
 
   return (
-    <html lang={locale} dir={dir(locale)}>
+    <html lang={htmlLang(locale)} dir={dir(locale)}>
       <head>
         <link rel="preconnect" href="https://backend.home-healers.com" />
         <link rel="dns-prefetch" href="https://backend.home-healers.com" />

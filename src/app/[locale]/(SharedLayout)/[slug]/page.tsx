@@ -1,7 +1,7 @@
 import ClientAPI from "@/app/api/api";
 import { notFound } from "next/navigation";
 import LandingPageRenderer from "@/components/LandingPage/LandingPageRenderer";
-import { buildCanonicalUrl, buildLanguageAlternates } from "@/lib/seo";
+import { buildCanonicalUrl, buildLanguageAlternates, ogLocale } from "@/lib/seo";
 import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -48,7 +48,7 @@ export async function generateMetadata({
         type: seo.og_type || "website",
         url: seo.og_url || canonical,
         siteName: seo.og_site_name || "Home Healers",
-        locale: seo.og_locale?.[locale] || (locale === "ar" ? "ar_SA" : "en_US"),
+        locale: seo.og_locale?.[locale] || ogLocale(locale),
       },
       twitter: {
         card: seo.twitter_card || "summary_large_image",
