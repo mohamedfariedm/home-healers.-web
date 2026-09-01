@@ -83,7 +83,7 @@ const nextConfig = {
         headers: [{ key: "Content-Type", value: "application/json" }],
       },
       {
-        source: "/offers",
+        source: "/backges",
         headers: [
           {
             key: "Cache-Control",
@@ -92,7 +92,7 @@ const nextConfig = {
         ],
       },
       {
-        source: "/offers/:path*",
+        source: "/backges/:path*",
         headers: [
           {
             key: "Cache-Control",
@@ -101,7 +101,7 @@ const nextConfig = {
         ],
       },
       {
-        source: "/en/offers",
+        source: "/en/backges",
         headers: [
           {
             key: "Cache-Control",
@@ -110,7 +110,7 @@ const nextConfig = {
         ],
       },
       {
-        source: "/en/offers/:path*",
+        source: "/en/backges/:path*",
         headers: [
           {
             key: "Cache-Control",

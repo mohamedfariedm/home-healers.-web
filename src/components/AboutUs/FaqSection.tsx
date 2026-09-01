@@ -6,6 +6,7 @@ import { AlertCircle, Search, Filter } from 'lucide-react';
 import type { FaqItem as FaqItemType, FaqSectionData, ContactInfo } from "@/types/faq";
 import { faqTranslations, type FaqTranslations } from "@/translations/faq";
 import { formatFaqData, parseSubtitle } from "@/utils/faq-helpers";
+import { getPlainTextFromHtml } from "@/lib/parse-cms-html";
 import FaqItem from "./faq-item";
 import ContactCard from "./contact-card";
 import { formatWhatsAppNumber, WHATSAPP_DEFAULT_MESSAGE } from "@/constants/whatsapp";
@@ -75,7 +76,9 @@ const FaqSection: React.FC<FaqSectionProps> = ({
       filtered = formatted.filter(
         (faq) =>
           faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
+          getPlainTextFromHtml(faq.answer)
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
       );
     }
 

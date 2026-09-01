@@ -1,4 +1,5 @@
 import type { FaqItem } from "@/types/faq";
+import { normalizeCmsHtml } from "@/lib/parse-cms-html";
 
 export const getFaqText = (
   text: { ar: string; en: string } | string,
@@ -28,9 +29,8 @@ export const formatFaqData = (faqsData: any[], locale: string): Array<{
         item.title_question || item.question || "No question",
         locale
       ),
-      answer: getFaqText(
-        item.answer || "No answer provided",
-        locale
+      answer: normalizeCmsHtml(
+        getFaqText(item.answer || "No answer provided", locale)
       ),
     }));
 };

@@ -2,7 +2,7 @@
 
 import { useTranslation } from "react-i18next";
 import type { OfferCard as OfferCardType } from "@/types/offers";
-import { localePath } from "@/lib/offers";
+import { localePath, OFFERS_WEBSITE_BASE_PATH } from "@/lib/offers";
 import OfferCard from "./OfferCard";
 
 type OffersTeaserRailProps = {
@@ -32,7 +32,7 @@ export default function OffersTeaserRail({
           {t("title")}
         </h2>
         <a
-          href={localePath(locale, "/offers")}
+          href={localePath(locale, OFFERS_WEBSITE_BASE_PATH)}
           className="text-sm font-semibold text-primary hover:underline"
         >
           {t("viewAll")}

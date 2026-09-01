@@ -10,6 +10,8 @@ import type {
 export const DEFAULT_OFFER_OG_IMAGE = "/assets/images/logo2.svg";
 export const OFFERS_REVALIDATE_SECONDS = 300;
 export const OFFERS_PAGE_SIZE = 20;
+/** Website route for offers pages (deep links stay at /offers). */
+export const OFFERS_WEBSITE_BASE_PATH = "/backges";
 
 export function one<T>(res: OffersEnvelope<T> | null | undefined): T | null {
   return res?.data?.[0] ?? null;
@@ -25,8 +27,8 @@ export function offerHref(
   slug?: string | null,
   hash?: string,
 ) {
-  if (!slug) return localePath(locale, "/offers");
-  const path = `/offers/${encodeURIComponent(slug)}`;
+  if (!slug) return localePath(locale, OFFERS_WEBSITE_BASE_PATH);
+  const path = `${OFFERS_WEBSITE_BASE_PATH}/${encodeURIComponent(slug)}`;
   return `${localePath(locale, path)}${hash ? `#${hash}` : ""}`;
 }
 
@@ -233,7 +235,7 @@ export function offersQueryToSearchParams(
 export function buildOffersListPath(locale: string, query: OffersListQuery) {
   const params = offersQueryToSearchParams(query);
   const qs = params.toString();
-  return `${localePath(locale, "/offers")}${qs ? `?${qs}` : ""}`;
+  return `${localePath(locale, OFFERS_WEBSITE_BASE_PATH)}${qs ? `?${qs}` : ""}`;
 }
 
 export function offerDisplayImage(offer: OfferCard | OfferDetails) {

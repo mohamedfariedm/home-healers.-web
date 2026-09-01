@@ -40,7 +40,12 @@ export function middleware(request: NextRequest) {
 
     const parsed = parseDeepLinkRequest(pathname, request.nextUrl.searchParams)
     if (parsed) {
-      const redirectPath = buildWebsiteRedirectPath(parsed.locale)
+      const segments = parsed.id ? [parsed.id] : undefined
+      const redirectPath = buildWebsiteRedirectPath(
+        parsed.locale,
+        parsed.route,
+        segments,
+      )
       return NextResponse.redirect(new URL(redirectPath, request.url))
     }
   }

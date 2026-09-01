@@ -21,7 +21,7 @@ export default function MenuItemsDesktop({
     { label: t("home"), href: "/" },
     { label: t("about"), href: "/about" },
     { label: t("specialties"), href: "/categories" },
-    { label: t("offers"), href: "/offers" },
+    { label: t("offers"), href: "/backges" },
     { label: t("blogs"), href: "/blog" },
     { label: t("contact"), href: "/contact" },
   ];

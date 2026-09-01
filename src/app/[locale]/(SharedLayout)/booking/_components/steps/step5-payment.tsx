@@ -51,12 +51,12 @@ export default function Step5Payment({
   const locale = i18n.language?.startsWith("en") ? "en" : "ar";
 
   const paymentMethods = [
-    {
-      id: "telr",
-      name: t("step5.telrPayment"),
-      icon: <CreditCard className="w-6 h-6 text-[#62a0f6]" />,
-      description: t("step5.telrDesc"),
-    },
+    // {
+    //   id: "telr",
+    //   name: t("step5.telrPayment"),
+    //   icon: <CreditCard className="w-6 h-6 text-[#62a0f6]" />,
+    //   description: t("step5.telrDesc"),
+    // },
     {
       id: "cash",
       name: t("step5.cash"),

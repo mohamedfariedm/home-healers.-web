@@ -10,6 +10,7 @@ import {
 import {
   getPaginator,
   localePath,
+  OFFERS_WEBSITE_BASE_PATH,
   one,
   offersQueryToSearchParams,
   parseOffersSearchParams,
@@ -41,9 +42,9 @@ export async function generateMetadata({
       .filter(([key, value]) => key !== "type" && key !== "limit" && value)
       .map(([key, value]) => [key, String(value)]),
   );
-  const path = `/offers${pathQs.toString() ? `?${pathQs}` : ""}`;
+  const path = `${OFFERS_WEBSITE_BASE_PATH}${pathQs.toString() ? `?${pathQs}` : ""}`;
   const canonicalPath = page > 1
-    ? `/offers${(() => {
+    ? `${OFFERS_WEBSITE_BASE_PATH}${(() => {
         const params = new URLSearchParams(pathQs);
         params.delete("page");
         const qs = params.toString();
@@ -66,10 +67,10 @@ export async function generateMetadata({
     ...meta,
     robots: page >= 2 ? { index: false, follow: true } : { index: true, follow: true },
     alternates: {
-      canonical: buildCanonicalUrl(locale, canonicalPath.split("?")[0] === "/offers" && page >= 2
+      canonical: buildCanonicalUrl(locale, canonicalPath.split("?")[0] === OFFERS_WEBSITE_BASE_PATH && page >= 2
         ? canonicalPath
         : canonicalPath),
-      languages: buildLanguageAlternates("/offers"),
+      languages: buildLanguageAlternates(OFFERS_WEBSITE_BASE_PATH),
     },
   };
 }
@@ -98,7 +99,7 @@ export default async function OffersListingPage({
   const qsFor = (page: number) => {
     const params = offersQueryToSearchParams({ ...query, page });
     const qs = params.toString();
-    return buildCanonicalUrl(locale, `/offers${qs ? `?${qs}` : ""}`);
+    return buildCanonicalUrl(locale, `${OFFERS_WEBSITE_BASE_PATH}${qs ? `?${qs}` : ""}`);
   };
   const prev =
     meta.current_page > 1 ? qsFor(meta.current_page - 1) : null;
@@ -107,7 +108,7 @@ export default async function OffersListingPage({
 
   const breadcrumbSchema = createBreadcrumbSchema([
     { name: t("breadcrumb.home"), url: buildCanonicalUrl(locale, "/") },
-    { name: t("breadcrumb.offers"), url: buildCanonicalUrl(locale, "/offers") },
+    { name: t("breadcrumb.offers"), url: buildCanonicalUrl(locale, OFFERS_WEBSITE_BASE_PATH) },
   ]);
 
   return (

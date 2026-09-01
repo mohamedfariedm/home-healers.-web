@@ -25,7 +25,7 @@ export default function OfferNotFound() {
       <h1 className="mb-4 text-3xl font-bold text-[#143087]">{copy.title}</h1>
       <p className="mb-8 text-[#4a5568]">{copy.body}</p>
       <Link
-        href={`${prefix}/offers`}
+        href={`${prefix}/backges`}
         className="inline-flex h-12 items-center rounded-xl bg-primary px-6 font-semibold text-white"
       >
         {copy.back}

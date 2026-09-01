@@ -11,6 +11,7 @@ import {
   DEFAULT_OFFER_OG_IMAGE,
   localePath,
   localizedName,
+  OFFERS_WEBSITE_BASE_PATH,
   one,
   offerOgImage,
   toAbsoluteUrl,
@@ -62,7 +63,7 @@ export async function generateMetadata({
 
   const title = offer.meta_title || offer.name;
   const description = offer.meta_description || offer.short_description || "";
-  const path = `/offers/${offer.slug || slug}`;
+  const path = `${OFFERS_WEBSITE_BASE_PATH}/${offer.slug || slug}`;
   const canonical =
     offer.canonical_url || buildCanonicalUrl(locale, path);
   const image = toAbsoluteUrl(offerOgImage(offer)) || DEFAULT_OFFER_OG_IMAGE;
@@ -117,23 +118,31 @@ export default async function OfferDetailsPage({ params }: PageProps) {
   if (!offer) notFound();
 
   if (offer.slug && offer.slug !== slug) {
-    permanentRedirect(localePath(locale, `/offers/${offer.slug}`));
+    permanentRedirect(
+      localePath(locale, `${OFFERS_WEBSITE_BASE_PATH}/${offer.slug}`),
+    );
   }
 
   const { t } = await initTranslations(locale, ["offers"]);
-  const path = `/offers/${offer.slug || slug}`;
+  const path = `${OFFERS_WEBSITE_BASE_PATH}/${offer.slug || slug}`;
   const canonical = offer.canonical_url || buildCanonicalUrl(locale, path);
   const category = offer.categories?.[0];
   const categoryName = category ? localizedName(category.name, locale) : "";
 
   const crumbs = [
     { name: t("breadcrumb.home"), url: buildCanonicalUrl(locale, "/") },
-    { name: t("breadcrumb.offers"), url: buildCanonicalUrl(locale, "/offers") },
+    {
+      name: t("breadcrumb.offers"),
+      url: buildCanonicalUrl(locale, OFFERS_WEBSITE_BASE_PATH),
+    },
   ];
   if (categoryName) {
     crumbs.push({
       name: categoryName,
-      url: buildCanonicalUrl(locale, `/offers?category_id=${category!.id}`),
+      url: buildCanonicalUrl(
+        locale,
+        `${OFFERS_WEBSITE_BASE_PATH}?category_id=${category!.id}`,
+      ),
     });
   }
   crumbs.push({ name: offer.name, url: canonical });

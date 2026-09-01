@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import type { BookingData, Location, Patient, Doctor, Category } from "@/types/booking";
 import Link from "next/link";
 import { isClientApiError } from "@/lib/client-api-error";
-import { localePath } from "@/lib/offers";
+import { localePath, OFFERS_WEBSITE_BASE_PATH } from "@/lib/offers";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -1274,7 +1274,7 @@ export default function BookingFlow({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction asChild>
-              <Link href={localePath(locale, "/offers")}>
+              <Link href={localePath(locale, OFFERS_WEBSITE_BASE_PATH)}>
                 {t("messages.backToOffers")}
               </Link>
             </AlertDialogAction>

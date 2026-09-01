@@ -9,6 +9,7 @@ export const DEEP_LINK_ROUTE_NAMES: DeepLinkRoute[] = [
   "doctor",
   "service",
   "reservation",
+  "offers",
   "home",
 ];
 
@@ -74,8 +75,20 @@ export function parseDeepLinkRequest(
   return null;
 }
 
-/** Desktop deep links always go to the homepage. */
-export function buildWebsiteRedirectPath(locale: string): string {
+/** Desktop deep links go to the website equivalent (offers → /backges). */
+export function buildWebsiteRedirectPath(
+  locale: string,
+  route?: DeepLinkRoute,
+  segments?: string[],
+): string {
+  if (route === "offers") {
+    const slug = segments?.[0];
+    const base = locale === "en" ? "/en" : "";
+    if (slug) {
+      return `${base}/backges/${encodeURIComponent(slug)}`;
+    }
+    return `${base}/backges`;
+  }
   return locale === "en" ? "/en" : "/";
 }
 

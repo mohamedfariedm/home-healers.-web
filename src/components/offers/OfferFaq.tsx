@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { OfferFaq } from "@/types/offers";
 import { cn } from "@/lib/utils";
+import FaqAnswer from "@/components/ui/FaqAnswer";
 
 type OfferFaqAccordionProps = {
   faqs: OfferFaq[];
@@ -48,7 +49,7 @@ export default function OfferFaqAccordion({
                 hidden={!open}
                 className={cn("px-4 pb-4 text-sm text-[#4a5568]", !open && "hidden")}
               >
-                {open ? faq.answer : null}
+                {open ? <FaqAnswer html={faq.answer} className="text-sm" /> : null}
               </div>
             </div>
           );

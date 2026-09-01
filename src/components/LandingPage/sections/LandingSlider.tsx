@@ -12,6 +12,8 @@ import Image from "next/image";
 import ClientAPI from "@/app/api/api";
 import { ArrowLeft } from "lucide-react";
 import { parseCmsHtml } from "@/lib/parse-cms-html";
+import FaqAnswer from "@/components/ui/FaqAnswer";
+import { getFaqText } from "@/utils/faq-helpers";
 import {
   blogHref,
   getBlogSlug,
@@ -456,23 +458,16 @@ export default function LandingSlider({
           </SwiperSlide>
         );
 
-      case "faqs":
-        const faqQuestion = item.question || item.title || "";
-        const faqAnswer = item.answer || item.description || "";
-        
-        // Parse HTML content if it's a string
-        const renderAnswer = () => {
-          if (!faqAnswer) return null;
-          if (typeof faqAnswer === "string") {
-            // Check if it contains HTML tags
-            if (faqAnswer.includes("<") && faqAnswer.includes(">")) {
-              return parseCmsHtml(faqAnswer);
-            }
-            return faqAnswer;
-          }
-          return String(faqAnswer);
-        };
-        
+      case "faqs": {
+        const faqQuestion = getFaqText(
+          item.title_question || item.question || item.title || "",
+          locale,
+        );
+        const faqAnswer = getFaqText(
+          item.answer || item.description || "",
+          locale,
+        );
+
         return (
           <SwiperSlide key={item.id || index}>
             <div className="group h-full bg-gradient-to-br from-white via-blue-50/30 to-white rounded-2xl p-6 lg:p-8 border-2 border-gray-200/50 hover:border-[#143087]/30 shadow-lg hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
@@ -499,9 +494,11 @@ export default function LandingSlider({
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-1 h-full min-h-[60px] bg-gradient-to-b from-[#143087] to-[#62a0f6] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="flex-1">
-                    <div className="text-sm lg:text-base text-gray-700 leading-relaxed line-clamp-4 group-hover:text-gray-800 transition-colors duration-300">
-                      {renderAnswer()}
-                    </div>
+                    <FaqAnswer
+                      html={faqAnswer}
+                      clamp
+                      className="text-sm lg:text-base text-gray-700 leading-relaxed group-hover:text-gray-800 transition-colors duration-300"
+                    />
                   </div>
                 </div>
               </div>
@@ -511,6 +508,7 @@ export default function LandingSlider({
             </div>
           </SwiperSlide>
         );
+      }
 
       default:
         return null;

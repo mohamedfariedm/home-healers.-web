@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import FaqAnswer from "@/components/ui/FaqAnswer";
 
 function Faq() {
   const { t } = useTranslation("homepage");
@@ -84,15 +85,14 @@ function Faq() {
                     }}
                   />
                 </div>
-                <span
-                  className={
-                    activeButtons.includes(index)
-                      ? "flex w-full lg:w-[500px] h-[130px] items-end self-stretch shrink-0 text-[14px] font-normal leading-[25.48px] text-[#90bbbd] tracking-[0.28px] relative text-start z-[3] transition-all duration-500 ease-in-out opacity-100"
-                      : "h-[0px] opacity-0 transition-all duration-500 ease-in-out"
-                  }
-                >
-                  {activeButtons.includes(index) ? item.answer : ""}
-                </span>
+                {activeButtons.includes(index) ? (
+                  <FaqAnswer
+                    html={item.answer}
+                    className="flex w-full lg:w-[500px] items-end self-stretch shrink-0 text-[14px] font-normal leading-[25.48px] text-[#90bbbd] tracking-[0.28px] relative text-start z-[3] transition-all duration-500 ease-in-out opacity-100 [&_.editor-content]:text-[#90bbbd]"
+                  />
+                ) : (
+                  <span className="h-[0px] opacity-0 transition-all duration-500 ease-in-out" />
+                )}
               </div>
             </>
           </button>

@@ -10,7 +10,6 @@ import {
   toNumber,
 } from "@/lib/offers";
 import { cn } from "@/lib/utils";
-import FavoriteButton from "./FavoriteButton";
 import OfferCountdown from "./OfferCountdown";
 import OfferRating from "./OfferRating";
 import OfferPriceBlock from "./OfferPriceBlock";
@@ -146,8 +145,7 @@ export default function OfferCard({
   }
 
   return (
-    <article className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
-      <FavoriteButton offerId={offer.id} locale={locale} />
+    <article className="flex h-full flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
       {href ? (
         <a href={href} className="flex flex-1 flex-col">
           {body}

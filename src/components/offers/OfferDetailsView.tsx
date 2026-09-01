@@ -11,6 +11,7 @@ import {
   isRichTextEmpty,
   localePath,
   localizedName,
+  OFFERS_WEBSITE_BASE_PATH,
   resolveOfferImageUrl,
   toNumber,
 } from "@/lib/offers";
@@ -18,7 +19,6 @@ import OfferGallery from "./OfferGallery";
 import OfferRating from "./OfferRating";
 import OfferPriceBlock from "./OfferPriceBlock";
 import OfferCountdown from "./OfferCountdown";
-import FavoriteButton from "./FavoriteButton";
 import OfferShare from "./OfferShare";
 import OfferFaqAccordion from "./OfferFaq";
 import OfferReviews from "./OfferReviews";
@@ -122,7 +122,7 @@ export default function OfferDetailsView({
           </li>
           <li aria-hidden>›</li>
           <li>
-            <a href={localePath(locale, "/offers")} className="hover:text-primary">
+            <a href={localePath(locale, OFFERS_WEBSITE_BASE_PATH)} className="hover:text-primary">
               {t("breadcrumb.offers")}
             </a>
           </li>
@@ -131,7 +131,7 @@ export default function OfferDetailsView({
               <li aria-hidden>›</li>
               <li>
                 <a
-                  href={`${localePath(locale, "/offers")}?category_id=${category.id}`}
+                  href={`${localePath(locale, OFFERS_WEBSITE_BASE_PATH)}?category_id=${category.id}`}
                   className="hover:text-primary"
                 >
                   {categoryName}
@@ -413,13 +413,6 @@ function OfferSummary({
             {t("bookNow")}
           </a>
         )}
-        <div className="relative size-12">
-          <FavoriteButton
-            offerId={offer.id}
-            locale={locale}
-            className="static size-12"
-          />
-        </div>
       </div>
       <OfferShare url={canonicalUrl} title={offer.name} />
     </div>

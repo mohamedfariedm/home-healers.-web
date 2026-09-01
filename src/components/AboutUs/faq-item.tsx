@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus, HelpCircle } from 'lucide-react';
 import type { FaqTranslations } from "@/translations/faq";
+import FaqAnswer from "@/components/ui/FaqAnswer";
+import { getPlainTextFromHtml } from "@/lib/parse-cms-html";
 
 interface FaqItemProps {
   question: string;
@@ -23,10 +25,7 @@ const FaqItem: React.FC<FaqItemProps> = ({
   index,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const shouldTruncate = answer.length > 200;
-  const displayAnswer = shouldTruncate && !isExpanded 
-    ? answer.substring(0, 200) + "..." 
-    : answer;
+  const shouldTruncate = getPlainTextFromHtml(answer).length > 200;
 
   return (
     <motion.div
@@ -71,9 +70,9 @@ const FaqItem: React.FC<FaqItemProps> = ({
                   style={{ overflow: "hidden" }}
                 >
                   <div className="text-[#4a5568] leading-relaxed">
-                    <div 
-                      dangerouslySetInnerHTML={{ __html: displayAnswer }}
-                      className="editor-content"
+                    <FaqAnswer
+                      html={answer}
+                      clamp={shouldTruncate && !isExpanded}
                     />
                     
                     {/* Read More/Less Button */}

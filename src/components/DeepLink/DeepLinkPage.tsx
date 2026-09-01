@@ -70,7 +70,7 @@ export default async function DeepLinkPage({
   const headersList = await headers();
   const userAgent = headersList.get("user-agent") || "";
   if (getMobilePlatform(userAgent) === "desktop") {
-    redirect(buildWebsiteRedirectPath(locale));
+    redirect(buildWebsiteRedirectPath(locale, route, segments));
   }
 
   const settings = await ClientAPI.getSettings(locale);
