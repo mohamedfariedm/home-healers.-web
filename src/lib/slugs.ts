@@ -2,11 +2,16 @@ import { localePath } from "@/lib/offers";
 
 export type LocaleCode = "ar" | "en";
 
-/** Category slug is a plain English string. Never index it as an object. */
+/** Category slug is `{ en, ar }` — pick the active locale key. */
 export function getCategorySlug(
   category: { slug?: unknown } | null | undefined,
+  locale: string,
 ): string {
   const slug = category?.slug;
+  if (slug && typeof slug === "object") {
+    const record = slug as Record<string, string>;
+    return record[locale] || record.en || record.ar || "";
+  }
   return typeof slug === "string" ? slug : "";
 }
 
@@ -129,6 +134,13 @@ export function categoryHref(locale: string, categorySlug: string): string {
   return localePath(locale, `/categories/${encodeURIComponent(categorySlug)}`);
 }
 
+export function categoryHrefFrom(
+  locale: string,
+  category: { slug?: unknown } | null | undefined,
+): string {
+  return categoryHref(locale, getCategorySlug(category, locale));
+}
+
 export function categoryFirstServiceHref(
   locale: string,
   category: {
@@ -137,15 +149,13 @@ export function categoryFirstServiceHref(
     services?: Array<{ slug?: unknown; active?: number | boolean | string }> | null;
   } | null | undefined,
 ): string {
-  const categorySlug =
-    getCategorySlug(category) ||
-    (category?.id != null ? String(category.id) : "");
+  const categorySlug = getCategorySlug(category, locale);
   const firstService = getActiveServices(category?.services)[0];
   const serviceSlug = getServiceSlug(firstService, locale);
   if (categorySlug && serviceSlug) {
     return serviceHref(locale, categorySlug, serviceSlug);
   }
-  return localePath(locale, "/categories");
+  return categoryHrefFrom(locale, category);
 }
 
 export function serviceHref(
@@ -171,7 +181,7 @@ export function serviceFromCategory(
   locale: string,
 ): { categorySlug: string; serviceSlug: string } {
   return {
-    categorySlug: getCategorySlug(service?.category),
+    categorySlug: getCategorySlug(service?.category, locale),
     serviceSlug: getServiceSlug(service, locale),
   };
 }

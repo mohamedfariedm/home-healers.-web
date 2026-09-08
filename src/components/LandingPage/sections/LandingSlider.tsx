@@ -198,7 +198,7 @@ export default function LandingSlider({
     switch (slideType) {
       case "services": {
         const serviceSlug = getServiceSlug(item, locale);
-        const categorySlug = getCategorySlug(item.category);
+        const categorySlug = getCategorySlug(item.category, locale);
         const href = categorySlug && serviceSlug
           ? serviceHref(locale, categorySlug, serviceSlug)
           : `${locale === "ar" ? "" : "/en"}/our-services/${encodeURIComponent(serviceSlug)}`;

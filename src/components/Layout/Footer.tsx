@@ -703,7 +703,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                       text: t.navigation.categories,
                     },
                     {
-                      href: `${locale === "ar" ? "" : "/en"}/backges`,
+                      href: `${locale === "ar" ? "" : "/en"}/offers`,
                       text: t.navigation.offers,
                     },
                     {

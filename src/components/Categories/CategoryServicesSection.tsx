@@ -34,7 +34,7 @@ const CategoryServicesSection = ({
   category: Category;
   activeServiceSlug?: string;
 }) => {
-  const categorySlug = getCategorySlug(category) || String(category.id);
+  const categorySlug = getCategorySlug(category, locale);
   const services: Service[] = getActiveServices(category.services);
 
   const activeIndex = useMemo(() => {

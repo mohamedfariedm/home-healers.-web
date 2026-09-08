@@ -1,9 +1,17 @@
 import initTranslations from "@/app/i18n";
 import ClientAPI from "@/app/api/api";
 import DoctorRegistrationForm from "@/components/doctor-registration-form";
-import { buildCanonicalUrl, buildLanguageAlternates } from "@/lib/seo";
+import { getCachedSettings } from "@/lib/cached-api";
+import { createMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+function getDoctorsApplySeo(settings: any) {
+  return (
+    settings?.data?.[0]?.setting?.seo?.["doctors-apply"] ||
+    settings?.data?.[0]?.setting?.seo?.["doctor-apply"]
+  );
+}
 
 export async function generateMetadata({
   params,
@@ -12,65 +20,22 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const { t } = await initTranslations(locale, ["doctor-apply"]);
-  const settings = await ClientAPI.getSettings(locale);
-  const seo = settings?.data[0]?.setting?.seo["doctor-apply"] || {};
+  const settings = await getCachedSettings(locale);
+  const seo = getDoctorsApplySeo(settings);
 
-  const path = "/doctors-apply";
-  const canonical = seo?.canonical || buildCanonicalUrl(locale, path);
-
-  return {
+  return createMetadata(seo, locale, "/doctors-apply", {
     title: t("seo.title", {
-      defaultValue: seo?.title || "Join Home Hellers Medical Team",
+      defaultValue: "Join Home Healers Medical Team",
     }),
     description: t("seo.description", {
       defaultValue:
-        seo?.description ||
         "Apply to become a doctor in our world-class healthcare network",
     }),
     keywords: t("seo.keywords", {
       defaultValue:
-        seo?.keywords ||
-        "Home Hellers, doctor application, healthcare, medical professionals",
+        "Home Healers, doctor application, healthcare, medical professionals",
     }),
-    alternates: {
-      canonical,
-      languages: buildLanguageAlternates(path),
-    },
-    icons: {
-      icon: "/assets/images/favicon.ico",
-    },
-    openGraph: {
-      type: "website",
-      title: t("seo.og_title", {
-        defaultValue: seo?.og_title || "Join Home Hellers Medical Team",
-      }),
-      description: t("seo.og_description", {
-        defaultValue:
-          seo?.og_description ||
-          "Apply to become a doctor in our world-class healthcare network",
-      }),
-      url: seo?.canonical || buildCanonicalUrl(locale, path),
-      images: [
-        {
-          url: seo?.og_image || "/assets/images/doctor-apply-og.jpg",
-          width: 1200,
-          height: 630,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: t("seo.twitter_title", {
-        defaultValue: seo?.twitter_title || "Join Home Hellers Medical Team",
-      }),
-      description: t("seo.twitter_description", {
-        defaultValue:
-          seo?.twitter_description ||
-          "Apply to become a doctor in our world-class healthcare network",
-      }),
-      images: [seo?.twitter_image || "/assets/images/doctor-apply-og.jpg"],
-    },
-  };
+  });
 }
 
 async function DoctorApplyPage({
@@ -80,7 +45,11 @@ async function DoctorApplyPage({
 }) {
   const { locale } = await params;
   const { t } = await initTranslations(locale, ["doctor-apply"]);
-  const nationalities = await ClientAPI.getNationalities(locale);
+  const [nationalities, settings] = await Promise.all([
+    ClientAPI.getNationalities(locale),
+    getCachedSettings(locale),
+  ]);
+  const seo = getDoctorsApplySeo(settings);
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50">
       {/* Hero Section */}
@@ -88,7 +57,8 @@ async function DoctorApplyPage({
         <div className="absolute inset-0 bg-opacity-50 bg-[url('/assets/images/medical-pattern.png')] opacity-10"></div>
         <div className="container mx-auto px-4 text-center relative z-10">
           <h1 className="text-4xl md:text-5xl font-extrabold mb-6 animate-fade-in-up">
-            {t("hero.title", { defaultValue: "Join Our Medical Team" })}
+            {seo?.[locale]?.h1 ||
+              t("hero.title", { defaultValue: "Join Our Medical Team" })}
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto mb-8 animate-fade-in-up animation-delay-200">
             {t("hero.subtitle", {

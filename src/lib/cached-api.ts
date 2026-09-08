@@ -34,7 +34,7 @@ export async function resolveServiceCategorySlug(
   locale: string,
   service: { id?: number; slug?: unknown; category?: { slug?: unknown } } | null,
 ): Promise<string> {
-  const nested = getCategorySlug(service?.category);
+  const nested = getCategorySlug(service?.category, locale);
   if (nested) return nested;
   if (!service) return "";
 
@@ -50,6 +50,6 @@ export async function resolveServiceCategorySlug(
       (service.id != null && item.id === service.id) ||
       getServiceSlug(item, locale) === serviceSlug,
   );
-  return getCategorySlug(match?.category);
+  return getCategorySlug(match?.category, locale);
 }
 

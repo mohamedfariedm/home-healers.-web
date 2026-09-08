@@ -33,6 +33,12 @@ export function getPlainTextFromHtml(html: string): string {
     .trim();
 }
 
-export function parseCmsHtml(html: string) {
-  return parse(downgradeHeadings(normalizeCmsHtml(html)));
+export function parseCmsHtml(
+  html: string,
+  options?: { keepHeadings?: boolean },
+) {
+  const normalized = normalizeCmsHtml(html);
+  return parse(
+    options?.keepHeadings ? normalized : downgradeHeadings(normalized),
+  );
 }

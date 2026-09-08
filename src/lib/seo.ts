@@ -55,24 +55,30 @@ export function buildLocalizedSlugAlternates(
     };
 }
 
-/** Category slug is the same in both locales; service slug is locale-specific. */
+/** Category and service slugs are both locale-specific `{ en, ar }`. */
 export function buildCategoryServiceAlternates(
-    categorySlug: string,
+    categorySlug: unknown,
     serviceSlug: unknown,
     fallbackServiceSlug = "",
+    fallbackCategorySlug = "",
 ): Record<string, string> {
-    const cat = encodeURIComponent(categorySlug);
+    const arCat = encodeURIComponent(
+        getLocalizedValue(categorySlug, "ar") || fallbackCategorySlug,
+    );
+    const enCat = encodeURIComponent(
+        getLocalizedValue(categorySlug, "en") || fallbackCategorySlug,
+    );
     const arService = encodeURIComponent(
         getLocalizedValue(serviceSlug, "ar") || fallbackServiceSlug,
     );
     const enService = encodeURIComponent(
         getLocalizedValue(serviceSlug, "en") || fallbackServiceSlug,
     );
-    const ar = buildCanonicalUrl("ar", `/categories/${cat}/${arService}`);
+    const ar = buildCanonicalUrl("ar", `/categories/${arCat}/${arService}`);
 
     return {
         [HREFLANG.ar]: ar,
-        [HREFLANG.en]: buildCanonicalUrl("en", `/categories/${cat}/${enService}`),
+        [HREFLANG.en]: buildCanonicalUrl("en", `/categories/${enCat}/${enService}`),
         "x-default": ar,
     };
 }

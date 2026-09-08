@@ -42,6 +42,26 @@ const nextConfig = {
         destination: '/booking',
         permanent: true,
       },
+      {
+        source: '/backges',
+        destination: '/offers',
+        permanent: true,
+      },
+      {
+        source: '/backges/:path*',
+        destination: '/offers/:path*',
+        permanent: true,
+      },
+      {
+        source: '/en/backges',
+        destination: '/en/offers',
+        permanent: true,
+      },
+      {
+        source: '/en/backges/:path*',
+        destination: '/en/offers/:path*',
+        permanent: true,
+      },
     ];
   },
   async rewrites() {
@@ -83,7 +103,7 @@ const nextConfig = {
         headers: [{ key: "Content-Type", value: "application/json" }],
       },
       {
-        source: "/backges",
+        source: "/offers",
         headers: [
           {
             key: "Cache-Control",
@@ -92,7 +112,7 @@ const nextConfig = {
         ],
       },
       {
-        source: "/backges/:path*",
+        source: "/offers/:path*",
         headers: [
           {
             key: "Cache-Control",
@@ -101,7 +121,7 @@ const nextConfig = {
         ],
       },
       {
-        source: "/en/backges",
+        source: "/en/offers",
         headers: [
           {
             key: "Cache-Control",
@@ -110,7 +130,7 @@ const nextConfig = {
         ],
       },
       {
-        source: "/en/backges/:path*",
+        source: "/en/offers/:path*",
         headers: [
           {
             key: "Cache-Control",

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ArrowUpLeft, ArrowUpRight } from "lucide-react";
 import { AboutAppTwoColumns } from ".";
 import { localePath } from "@/lib/offers";
-import { categoryFirstServiceHref, getActiveServices } from "@/lib/slugs";
+import { categoryHrefFrom, getActiveServices } from "@/lib/slugs";
 
 function AboutApp({
   locale,
@@ -69,7 +69,7 @@ function AboutApp({
           <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {categories.map((category: any, index: number) => {
               const serviceCount = getActiveServices(category.services).length;
-              const href = categoryFirstServiceHref(locale, category);
+              const href = categoryHrefFrom(locale, category);
 
               return (
                 <motion.div

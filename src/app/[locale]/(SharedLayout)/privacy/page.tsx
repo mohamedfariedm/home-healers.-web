@@ -14,7 +14,9 @@ export async function generateMetadata({
   const { locale } = await params;
   const { t } = await initTranslations(locale, ["privacy"]);
   const settings = await getCachedSettings(locale);
-  const seo = settings?.data?.[0]?.setting?.seo?.["privacy"];
+  const seo =
+    settings?.data?.[0]?.setting?.seo?.["conditions"] ||
+    settings?.data?.[0]?.setting?.seo?.["privacy"];
   const conditions = settings?.data?.[0]?.setting?.conditions?.[locale];
 
   return createMetadata(seo, locale, "/privacy", {
@@ -34,12 +36,19 @@ export default async function ConditionsPage({
   const settings = await getCachedSettings(locale);
 
   const conditions = settings?.data?.[0]?.setting?.conditions?.[locale];
+  const seo =
+    settings?.data?.[0]?.setting?.seo?.["conditions"] ||
+    settings?.data?.[0]?.setting?.seo?.["privacy"];
 
   return (
     <>
       <div className="min-h-screen bg-white">
         <HeroBanner
-          title={conditions?.title || t("title", { ns: "privacy" })}
+          title={
+            seo?.[locale]?.h1 ||
+            conditions?.title ||
+            t("title", { ns: "privacy" })
+          }
           breadcrumbItems={[
             { label: t("home", { ns: "common" }) },
             {

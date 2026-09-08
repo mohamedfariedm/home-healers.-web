@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import { motion } from "framer-motion"
 import ClientAPI from "@/app/api/api"
 import {
+  categoryHref,
   getBlogSlug,
   getCategorySlug,
   getServiceSlug,
@@ -64,7 +65,8 @@ export default function LanguageChanger() {
             getServiceSlug(item, currentLocale) === currentServiceSlug,
         )
         const categorySlug =
-          getCategorySlug(service?.category) || getCategorySlug(match?.category)
+          getCategorySlug(service?.category, newLocale) ||
+          getCategorySlug(match?.category, newLocale)
         const translated = getServiceSlug(service, newLocale)
         if (categorySlug && translated) {
           newPath = serviceHref(newLocale, categorySlug, translated)
@@ -74,16 +76,22 @@ export default function LanguageChanger() {
           return
         }
       } else if (pathParts[0] === "categories" && pathParts.length >= 3) {
-        const res = await ClientAPI.getAllServicesSlug(
-          currentLocale,
-          decodeURIComponent(pathParts[2]),
-        )
+        const [categoryRes, serviceRes] = await Promise.all([
+          ClientAPI.getCategory(decodeURIComponent(pathParts[1]), currentLocale),
+          ClientAPI.getAllServicesSlug(
+            currentLocale,
+            decodeURIComponent(pathParts[2]),
+          ),
+        ])
+        const category = unwrapDetail<{ slug?: unknown }>(categoryRes)
         const service = unwrapDetail<{
           slug?: unknown
           category?: { slug?: unknown }
-        }>(res)
+        }>(serviceRes)
         const categorySlug =
-          getCategorySlug(service?.category) || decodeURIComponent(pathParts[1])
+          getCategorySlug(category, newLocale) ||
+          getCategorySlug(service?.category, newLocale) ||
+          decodeURIComponent(pathParts[1])
         const translated =
           getServiceSlug(service, newLocale) || decodeURIComponent(pathParts[2])
         if (categorySlug && translated) {
@@ -93,8 +101,21 @@ export default function LanguageChanger() {
           setDropdownOpen(false)
           return
         }
+      } else if (pathParts[0] === "categories" && pathParts[1]) {
+        const res = await ClientAPI.getCategory(
+          decodeURIComponent(pathParts[1]),
+          currentLocale,
+        )
+        const category = unwrapDetail<{ slug?: unknown }>(res)
+        const translated = getCategorySlug(category, newLocale)
+        if (translated) {
+          newPath = categoryHref(newLocale, translated)
+          i18n.changeLanguage(newLocale)
+          router.push(newPath)
+          setDropdownOpen(false)
+          return
+        }
       }
-      // `/categories/{slug}` is English-only — no translation needed
     } catch (err) {
       console.error("Failed to fetch translated slug:", err)
     }

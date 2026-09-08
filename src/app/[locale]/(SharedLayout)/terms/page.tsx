@@ -34,12 +34,15 @@ export default async function TermsPage({
   const settings = await getCachedSettings(locale);
 
   const terms = settings?.data?.[0]?.setting?.terms?.[locale];
+  const seo = settings?.data?.[0]?.setting?.seo?.["terms"];
 
   return (
     <>
       <div className="min-h-screen bg-white">
         <HeroBanner
-          title={terms?.title || t("title", { ns: "terms" })}
+          title={
+            seo?.[locale]?.h1 || terms?.title || t("title", { ns: "terms" })
+          }
           breadcrumbItems={[
             { label: t("home", { ns: "common" }) },
             {

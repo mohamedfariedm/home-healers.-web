@@ -13,6 +13,7 @@ import {
 } from "@/lib/cached-api";
 import { localePath } from "@/lib/offers";
 import {
+  categoryHref,
   getActiveServices,
   getCategorySlug,
   getServiceSlug,
@@ -47,7 +48,9 @@ async function loadCategoryService(
 
   const activeServices = getActiveServices(category.services);
   const belongsToCategory =
-    getCategorySlug(service.category) === getCategorySlug(category) ||
+    (service.category?.id != null && service.category.id === category.id) ||
+    getCategorySlug(service.category, locale) ===
+      getCategorySlug(category, locale) ||
     activeServices.some(
       (item) =>
         getServiceSlug(item, locale) === getServiceSlug(service, locale),
@@ -83,7 +86,8 @@ export async function generateMetadata({
       );
     }
 
-    const categorySlug = getCategorySlug(loaded.category) || loaded.requestedCategory;
+    const categorySlug =
+      getCategorySlug(loaded.category, locale) || loaded.requestedCategory;
     const localizedServiceSlug =
       getServiceSlug(loaded.service, locale) || loaded.requestedService;
     const path = `/categories/${encodeURIComponent(categorySlug)}/${encodeURIComponent(localizedServiceSlug)}`;
@@ -124,9 +128,10 @@ export async function generateMetadata({
       alternates: {
         canonical,
         languages: buildCategoryServiceAlternates(
-          categorySlug,
+          loaded.category.slug,
           loaded.service.slug,
           localizedServiceSlug,
+          categorySlug,
         ),
       },
       openGraph: {
@@ -168,9 +173,9 @@ export default async function CategoryServicePage({
     notFound();
   }
 
-  const categorySlug = getCategorySlug(loaded.category);
+  const categorySlug = getCategorySlug(loaded.category, locale);
   const canonicalServiceSlug = getServiceSlug(loaded.service, locale);
-  const nestedCategorySlug = getCategorySlug(loaded.service.category);
+  const nestedCategorySlug = getCategorySlug(loaded.service.category, locale);
 
   if (nestedCategorySlug && categorySlug && nestedCategorySlug !== categorySlug) {
     permanentRedirect(
@@ -227,9 +232,15 @@ export default async function CategoryServicePage({
                     "url(/assets/images/shared/hero-banner/hero-breadcrumb-arrow.svg)",
                 }}
               />
-              <span className="text-white text-sm font-semibold">
+              <a
+                href={categoryHref(
+                  locale,
+                  categorySlug || loaded.requestedCategory,
+                )}
+                className="text-white text-sm font-semibold hover:underline"
+              >
                 {loaded.category.name}
-              </span>
+              </a>
               <div
                 className="w-4 h-4 bg-no-repeat bg-cover"
                 style={{

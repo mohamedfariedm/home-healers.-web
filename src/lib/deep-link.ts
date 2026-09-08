@@ -40,6 +40,10 @@ export function buildDeepLinkPath(
     return `/${route}?${queryKey}=${encodeURIComponent(id)}`;
   }
 
+  if (id && route === "offers") {
+    return `/${route}/${encodeURIComponent(id)}`;
+  }
+
   return `/${route}`;
 }
 
@@ -75,7 +79,7 @@ export function parseDeepLinkRequest(
   return null;
 }
 
-/** Desktop deep links go to the website equivalent (offers → /backges). */
+/** Desktop deep links go to the homepage. Offers stay on /offers (the website page). */
 export function buildWebsiteRedirectPath(
   locale: string,
   route?: DeepLinkRoute,
@@ -85,11 +89,16 @@ export function buildWebsiteRedirectPath(
     const slug = segments?.[0];
     const base = locale === "en" ? "/en" : "";
     if (slug) {
-      return `${base}/backges/${encodeURIComponent(slug)}`;
+      return `${base}/offers/${encodeURIComponent(slug)}`;
     }
-    return `${base}/backges`;
+    return `${base}/offers` || "/";
   }
   return locale === "en" ? "/en" : "/";
+}
+
+export function isOffersWebsitePath(pathname: string): boolean {
+  const normalized = pathname.replace(/^\/(en|ar)(?=\/|$)/, "") || pathname;
+  return normalized === "/offers" || normalized.startsWith("/offers/");
 }
 
 export function buildAppOpenUrl(targetUrl: string): string {

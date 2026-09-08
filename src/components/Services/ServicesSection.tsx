@@ -83,7 +83,7 @@ const AnimatedServicesSection = ({
             const isActive = idx === activeIndex;
             const href = serviceHref(
               locale,
-              getCategorySlug(service.category),
+              getCategorySlug(service.category, locale),
               getServiceSlug(service, locale),
             );
             const serviceName = getLocalized(service.name, locale);

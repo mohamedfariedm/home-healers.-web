@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { i18nRouterConfig } from "./i18nRouterConfig"
 import {
   buildWebsiteRedirectPath,
+  isOffersWebsitePath,
   parseDeepLinkRequest,
 } from "./lib/deep-link"
 import {
@@ -14,19 +15,29 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const userAgent = request.headers.get("user-agent") || ""
 
-  // Deep links: mobile → app/store; desktop → website equivalent
+  // Deep links: mobile → app (offers falls back to the website page).
+  // Desktop /offers is the website listing — do not redirect it away.
   const deepLinkPath = matchDeepLinkPath(pathname)
-  if (deepLinkPath) {
+  const isOffersPath = isOffersWebsitePath(pathname)
+  const showOffersWebsite = request.nextUrl.searchParams.get("web") === "1"
+
+  if (deepLinkPath && !(isOffersPath && (!isMobileUserAgent(userAgent) || showOffersWebsite))) {
     if (isMobileUserAgent(userAgent)) {
-      const targetUrl = `${request.nextUrl.origin}${deepLinkPath}${request.nextUrl.search}`
+      const appUrl = new URL(request.url)
+      appUrl.searchParams.delete("web")
+      const targetUrl = `${request.nextUrl.origin}${deepLinkPath}${appUrl.search}`
       const isAndroid = /android/i.test(userAgent)
       const isFacebookOrInstagram = /FBAN|FBAV|FB_IAB|Instagram/i.test(userAgent)
+
+      const websiteFallback = new URL(request.url)
+      websiteFallback.searchParams.set("web", "1")
 
       return new NextResponse(
         buildMobileDeepLinkRedirectHtml({
           targetUrl,
           isAndroid,
           isFacebookOrInstagram,
+          fallbackUrl: isOffersPath ? websiteFallback.toString() : undefined,
         }),
         {
           status: 200,

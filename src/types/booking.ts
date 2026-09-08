@@ -87,11 +87,22 @@ export interface Doctor {
   }>
 }
 
+export type LocalizedText = {
+  en?: string | null
+  ar?: string | null
+}
+
 export interface Category {
   id: number
   name: string
-  slug?: string
+  description?: string | LocalizedText | null
+  slug?: string | LocalizedText
+  meta_title?: LocalizedText | string | null
+  meta_description?: LocalizedText | string | null
+  og_title?: LocalizedText | string | null
+  og_description?: LocalizedText | string | null
   image: any
+  icon?: any
   services: Service[]
   has_service?: boolean
   active?: number
@@ -118,7 +129,7 @@ export interface Service {
   category: {
     id: number
     name: string
-    slug?: string
+    slug?: string | LocalizedText
   }
 }
 

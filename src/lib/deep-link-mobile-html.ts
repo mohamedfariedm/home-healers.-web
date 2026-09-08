@@ -29,16 +29,20 @@ export function buildMobileDeepLinkRedirectHtml({
   isFacebookOrInstagram,
   androidStore = PLAY_STORE,
   iosStore = APP_STORE,
+  fallbackUrl,
 }: {
   targetUrl: string;
   isAndroid: boolean;
   isFacebookOrInstagram: boolean;
   androidStore?: string;
   iosStore?: string;
+  /** When set (offers), open the website page if the app does not open. */
+  fallbackUrl?: string;
 }): string {
   const storeUrl = isAndroid ? androidStore : iosStore;
+  const leaveUrl = fallbackUrl || storeUrl;
   const safeTarget = JSON.stringify(targetUrl);
-  const safeStore = JSON.stringify(storeUrl);
+  const safeStore = JSON.stringify(leaveUrl);
 
   return `<!DOCTYPE html>
 <html lang="ar">

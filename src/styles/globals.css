@@ -413,3 +413,18 @@ body.tawk-chat-open .tawk-max-container {
 .offer-prose :where(h4) {
   @apply text-base font-semibold text-[#143087] mt-4 mb-2;
 }
+.category-prose :where(span) {
+  color: inherit;
+}
+.category-prose :where(.ql-align-right) {
+  text-align: right;
+}
+.category-prose :where(.ql-align-center) {
+  text-align: center;
+}
+.category-prose :where(.ql-align-left) {
+  text-align: left;
+}
+.category-prose :where(.ql-align-justify) {
+  text-align: justify;
+}
