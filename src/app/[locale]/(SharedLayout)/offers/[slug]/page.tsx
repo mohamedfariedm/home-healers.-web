@@ -1,55 +1,30 @@
-import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
 import OfferDetailsView from "@/components/offers/OfferDetailsView";
 import {
   buildCanonicalUrl,
   buildLanguageAlternates,
+  buildLocalizedSlugAlternates,
   ogLocale,
 } from "@/lib/seo";
 import { createBreadcrumbSchema, renderJsonLd } from "@/lib/structured-data";
 import {
   DEFAULT_OFFER_OG_IMAGE,
-  localePath,
   localizedName,
   OFFERS_WEBSITE_BASE_PATH,
   one,
+  offerHref,
   offerOgImage,
   toAbsoluteUrl,
 } from "@/lib/offers";
+import { getOfferSlug } from "@/lib/slugs";
 import { getCachedOfferBySlug } from "@/lib/cached-api";
 import type { OfferDetails } from "@/types/offers";
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 
-export const revalidate = 300;
-export const dynamicParams = true;
-
 type PageProps = {
   params: Promise<{ locale: string; slug: string }>;
 };
-
-export async function generateStaticParams() {
-  const slugs = new Set<string>();
-  try {
-    let page = 1;
-    let last = 1;
-    do {
-      const res = await ClientAPI.getPackages("en", {
-        type: "offer",
-        limit: 100,
-        page,
-      });
-      for (const row of res?.data ?? []) {
-        if (row?.slug) slugs.add(row.slug);
-      }
-      last = Number(res?.meta?.last_page ?? 1) || 1;
-      page += 1;
-    } while (page <= last && page <= 20);
-  } catch {
-    return [];
-  }
-  return Array.from(slugs).map((slug) => ({ slug }));
-}
 
 export async function generateMetadata({
   params,
@@ -63,7 +38,8 @@ export async function generateMetadata({
 
   const title = offer.meta_title || offer.name;
   const description = offer.meta_description || offer.short_description || "";
-  const path = `${OFFERS_WEBSITE_BASE_PATH}/${offer.slug || slug}`;
+  const offerSlug = getOfferSlug(offer, locale) || decodeURIComponent(slug);
+  const path = `${OFFERS_WEBSITE_BASE_PATH}/${encodeURIComponent(offerSlug)}`;
   const canonical =
     offer.canonical_url || buildCanonicalUrl(locale, path);
   const image = toAbsoluteUrl(offerOgImage(offer)) || DEFAULT_OFFER_OG_IMAGE;
@@ -74,7 +50,14 @@ export async function generateMetadata({
     robots: { index: true, follow: true },
     alternates: {
       canonical,
-      languages: buildLanguageAlternates(path),
+      languages:
+        offer.slug && typeof offer.slug === "object"
+          ? buildLocalizedSlugAlternates(
+              OFFERS_WEBSITE_BASE_PATH,
+              offer.slug,
+              offerSlug,
+            )
+          : buildLanguageAlternates(path),
     },
     openGraph: {
       type: "website",
@@ -117,14 +100,13 @@ export default async function OfferDetailsPage({ params }: PageProps) {
   const offer = one<OfferDetails>(res);
   if (!offer) notFound();
 
-  if (offer.slug && offer.slug !== slug) {
-    permanentRedirect(
-      localePath(locale, `${OFFERS_WEBSITE_BASE_PATH}/${offer.slug}`),
-    );
+  const offerSlug = getOfferSlug(offer, locale);
+  if (offerSlug && offerSlug !== decodeURIComponent(slug)) {
+    permanentRedirect(offerHref(locale, offerSlug));
   }
 
   const { t } = await initTranslations(locale, ["offers"]);
-  const path = `${OFFERS_WEBSITE_BASE_PATH}/${offer.slug || slug}`;
+  const path = `${OFFERS_WEBSITE_BASE_PATH}/${encodeURIComponent(offerSlug || slug)}`;
   const canonical = offer.canonical_url || buildCanonicalUrl(locale, path);
   const category = offer.categories?.[0];
   const categoryName = category ? localizedName(category.name, locale) : "";

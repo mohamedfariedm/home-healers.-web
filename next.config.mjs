@@ -1,12 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
-  // Wait for generateMetadata before sending HTML so title/canonical appear in view-source
-  htmlLimitedBots: /.*/,
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 3600,
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     // Dev-mode optimization is on-demand and very slow; skip locally.
     unoptimized: process.env.NODE_ENV === "development",
@@ -27,12 +25,25 @@ const nextConfig = {
         protocol: "https",
         hostname: "codia-f2c.s3.us-west-1.amazonaws.com",
       },
+      {
+        protocol: "https",
+        hostname: "apis.home-healers.com",
+      },
+      {
+        protocol: "http",
+        hostname: "backend.home-healers.com",
+      },
+      {
+        protocol: "http",
+        hostname: "development.home-healers.com",
+      },
     ],
     domains: [
       "placehold.co",
       "backend.home-healers.com",
       "development.home-healers.com",
       "codia-f2c.s3.us-west-1.amazonaws.com",
+      "apis.home-healers.com",
     ],
   },
   async redirects() {
@@ -85,11 +96,27 @@ const nextConfig = {
           source: "/robots.txt",
           destination: "/api/robots",
         },
+        {
+          source: "/llms.txt",
+          destination: "/api/llms",
+        },
       ],
     };
   },
   async headers() {
     return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(self), payment=(self)",
+          },
+        ],
+      },
       {
         source: "/.well-known/apple-app-site-association",
         headers: [{ key: "Content-Type", value: "application/json" }],
@@ -101,42 +128,6 @@ const nextConfig = {
       {
         source: "/.well-known/assetlinks.json",
         headers: [{ key: "Content-Type", value: "application/json" }],
-      },
-      {
-        source: "/offers",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "s-maxage=300, stale-while-revalidate=600",
-          },
-        ],
-      },
-      {
-        source: "/offers/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "s-maxage=300, stale-while-revalidate=600",
-          },
-        ],
-      },
-      {
-        source: "/en/offers",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "s-maxage=300, stale-while-revalidate=600",
-          },
-        ],
-      },
-      {
-        source: "/en/offers/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "s-maxage=300, stale-while-revalidate=600",
-          },
-        ],
       },
     ];
   },

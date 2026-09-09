@@ -12,7 +12,7 @@ async function BogsSection({ locale }: { locale: string }) {
     showInHome:true
   });
 
-  return <BlogList blogs={blogs} />;
+  return <BlogList blogs={blogs} locale={locale} />;
 }
 
 export default BogsSection;

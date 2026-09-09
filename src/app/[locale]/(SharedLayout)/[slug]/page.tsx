@@ -4,8 +4,6 @@ import LandingPageRenderer from "@/components/LandingPage/LandingPageRenderer";
 import { buildCanonicalUrl, buildLanguageAlternates, ogLocale } from "@/lib/seo";
 import { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
-
 type Props = {
   params: { locale: string; slug: string };
 };

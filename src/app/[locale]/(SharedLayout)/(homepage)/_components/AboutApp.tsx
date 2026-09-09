@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowUpLeft, ArrowUpRight } from "lucide-react";
 import { AboutAppTwoColumns } from ".";
 import { localePath } from "@/lib/offers";
 import { categoryHrefFrom, getActiveServices } from "@/lib/slugs";
+import { toSecureMediaUrl } from "@/lib/image-url";
 
 function AboutApp({
   locale,
@@ -89,7 +90,7 @@ function AboutApp({
                       <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[#eff6fe] ring-1 ring-[#d7e7fb]">
                         <img
                           src={
-                            category.image?.[0]?.original ||
+                            toSecureMediaUrl(category.image?.[0]?.original) ||
                             "/assets/images/homehellers/Injury.svg"
                           }
                           alt=""

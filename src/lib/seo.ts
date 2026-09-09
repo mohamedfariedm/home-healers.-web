@@ -121,6 +121,14 @@ export function createMetadata(
                 },
             ],
         },
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+            },
+        },
         twitter: {
             card: "summary_large_image",
             title: seo?.[locale]?.twitter_title || title,

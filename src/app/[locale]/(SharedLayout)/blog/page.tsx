@@ -3,6 +3,9 @@ import initTranslations from "@/app/i18n";
 import { BlogAnimationSection } from "@/components/Blog";
 import { Bannar } from "../(homepage)/_components";
 import { createMetadata } from "@/lib/seo";
+import { getCachedSettings } from "@/lib/cached-api";
+import { slimBanner, slimBlogForHome } from "@/lib/public-payload";
+
 export const dynamic = "force-dynamic";
 
 type props = {
@@ -27,7 +30,7 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const { t } = await initTranslations(locale, ["homepage"]);
-  const settings = await ClientAPI.getSettings(locale);
+  const settings = await getCachedSettings(locale);
   const seo = settings?.data[0]?.setting?.seo["blogs"];
 
   return createMetadata(seo, locale, "/blog", {
@@ -37,8 +40,10 @@ export async function generateMetadata({
 async function page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const { t } = await initTranslations(locale, ["blog"]);
-  const { data } = await ClientAPI.getAllBlogs(locale);
-  const settings = await ClientAPI.getSettings(locale);
+  const [{ data }, settings] = await Promise.all([
+    ClientAPI.getAllBlogs(locale),
+    getCachedSettings(locale),
+  ]);
 
   const seo = settings?.data[0]?.setting?.seo["blogs"];
 
@@ -132,11 +137,14 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
           </div>
         </div>
 
-        <BlogAnimationSection data={data} locale={locale} />
+        <BlogAnimationSection
+          data={(data || []).map(slimBlogForHome)}
+          locale={locale}
+        />
 
         {homeBanners?.length > 0 &&
           homeBanners.map((banner: any, index: number) => (
-            <Bannar key={index} banner={banner} />
+            <Bannar key={index} banner={slimBanner(banner)} />
           ))}
       </div>
     </>

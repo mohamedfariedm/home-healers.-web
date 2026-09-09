@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import type { Category } from "@/types/booking";
 import { categoryHrefFrom, getActiveServices } from "@/lib/slugs";
+import { toSecureMediaUrl } from "@/lib/image-url";
 
 const CategoriesGrid = ({
   locale,
@@ -42,7 +43,7 @@ const CategoriesGrid = ({
             <div className="w-20 h-20 bg-[#eff6fe] rounded-full flex items-center justify-center overflow-hidden">
               <img
                 src={
-                  category.image?.[0]?.original ||
+                  toSecureMediaUrl(category.image?.[0]?.original) ||
                   "/assets/images/homehellers/Injury.svg"
                 }
                 alt={category.name}

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { ShowMore } from "@/components/Animations/ShowMore";
 import { parseCmsHtml } from "@/lib/parse-cms-html";
+import { toSecureMediaUrl } from "@/lib/image-url";
 
 function AboutApp({
   locale,
@@ -25,8 +26,9 @@ function AboutApp({
           className="relative w-full xl:w-[597px] h-[531px] bg-contain bg-no-repeat"
           style={{
             backgroundImage: `url(${
-              aboutHomeSection?.Posts?.[0]?.attachment?.[0]?.original ||
-              "/assets/images/homehellers/about.svg"
+              toSecureMediaUrl(
+                aboutHomeSection?.Posts?.[0]?.attachment?.[0]?.original,
+              ) || "/assets/images/homehellers/about.svg"
             })`,
           }}
           initial={{ opacity: 0, x: -50 }}
@@ -73,7 +75,7 @@ function AboutApp({
                 <div
                   className="w-6 h-6 bg-cover bg-center bg-no-repeat"
                   style={{
-                    backgroundImage: `url(${post.attachment?.[0]?.original})`,
+                    backgroundImage: `url(${toSecureMediaUrl(post.attachment?.[0]?.original)})`,
                   }}
                 />
               </motion.div>

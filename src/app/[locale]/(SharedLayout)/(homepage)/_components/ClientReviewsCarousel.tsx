@@ -55,7 +55,7 @@ export default function ClientReviewsCarousel({
   };
 
   const getAvatarUrl = (review: ClientReview) => {
-    const provided = review.image?.[0]?.thumbnail || review.image?.[0]?.original;
+    const provided = review.image?.[0]?.original || review.image?.[0]?.thumbnail;
     if (provided) return provided;
     const nameForAvatar = encodeURIComponent(review.name || (isRTL ? "عميل" : "Client"));
     return `https://ui-avatars.com/api/?name=${nameForAvatar}&background=EEF2F7&color=143087&bold=true&size=128`;

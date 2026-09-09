@@ -9,11 +9,21 @@ import {
 } from "@/components/AboutUs";
 import ClientAPI from "@/app/api/api";
 import { createMetadata } from "@/lib/seo";
-export const dynamic = "force-dynamic";
+import { getCachedSettings } from "@/lib/cached-api";
+import {
+  slimBanner,
+  slimDoctorCard,
+  slimHomeSection,
+  slimSettingsForChrome,
+} from "@/lib/public-payload";
+import { generateLocaleStaticParams } from "@/lib/static-pages";
 
-type props = {
-  params: { locale: string };
-};
+export function generateStaticParams() {
+  return generateLocaleStaticParams();
+}
+
+export const dynamic = "force-static";
+export const revalidate = 300;
 
 export async function generateMetadata({
   params,
@@ -21,7 +31,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const settings = await ClientAPI.getSettings(locale);
+  const settings = await getCachedSettings(locale);
   const seo = settings?.data[0]?.setting?.seo["about-us"];
 
   return createMetadata(seo, locale, "/about", {
@@ -32,10 +42,12 @@ export async function generateMetadata({
 async function page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const { t } = await initTranslations(locale, ["aboutUs"]);
-  const aboutData = await ClientAPI.getAboutUs(locale);
-  const doctorsData = await ClientAPI.getDoctors(locale);
-  const faqsData = await ClientAPI.getFAQs(locale);
-  const settings = await ClientAPI.getSettings(locale);
+  const [aboutData, doctorsData, faqsData, settings] = await Promise.all([
+    ClientAPI.getAboutUs(locale),
+    ClientAPI.getDoctors(locale),
+    ClientAPI.getFAQs(locale),
+    getCachedSettings(locale),
+  ]);
 
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
     (banner: any) => banner.page === "about-us"&& banner.type === "web"
@@ -74,30 +86,30 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
             {/* This is a placeholder for the AboutAppTwoColumns component which is imported in the original file */}
             <div className="w-full py-8 text-center">
               <AboutAppTwoColumns
-                aboutHomeSection={aboutSection}
+                aboutHomeSection={slimHomeSection(aboutSection, 4)}
                 locale={locale}
               />
             </div>
           </div>
         </div>
 
-        <FeaturesSection data={featuresSection} locale={locale} />
+        <FeaturesSection data={slimHomeSection(featuresSection, 8)} locale={locale} />
         {homeBanners?.length > 0 &&
           homeBanners.map((banner: any, index: number) => (
-            <Bannar key={index} banner={banner} />
+            <Bannar key={index} banner={slimBanner(banner)} />
           ))}
         <DoctorsSection
-          doctorsData={doctorsData?.data}
-          data={doctorsSection}
+          doctorsData={(doctorsData?.data || []).map(slimDoctorCard)}
+          data={slimHomeSection(doctorsSection, 2)}
           locale={locale}
         />
         <FaqSection
           faqsData={faqsData?.data}
-          data={faqSection}
+          data={slimHomeSection(faqSection, 2)}
           locale={locale}
-          settings={settings}
+          settings={slimSettingsForChrome(settings)}
         />
-        <PartnersSection data={partnersSection} locale={locale} />
+        <PartnersSection data={slimHomeSection(partnersSection, 12)} locale={locale} />
       </div>
     </>
   );

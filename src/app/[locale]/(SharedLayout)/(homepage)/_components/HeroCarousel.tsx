@@ -46,16 +46,19 @@ export default function HeroCarousel({
           <SwiperSlide key={`${src}-${i}`}>
             <div className="w-full max-w-[727px] h-[624px]">
               <div className="relative w-full h-full xl:w-[727px] xl:mx-0 mx-auto">
-                <Image
-                  src={src}
-                  alt={alt}
-                  fill
-                  priority={i === 0}
-                  quality={quality}
-                  loading={i === 0 ? "eager" : "lazy"}
-                  sizes="(max-width: 768px) 100vw, 727px"
-                  className="object-cover object-center"
-                />
+                {i === 0 ? (
+                  <div className="h-full w-full" aria-hidden />
+                ) : (
+                  <Image
+                    src={src}
+                    alt={alt}
+                    fill
+                    quality={quality}
+                    loading="lazy"
+                    sizes="(max-width: 768px) 100vw, 727px"
+                    className="object-cover object-center"
+                  />
+                )}
               </div>
             </div>
           </SwiperSlide>

@@ -1,12 +1,14 @@
-import { getCachedHomeData, getCachedSettings } from "@/lib/cached-api";
-import { Footer, Header } from "@/components/Layout";
-import DeferredFloatingContact from "@/components/DeferredFloatingContact";
+import { Suspense } from "react";
+import { notFound } from "next/navigation";
+import { Header } from "@/components/Layout";
+import ChromeFooter from "@/components/Layout/ChromeFooter";
 import { IS_RAMADAN_ACTIVE } from "@/constants/ramadan";
 import { IS_WORLD_CUP_ACTIVE } from "@/constants/world-cup";
 import RamadanBanner, { RamadanBackgroundDecorations } from "@/components/RamadanOverlay";
 import WorldCupAside from "@/components/WorldCupAside";
 import { i18nRouterConfig } from "@/i18nRouterConfig";
-import { redirect } from "next/navigation";
+
+export const dynamicParams = true;
 
 export default async function Layout({
   children,
@@ -18,16 +20,9 @@ export default async function Layout({
   const { locale } = await params;
 
   if (!i18nRouterConfig.locales.includes(locale as "ar" | "en")) {
-    redirect("/notfound/404");
+    notFound();
   }
 
-  const [homeData, settings] = await Promise.all([
-    getCachedHomeData(locale),
-    getCachedSettings(locale),
-  ]);
-  const footerSection = homeData?.data?.sections.find(
-    (section: any) => section?.id === 6
-  );
   return (
     <>
       {IS_WORLD_CUP_ACTIVE && <WorldCupAside />}
@@ -35,9 +30,9 @@ export default async function Layout({
       {IS_RAMADAN_ACTIVE && <RamadanBanner position="top" />}
       {IS_RAMADAN_ACTIVE && <RamadanBackgroundDecorations />}
       {children}
-      {IS_RAMADAN_ACTIVE && <RamadanBanner position="bottom" />}
-      <Footer settings={settings} section={footerSection} locale={locale} />
-      <DeferredFloatingContact settings={settings} locale={locale} />
+      <Suspense fallback={null}>
+        <ChromeFooter locale={locale} />
+      </Suspense>
     </>
   );
 }

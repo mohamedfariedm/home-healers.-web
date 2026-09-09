@@ -19,7 +19,7 @@ function Blogs({ t, data, locale = "ar" }: { t: TFunction; data: ArticleData[]; 
         {
         data?.map((article, index) => (
           <Link
-            href={blogHref(locale, getBlogSlug(article) || String(article?.id || ""))}
+            href={blogHref(locale, getBlogSlug(article, locale) || String(article?.id || ""))}
             key={index}
             className="flex w-full xs:w-[368px] xs:h-[465px] flex-col overflow-hidden items-start shrink-0 flex-nowrap relative z-[5] group"
           >

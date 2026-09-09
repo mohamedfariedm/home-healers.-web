@@ -106,7 +106,7 @@ export default function BlogRelatedSection({
         (isRTL ? "عنوان غير متوفر" : "Untitled"),
       date: formatDate(blog.date),
       image: blog.image?.[0]?.original || "/assets/images/placeholder.jpg",
-      slug: getBlogSlug(blog),
+      slug: getBlogSlug(blog, locale),
     })) ?? [];
 
   // Tags (support both plain strings or localized objects)

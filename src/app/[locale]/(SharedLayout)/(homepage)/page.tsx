@@ -1,27 +1,38 @@
 import { Suspense } from "react";
-import dynamic from "next/dynamic";
-import {
-  AboutApp,
-  Hero,
-  Bannar,
-} from "./_components";
-import ClientAPI from "../../../api/api";
+import nextDynamic from "next/dynamic";
+import { AboutApp, Bannar } from "./_components";
+import Hero from "./_components/Hero";
+import { getHeroImageUrls } from "@/lib/image-url";
 import { createMetadata } from "@/lib/seo";
 import { createBreadcrumbSchema, renderJsonLd } from "@/lib/structured-data";
-import { getCachedHomeData, getCachedSettings } from "@/lib/cached-api";
-import { getHeroImageUrls } from "@/lib/image-url";
+import {
+  getCachedCategories,
+  getCachedHomeData,
+  getCachedSettings,
+} from "@/lib/cached-api";
+import {
+  slimBanner,
+  slimCategoryCard,
+  slimHomeSection,
+} from "@/lib/public-payload";
 import {
   DeferredClientReviews,
   DeferredOurStory,
   DeferredOffers,
   DeferredReservationReviews,
 } from "./_components/DeferredSections";
+import { generateLocaleStaticParams } from "@/lib/static-pages";
 
-const BeCloser = dynamic(() => import("./_components/BeCloser"));
-const DownloadApp = dynamic(() => import("./_components/DownloadApp"));
-const Card = dynamic(() => import("./_components/Card"));
+export function generateStaticParams() {
+  return generateLocaleStaticParams();
+}
 
+export const dynamic = "force-static";
 export const revalidate = 300;
+
+const BeCloser = nextDynamic(() => import("./_components/BeCloser"));
+const DownloadApp = nextDynamic(() => import("./_components/DownloadApp"));
+const Card = nextDynamic(() => import("./_components/Card"));
 
 export async function generateMetadata({
   params,
@@ -45,19 +56,12 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
   const [homeData, settings, categoriesData] = await Promise.all([
     getCachedHomeData(locale),
     getCachedSettings(locale),
-    ClientAPI.getCategories(locale),
+    getCachedCategories(locale),
   ]);
-
-  console.log(
-    "[Homepage Categories API Response]",
-    JSON.stringify(categoriesData, null, 2),
-  );
 
   const heroSection = homeData?.data?.sections?.find(
     (section: { id: number }) => section?.id === 12,
   );
-  const heroImages = getHeroImageUrls(heroSection?.Posts?.[0]?.attachment);
-  const heroImage = heroImages[0];
   const aboutAppSection = homeData?.data?.sections?.find(
     (section: { id: number }) => section?.id === 1,
   );
@@ -89,9 +93,6 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
 
   return (
     <div className="main-container w-full xl:w-[1440px] bg-[#fff] relative overflow-hidden mx-auto my-0">
-      {heroImage ? (
-        <link rel="preload" as="image" href={heroImage} fetchPriority="high" />
-      ) : null}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: renderJsonLd(breadcrumbSchema) }}
@@ -101,22 +102,34 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
           {seo?.[locale]?.title}
         </h1>
         <div className="w-full xl:w-[1440px] h-[1px] bg-[#fff] relative shadow-[0_1px_2px_0_rgba(16,24,40,0.06)] mt-0 mr-0 mb-0 ml-0" />
-        <Hero locale={locale} section={heroSection} />
+        <Hero
+          locale={locale}
+          section={{
+            ...heroSection,
+            Posts: (heroSection?.Posts || []).map((post: any) => ({
+              ...post,
+              attachment: getHeroImageUrls(post.attachment, "").map((original) => ({
+                original,
+                thumbnail: original,
+              })),
+            })),
+          }}
+        />
         <AboutApp
           locale={locale}
-          data={categoriesData?.data}
-          aboutHomeSection={aboutHomeSection}
-          section={aboutAppSection}
+          data={(categoriesData?.data || []).slice(0, 6).map(slimCategoryCard)}
+          aboutHomeSection={slimHomeSection(aboutHomeSection, 4)}
+          section={slimHomeSection(aboutAppSection, 1)}
         />
-        <BeCloser locale={locale} section={beCloserSection} />
-        <DownloadApp section={downloadAppSection} locale={locale} />
+        <BeCloser locale={locale} section={slimHomeSection(beCloserSection, 6)} />
+        <DownloadApp section={slimHomeSection(downloadAppSection, 1)} locale={locale} />
         <Suspense fallback={null}>
           <DeferredOffers locale={locale} />
         </Suspense>
         {homeBanners?.length > 0 &&
           homeBanners.map(
             (banner: { id?: number }, index: number) => (
-              <Bannar key={banner.id ?? index} banner={banner} />
+              <Bannar key={banner.id ?? index} banner={slimBanner(banner)} />
             ),
           )}
         <Suspense fallback={null}>
@@ -128,7 +141,7 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
         <Suspense fallback={null}>
           <DeferredReservationReviews locale={locale} />
         </Suspense>
-        <Card locale={locale} section={cardSection} />
+        <Card locale={locale} section={slimHomeSection(cardSection, 8)} />
       </div>
     </div>
   );

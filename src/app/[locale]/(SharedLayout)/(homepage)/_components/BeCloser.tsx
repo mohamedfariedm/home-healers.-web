@@ -3,6 +3,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { toSecureMediaUrl } from "@/lib/image-url";
 
 function BeCloser({ locale, section }: { locale: string; section: any }) {
   return (
@@ -62,7 +63,8 @@ function BeCloser({ locale, section }: { locale: string; section: any }) {
                 className="w-full md:w-[140px] h-[280px] md:h-auto bg-cover bg-center"
                 style={{
                   backgroundImage: `url(${
-                    post.attachment?.[0]?.original || "/default-image.svg"
+                    toSecureMediaUrl(post.attachment?.[0]?.original) ||
+                    "/assets/images/homehellers/Injury.svg"
                   })`,
                 }}
               />

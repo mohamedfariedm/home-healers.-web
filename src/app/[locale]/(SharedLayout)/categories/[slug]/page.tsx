@@ -22,8 +22,6 @@ import type { Category } from "@/types/booking";
 import { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
 async function loadCategory(locale: string, key: string) {
   const decoded = decodeURIComponent(key);
   const res = await getCachedCategory(locale, decoded);

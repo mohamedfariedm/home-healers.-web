@@ -1,17 +1,18 @@
 import Link from "next/link";
 import Image from "next/image";
-import dynamic from "next/dynamic";
+import { preload } from "react-dom";
 import { Star, ArrowLeft } from "lucide-react";
-
-const HeroCarousel = dynamic(() => import("./HeroCarousel"));
+import { getHeroImageUrls } from "@/lib/image-url";
+import HeroCarousel from "./HeroCarousel";
 
 const HERO_IMAGE_QUALITY = 90;
 
 function Hero({ locale, section }: { locale: string; section: any }) {
   const post = section?.Posts?.[0];
-  const heroImages =
-    post?.attachment?.map((att: { original: string }) => att.original) ||
-    ["/assets/images/homehellers/hero.svg"];
+  const heroImages = getHeroImageUrls(post?.attachment);
+  if (heroImages[0]) {
+    preload(heroImages[0], { as: "image", fetchPriority: "high" });
+  }
   const alt =
     post?.title || "Physical therapy and rehabilitation services";
   const bookingHref = `${locale === "ar" ? "" : "/en"}/booking`;
@@ -64,27 +65,26 @@ function Hero({ locale, section }: { locale: string; section: any }) {
         </div>
 
         <div className="w-full xl:w-auto z-10 max-w-[727px]">
-          {heroImages.length > 1 ? (
-            <HeroCarousel
-              images={heroImages}
+          <div className="relative w-full max-w-[727px] h-[624px] xl:w-[727px] xl:mx-0 mx-auto">
+            <Image
+              src={heroImages[0]}
               alt={alt}
+              fill
+              priority
               quality={HERO_IMAGE_QUALITY}
+              sizes="(max-width: 768px) 100vw, 727px"
+              className="object-cover object-center"
             />
-          ) : (
-            <div className="w-full max-w-[727px] h-[624px]">
-              <div className="relative w-full h-full xl:w-[727px] xl:mx-0 mx-auto">
-                <Image
-                  src={heroImages[0]}
+            {heroImages.length > 1 ? (
+              <div className="absolute inset-0">
+                <HeroCarousel
+                  images={heroImages}
                   alt={alt}
-                  fill
-                  priority
                   quality={HERO_IMAGE_QUALITY}
-                  sizes="(max-width: 768px) 100vw, 727px"
-                  className="object-cover object-center"
                 />
               </div>
-            </div>
-          )}
+            ) : null}
+          </div>
         </div>
       </div>
     </div>

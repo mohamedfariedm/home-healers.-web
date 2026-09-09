@@ -43,7 +43,11 @@ function DownloadApp({ section, locale }: { section: any; locale: string }) {
           >
             <img
               src="/assets/images/homehellers/Elements1.svg"
-              alt="Background shape"
+              alt=""
+              width={640}
+              height={640}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover"
             />
           </motion.div>
@@ -64,6 +68,10 @@ function DownloadApp({ section, locale }: { section: any; locale: string }) {
             <img
               src="/assets/images/homehellers/landing_page_01.svg"
               alt="App screenshot"
+              width={448}
+              height={560}
+              loading="lazy"
+              decoding="async"
               className="w-full max-w-xs lg:max-w-md mx-auto lg:mx-8 h-auto object-contain"
             />
           </motion.div>

@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { toast } from "sonner";
 import Link from "next/link";
+import { blogHref } from "@/lib/slugs";
 
 // ---- Simple i18n dictionary ----
 const dict = {
@@ -234,7 +235,7 @@ export default function BlogRelatedSection({
               index: number
             ) => (
               <Link
-                href={`${locale === "ar" ? "" : "/en"}/blog/${slug}`}
+                href={blogHref(locale, slug)}
                 key={`${slug}-${index}`}
               >
                 <motion.div

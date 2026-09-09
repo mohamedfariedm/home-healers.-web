@@ -8,10 +8,12 @@ export default function BlogList({
   blogs,
   className,
   t,
+  locale = "ar",
 }: {
   blogs: IBlog[];
   className?: string;
   t?: TFunction;
+  locale?: string;
 }) {
   return (
     <div
@@ -21,7 +23,7 @@ export default function BlogList({
       )}
     >
       {blogs?.length ? (
-        blogs.map((blog) => <BlogCard key={blog.id} blog={blog} t={t} />)
+        blogs.map((blog) => <BlogCard key={blog.id} blog={blog} t={t} locale={locale} />)
       ) : (
         <NoItemsFound items="posts" />
       )}

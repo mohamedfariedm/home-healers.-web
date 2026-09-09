@@ -4,7 +4,7 @@ import BlogLeadForm from "./_components/BlogLeadForm";
 import ClientAPI from "@/app/api/api";
 import {
   buildCanonicalUrl,
-  buildLanguageAlternates,
+  buildLocalizedSlugAlternates,
   createMetadata,
 } from "@/lib/seo";
 import { getCachedSingleBlog } from "@/lib/cached-api";
@@ -15,8 +15,6 @@ import {
   unwrapDetail,
 } from "@/lib/slugs";
 import { notFound, permanentRedirect } from "next/navigation";
-
-export const dynamic = "force-dynamic";
 
 async function loadBlog(locale: string, param: string) {
   const decoded = decodeURIComponent(param);
@@ -56,7 +54,7 @@ export async function generateMetadata({
   const seo = settings?.data?.[0]?.setting?.seo?.["blogs"];
   const loaded = await loadBlog(locale, blogID);
   const data = loaded?.data;
-  const blogSlug = getBlogSlug(data) || decodeURIComponent(blogID);
+  const blogSlug = getBlogSlug(data, locale) || decodeURIComponent(blogID);
   const path = `/blog/${encodeURIComponent(blogSlug)}`;
   const canonical = buildCanonicalUrl(locale, path);
   const title =
@@ -79,7 +77,7 @@ export async function generateMetadata({
     description: description || baseMeta.description,
     alternates: {
       canonical,
-      languages: buildLanguageAlternates(path),
+      languages: buildLocalizedSlugAlternates("/blog", data?.slug, blogSlug),
     },
   };
 }
@@ -97,7 +95,7 @@ async function page({
     notFound();
   }
 
-  const blogSlug = getBlogSlug(loaded.data);
+  const blogSlug = getBlogSlug(loaded.data, locale);
   if (blogSlug && (loaded.fromId || blogSlug !== loaded.requested)) {
     permanentRedirect(blogHref(locale, blogSlug));
   }

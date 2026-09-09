@@ -13,20 +13,22 @@ import { TFunction } from "i18next";
 import Image from "next/image";
 import Link from "next/link";
 import { FiArrowUpRight } from "react-icons/fi";
-import { getBlogSlug } from "@/lib/slugs";
+import { blogHref, getBlogSlug } from "@/lib/slugs";
 
 export default function BlogCard({
   blog,
   main,
   t,
+  locale = "ar",
 }: {
   blog: IBlog;
   main?: boolean;
   t?: TFunction;
+  locale?: string;
 }) {
   return (
     <Link
-      href={`/blog/${encodeURIComponent(getBlogSlug(blog) || String(blog?.id || ""))}`}
+      href={blogHref(locale, getBlogSlug(blog, locale) || String(blog?.id || ""))}
       className={cn("w-full justify-self-center ", !main && "max-w-[450px]")}
     >
       <Card

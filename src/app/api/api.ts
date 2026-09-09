@@ -40,13 +40,19 @@ const fetchData = async (endpoint: string, locale: string, params: Record<string
 
     const method = params.method || "GET";
     const isMutation = method === "POST" || method === "PUT" || method === "DELETE";
+    const bypassCache =
+      isMutation ||
+      params.requiresAuth ||
+      params.authToken ||
+      params.noCache ||
+      params.cache === "no-store";
 
     const fetchOptions: RequestInit = {
       method,
       headers,
-      ...(isMutation || params.noCache
-        ? { cache: "no-store" }
-        : { next: { revalidate: params.revalidate ?? 60 } }),
+      ...(bypassCache
+        ? { cache: "no-store" as const }
+        : { next: { revalidate: params.revalidate ?? 300 } }),
     };
 
     if (params.signal) {
@@ -130,7 +136,7 @@ const ClientAPI = {
   getPackages: (
     locale: string,
     query: OffersListQuery = {},
-    options?: { signal?: AbortSignal; revalidate?: number; noCache?: boolean },
+    options?: { signal?: AbortSignal },
   ) => {
     const params = compactQuery(query as Record<string, unknown>);
     if (params.limit != null && Number(params.limit) > 100) {
@@ -139,25 +145,20 @@ const ClientAPI = {
     return fetchData("client/packages", locale, {
       params,
       signal: options?.signal,
-      revalidate:
-        options?.revalidate ?? (query.type === "offer" ? 300 : 60),
-      noCache: options?.noCache,
     });
   },
 
   getPackageById: (id: string | number, locale: string) =>
-    fetchData(`client/packages/${id}`, locale, { revalidate: 300 }),
+    fetchData(`client/packages/${id}`, locale),
 
   getOfferBySlug: (slug: string, locale: string) =>
-    fetchData(`client/offers/${encodeURIComponent(slug)}`, locale, {
-      revalidate: 300,
-    }),
+    fetchData(`client/offers/${encodeURIComponent(slug)}`, locale),
 
   getFeaturedPackage: (locale: string) =>
-    fetchData("client/packages-featured", locale, { revalidate: 300 }),
+    fetchData("client/packages-featured", locale),
 
   getRelatedPackages: (id: string | number, locale: string) =>
-    fetchData(`client/packages/${id}/related`, locale, { revalidate: 300 }),
+    fetchData(`client/packages/${id}/related`, locale),
 
   toggleFavorite: (
     packageId: number,

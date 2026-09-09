@@ -12,6 +12,7 @@ import {
   getBlogSlug,
   getNewsTitle,
 } from "@/lib/slugs";
+import { toSecureMediaUrl } from "@/lib/image-url";
 
 export default function OurStory({
   locale,
@@ -70,7 +71,7 @@ export default function OurStory({
       {featuredArticle && (
         <Link
           className="hover:scale-105 transition-all duration-500 block"
-          href={blogHref(locale, getBlogSlug(featuredArticle))}
+          href={blogHref(locale, getBlogSlug(featuredArticle, locale))}
         >
           <motion.div
             className="mt-12 bg-[#eff6fe] rounded-3xl overflow-hidden flex flex-col lg:flex-row gap-6 p-6 cursor-pointer hover:shadow-xl transition"
@@ -83,7 +84,7 @@ export default function OurStory({
               className="w-full lg:w-[360px] h-[260px] lg:h-[360px] bg-cover bg-center rounded-2xl"
               style={{
                 backgroundImage: `url(${
-                  featuredArticle.image?.[0]?.original ||
+                  toSecureMediaUrl(featuredArticle.image?.[0]?.original) ||
                   "/assets/images/placeholder.jpg"
                 })`,
               }}
@@ -111,7 +112,7 @@ export default function OurStory({
           <Link
             className="hover:scale-105 transition-all duration-500"
             key={article.id}
-            href={blogHref(locale, getBlogSlug(article))}
+            href={blogHref(locale, getBlogSlug(article, locale))}
           >
             <motion.div
               className="bg-[#eff6fe] rounded-2xl p-5 h-full flex flex-col justify-between hover:shadow-md hover:scale-105 transition-all duration-500 "
@@ -124,7 +125,7 @@ export default function OurStory({
                 className="w-full h-[200px] bg-cover bg-center rounded-xl mb-4"
                 style={{
                   backgroundImage: `url(${
-                    article.image?.[0]?.original ||
+                    toSecureMediaUrl(article.image?.[0]?.original) ||
                     "/assets/images/placeholder.jpg"
                   })`,
                 }}

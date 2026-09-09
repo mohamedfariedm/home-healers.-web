@@ -269,7 +269,7 @@ export default function LandingSlider({
         );
 
       case "blogs": {
-        const blogSlug = getBlogSlug(item) || String(item.id || "");
+        const blogSlug = getBlogSlug(item, locale) || String(item.id || "");
         const blogTitle = getNewsTitle(item, locale) || item.title || "";
         
         // Get and clean description (strip HTML tags for preview)

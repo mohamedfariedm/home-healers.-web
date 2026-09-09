@@ -2,7 +2,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { CreditCard, Receipt, Tag, Gift, Check, Banknote, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useSession } from "next-auth/react";
 import type { BookingData } from "@/types/booking";
 import { toast } from "sonner";
 import ClientAPI from "@/app/api/api";
@@ -37,8 +36,7 @@ export default function Step5Payment({
   isLoading,
 }: Step5Props) {
   const { t, i18n } = useTranslation("booking");
-  const { data: session } = useSession();
-  const authToken = session?.user?.id;
+  const authToken = undefined;
 
   const [couponInput, setCouponInput] = useState("");
   const [couponError, setCouponError] = useState("");

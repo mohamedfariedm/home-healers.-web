@@ -45,13 +45,15 @@ export type OfferDoctor = {
   name: string;
 };
 
+export type LocalizedSlug = string | { en?: string; ar?: string } | null;
+
 export type OfferCategory = Pick<Category, "id" | "name"> & {
-  slug?: string | null;
+  slug?: LocalizedSlug;
 };
 
 export type OfferCard = OfferBadgeFlags & {
   id: number;
-  slug?: string | null;
+  slug?: LocalizedSlug;
   name: string;
   short_description?: string | null;
   image?: OfferImage;

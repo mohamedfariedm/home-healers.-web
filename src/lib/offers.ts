@@ -6,6 +6,7 @@ import type {
   OffersListQuery,
   OffersPaginator,
 } from "@/types/offers";
+import { toSecureMediaUrl } from "@/lib/image-url";
 
 export const DEFAULT_OFFER_OG_IMAGE = "/assets/images/logo2.svg";
 export const OFFERS_REVALIDATE_SECONDS = 300;
@@ -24,11 +25,20 @@ export function localePath(locale: string, path = ""): string {
 
 export function offerHref(
   locale: string,
-  slug?: string | null,
+  slug?: unknown,
   hash?: string,
 ) {
-  if (!slug) return localePath(locale, OFFERS_WEBSITE_BASE_PATH);
-  const path = `${OFFERS_WEBSITE_BASE_PATH}/${encodeURIComponent(slug)}`;
+  const resolved =
+    slug && typeof slug === "object"
+      ? ((slug as Record<string, string>)[locale] ||
+        (slug as Record<string, string>).en ||
+        (slug as Record<string, string>).ar ||
+        "")
+      : typeof slug === "string"
+        ? slug
+        : "";
+  if (!resolved) return localePath(locale, OFFERS_WEBSITE_BASE_PATH);
+  const path = `${OFFERS_WEBSITE_BASE_PATH}/${encodeURIComponent(resolved)}`;
   return `${localePath(locale, path)}${hash ? `#${hash}` : ""}`;
 }
 
@@ -71,14 +81,14 @@ export function resolveOfferImageUrl(
   fallback = "",
 ): string {
   if (!image) return fallback;
-  if (typeof image === "string") return image || fallback;
+  if (typeof image === "string") return toSecureMediaUrl(image) || fallback;
   if (Array.isArray(image)) return resolveOfferImageUrl(image[0], fallback);
-  return (
+  return toSecureMediaUrl(
     image.original ||
-    image.converted ||
-    image.thumbnail ||
-    image.url ||
-    fallback
+      image.converted ||
+      image.thumbnail ||
+      image.url ||
+      fallback,
   );
 }
 

@@ -12,6 +12,7 @@ async function Header({ locale }: { locale: string }) {
         <div className="relative z-[100] flex w-full items-center justify-between gap-3 lg:gap-4 xl:gap-6">
           <Link
             href={`/${locale === "ar" ? "" : "en"}`}
+            aria-label={locale === "ar" ? "هوم هيلرز" : "Home Healers"}
             className="relative z-[38] flex shrink-0 items-center gap-2 sm:gap-3"
           >
             <div className="relative z-40 h-10 w-[22px] shrink-0 bg-[url(/assets/images/layout/header-logo-symbol.svg)] bg-[length:100%_100%] bg-no-repeat sm:h-[52px] sm:w-[36px] lg:h-[64px] lg:w-[48px] xl:h-[72px] xl:w-[57px]" />

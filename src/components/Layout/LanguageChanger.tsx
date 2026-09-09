@@ -6,13 +6,16 @@ import { useTranslation } from "react-i18next"
 import { motion } from "framer-motion"
 import ClientAPI from "@/app/api/api"
 import {
+  blogHref,
   categoryHref,
   getBlogSlug,
   getCategorySlug,
+  getOfferSlug,
   getServiceSlug,
   serviceHref,
   unwrapDetail,
 } from "@/lib/slugs"
+import { offerHref, one } from "@/lib/offers"
 
 export default function LanguageChanger() {
   const { i18n } = useTranslation()
@@ -43,9 +46,27 @@ export default function LanguageChanger() {
           currentLocale,
         )
         const blog = unwrapDetail<{ slug?: unknown }>(res)
-        const translated = getBlogSlug(blog)
+        const translated = getBlogSlug(blog, newLocale)
         if (translated) {
-          newPath = `/blog/${encodeURIComponent(translated)}`
+          newPath = blogHref(newLocale, translated)
+          i18n.changeLanguage(newLocale)
+          router.push(newPath)
+          setDropdownOpen(false)
+          return
+        }
+      } else if (pathParts[0] === "offers" && pathParts[1]) {
+        const res = await ClientAPI.getOfferBySlug(
+          decodeURIComponent(pathParts[1]),
+          currentLocale,
+        )
+        const offer = one<{ slug?: unknown }>(res)
+        const translated = getOfferSlug(offer, newLocale)
+        if (translated) {
+          newPath = offerHref(newLocale, translated)
+          i18n.changeLanguage(newLocale)
+          router.push(newPath)
+          setDropdownOpen(false)
+          return
         }
       } else if (pathParts[0] === "our-services" && pathParts[1]) {
         const currentServiceSlug = decodeURIComponent(pathParts[1])

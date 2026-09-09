@@ -2,11 +2,17 @@ import initTranslations from "@/app/i18n";
 import React from "react";
 import ContactSection from "./_components/ContactForm";
 import MapComponent from "./_components/MapComponent";
-import ClientAPI from "@/app/api/api";
 import { Bannar } from "../(homepage)/_components";
 import { createMetadata } from "@/lib/seo";
-export const dynamic = "force-dynamic";
+import { generateLocaleStaticParams } from "@/lib/static-pages";
+import { getCachedSettings } from "@/lib/cached-api";
 
+export function generateStaticParams() {
+  return generateLocaleStaticParams();
+}
+
+export const dynamic = "force-static";
+export const revalidate = 300;
 export async function generateMetadata({
   params,
 }: {
@@ -14,7 +20,7 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const { t } = await initTranslations(locale, ["homepage"]);
-  const settings = await ClientAPI.getSettings(locale);
+  const settings = await getCachedSettings(locale);
   const seo = settings?.data[0]?.setting?.seo["contact"];
 
   return createMetadata(seo, locale, "/contact", {
@@ -25,7 +31,7 @@ export async function generateMetadata({
 async function page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const { t } = await initTranslations(locale, ["contactUs"]);
-  const settings = await ClientAPI.getSettings(locale);
+  const settings = await getCachedSettings(locale);
 
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
     (banner: any) => banner.page === "contact"&& banner.type === "web"

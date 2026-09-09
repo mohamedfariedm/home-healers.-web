@@ -69,6 +69,8 @@ const BlogAnimationSection = ({
   const goNext = () => setActivePage((p) => Math.min(totalPages, p + 1));
 
   const formatDate = (dateString: string) => formatApiDate(dateString, locale);
+  const formatPage = (page: number) =>
+    page.toLocaleString(isRTL ? "ar-EG" : "en-US");
 
   // Strip HTML for teaser text
   const truncateDescription = (html: string, maxLength: number = 120) => {
@@ -103,7 +105,7 @@ const BlogAnimationSection = ({
           }`}
         >
           {currentCards.map((card: any) => {
-            const href = blogHref(locale, getBlogSlug(card));
+            const href = blogHref(locale, getBlogSlug(card, locale));
             const title = getNewsTitle(card, locale);
             const img =
               card?.image?.[0]?.original || "/assets/images/placeholder.jpg";
@@ -167,22 +169,15 @@ const BlogAnimationSection = ({
           transition={{ duration: 0.6, ease: "easeOut" }}
           dir={isRTL ? "rtl" : "ltr"}
         >
-          <div
-            className={`flex items-center gap-6 select-none ${
-              isRTL ? "flex-row-reverse" : ""
-            }`}
-          >
-            {/* Prev */}
+          <div className="flex items-center gap-6 select-none">
             <motion.button
               onClick={goPrev}
               disabled={activePage === 1}
               aria-label={t.prev}
               aria-disabled={activePage === 1}
-              className={`p-2 rounded-full text-[#143087] disabled:opacity-40 disabled:cursor-not-allowed 
-                          hover:scale-110 transition-transform`}
+              className="p-2 rounded-full text-[#143087] disabled:opacity-40 disabled:cursor-not-allowed hover:scale-110 transition-transform"
               type="button"
             >
-              {/* For RTL, previous means pointing right */}
               {isRTL ? (
                 <ChevronRight size={28} strokeWidth={2} />
               ) : (
@@ -190,24 +185,18 @@ const BlogAnimationSection = ({
               )}
             </motion.button>
 
-            {/* Page Numbers */}
-            <div
-              className={`flex items-center rounded-full ${
-                isRTL ? "flex-row-reverse" : ""
-              } gap-6`}
-            >
+            <div className="flex items-center gap-6">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                 (page) => {
                   const isActive = page === activePage;
-                  // show first, last, and neighbors
                   const withinWindow =
                     page === 1 ||
                     page === totalPages ||
                     (page >= activePage - 1 && page <= activePage + 1);
 
-                  const showEllipsisLeft =
+                  const showEllipsisBefore =
                     page === activePage - 2 && activePage > 3;
-                  const showEllipsisRight =
+                  const showEllipsisAfter =
                     page === activePage + 2 && activePage < totalPages - 2;
 
                   if (withinWindow) {
@@ -223,10 +212,11 @@ const BlogAnimationSection = ({
                         className="text-xs font-medium cursor-pointer"
                         type="button"
                       >
-                        {page}
+                        {formatPage(page)}
                       </motion.button>
                     );
-                  } else if (showEllipsisLeft || showEllipsisRight) {
+                  }
+                  if (showEllipsisBefore || showEllipsisAfter) {
                     return (
                       <span
                         key={`ellipsis-${page}`}
@@ -241,17 +231,14 @@ const BlogAnimationSection = ({
               )}
             </div>
 
-            {/* Next */}
             <motion.button
               onClick={goNext}
               disabled={activePage === totalPages}
               aria-label={t.next}
               aria-disabled={activePage === totalPages}
-              className={`p-2 rounded-full text-[#143087] disabled:opacity-40 disabled:cursor-not-allowed 
-                          hover:scale-110 transition-transform`}
+              className="p-2 rounded-full text-[#143087] disabled:opacity-40 disabled:cursor-not-allowed hover:scale-110 transition-transform"
               type="button"
             >
-              {/* For RTL, next means pointing left */}
               {isRTL ? (
                 <ChevronLeft size={28} strokeWidth={2} />
               ) : (

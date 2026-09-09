@@ -83,16 +83,16 @@ async function Page({
         </h1>
       ) : null}
       <BookingFlow
-        locale={locale}
-        doctorsData={doctorsData}
-        servicesData={servicesData}
-        packagesData={packagesData}
-        categoriesData={categoriesData}
-        countriesData={countriesData}
-        statesData={statesData}
-        citiesData={citiesData}
-        nationalitiesData={nationalitiesData}
-      />
+          locale={locale}
+          doctorsData={doctorsData}
+          servicesData={servicesData}
+          packagesData={packagesData}
+          categoriesData={categoriesData}
+          countriesData={countriesData}
+          statesData={statesData}
+          citiesData={citiesData}
+          nationalitiesData={nationalitiesData}
+        />
     </Suspense>
   );
 }

@@ -2,11 +2,21 @@ import initTranslations from "@/app/i18n";
 import ClientComponentsTranslationsProvider from "./client-components-translations-provider";
 import ThemeProvider from "./theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import ClientComponentsAuthSessionProvider from "./client-components-auth-session-provider";
 import { RamadanProvider } from "./ramadan-provider";
 import { IS_RAMADAN_ACTIVE } from "@/constants/ramadan";
 
-const i18nNamespaces = [ "homepage", "common", "contactUs", "blog", "complaints","products","faq","expo","doctor-apply","booking","review","invite-doctor","offers"];
+const i18nNamespaces = [
+  "common",
+  "homepage",
+  "offers",
+  "aboutUs",
+  "contactUs",
+  "blog",
+  "booking",
+  "doctor-apply",
+  "invite-doctor",
+  "review",
+];
 
 export default async function GlobalProvider({
   children,
@@ -32,9 +42,7 @@ export default async function GlobalProvider({
             locale={locale}
             resources={resources}
           >
-            <ClientComponentsAuthSessionProvider>
-              {children}
-            </ClientComponentsAuthSessionProvider>
+            {children}
             <Toaster />
           </ClientComponentsTranslationsProvider>
         </RamadanProvider>

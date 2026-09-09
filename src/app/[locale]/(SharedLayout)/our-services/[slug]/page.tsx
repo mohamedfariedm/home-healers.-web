@@ -17,8 +17,6 @@ import type { Service } from "@/types/booking";
 import { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
 async function loadService(locale: string, slug: string) {
   const decoded = decodeURIComponent(slug);
   const res = await getCachedServiceBySlug(locale, decoded);

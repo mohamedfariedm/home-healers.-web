@@ -2,17 +2,21 @@ import { localePath } from "@/lib/offers";
 
 export type LocaleCode = "ar" | "en";
 
-/** Category slug is `{ en, ar }` — pick the active locale key. */
-export function getCategorySlug(
-  category: { slug?: unknown } | null | undefined,
-  locale: string,
-): string {
-  const slug = category?.slug;
+/** Pick `slug[locale]` from `{ en, ar }` or return a plain string slug. */
+export function pickLocalizedSlug(slug: unknown, locale: string): string {
   if (slug && typeof slug === "object") {
     const record = slug as Record<string, string>;
     return record[locale] || record.en || record.ar || "";
   }
   return typeof slug === "string" ? slug : "";
+}
+
+/** Category slug is `{ en, ar }` — pick the active locale key. */
+export function getCategorySlug(
+  category: { slug?: unknown } | null | undefined,
+  locale: string,
+): string {
+  return pickLocalizedSlug(category?.slug, locale);
 }
 
 /** Service slug is `{ en, ar }` — pick the active locale key. */
@@ -20,24 +24,23 @@ export function getServiceSlug(
   service: { slug?: unknown } | null | undefined,
   locale: string,
 ): string {
-  const slug = service?.slug;
-  if (slug && typeof slug === "object") {
-    const record = slug as Record<string, string>;
-    return record[locale] || record.en || record.ar || "";
-  }
-  return typeof slug === "string" ? slug : "";
+  return pickLocalizedSlug(service?.slug, locale);
 }
 
-/** Blog slug is English in both keys — always read `.en`. */
+/** Blog slug is `{ en, ar }` — pick the active locale key. */
 export function getBlogSlug(
   news: { slug?: unknown } | null | undefined,
+  locale: string,
 ): string {
-  const slug = news?.slug;
-  if (slug && typeof slug === "object") {
-    const record = slug as Record<string, string>;
-    return record.en || record.ar || "";
-  }
-  return typeof slug === "string" ? slug : "";
+  return pickLocalizedSlug(news?.slug, locale);
+}
+
+/** Offer slug may be a string or `{ en, ar }`. */
+export function getOfferSlug(
+  offer: { slug?: unknown } | null | undefined,
+  locale: string,
+): string {
+  return pickLocalizedSlug(offer?.slug, locale);
 }
 
 /**

@@ -1,11 +1,8 @@
 "use client";
-// @ts-ignore
-import confetti from "canvas-confetti";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import ClientAPI from "@/app/api/api";
 import {
   Twitter,
   Facebook,
@@ -175,7 +172,8 @@ const animationVariants = {
   },
 };
 
-const fireCelebration = () => {
+const fireCelebration = async () => {
+  const { default: confetti } = await import("canvas-confetti");
   const duration = 1500;
   const end = Date.now() + duration;
 
@@ -205,7 +203,6 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
   const t =
     translations[locale as keyof typeof translations] || translations.ar;
   const isRTL = locale === "ar";
-  console.log({settings});
   // Extract dynamic content from settings
   const settingsData = settings?.data?.[0]?.setting;
   const socialMedia = settingsData?.social || {};
@@ -834,8 +831,8 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     whileHover="hover"
                     aria-label={
                       locale === "ar"
-                        ? "راسلنا عبر البريد الإلكتروني"
-                        : "Send us an email"
+                        ? `راسلنا عبر البريد الإلكتروني ${businessEmail}`
+                        : `Email ${businessEmail}`
                     }
                   >
                     <div className="w-6 h-6 flex-shrink-0">
@@ -852,7 +849,11 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     className="flex gap-3 justify-start items-center hover:text-[#62a0f6] transition-colors"
                     variants={animationVariants.link}
                     whileHover="hover"
-                    aria-label={locale === "ar" ? "اتصل بنا" : "Call us"}
+                    aria-label={
+                      locale === "ar"
+                        ? `اتصل بنا ${contactPhone}`
+                        : `Call ${contactPhone}`
+                    }
                   >
                     <div className="w-6 h-6 flex-shrink-0">
                       <div className="w-5 h-5 bg-[url(/assets/images/layout/footer-phone-icon.svg)] bg-cover bg-no-repeat mt-0.5 ml-0.5" />

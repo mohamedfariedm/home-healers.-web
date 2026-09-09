@@ -4,14 +4,16 @@ import { CopyToClipboard } from "@/components/sub";
 import { Button } from "@/components/ui/button";
 import { FaXTwitter, FaFacebook, FaLinkedin } from "react-icons/fa6";
 import { cn } from "@/lib/utils";
-import { getBlogSlug } from "@/lib/slugs";
+import { blogHref, getBlogSlug } from "@/lib/slugs";
 
 function BlogDetailsFooter({
   blog,
   className,
+  locale = "ar",
 }: {
   blog: IBlog;
   className?: string;
+  locale?: string;
 }) {
   return (
     <div
@@ -35,7 +37,7 @@ function BlogDetailsFooter({
         </div>
       </div>
       <div className="flex gap-3">
-        <CopyToClipboard value={`${process.env.NEXT_PUBLIC_APP_URL!}/blog/${encodeURIComponent(getBlogSlug(blog) || String(blog?.id || ""))}`} />
+        <CopyToClipboard value={`${process.env.NEXT_PUBLIC_APP_URL!}${blogHref(locale, getBlogSlug(blog, locale) || String(blog?.id || ""))}`} />
         <Button
           //onClick={handleCopy}
           variant={"secondary"}

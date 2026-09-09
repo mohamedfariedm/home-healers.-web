@@ -1,8 +1,9 @@
-import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
 import { CategoriesGrid } from "@/components/Categories";
 import { Bannar } from "../(homepage)/_components";
 import { createMetadata } from "@/lib/seo";
+import { getCachedCategories, getCachedSettings } from "@/lib/cached-api";
+import { slimBanner, slimCategoryCard } from "@/lib/public-payload";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const settings = await ClientAPI.getSettings(locale);
+  const settings = await getCachedSettings(locale);
   const seo = settings?.data[0]?.setting?.seo?.["categories"];
 
   return createMetadata(seo, locale, "/categories", {
@@ -28,13 +29,10 @@ export default async function CategoriesPage({
 }) {
   const { locale } = await params;
   const { t } = await initTranslations(locale, ["common"]);
-  const categoriesData = await ClientAPI.getCategories(locale);
-  const settings = await ClientAPI.getSettings(locale);
-
-  console.log(
-    "[Categories Page API Response]",
-    JSON.stringify(categoriesData, null, 2),
-  );
+  const [categoriesData, settings] = await Promise.all([
+    getCachedCategories(locale),
+    getCachedSettings(locale),
+  ]);
 
   const seo = settings?.data[0]?.setting?.seo["categories"];
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
@@ -87,13 +85,13 @@ export default async function CategoriesPage({
       <div className="max-w-screen-xl mx-auto px-4 py-12">
         <CategoriesGrid
           locale={locale}
-          categories={categoriesData?.data || []}
+          categories={(categoriesData?.data || []).map(slimCategoryCard)}
         />
       </div>
 
       {homeBanners?.length > 0 &&
         homeBanners.map((banner: { id?: number }, index: number) => (
-          <Bannar key={banner.id ?? index} banner={banner} />
+          <Bannar key={banner.id ?? index} banner={slimBanner(banner)} />
         ))}
     </div>
   );

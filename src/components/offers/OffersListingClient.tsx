@@ -102,7 +102,6 @@ export default function OffersListingClient({
     try {
       const res = await ClientAPI.getPackages(locale, next, {
         signal: controller.signal,
-        noCache: true,
       });
       if (controller.signal.aborted) return;
       setOffers(res?.data ?? []);

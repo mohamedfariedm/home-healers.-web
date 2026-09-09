@@ -16,10 +16,11 @@ import {
   parseOffersSearchParams,
 } from "@/lib/offers";
 import { createBreadcrumbSchema, renderJsonLd } from "@/lib/structured-data";
+import { slimCategoryCard, slimOfferCard } from "@/lib/public-payload";
 import type { OfferCard } from "@/types/offers";
 import type { Metadata } from "next";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: Promise<{ locale: string }>;
@@ -85,7 +86,7 @@ export default async function OffersListingPage({
   const { t } = await initTranslations(locale, ["offers"]);
 
   const [offersRes, featuredRes, categoriesRes] = await Promise.all([
-    ClientAPI.getPackages(locale, query, { revalidate: 300 }).catch(
+    ClientAPI.getPackages(locale, query).catch(
       () => null,
     ),
     ClientAPI.getFeaturedPackage(locale).catch(() => null),
@@ -93,9 +94,9 @@ export default async function OffersListingPage({
   ]);
 
   const fetchError = !offersRes;
-  const offers = (offersRes?.data ?? []) as OfferCard[];
+  const offers = ((offersRes?.data ?? []) as OfferCard[]).map(slimOfferCard);
   const meta = getPaginator(offersRes);
-  const featured = one<OfferCard>(featuredRes);
+  const featured = slimOfferCard(one<OfferCard>(featuredRes));
   const qsFor = (page: number) => {
     const params = offersQueryToSearchParams({ ...query, page });
     const qs = params.toString();
@@ -140,7 +141,7 @@ export default async function OffersListingPage({
         initialMeta={meta}
         initialServerTime={offersRes?.server_time}
         featured={featured}
-        categories={categoriesRes?.data ?? []}
+        categories={(categoriesRes?.data ?? []).map(slimCategoryCard)}
         fetchError={fetchError}
       />
     </div>

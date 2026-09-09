@@ -56,6 +56,7 @@ export default function OfferCard({
             }
             className="object-cover"
             priority={priority}
+            quality={90}
             loading={priority ? "eager" : "lazy"}
             decoding="async"
           />

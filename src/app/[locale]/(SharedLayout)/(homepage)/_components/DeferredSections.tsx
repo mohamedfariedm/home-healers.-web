@@ -2,13 +2,25 @@ import ClientAPI from "@/app/api/api";
 import OurStory from "./OurStory";
 import ClientReviewsSection from "./ClientReviewsSection";
 import ReservationReviewsSection from "./ReservationReviewsSection";
-import FeaturedOfferBanner from "@/components/offers/FeaturedOfferBanner";
 import OffersTeaserRail from "@/components/offers/OffersTeaserRail";
+import {
+  slimBlogForHome,
+  slimClientReview,
+  slimOfferCard,
+  slimReservationReview,
+} from "@/lib/public-payload";
 
 export async function DeferredOurStory({ locale }: { locale: string }) {
-  const blogData = await ClientAPI.getAllBlogs(locale);
-  if (!blogData?.data?.length) return null;
-  return <OurStory data={blogData.data} locale={locale} />;
+  const blogData = await ClientAPI.getAllBlogs(locale, {
+    show_home: true,
+    limit: 4,
+  });
+  const posts = (blogData?.data || [])
+    .filter((item: { show_in_home_page?: boolean }) => item.show_in_home_page)
+    .slice(0, 4)
+    .map(slimBlogForHome);
+  if (!posts.length) return null;
+  return <OurStory data={posts} locale={locale} />;
 }
 
 export async function DeferredOffers({ locale }: { locale: string }) {
@@ -21,17 +33,14 @@ export async function DeferredOffers({ locale }: { locale: string }) {
     }).catch(() => null),
   ]);
   const featured = featuredRes?.data?.[0] ?? null;
-  const offers = teaserRes?.data ?? [];
+  const offers = (teaserRes?.data ?? []).slice(0, 8).map(slimOfferCard);
   if (!featured && !offers.length) return null;
   return (
-    <>
-      
-      <OffersTeaserRail
-        offers={offers}
-        locale={locale}
-        serverTime={teaserRes?.server_time}
-      />
-    </>
+    <OffersTeaserRail
+      offers={offers}
+      locale={locale}
+      serverTime={teaserRes?.server_time}
+    />
   );
 }
 
@@ -41,7 +50,10 @@ export async function DeferredClientReviews({ locale }: { locale: string }) {
   });
   if (!clientReviews?.data?.length) return null;
   return (
-    <ClientReviewsSection locale={locale} reviews={clientReviews.data} />
+    <ClientReviewsSection
+      locale={locale}
+      reviews={clientReviews.data.slice(0, 9).map(slimClientReview)}
+    />
   );
 }
 
@@ -57,7 +69,7 @@ export async function DeferredReservationReviews({
   if (!reservationReviews?.data?.length) return null;
   return (
     <ReservationReviewsSection
-      reviews={reservationReviews.data}
+      reviews={reservationReviews.data.slice(0, 8).map(slimReservationReview)}
       locale={locale}
     />
   );

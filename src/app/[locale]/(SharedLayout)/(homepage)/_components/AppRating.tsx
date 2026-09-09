@@ -10,6 +10,10 @@ const AppRating= ({locale}: {locale: string}) => {
         <img
           src="/assets/images/homehellers/rating.svg"
           alt="User avatars"
+          width={216}
+          height={66}
+          loading="lazy"
+          decoding="async"
           className="w-full max-w-[216px] h-auto"
         />
       </div>

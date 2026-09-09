@@ -47,7 +47,7 @@ export default function ClientReviewsSection({
   });
 
   const getAvatarUrl = (review: ClientReview) => {
-    const provided = review.image?.[0]?.thumbnail || review.image?.[0]?.original;
+    const provided = review.image?.[0]?.original || review.image?.[0]?.thumbnail;
     if (provided) return provided;
     const nameForAvatar = encodeURIComponent(review.name || (isRTL ? "عميل" : "Client"));
     // Solid, reliable fallback image
