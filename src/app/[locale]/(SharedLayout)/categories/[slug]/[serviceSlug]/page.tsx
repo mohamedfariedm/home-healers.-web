@@ -1,16 +1,23 @@
-import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
 import { CategoryServicesSection } from "@/components/Categories";
 import { Bannar } from "../../../(homepage)/_components";
+import { slimBanner, slimCategoryForServicePage } from "@/lib/public-payload";
 import {
   buildCanonicalUrl,
   buildCategoryServiceAlternates,
   createMetadata,
 } from "@/lib/seo";
 import {
+  createBreadcrumbSchema,
+  createServiceSchema,
+  renderJsonLd,
+} from "@/lib/structured-data";
+import {
   getCachedCategory,
   getCachedServiceBySlug,
+  getCachedSettings,
 } from "@/lib/cached-api";
+import { HeroBreadcrumb } from "@/components/Shared/HeroBreadcrumb";
 import { localePath } from "@/lib/offers";
 import {
   categoryHref,
@@ -24,6 +31,8 @@ import {
 import { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import type { Category, Service } from "@/types/booking";
+
+export const dynamic = "force-dynamic";
 
 async function loadCategoryService(
   locale: string,
@@ -194,13 +203,61 @@ export default async function CategoryServicePage({
     );
   }
 
-  const settings = await ClientAPI.getSettings(locale);
+  const settings = await getCachedSettings(locale);
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
     (b: { page: string }) => b.page === "categories",
   );
 
+  const serviceName = loaded.service.name || loaded.category.name || "Home Healers";
+  const serviceDescription =
+    (typeof loaded.service.meta_description === "object"
+      ? loaded.service.meta_description?.[locale]
+      : loaded.service.meta_description) ||
+    (typeof loaded.service.description === "string"
+      ? loaded.service.description.replace(/<[^>]+>/g, "").slice(0, 160)
+      : `Services in ${loaded.category.name}`);
+  const serviceUrl = buildCanonicalUrl(
+    locale,
+    `/categories/${encodeURIComponent(categorySlug || loaded.requestedCategory)}/${encodeURIComponent(canonicalServiceSlug || loaded.requestedService)}`,
+  );
+
   return (
     <div className="main-container w-full bg-[#fff] relative overflow-hidden mx-auto my-0 pb-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: renderJsonLd(
+            createServiceSchema({
+              name: serviceName,
+              description: String(serviceDescription || serviceName),
+              provider: {
+                name: "Home Healers",
+                url: "https://home-healers.com",
+              },
+              areaServed: "Saudi Arabia",
+              serviceType: loaded.category.name,
+            }),
+          ),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: renderJsonLd(
+            createBreadcrumbSchema([
+              { name: "Home", url: buildCanonicalUrl(locale, "") },
+              {
+                name: loaded.category.name || "Categories",
+                url: buildCanonicalUrl(
+                  locale,
+                  `/categories/${encodeURIComponent(categorySlug || loaded.requestedCategory)}`,
+                ),
+              },
+              { name: serviceName, url: serviceUrl },
+            ]),
+          ),
+        }}
+      />
       <div
         className="w-full h-[250px] relative bg-no-repeat bg-cover bg-center"
         style={{
@@ -216,69 +273,49 @@ export default async function CategoryServicePage({
           }}
         >
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-4">
-            <div className="text-white text-[24px] font-semibold leading-[32px]">
+            <h1 className="text-white text-[24px] font-semibold leading-[32px]">
               {loaded.service.name || loaded.category.name}
-            </div>
-            <div className="mt-2 flex justify-center items-center gap-2 flex-wrap">
-              <span className="text-[#62a0f6] text-sm font-semibold">
-                {loaded.service.name}
-              </span>
-              <div
-                className="w-4 h-4 bg-no-repeat bg-cover"
-                style={{
-                  backgroundImage:
-                    "url(/assets/images/shared/hero-banner/hero-breadcrumb-arrow.svg)",
-                }}
-              />
-              <a
-                href={categoryHref(
-                  locale,
-                  categorySlug || loaded.requestedCategory,
-                )}
-                className="text-white text-sm font-semibold hover:underline"
-              >
-                {loaded.category.name}
-              </a>
-              <div
-                className="w-4 h-4 bg-no-repeat bg-cover"
-                style={{
-                  backgroundImage:
-                    "url(/assets/images/shared/hero-banner/hero-breadcrumb-arrow.svg)",
-                }}
-              />
-              <a
-                href={localePath(locale, "/categories")}
-                className="text-white text-sm font-semibold hover:underline"
-              >
-                {t("categories.hero.breadcrumb", { ns: "common" })}
-              </a>
-              <div
-                className="w-4 h-4 bg-no-repeat bg-cover"
-                style={{
-                  backgroundImage:
-                    "url(/assets/images/shared/hero-banner/hero-breadcrumb-arrow.svg)",
-                }}
-              />
-              <a
-                href={localePath(locale, "/")}
-                className="text-white text-sm font-semibold hover:underline"
-              >
-                {t("categories.hero.home", { ns: "common" })}
-              </a>
-            </div>
+            </h1>
+            <HeroBreadcrumb
+              items={[
+                {
+                  label: t("categories.hero.home", { ns: "common" }),
+                  href: localePath(locale, "/"),
+                },
+                {
+                  label: t("categories.hero.breadcrumb", { ns: "common" }),
+                  href: localePath(locale, "/categories"),
+                },
+                {
+                  label: loaded.category.name,
+                  href: categoryHref(
+                    locale,
+                    categorySlug || loaded.requestedCategory,
+                  ),
+                },
+                {
+                  label: loaded.service.name || loaded.category.name,
+                  isActive: true,
+                },
+              ]}
+            />
           </div>
         </div>
       </div>
 
       <CategoryServicesSection
         locale={locale}
-        category={loaded.category}
+        category={slimCategoryForServicePage(
+          loaded.category,
+          canonicalServiceSlug || loaded.requestedService,
+          locale,
+        )}
         activeServiceSlug={canonicalServiceSlug || loaded.requestedService}
       />
 
       {homeBanners?.length > 0 &&
         homeBanners.map((banner: { id?: number }, index: number) => (
-          <Bannar key={banner.id ?? index} banner={banner} />
+          <Bannar key={banner.id ?? index} banner={slimBanner(banner)} />
         ))}
     </div>
   );

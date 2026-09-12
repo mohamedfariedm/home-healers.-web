@@ -1,6 +1,5 @@
 import initTranslations from "@/app/i18n";
-import ClientAPI from "@/app/api/api";
-import { createMetadata } from "@/lib/seo";
+import { createNoIndexMetadata } from "@/lib/seo";
 import InviteDoctorHandler from "./_components/invite-doctor-handler";
 
 export const dynamic = "force-dynamic";
@@ -12,13 +11,11 @@ type Props = {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; token: string }> }) {
   const { locale, token } = await params;
   const { t } = await initTranslations(locale, ["invite-doctor"]);
-  const settings = await ClientAPI.getSettings(locale);
-  const seo = settings?.data?.[0]?.setting?.seo?.["invite-doctor"];
 
-  return createMetadata(seo, locale, `/invite-doctor/${token}`, {
+  return createNoIndexMetadata(locale, `/invite-doctor/${token}`, {
     title: t("meta.title"),
     description: t("meta.description"),
-  }, { preferPathCanonical: true });
+  });
 }
 
 async function InviteDoctorPage({ params }: { params: Promise<{ locale: string; token: string }> }) {

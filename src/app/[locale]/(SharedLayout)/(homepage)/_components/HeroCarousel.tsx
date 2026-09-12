@@ -37,7 +37,7 @@ export default function HeroCarousel({
       <Swiper
         modules={[Autoplay]}
         slidesPerView={1}
-        loop
+        loop={images.length > 2}
         autoplay={{ delay: 4000 }}
         onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
         className="w-full max-w-[727px]"

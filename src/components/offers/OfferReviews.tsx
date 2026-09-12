@@ -23,7 +23,7 @@ export default function OfferReviews({ reviews, locale }: OfferReviewsProps) {
 
   return (
     <section>
-      <h2 className="mb-4 text-2xl font-semibold text-[#143087]">
+      <h2 className="mb-4 text-xl font-semibold text-[#143087] sm:text-2xl">
         {t("reviews")}
       </h2>
       <div className="flex flex-col gap-4">

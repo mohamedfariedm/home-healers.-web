@@ -1,12 +1,7 @@
-import ClientAPI from "@/app/api/api";
-import initTranslations from "@/app/i18n";
 import PaymentFail from "@/components/fail";
-import { createMetadata } from "@/lib/seo";
-export const dynamic = "force-dynamic";
+import { createNoIndexMetadata } from "@/lib/seo";
 
-type props = {
-  params: { locale: string };
-};
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -14,24 +9,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const { t } = await initTranslations(locale, ["homepage"]);
-  const settings = await ClientAPI.getSettings(locale);
-  const seo = settings?.data[0]?.setting?.seo["services"];
-
-  return createMetadata(seo, locale, "/failed", {
-    title: "Home Hellers",
+  return createNoIndexMetadata(locale, "/failed", {
+    title: "Home Healers | Payment failed",
+    description: "The Home Healers payment could not be completed",
   });
 }
 
-async function page({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
-  const { t } = await initTranslations(locale, ["aboutUs"]);
-  const servicesData = await ClientAPI.getAllServices(locale);
-  const settings = await ClientAPI.getSettings(locale);
-
-  const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
-    (banner: any) => banner.page === "services"&& banner.type === "web"
-  );
+async function page() {
   return <PaymentFail />;
 }
 

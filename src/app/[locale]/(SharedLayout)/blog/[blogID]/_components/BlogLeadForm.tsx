@@ -133,7 +133,7 @@ export default function BlogLeadForm({ locale, blogTitle }: BlogLeadFormProps) {
 
   return (
     <section
-      className="w-full max-w-screen-xl mx-auto px-4 xl:px-0 mt-16 mb-20"
+      className="mx-auto mb-16 mt-10 w-full max-w-screen-xl px-4 sm:mb-20 sm:mt-16 xl:px-0"
       dir={isRTL ? "rtl" : "ltr"}
     >
       <div className="max-w-[420px] mx-auto bg-white rounded-2xl border border-[#d0d5dd] shadow-[0_8px_30px_rgba(20,48,135,0.08)] overflow-hidden">

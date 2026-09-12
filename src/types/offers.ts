@@ -146,7 +146,7 @@ export type OffersPaginator = {
 };
 
 export type OffersEnvelope<T> = {
-  data?: T[] | null;
+  data?: T[] | T | null;
   message?: string;
   server_time?: string;
   meta?: OffersPaginator & Record<string, unknown>;

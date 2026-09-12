@@ -1,7 +1,7 @@
 import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
 import OffersListingClient from "@/components/offers/OffersListingClient";
-import { getCachedSettings } from "@/lib/cached-api";
+import { getCachedCategories, getCachedSettings } from "@/lib/cached-api";
 import {
   buildCanonicalUrl,
   buildLanguageAlternates,
@@ -90,7 +90,7 @@ export default async function OffersListingPage({
       () => null,
     ),
     ClientAPI.getFeaturedPackage(locale).catch(() => null),
-    ClientAPI.getCategories(locale).catch(() => null),
+    getCachedCategories(locale).catch(() => null),
   ]);
 
   const fetchError = !offersRes;
@@ -113,26 +113,28 @@ export default async function OffersListingPage({
   ]);
 
   return (
-    <div className="w-full bg-white">
+    <div className="w-full overflow-x-hidden bg-white">
       {prev ? <link rel="prev" href={prev} /> : null}
       {next ? <link rel="next" href={next} /> : null}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: renderJsonLd(breadcrumbSchema) }}
       />
-      <div className="mx-auto max-w-[1440px] px-4 pt-10">
+      <div className="mx-auto max-w-[1440px] px-4 pt-6 sm:px-6 sm:pt-10">
         <nav aria-label="Breadcrumb" className="mb-4 text-sm text-[#4a5568]">
-          <ol className="flex items-center gap-2">
+          <ol className="flex flex-wrap items-center gap-2">
             <li>
               <a href={localePath(locale, "/")}>{t("breadcrumb.home")}</a>
             </li>
-            <li aria-hidden>›</li>
+            <li aria-hidden className="rtl:rotate-180">›</li>
             <li aria-current="page" className="text-[#1e1e1e]">
               {t("breadcrumb.offers")}
             </li>
           </ol>
         </nav>
-        <h1 className="mb-8 text-4xl font-bold text-[#143087]">{t("title")}</h1>
+        <h1 className="mb-6 text-2xl font-bold text-[#143087] sm:mb-8 sm:text-3xl lg:text-4xl">
+          {t("title")}
+        </h1>
       </div>
       <OffersListingClient
         locale={locale}

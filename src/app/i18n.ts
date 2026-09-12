@@ -31,6 +31,10 @@ export default async function initTranslations(
     fallbackNS: namespaces[0],
     ns: namespaces,
     preload: resources ? [] : [locale],
+    interpolation: { escapeValue: false },
+    missingKeyHandler: () => {},
+    saveMissing: false,
+    react: { useSuspense: false },
   });
 
   return {

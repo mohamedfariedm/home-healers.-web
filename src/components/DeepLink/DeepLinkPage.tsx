@@ -1,5 +1,5 @@
-import ClientAPI from "@/app/api/api";
 import DeepLinkLanding from "@/components/DeepLink/DeepLinkLanding";
+import { getCachedSettings } from "@/lib/cached-api";
 import {
   buildDeepLinkPath,
   buildWebsiteRedirectPath,
@@ -9,7 +9,7 @@ import {
   getMobilePlatform,
   type DeepLinkRoute,
 } from "@/lib/deep-link";
-import { buildCanonicalUrl, createMetadata } from "@/lib/seo";
+import { createNoIndexMetadata } from "@/lib/seo";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -47,15 +47,10 @@ export async function generateDeepLinkMetadata(
 ) {
   const copy = DEEP_LINK_COPY[route][locale === "en" ? "en" : "ar"];
 
-  return createMetadata(
-    {
-      meta_title: { ar: copy.title, en: copy.title },
-      meta_description: { ar: copy.description, en: copy.description },
-    },
-    locale,
-    `/${route}`,
-    { title: copy.title },
-  );
+  return createNoIndexMetadata(locale, `/${route}`, {
+    title: copy.title,
+    description: copy.description,
+  });
 }
 
 export default async function DeepLinkPage({
@@ -73,7 +68,7 @@ export default async function DeepLinkPage({
     redirect(buildWebsiteRedirectPath(locale, route, segments));
   }
 
-  const settings = await ClientAPI.getSettings(locale);
+  const settings = await getCachedSettings(locale);
   const settingsData = settings?.data?.[0]?.setting;
 
   const path = buildDeepLinkPath(route, segments, queryId);
@@ -89,5 +84,3 @@ export default async function DeepLinkPage({
     />
   );
 }
-
-export { buildCanonicalUrl };

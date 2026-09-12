@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { preload } from "react-dom";
 import { Star, ArrowLeft } from "lucide-react";
 import { getHeroImageUrls } from "@/lib/image-url";
 import HeroCarousel from "./HeroCarousel";
@@ -10,9 +9,6 @@ const HERO_IMAGE_QUALITY = 90;
 function Hero({ locale, section }: { locale: string; section: any }) {
   const post = section?.Posts?.[0];
   const heroImages = getHeroImageUrls(post?.attachment);
-  if (heroImages[0]) {
-    preload(heroImages[0], { as: "image", fetchPriority: "high" });
-  }
   const alt =
     post?.title || "Physical therapy and rehabilitation services";
   const bookingHref = `${locale === "ar" ? "" : "/en"}/booking`;
@@ -26,10 +22,10 @@ function Hero({ locale, section }: { locale: string; section: any }) {
         />
 
         <div className="relative w-full xl:w-1/2 flex flex-col gap-8 justify-center bg-no-repeat bg-contain">
-          <h2 className="text-[#1e1e1e] text-2xl sm:text-3xl lg:text-4xl font-semibold leading-snug text-start relative z-10">
+          <h1 className="text-[#1e1e1e] text-2xl sm:text-3xl lg:text-4xl font-semibold leading-snug text-start relative z-10">
             {post?.title ||
               "Physical Therapy and Rehabilitation Services"}
-          </h2>
+          </h1>
 
           <p className="text-[#1e1e1e] text-base sm:text-lg leading-relaxed text-start">
             {post?.description ||

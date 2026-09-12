@@ -26,7 +26,7 @@ export default function StickyBookingBar({
   return (
     <div
       className={cn(
-        "fixed inset-x-0 bottom-0 z-30 border-t bg-white/95 px-4 py-3 shadow-[0_-8px_24px_rgba(16,24,40,0.08)] backdrop-blur lg:hidden",
+        "fixed inset-x-0 bottom-0 z-30 border-t bg-white/95 px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(16,24,40,0.08)] backdrop-blur sm:px-4 lg:hidden",
       )}
     >
       <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3">

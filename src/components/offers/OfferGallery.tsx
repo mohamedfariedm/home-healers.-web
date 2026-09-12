@@ -24,8 +24,8 @@ export default function OfferGallery({ images, alt, label }: OfferGalleryProps) 
   }
 
   return (
-    <div className="flex flex-col gap-3" aria-label={label}>
-      <div className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-[#eef4ff]">
+    <div className="flex min-w-0 flex-col gap-3" aria-label={label}>
+      <div className="relative aspect-[16/11] w-full overflow-hidden rounded-2xl bg-[#eef4ff] sm:aspect-[4/3] sm:rounded-3xl">
         <button
           type="button"
           className="absolute inset-0 hidden md:block"
@@ -57,7 +57,7 @@ export default function OfferGallery({ images, alt, label }: OfferGalleryProps) 
             <button
               type="button"
               onClick={() => go(-1)}
-              className="absolute start-3 top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#143087] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="absolute start-2 top-1/2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#143087] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:start-3 sm:size-10"
               aria-label="Previous image"
             >
               <ChevronLeft className="size-5 rtl:rotate-180" />
@@ -65,7 +65,7 @@ export default function OfferGallery({ images, alt, label }: OfferGalleryProps) 
             <button
               type="button"
               onClick={() => go(1)}
-              className="absolute end-3 top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#143087] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="absolute end-2 top-1/2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#143087] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:end-3 sm:size-10"
               aria-label="Next image"
             >
               <ChevronRight className="size-5 rtl:rotate-180" />
@@ -74,7 +74,7 @@ export default function OfferGallery({ images, alt, label }: OfferGalleryProps) 
         ) : null}
       </div>
       {images.length > 1 ? (
-        <div className="flex gap-2 overflow-x-auto">
+        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {images.map((src, i) => (
             <button
               key={`${src}-${i}`}
@@ -112,7 +112,13 @@ export default function OfferGallery({ images, alt, label }: OfferGalleryProps) 
             <X className="size-4" />
           </button>
           <div className="relative aspect-video w-full">
-            <Image src={current} alt={alt} fill className="object-contain" />
+            <Image
+              src={current}
+              alt={alt}
+              fill
+              sizes="(max-width: 1024px) 100vw, 896px"
+              className="object-contain"
+            />
           </div>
         </DialogContent>
       </Dialog>

@@ -462,8 +462,8 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                         : "MEA Business Awards 2025 Certificate"
                     }
                     fill
+                    sizes="(max-width: 768px) 90vw, 500px"
                     className="object-contain p-4"
-                    priority
                     quality={95}
                   />
                 </div>
@@ -546,8 +546,8 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                         : "MEA Business Awards 2025 Certificate"
                     }
                     fill
+                    sizes="(max-width: 768px) 90vw, 500px"
                     className="object-contain p-4"
-                    priority
                     quality={95}
                   />
 

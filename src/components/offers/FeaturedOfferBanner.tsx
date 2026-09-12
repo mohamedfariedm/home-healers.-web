@@ -29,7 +29,7 @@ export default function FeaturedOfferBanner({
       className="w-full overflow-hidden bg-[#143087] text-white"
     >
       <div className="mx-auto grid w-full max-w-[1440px] lg:grid-cols-2">
-        <div className="relative aspect-video w-full bg-[#0f2470] lg:aspect-auto lg:min-h-[360px]">
+        <div className="relative aspect-[16/10] w-full bg-[#0f2470] sm:aspect-video lg:aspect-auto lg:min-h-[360px]">
           {image ? (
             <Image
               src={image}
@@ -42,15 +42,18 @@ export default function FeaturedOfferBanner({
             />
           ) : null}
         </div>
-        <div className="flex flex-col justify-center gap-4 px-6 py-8 lg:px-12">
-          <p className="text-sm font-semibold uppercase tracking-wide text-[#9ec4ff]">
+        <div className="flex min-w-0 flex-col justify-center gap-3 px-4 py-6 sm:gap-4 sm:px-6 sm:py-8 lg:px-12">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#9ec4ff] sm:text-sm">
             {t("featured")}
           </p>
-          <h2 id={headingId} className="text-3xl font-bold leading-tight">
+          <h2
+            id={headingId}
+            className="break-words text-xl font-bold leading-tight sm:text-2xl lg:text-3xl"
+          >
             {offer.name}
           </h2>
           {offer.short_description ? (
-            <p className="max-w-xl text-base text-white/85">
+            <p className="max-w-xl text-sm text-white/85 sm:text-base">
               {offer.short_description}
             </p>
           ) : null}
@@ -61,7 +64,7 @@ export default function FeaturedOfferBanner({
           ) : null}
           <a
             href={href}
-            className="mt-2 inline-flex h-12 w-fit items-center justify-center rounded-xl bg-primary px-6 font-semibold text-white hover:bg-[#4f8ae8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="mt-1 inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary px-6 font-semibold text-white hover:bg-[#4f8ae8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:mt-2 sm:w-fit"
           >
             {t("bookNow")}
           </a>

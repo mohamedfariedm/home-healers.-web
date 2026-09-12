@@ -3,7 +3,7 @@ import { HeroBanner } from "@/components/AboutUs";
 import { getCachedSettings } from "@/lib/cached-api";
 import { createMetadata } from "@/lib/seo";
 import { Metadata } from "next";
-
+import { localePath } from "@/lib/offers";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
@@ -50,7 +50,10 @@ export default async function ConditionsPage({
             t("title", { ns: "privacy" })
           }
           breadcrumbItems={[
-            { label: t("home", { ns: "common" }) },
+            {
+              label: t("home", { ns: "common" }),
+              href: localePath(locale, "/"),
+            },
             {
               label: t("breadCrumb", { ns: "privacy" }),
               isActive: true,

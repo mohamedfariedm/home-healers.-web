@@ -4,7 +4,8 @@ import { Bannar } from "../(homepage)/_components";
 import { createMetadata } from "@/lib/seo";
 import { getCachedCategories, getCachedSettings } from "@/lib/cached-api";
 import { slimBanner, slimCategoryCard } from "@/lib/public-payload";
-
+import { HeroBreadcrumb } from "@/components/Shared/HeroBreadcrumb";
+import { localePath } from "@/lib/offers";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
@@ -17,7 +18,7 @@ export async function generateMetadata({
   const seo = settings?.data[0]?.setting?.seo?.["categories"];
 
   return createMetadata(seo, locale, "/categories", {
-    title: "Home Hellers | Categories",
+    title: "Home Healers | Categories",
     description: "Browse our medical specialties and categories",
   });
 }
@@ -34,17 +35,12 @@ export default async function CategoriesPage({
     getCachedSettings(locale),
   ]);
 
-  const seo = settings?.data[0]?.setting?.seo["categories"];
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
     (b: { page: string }) => b.page === "categories",
   );
 
   return (
     <div className="main-container w-full bg-[#fff] relative overflow-hidden mx-auto my-0">
-      <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-        {seo?.[locale]?.title || t("categories.hero.title", { ns: "common" })}
-      </h1>
-
       <div
         className="w-full h-[250px] relative bg-no-repeat bg-cover bg-center"
         style={{
@@ -60,24 +56,21 @@ export default async function CategoriesPage({
           }}
         >
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-            <div className="text-white text-[24px] font-semibold leading-[32px]">
+            <h1 className="text-white text-[24px] font-semibold leading-[32px]">
               {t("categories.hero.title", { ns: "common" })}
-            </div>
-            <div className="mt-2 flex justify-center items-center gap-2">
-              <span className="text-[#62a0f6] text-sm font-semibold">
-                {t("categories.hero.breadcrumb", { ns: "common" })}
-              </span>
-              <div
-                className="w-4 h-4 bg-no-repeat bg-cover"
-                style={{
-                  backgroundImage:
-                    "url(/assets/images/shared/hero-banner/hero-breadcrumb-arrow.svg)",
-                }}
-              />
-              <span className="text-white text-sm font-semibold">
-                {t("categories.hero.home", { ns: "common" })}
-              </span>
-            </div>
+            </h1>
+            <HeroBreadcrumb
+              items={[
+                {
+                  label: t("categories.hero.home", { ns: "common" }),
+                  href: localePath(locale, "/"),
+                },
+                {
+                  label: t("categories.hero.breadcrumb", { ns: "common" }),
+                  isActive: true,
+                },
+              ]}
+            />
           </div>
         </div>
       </div>

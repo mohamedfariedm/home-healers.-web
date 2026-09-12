@@ -36,12 +36,12 @@ type OfferDetailsViewProps = {
 function ChipList({ items, title }: { items: string[]; title: string }) {
   return (
     <section>
-      <h2 className="mb-3 text-2xl font-semibold text-[#143087]">{title}</h2>
+      <h2 className="mb-3 text-xl font-semibold text-[#143087] sm:text-2xl">{title}</h2>
       <ul className="flex flex-wrap gap-2">
         {items.map((item) => (
           <li
             key={item}
-            className="rounded-full bg-[#eef4ff] px-3 py-1.5 text-sm text-[#143087]"
+            className="max-w-full break-words rounded-full bg-[#eef4ff] px-3 py-1.5 text-sm text-[#143087]"
           >
             {item}
           </li>
@@ -54,12 +54,12 @@ function ChipList({ items, title }: { items: string[]; title: string }) {
 function CheckList({ items, title }: { items: string[]; title: string }) {
   return (
     <section>
-      <h2 className="mb-3 text-2xl font-semibold text-[#143087]">{title}</h2>
+      <h2 className="mb-3 text-xl font-semibold text-[#143087] sm:text-2xl">{title}</h2>
       <ul className="flex flex-col gap-2">
         {items.map((item) => (
           <li key={item} className="flex items-start gap-2 text-[#1e1e1e]">
             <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-            <span>{item}</span>
+            <span className="min-w-0 break-words">{item}</span>
           </li>
         ))}
       </ul>
@@ -112,15 +112,15 @@ export default function OfferDetailsView({
     "inline-flex h-12 items-center justify-center rounded-xl px-6 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
 
   return (
-    <div className="mx-auto w-full max-w-[1440px] px-4 pb-28 lg:pb-16">
-      <nav aria-label="Breadcrumb" className="py-6 text-sm text-[#4a5568]">
-        <ol className="flex flex-wrap items-center gap-2">
+    <div className="mx-auto w-full min-w-0 max-w-[1440px] overflow-x-hidden px-4 pb-28 sm:px-6 lg:pb-16">
+      <nav aria-label="Breadcrumb" className="py-4 text-sm text-[#4a5568] sm:py-6">
+        <ol className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
           <li>
             <a href={localePath(locale, "/")} className="hover:text-primary">
               {t("breadcrumb.home")}
             </a>
           </li>
-          <li aria-hidden>›</li>
+          <li aria-hidden className="rtl:rotate-180">›</li>
           <li>
             <a href={localePath(locale, OFFERS_WEBSITE_BASE_PATH)} className="hover:text-primary">
               {t("breadcrumb.offers")}
@@ -128,7 +128,7 @@ export default function OfferDetailsView({
           </li>
           {categoryName && category ? (
             <>
-              <li aria-hidden>›</li>
+              <li aria-hidden className="rtl:rotate-180">›</li>
               <li>
                 <a
                   href={`${localePath(locale, OFFERS_WEBSITE_BASE_PATH)}?category_id=${category.id}`}
@@ -139,15 +139,18 @@ export default function OfferDetailsView({
               </li>
             </>
           ) : null}
-          <li aria-hidden>›</li>
-          <li aria-current="page" className="font-medium text-[#1e1e1e]">
+          <li aria-hidden className="rtl:rotate-180">›</li>
+          <li
+            aria-current="page"
+            className="min-w-0 max-w-full basis-full truncate font-medium text-[#1e1e1e] sm:basis-auto sm:max-w-[min(100%,28rem)] sm:whitespace-normal sm:break-words"
+          >
             {offer.name}
           </li>
         </ol>
       </nav>
 
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
-        <div className="flex flex-col gap-10">
+      <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:gap-10">
+        <div className="flex min-w-0 flex-col gap-6 sm:gap-8 lg:gap-10">
           <OfferGallery
             images={gallery}
             alt={offer.name}
@@ -183,11 +186,11 @@ export default function OfferDetailsView({
           {infoCards.length > 0 || !isRichTextEmpty(offer.cancellation_policy) ? (
             <section>
               {infoCards.length > 0 ? (
-                <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <div className="grid grid-cols-1 gap-2 xs:grid-cols-2 sm:gap-3 md:grid-cols-4">
                   {infoCards.map((card) => (
                     <div
                       key={card.label}
-                      className="rounded-2xl bg-[#eef4ff] p-4 text-sm font-medium text-[#143087]"
+                      className="break-words rounded-2xl bg-[#eef4ff] p-3 text-xs font-medium text-[#143087] sm:p-4 sm:text-sm"
                     >
                       {card.value === true ? card.label : (
                         <>
@@ -212,7 +215,7 @@ export default function OfferDetailsView({
 
           {!isRichTextEmpty(offer.why_choose_home_healers) ? (
             <section>
-              <h2 className="mb-3 text-2xl font-semibold text-[#143087]">
+              <h2 className="mb-3 text-xl font-semibold text-[#143087] sm:text-2xl">
                 {t("whyChoose")}
               </h2>
               <RichText html={offer.why_choose_home_healers} />
@@ -221,7 +224,7 @@ export default function OfferDetailsView({
 
           {!isListEmpty(offer.patient_journey) ? (
             <section>
-              <h2 className="mb-4 text-2xl font-semibold text-[#143087]">
+              <h2 className="mb-4 text-xl font-semibold text-[#143087] sm:text-2xl">
                 {t("journey")}
               </h2>
               <ol className="flex flex-col gap-4">
@@ -242,7 +245,7 @@ export default function OfferDetailsView({
             <section className="grid gap-6 md:grid-cols-2">
               {!isRichTextEmpty(offer.before_treatment) ? (
                 <div>
-                  <h2 className="mb-3 text-2xl font-semibold text-[#143087]">
+                  <h2 className="mb-3 text-xl font-semibold text-[#143087] sm:text-2xl">
                     {t("before")}
                   </h2>
                   <RichText html={offer.before_treatment} />
@@ -250,7 +253,7 @@ export default function OfferDetailsView({
               ) : null}
               {!isRichTextEmpty(offer.after_treatment) ? (
                 <div>
-                  <h2 className="mb-3 text-2xl font-semibold text-[#143087]">
+                  <h2 className="mb-3 text-xl font-semibold text-[#143087] sm:text-2xl">
                     {t("after")}
                   </h2>
                   <RichText html={offer.after_treatment} />
@@ -261,7 +264,7 @@ export default function OfferDetailsView({
 
           {!isRichTextEmpty(offer.benefits) ? (
             <section>
-              <h2 className="mb-3 text-2xl font-semibold text-[#143087]">
+              <h2 className="mb-3 text-xl font-semibold text-[#143087] sm:text-2xl">
                 {t("benefits")}
               </h2>
               <RichText html={offer.benefits} />
@@ -270,7 +273,7 @@ export default function OfferDetailsView({
 
           {!isRichTextEmpty(offer.description) ? (
             <section>
-              <h2 className="mb-3 text-2xl font-semibold text-[#143087]">
+              <h2 className="mb-3 text-xl font-semibold text-[#143087] sm:text-2xl">
                 {t("description")}
               </h2>
               <RichText html={offer.description} />
@@ -279,7 +282,7 @@ export default function OfferDetailsView({
 
           {!isRichTextEmpty(offer.terms_conditions) ? (
             <section>
-              <h2 className="mb-3 text-2xl font-semibold text-[#143087]">
+              <h2 className="mb-3 text-xl font-semibold text-[#143087] sm:text-2xl">
                 {t("terms")}
               </h2>
               <RichText html={offer.terms_conditions} />
@@ -368,9 +371,9 @@ function OfferSummary({
         </span>
       ) : null}
       {showTitle ? (
-        <h1 className="text-3xl font-bold text-[#1e1e1e]">{offer.name}</h1>
+        <h1 className="break-words text-2xl font-bold text-[#1e1e1e] sm:text-3xl">{offer.name}</h1>
       ) : (
-        <h1 className="text-3xl font-bold text-[#1e1e1e] lg:hidden">
+        <h1 className="break-words text-2xl font-bold text-[#1e1e1e] sm:text-3xl lg:hidden">
           {offer.name}
         </h1>
       )}
@@ -405,11 +408,11 @@ function OfferSummary({
       ) : null}
       <div id="book" className="flex flex-wrap gap-3">
         {ended ? (
-          <span className={`${ctaClass} bg-gray-100 text-[#4a5568]`}>
+          <span className={`${ctaClass} w-full bg-gray-100 text-[#4a5568] sm:w-auto`}>
             {t("ended")}
           </span>
         ) : (
-          <a href={bookHref} className={`${ctaClass} bg-primary text-white`}>
+          <a href={bookHref} className={`${ctaClass} w-full bg-primary text-white sm:w-auto`}>
             {t("bookNow")}
           </a>
         )}

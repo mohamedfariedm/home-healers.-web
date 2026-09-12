@@ -3,7 +3,7 @@ import { HeroBanner } from "@/components/AboutUs";
 import { getCachedSettings } from "@/lib/cached-api";
 import { createMetadata } from "@/lib/seo";
 import { Metadata } from "next";
-
+import { localePath } from "@/lib/offers";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
@@ -44,7 +44,10 @@ export default async function TermsPage({
             seo?.[locale]?.h1 || terms?.title || t("title", { ns: "terms" })
           }
           breadcrumbItems={[
-            { label: t("home", { ns: "common" }) },
+            {
+              label: t("home", { ns: "common" }),
+              href: localePath(locale, "/"),
+            },
             {
               label: t("breadCrumb", { ns: "terms" }),
               isActive: true,

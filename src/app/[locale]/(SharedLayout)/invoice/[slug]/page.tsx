@@ -1,8 +1,7 @@
 import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
 import InvoiceView from "@/components/invoiceView";
-import { buildCanonicalUrl, buildLanguageAlternates } from "@/lib/seo";
-import { log } from "console";
+import { createNoIndexMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 type Props = {
@@ -14,44 +13,16 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale, slug } = await params;
   const { t } = await initTranslations(locale, ["invoice"]);
 
-  const title = t("invoice_page.title", { invoiceId: slug });
-  const description = t("invoice_page.description");
-  const keywords = t("invoice_page.keywords");
-  const path = `/invoice/${slug}`;
-  const canonical = buildCanonicalUrl(locale, path);
-
-  return {
-    title,
-    description,
-    keywords,
-    alternates: {
-      canonical,
-      languages: buildLanguageAlternates(path),
-    },
-    icons: {
-      icon: "/assets/images/favicon.ico",
-    },
-    openGraph: {
-      type: "website",
-      title,
-      description,
-      url: canonical,
-      images: ["/assets/images/invoice-og-image.png"],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: ["/assets/images/invoice-twitter-image.png"],
-    },
-  };
+  return createNoIndexMetadata(locale, `/invoice/${slug}`, {
+    title: t("invoice_page.title", { invoiceId: slug }),
+    description: t("invoice_page.description"),
+  });
 }
 
 async function page({ params }: { params: Promise<{ locale: string; slug: string }> }) {
   const { locale, slug } = await params;
   const { t } = await initTranslations(locale, ["invoice"]);
   const data = await ClientAPI.getInvoices(slug, locale);
-  log("Invoice Data:", data);
   return <InvoiceView invoiceData={data?.data[0]} />;
 }
 

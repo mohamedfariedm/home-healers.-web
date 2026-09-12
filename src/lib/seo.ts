@@ -83,29 +83,72 @@ export function buildCategoryServiceAlternates(
     };
 }
 
+const INDEXABLE_ROBOTS = {
+    index: true,
+    follow: true,
+    googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large" as const,
+        "max-snippet": -1,
+        "max-video-preview": -1,
+    },
+};
+
+const NOINDEX_ROBOTS = {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+        index: false,
+        follow: false,
+        noimageindex: true,
+    },
+};
+
 export function createMetadata(
     seo: any,
     locale: string,
     path = "",
     defaults: any = {},
-    options?: { preferPathCanonical?: boolean },
+    options?: { preferPathCanonical?: boolean; robots?: typeof INDEXABLE_ROBOTS | typeof NOINDEX_ROBOTS },
 ) {
     const canonical = options?.preferPathCanonical
         ? buildCanonicalUrl(locale, path)
         : seo?.[locale]?.canonical || buildCanonicalUrl(locale, path);
     const title = seo?.[locale]?.title || defaults.title || "Home Healers";
-    const description = seo?.[locale]?.description || defaults.description || "Home Healers app";
-    const keywords = seo?.[locale]?.keywords || defaults.keywords || "Home Healers, services, healthcare, clinics";
+    const description =
+        seo?.[locale]?.description ||
+        defaults.description ||
+        "Home Healers — in-home physiotherapy and medical rehabilitation in Saudi Arabia";
+    const keywords =
+        seo?.[locale]?.keywords ||
+        defaults.keywords ||
+        "Home Healers, physiotherapy, home healthcare, rehabilitation, Saudi Arabia";
 
     const meta: any = {
         title,
         description,
         keywords,
+        applicationName: "Home Healers",
+        authors: [{ name: "Home Healers", url: SITE_URL }],
+        creator: "Home Healers",
+        publisher: "Home Healers",
+        category: "healthcare",
+        formatDetection: {
+            telephone: true,
+            email: true,
+            address: true,
+        },
         alternates: {
             canonical,
             languages: buildLanguageAlternates(path),
         },
-        icons: { icon: "/assets/images/favicon.ico" },
+        icons: {
+            icon: "/assets/images/favicon.ico",
+            shortcut: "/assets/images/favicon.ico",
+            apple: "/assets/images/favicon.ico",
+        },
         openGraph: {
             type: seo?.[locale]?.og_type || defaults.ogType || "website",
             title: seo?.[locale]?.og_title || title,
@@ -113,22 +156,17 @@ export function createMetadata(
             url: canonical,
             siteName: seo?.[locale]?.og_site_name || "Home Healers",
             locale: seo?.[locale]?.og_locale || ogLocale(locale),
+            alternateLocale: locale === "ar" ? ["en_SA"] : ["ar_SA"],
             images: [
                 {
                     url: seo?.[locale]?.og_image || "/assets/images/favicon.ico",
                     width: 1200,
                     height: 630,
+                    alt: title,
                 },
             ],
         },
-        robots: {
-            index: true,
-            follow: true,
-            googleBot: {
-                index: true,
-                follow: true,
-            },
-        },
+        robots: options?.robots ?? INDEXABLE_ROBOTS,
         twitter: {
             card: "summary_large_image",
             title: seo?.[locale]?.twitter_title || title,
@@ -137,10 +175,30 @@ export function createMetadata(
         },
     };
 
-    // include verification if present (e.g., google verification key)
     if (seo?.[locale]?.verification) {
         meta.verification = seo.verification;
     }
 
     return meta;
+}
+
+/** Private / transactional pages must stay out of the index. */
+export function createNoIndexMetadata(
+    locale: string,
+    path: string,
+    defaults: { title?: string; description?: string } = {},
+) {
+    return createMetadata(
+        null,
+        locale,
+        path,
+        {
+            title: defaults.title || "Home Healers",
+            description: defaults.description || "Home Healers",
+        },
+        {
+            preferPathCanonical: true,
+            robots: NOINDEX_ROBOTS,
+        },
+    );
 }

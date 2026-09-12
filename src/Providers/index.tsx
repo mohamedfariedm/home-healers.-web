@@ -33,7 +33,7 @@ export default async function GlobalProvider({
         attribute="class"
         defaultTheme="light"
         forcedTheme="light" 
-        enableSystem
+        enableSystem={false}
         disableTransitionOnChange
       >
         <RamadanProvider isRamadan={IS_RAMADAN_ACTIVE}>

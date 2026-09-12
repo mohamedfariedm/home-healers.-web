@@ -1,0 +1,30 @@
+User-agent: *
+Allow: /
+Allow: /en
+Disallow: /admin
+Disallow: /api
+Disallow: /invoice
+Disallow: /en/invoice
+Disallow: /success
+Disallow: /en/success
+Disallow: /failed
+Disallow: /en/failed
+Disallow: /canceled
+Disallow: /en/canceled
+Disallow: /review
+Disallow: /en/review
+Disallow: /reservations/review
+Disallow: /en/reservations/review
+Disallow: /invite-doctor
+Disallow: /en/invite-doctor
+
+User-agent: AdsBot-Google
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+Sitemap: https://home-healers.com/sitemap.xml

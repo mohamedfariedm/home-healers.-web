@@ -21,14 +21,8 @@ import {
   DeferredOffers,
   DeferredReservationReviews,
 } from "./_components/DeferredSections";
-import { generateLocaleStaticParams } from "@/lib/static-pages";
 
-export function generateStaticParams() {
-  return generateLocaleStaticParams();
-}
-
-export const dynamic = "force-static";
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 const BeCloser = nextDynamic(() => import("./_components/BeCloser"));
 const DownloadApp = nextDynamic(() => import("./_components/DownloadApp"));
@@ -46,8 +40,9 @@ export async function generateMetadata({
   const seo = settings?.data[0]?.setting?.seo;
 
   return createMetadata(seo?.["home"], locale, "", {
-    title: "Home healers",
-    description: "Home healers app",
+    title: "Home Healers",
+    description:
+      "Home Healers — in-home physiotherapy and medical rehabilitation in Saudi Arabia",
   });
 }
 
@@ -82,8 +77,6 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
     (banner: { page: string; type: string }) =>
       banner.page === "home" && banner.type === "web",
   );
-  const seo = settings?.data[0]?.setting?.seo?.["home"];
-
   const breadcrumbSchema = createBreadcrumbSchema([
     {
       name: "Home",
@@ -98,9 +91,6 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
         dangerouslySetInnerHTML={{ __html: renderJsonLd(breadcrumbSchema) }}
       />
       <div>
-        <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-          {seo?.[locale]?.title}
-        </h1>
         <div className="w-full xl:w-[1440px] h-[1px] bg-[#fff] relative shadow-[0_1px_2px_0_rgba(16,24,40,0.06)] mt-0 mr-0 mb-0 ml-0" />
         <Hero
           locale={locale}

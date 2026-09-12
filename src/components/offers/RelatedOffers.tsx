@@ -56,7 +56,7 @@ export default function RelatedOffers({
 
   return (
     <section id="related-offers">
-      <h2 className="mb-4 text-2xl font-semibold text-[#143087]">
+      <h2 className="mb-4 text-xl font-semibold text-[#143087] sm:text-2xl">
         {t("related")}
       </h2>
       {loading ? (
@@ -68,7 +68,7 @@ export default function RelatedOffers({
           ))}
         </div>
       ) : (
-        <div className="flex snap-x gap-4 overflow-x-auto pb-2">
+        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:gap-4 sm:px-0">
           {offers.map((offer) => {
             if (!offer.slug) return null;
             const href = offerHref(locale, offer.slug);
@@ -77,7 +77,7 @@ export default function RelatedOffers({
               <a
                 key={offer.id}
                 href={href}
-                className="min-w-[240px] snap-start overflow-hidden rounded-2xl border border-gray-100 bg-white"
+                className="min-w-[78%] snap-start overflow-hidden rounded-2xl border border-gray-100 bg-white sm:min-w-[240px]"
               >
                 <div className="relative aspect-[4/3] bg-[#eef4ff]">
                   {image ? (

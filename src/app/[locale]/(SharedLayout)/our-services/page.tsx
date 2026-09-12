@@ -1,9 +1,11 @@
-import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
 import { AnimatedServicesSection } from "@/components/Services";
 import { Bannar } from "../(homepage)/_components";
 import { createMetadata } from "@/lib/seo";
-
+import { getCachedServices, getCachedSettings } from "@/lib/cached-api";
+import { slimBanner, slimServiceForList } from "@/lib/public-payload";
+import { HeroBreadcrumb } from "@/components/Shared/HeroBreadcrumb";
+import { localePath } from "@/lib/offers";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
@@ -13,11 +15,11 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const { t } = await initTranslations(locale, ["homepage"]);
-  const settings = await ClientAPI.getSettings(locale);
+  const settings = await getCachedSettings(locale);
   const seo = settings?.data[0]?.setting?.seo?.["services"];
 
   return createMetadata(seo, locale, "/our-services", {
-    title: "Home Hellers | Services",
+    title: "Home Healers | Services",
     description: "Discover our medical and therapeutic services",
   });
 }
@@ -29,9 +31,10 @@ export default async function ServicesPage({
 }) {
   const { locale } = await params;
   const { t } = await initTranslations(locale, ["common"]);
-  const servicesData = await ClientAPI.getAllServices(locale);
-  const settings = await ClientAPI.getSettings(locale);
-  const seo = settings?.data[0]?.setting?.seo["services"];
+  const [servicesData, settings] = await Promise.all([
+    getCachedServices(locale),
+    getCachedSettings(locale),
+  ]);
 
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
     (b: any) => b.page === "services"
@@ -39,10 +42,6 @@ export default async function ServicesPage({
 
   return (
     <div className="main-container w-full  bg-[#fff] relative overflow-hidden mx-auto my-0">
-      <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-        {seo?.[locale]?.h1}
-      </h1>
-
       <div
         className="w-full h-[250px] relative bg-no-repeat bg-cover bg-center"
         style={{
@@ -77,24 +76,21 @@ export default async function ServicesPage({
 
           {/* Center Content */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-            <div className="text-white text-[24px] font-semibold leading-[32px]">
+            <h1 className="text-white text-[24px] font-semibold leading-[32px]">
               {t("services.hero.title", { ns: "common" })}
-            </div>
-            <div className="mt-2 flex justify-center items-center gap-2">
-              <span className="text-[#62a0f6] text-sm font-semibold">
-                {t("services.hero.breadcrumb", { ns: "common" })}
-              </span>
-              <div
-                className="w-4 h-4 bg-no-repeat bg-cover"
-                style={{
-                  backgroundImage:
-                    "url(/assets/images/shared/hero-banner/hero-breadcrumb-arrow.svg)",
-                }}
-              />
-              <span className="text-white text-sm font-semibold">
-                {t("services.hero.home", { ns: "common" })}
-              </span>
-            </div>
+            </h1>
+            <HeroBreadcrumb
+              items={[
+                {
+                  label: t("services.hero.home", { ns: "common" }),
+                  href: localePath(locale, "/"),
+                },
+                {
+                  label: t("services.hero.breadcrumb", { ns: "common" }),
+                  isActive: true,
+                },
+              ]}
+            />
           </div>
 
           {/* Decorative Elements */}
@@ -123,12 +119,17 @@ export default async function ServicesPage({
       </div>
 
       {/* Services Section */}
-      <AnimatedServicesSection data={servicesData?.data} locale={locale} />
+      <AnimatedServicesSection
+        data={(servicesData?.data || []).map((service: any, index: number) =>
+          slimServiceForList(service, { includeFullDescription: index === 0 }),
+        )}
+        locale={locale}
+      />
 
       {/* Optional Banners */}
       {homeBanners?.length > 0 &&
         homeBanners.map((banner: any, i: number) => (
-          <Bannar key={i} banner={banner} />
+          <Bannar key={i} banner={slimBanner(banner)} />
         ))}
     </div>
   );

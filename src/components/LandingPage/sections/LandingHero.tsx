@@ -144,7 +144,6 @@ export default function LandingHero({ section, locale }: LandingHeroProps) {
                 className="absolute inset-0 w-full h-full object-cover rounded-lg"
                 loading="eager"
                 onError={(e) => {
-                  console.error("❌ Image failed to load:", image);
                   const target = e.target as HTMLImageElement;
                   target.style.backgroundColor = "#f3f4f6";
                   target.style.display = "flex";

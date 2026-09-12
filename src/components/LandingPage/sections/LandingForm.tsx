@@ -348,7 +348,6 @@ export default function LandingForm({ section, locale, settings }: LandingFormPr
                   sizes="(max-width: 1024px) 100vw, 40vw"
                   unoptimized={image.startsWith("http")}
                   onError={(e) => {
-                    console.error("❌ Form image failed to load:", image);
                     const target = e.target as HTMLImageElement;
                     target.style.display = "none";
                   }}

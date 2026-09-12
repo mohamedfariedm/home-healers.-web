@@ -15,11 +15,9 @@ const cardVariants = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
   hover: {
-    scale: 1.06,
-    boxShadow: "0 15px 25px rgba(0,0,0,0.2)",
-    rotateX: 5,
-    rotateY: 5,
-    transition: { duration: 0.4, ease: "easeOut" },
+    scale: 1.02,
+    boxShadow: "0 12px 22px rgba(0,0,0,0.12)",
+    transition: { duration: 0.3, ease: "easeOut" },
   },
   tap: { scale: 0.98 },
 };
@@ -93,14 +91,14 @@ const BlogAnimationSection = ({
   return (
     <>
       <motion.div
-        className="max-w-screen-xl mx-auto px-4 py-16"
+        className="mx-auto max-w-screen-xl px-4 py-10 sm:px-6 sm:py-16"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
         dir={isRTL ? "rtl" : "ltr"}
       >
         <div
-          className={`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10 ${
+          className={`grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 xl:grid-cols-3 xl:gap-10 ${
             isRTL ? "text-right" : "text-left"
           }`}
         >
@@ -113,45 +111,40 @@ const BlogAnimationSection = ({
               <Link
                 href={href}
                 key={card.id}
-                className="focus:outline-none focus:ring-2 focus:ring-[#62a0f6] rounded-[24px]"
+                className="min-w-0 rounded-[24px] focus:outline-none focus:ring-2 focus:ring-[#62a0f6]"
               >
                 <motion.div
-                  className="relative w-full max-w-[400px] h-[550px] bg-[#eff6fe] rounded-[24px] overflow-hidden mx-auto cursor-pointer shadow-md"
+                  className="relative mx-auto flex h-full w-full max-w-[400px] flex-col overflow-hidden rounded-[24px] bg-[#eff6fe] shadow-md"
                   variants={cardVariants}
                   initial="hidden"
                   animate="visible"
                   whileHover="hover"
                   whileTap="tap"
-                  style={{ transformStyle: "preserve-3d" }}
                 >
-                  {/* Image */}
                   <div
-                    className="h-[268px] bg-cover bg-no-repeat rounded-[20px] m-4"
+                    className="mx-3 mt-3 h-[180px] rounded-[20px] bg-cover bg-center bg-no-repeat sm:mx-4 sm:mt-4 sm:h-[220px] md:h-[248px]"
                     style={{
                       backgroundImage: `url(${img})`,
-                      transformStyle: "preserve-3d",
                     }}
                     aria-label={title}
                   />
 
-                  {/* Content */}
                   <div
-                    className={`flex flex-col gap-5 px-6 pt-4 ${
+                    className={`flex flex-1 flex-col gap-3 px-4 pt-4 pb-20 sm:gap-4 sm:px-6 ${
                       isRTL ? "text-right" : "text-left"
                     }`}
                   >
-                    <span className="text-[#62a0f6] text-sm font-medium">
+                    <span className="text-sm font-medium text-[#62a0f6]">
                       {formatDate(card?.date)}
                     </span>
-                    <h3 className="text-xl font-semibold text-[#1e1e1e]">
+                    <h3 className="line-clamp-2 break-words text-lg font-semibold text-[#1e1e1e] sm:text-xl">
                       {title}
                     </h3>
-                    <p className="text-sm text-[#1e1e1e] leading-8 font-light">
+                    <p className="line-clamp-3 text-sm font-light leading-7 text-[#1e1e1e] sm:leading-8">
                       {truncateDescription(card?.description)}
                     </p>
                   </div>
 
-                  {/* Button */}
                   <ShowMore locale={locale} />
                 </motion.div>
               </Link>
@@ -163,13 +156,13 @@ const BlogAnimationSection = ({
       {/* Pagination */}
       {totalPages > 1 && (
         <motion.div
-          className="w-full flex justify-center mt-12"
+          className="mt-8 mb-10 flex w-full justify-center px-4 sm:mt-12"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
           dir={isRTL ? "rtl" : "ltr"}
         >
-          <div className="flex items-center gap-6 select-none">
+          <div className="flex max-w-full flex-wrap items-center justify-center gap-3 select-none sm:gap-6">
             <motion.button
               onClick={goPrev}
               disabled={activePage === 1}
@@ -185,7 +178,7 @@ const BlogAnimationSection = ({
               )}
             </motion.button>
 
-            <div className="flex items-center gap-6">
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                 (page) => {
                   const isActive = page === activePage;

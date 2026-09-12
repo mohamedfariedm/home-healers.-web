@@ -1,6 +1,5 @@
 import initTranslations from "@/app/i18n";
-import ClientAPI from "@/app/api/api";
-import { createMetadata } from "@/lib/seo";
+import { createNoIndexMetadata } from "@/lib/seo";
 import ReservationReviewForm from "./_components/reservation-review-form";
 
 export const dynamic = "force-dynamic";
@@ -12,16 +11,14 @@ type Props = {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; reservationId: string }> }) {
   const { locale, reservationId } = await params;
   const { t } = await initTranslations(locale, ["review"]);
-  const settings = await ClientAPI.getSettings(locale);
-  const seo = settings?.data?.[0]?.setting?.seo?.["review"];
 
-  return createMetadata(seo, locale, `/review/${reservationId}`, {
+  return createNoIndexMetadata(locale, `/review/${reservationId}`, {
     title: t("meta.title", "Rate Your Experience - Home Healers"),
     description: t(
       "meta.description",
       "Share your feedback about your reservation experience"
     ),
-  }, { preferPathCanonical: true });
+  });
 }
 
 async function ReviewPage({ params }: { params: Promise<{ locale: string; reservationId: string }> }) {

@@ -82,7 +82,7 @@ export default function OfferCard({
             ))}
           </div>
         ) : null}
-        <Title className="line-clamp-2 text-base font-semibold text-[#1e1e1e]">
+        <Title className="line-clamp-2 break-words text-base font-semibold text-[#1e1e1e]">
           {offer.name}
         </Title>
         {sessions ? (
@@ -155,16 +155,16 @@ export default function OfferCard({
         <div className="flex flex-1 flex-col">{body}</div>
       )}
       {href ? (
-        <div className="mt-auto grid grid-cols-2 gap-2 p-4 pt-0">
+        <div className="mt-auto grid grid-cols-1 gap-2 p-4 pt-0 xs:grid-cols-2">
           <a
             href={href}
-            className="inline-flex h-10 items-center justify-center rounded-xl border border-[#143087] px-3 text-sm font-semibold text-[#143087] hover:bg-[#eef4ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="inline-flex h-10 items-center justify-center rounded-xl border border-[#143087] px-2 text-center text-xs font-semibold text-[#143087] hover:bg-[#eef4ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:px-3 sm:text-sm"
           >
             {t("viewDetails")}
           </a>
           <a
             href={bookHref}
-            className="inline-flex h-10 items-center justify-center rounded-xl bg-primary px-3 text-sm font-semibold text-white hover:bg-[#4f8ae8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="inline-flex h-10 items-center justify-center rounded-xl bg-primary px-2 text-center text-xs font-semibold text-white hover:bg-[#4f8ae8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:px-3 sm:text-sm"
           >
             {t("bookNow")}
           </a>

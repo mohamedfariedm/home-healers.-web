@@ -1,8 +1,12 @@
-import React from 'react';
+import React from "react";
+import {
+  HeroBreadcrumb,
+  type HeroBreadcrumbItem,
+} from "@/components/Shared/HeroBreadcrumb";
 
 interface HeroBannerProps {
   title: string;
-  breadcrumbItems: { label: string; isActive?: boolean }[];
+  breadcrumbItems: HeroBreadcrumbItem[];
 }
 
 const HeroBanner: React.FC<HeroBannerProps> = ({ title, breadcrumbItems }) => {
@@ -32,21 +36,7 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ title, breadcrumbItems }) => {
           <h1 className="text-white text-[24px] font-semibold leading-[32px]">
             {title}
           </h1>
-          <div className="mt-2 flex justify-center items-center gap-2">
-            {breadcrumbItems.map((item, index) => (
-              <React.Fragment key={index}>
-                {index > 0 && (
-                  <div 
-                    className="w-4 h-4 bg-no-repeat bg-cover" 
-                    style={{ backgroundImage: 'url(/assets/images/shared/hero-banner/hero-breadcrumb-arrow.svg)' }} 
-                  />
-                )}
-                <span className={`text-sm font-semibold ${item.isActive ? 'text-[#62a0f6]' : 'text-white'}`}>
-                  {item.label}
-                </span>
-              </React.Fragment>
-            ))}
-          </div>
+          <HeroBreadcrumb items={breadcrumbItems} />
         </div>
 
         {/* Decorative Elements */}

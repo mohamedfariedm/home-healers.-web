@@ -220,10 +220,13 @@ html {
   font-family: "Tajawal", sans-serif;
   color: #1e1e1e;
   line-height: 1.8;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .editor-content h1 {
-  font-size: 2.5rem;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
   font-weight: 800;
   color: #1e1e1e;
   margin-top: 2rem;
@@ -232,7 +235,7 @@ html {
 }
 
 .editor-content h2 {
-  font-size: 2rem;
+  font-size: clamp(1.35rem, 3.4vw, 2rem);
   font-weight: 700;
   color: #1e1e1e;
   margin-top: 1.75rem;
@@ -241,7 +244,7 @@ html {
 }
 
 .editor-content h3 {
-  font-size: 1.75rem;
+  font-size: clamp(1.2rem, 3vw, 1.75rem);
   font-weight: 600;
   color: #1e1e1e;
   margin-top: 1.5rem;
@@ -250,7 +253,7 @@ html {
 }
 
 .editor-content h4 {
-  font-size: 1.5rem;
+  font-size: clamp(1.1rem, 2.6vw, 1.5rem);
   font-weight: 600;
   color: #1e1e1e;
   margin-top: 1.25rem;
@@ -298,9 +301,19 @@ html {
   text-decoration: underline;
 }
 
-.editor-content img {
+.editor-content img,
+.editor-content video,
+.editor-content iframe {
   max-width: 100%;
+  height: auto;
   border-radius: 8px;
+}
+
+.editor-content table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .editor-content blockquote {
@@ -384,7 +397,13 @@ body.tawk-chat-open .tawk-max-container {
 }
 
 .offer-prose {
-  @apply text-[#1e1e1e] text-base leading-7;
+  @apply max-w-full break-words text-[#1e1e1e] text-base leading-7;
+}
+.offer-prose :where(img, video, iframe) {
+  @apply max-w-full h-auto;
+}
+.offer-prose :where(table) {
+  @apply block w-full max-w-full overflow-x-auto;
 }
 .offer-prose :where(p, ul, ol) {
   @apply mb-3 last:mb-0;

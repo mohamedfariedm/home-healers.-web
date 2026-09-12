@@ -19,7 +19,7 @@ export default function OfferFaqAccordion({
 
   return (
     <section>
-      <h2 className="mb-4 text-2xl font-semibold text-[#143087]">{title}</h2>
+      <h2 className="mb-4 text-xl font-semibold text-[#143087] sm:text-2xl">{title}</h2>
       <div className="divide-y rounded-2xl border border-gray-100">
         {faqs.map((faq) => {
           const open = openId === faq.id;
@@ -33,7 +33,7 @@ export default function OfferFaqAccordion({
                   type="button"
                   aria-expanded={open}
                   aria-controls={panelId}
-                  className="flex w-full items-center justify-between gap-4 px-4 py-4 text-start font-medium text-[#1e1e1e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="flex w-full items-center justify-between gap-3 px-3 py-4 text-start text-sm font-medium text-[#1e1e1e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:gap-4 sm:px-4 sm:text-base"
                   onClick={() => setOpenId(open ? null : faq.id)}
                 >
                   {faq.question}

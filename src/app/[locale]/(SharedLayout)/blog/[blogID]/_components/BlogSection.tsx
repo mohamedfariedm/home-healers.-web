@@ -182,10 +182,10 @@ export default function BlogRelatedSection({
   
   return (
     <motion.div
-      className={`flex flex-col lg:flex-row mt-[106px] mb-10 gap-10 max-w-screen-xl mx-auto px-4 xl:px-0`}
+      className="mx-auto mb-10 mt-8 flex max-w-screen-xl flex-col-reverse gap-8 px-4 sm:mt-12 sm:gap-10 lg:mt-16 lg:flex-row xl:px-0"
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.3 }}
+      viewport={{ once: true, amount: 0.15 }}
       variants={{
         hidden: { opacity: 1, y: 40 },
         visible: {
@@ -199,13 +199,13 @@ export default function BlogRelatedSection({
     >
       {/* Left Column */}
       <motion.div
-        className="w-full lg:w-[348px] flex flex-col gap-5"
+        className="flex w-full min-w-0 flex-col gap-5 lg:w-[348px] lg:shrink-0"
         variants={{
           hidden: { opacity: 1, x: isRTL ? -40 : 40 },
           visible: { opacity: 1, x: 0, transition: { duration: 0.6 } },
         }}
       >
-        <h3 className={`${textDir} text-[30px] font-medium text-[#1e1e1e]`}>
+        <h3 className={`${textDir} text-2xl font-medium text-[#1e1e1e] sm:text-[30px]`}>
           {t.relatedTopics} <span className="text-[#62a0f6]">{t.related}</span>
         </h3>
 
@@ -225,9 +225,9 @@ export default function BlogRelatedSection({
                 key={`${slug}-${index}`}
               >
                 <motion.div
-                  className="flex gap-4 items-center border-b border-[#d0d5dd] pb-5 cursor-pointer"
+                  className="flex min-w-0 cursor-pointer items-center gap-3 border-b border-[#d0d5dd] pb-5 sm:gap-4"
                   whileHover={{
-                    scale: 1.03,
+                    scale: 1.01,
                     boxShadow: "0 8px 15px rgba(0,0,0,0.1)",
                   }}
                   variants={{
@@ -237,16 +237,16 @@ export default function BlogRelatedSection({
                   transition={{ delay: index * 0.15 }}
                 >
                   <div
-                    className="w-[104px] h-[104px] rounded-md bg-cover bg-no-repeat"
+                    className="h-20 w-20 shrink-0 rounded-md bg-cover bg-center bg-no-repeat sm:h-[104px] sm:w-[104px]"
                     style={{ backgroundImage: `url(${image})` }}
                     role="img"
                     aria-label={
                       (isRTL ? "صورة للمقال " : "Thumbnail for ") + title
                     }
                   />
-                  <div className={`flex flex-col ${justifyStart} gap-1`}>
+                  <div className={`flex min-w-0 flex-1 flex-col ${justifyStart} gap-1`}>
                     <p
-                      className={`${textDir} text-lg text-[#1e1e1e] leading-[30px]`}
+                      className={`${textDir} line-clamp-2 break-words text-base leading-7 text-[#1e1e1e] sm:text-lg sm:leading-[30px]`}
                     >
                       {title}
                     </p>
@@ -261,12 +261,12 @@ export default function BlogRelatedSection({
         )}
 
         <h3
-          className={`${textDir} text-[30px] font-medium text-[#1e1e1e] mt-8`}
+          className={`${textDir} mt-8 text-2xl font-medium text-[#1e1e1e] sm:text-[30px]`}
         >
           {t.tags}
         </h3>
 
-        <div className={`flex flex-wrap scale-90 ${tagContainerJustify} gap-4`}>
+        <div className={`flex flex-wrap ${tagContainerJustify} gap-2 sm:gap-4`}>
           {blogTags.length > 0 ? (
             blogTags.map((tag: string, i: number) => (
               <motion.div
@@ -281,7 +281,7 @@ export default function BlogRelatedSection({
                 transition={{ duration: 0.3 }}
                 aria-label={(isRTL ? "هاشتاج " : "Tag ") + tag}
               >
-                <span className="text-[#736b7a] text-lg hover:text-white">
+                <span className="text-sm text-[#736b7a] hover:text-white sm:text-lg">
                   {tag}
                 </span>
               </motion.div>
@@ -294,14 +294,14 @@ export default function BlogRelatedSection({
 
       {/* Right Column */}
       <motion.div
-        className="flex-1 flex items-start flex-col gap-6"
+        className="flex min-w-0 flex-1 flex-col items-start gap-5 sm:gap-6"
         variants={{
           hidden: { opacity: 1 },
           visible: { opacity: 1, x: 0, transition: { duration: 0.6 } },
         }}
       >
         <motion.div
-          className="rounded-[24px] bg-cover bg-no-repeat h-[300px] md:h-[456px] w-full"
+          className="h-[200px] w-full rounded-[20px] bg-cover bg-center bg-no-repeat sm:h-[300px] sm:rounded-[24px] md:h-[456px]"
           style={{
             backgroundImage: `url(${
               data?.image?.[0]?.original || "/assets/images/placeholder.jpg"
@@ -324,13 +324,13 @@ export default function BlogRelatedSection({
 
           <div className={`flex flex-col gap-6 ${justifyStart}`}>
             <h1
-              className={`${textDir} text-2xl md:text-[30px] font-medium text-[#1e1e1e]`}
+              className={`${textDir} break-words text-xl font-medium text-[#1e1e1e] sm:text-2xl md:text-[30px]`}
             >
               {getNewsTitle(data, locale)}
             </h1>
 
             <div
-              className="editor-content"
+              className="editor-content w-full min-w-0 overflow-x-auto"
               dangerouslySetInnerHTML={{
                 __html: data?.description || "",
               }}
@@ -373,7 +373,7 @@ export default function BlogRelatedSection({
             onClick={() => setIsPopupOpen(false)}
           >
             <motion.div
-              className={`bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-xl border border-[#d0d5dd] bg-gradient-to-br from-white to-[#f0f6ff]`}
+              className={`mx-4 w-full max-w-md rounded-2xl border border-[#d0d5dd] bg-gradient-to-br from-white to-[#f0f6ff] p-5 shadow-xl sm:p-8`}
               initial={{ scale: 0.85, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.85, opacity: 0 }}

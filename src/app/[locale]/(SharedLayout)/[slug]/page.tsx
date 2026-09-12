@@ -1,8 +1,10 @@
-import ClientAPI from "@/app/api/api";
 import { notFound } from "next/navigation";
 import LandingPageRenderer from "@/components/LandingPage/LandingPageRenderer";
+import { getCachedSettings } from "@/lib/cached-api";
 import { buildCanonicalUrl, buildLanguageAlternates, ogLocale } from "@/lib/seo";
 import { Metadata } from "next";
+
+export const dynamic = "force-dynamic";
 
 type Props = {
   params: { locale: string; slug: string };
@@ -15,7 +17,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   try {
-    const settings = await ClientAPI.getSettings(locale);
+    const settings = await getCachedSettings(locale);
     const landingPages = settings?.data?.[0]?.setting?.landing_pages || [];
     const landingPage = landingPages.find(
       (page: any) => page.slug === slug
@@ -23,13 +25,15 @@ export async function generateMetadata({
 
     if (!landingPage) {
       return {
-        title: "Page Not Found",
+        title: "Home Healers",
+        description: "Home Healers — in-home physiotherapy in Saudi Arabia",
+        robots: { index: false, follow: false },
       };
     }
 
     const seo = landingPage.seo || {};
-    const metaTitle = seo.meta_title?.[locale] || landingPage.meta_title?.[locale] || landingPage.title?.[locale];
-    const metaDescription = seo.meta_description?.[locale] || landingPage.meta_description?.[locale] || landingPage.description?.[locale];
+    const metaTitle = seo.meta_title?.[locale] || landingPage.meta_title?.[locale] || landingPage.title?.[locale] || "Home Healers";
+    const metaDescription = seo.meta_description?.[locale] || landingPage.meta_description?.[locale] || landingPage.description?.[locale] || "Home Healers — in-home physiotherapy in Saudi Arabia";
 
     const path = `/${slug}`;
     const canonical = seo.canonical_url || buildCanonicalUrl(locale, path);
@@ -65,7 +69,8 @@ export async function generateMetadata({
   } catch (error) {
     console.error("Error generating metadata:", error);
     return {
-      title: "Landing Page",
+      title: "Home Healers",
+      description: "Home Healers — in-home physiotherapy in Saudi Arabia",
     };
   }
 }
@@ -75,14 +80,13 @@ async function LandingPage({ params }: { params: Promise<{ locale: string; slug:
   try {
         
     // Get landing page from settings (landing_pages array)
-    const settings = await ClientAPI.getSettings(locale);
+    const settings = await getCachedSettings(locale);
         
     const landingPages = settings?.data?.[0]?.setting?.landing_pages || [];
                 
     const landingPage = landingPages.find((page: any) => page.slug === slug);
     
     if (!landingPage) {
-      console.error("❌ Landing page not found for slug:", slug);
       notFound();
     }
     

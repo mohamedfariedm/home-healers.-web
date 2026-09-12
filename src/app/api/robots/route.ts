@@ -1,27 +1,46 @@
-import ClientAPI from "../api"; // adjust if needed
+const SITE_URL =
+  process.env.NEXT_PUBLIC_WEBSITE_URL || "https://home-healers.com";
 
-export const dynamic = "force-dynamic";
+const ROBOTS_TXT = `User-agent: *
+Allow: /
+Allow: /en
+Disallow: /admin
+Disallow: /api
+Disallow: /invoice
+Disallow: /en/invoice
+Disallow: /success
+Disallow: /en/success
+Disallow: /failed
+Disallow: /en/failed
+Disallow: /canceled
+Disallow: /en/canceled
+Disallow: /review
+Disallow: /en/review
+Disallow: /reservations/review
+Disallow: /en/reservations/review
+Disallow: /invite-doctor
+Disallow: /en/invite-doctor
 
-export async function GET() {
-  try {
-    const response = await ClientAPI.getRobots();
-    const robotsTxt = typeof response === "string" ? response : JSON.stringify(response);
+User-agent: AdsBot-Google
+Allow: /
 
-    // Debug log for upstream robots payload.
-    
-    return new Response(robotsTxt, {
-      status: 200,
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-      },
-    });
-  } catch (error) {
-    console.error("Error generating robots.txt:", error);
-    return new Response("User-agent: *\nDisallow:", {
-      status: 500,
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-      },
-    });
-  }
+User-agent: Bingbot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+Sitemap: ${SITE_URL}/sitemap.xml
+`;
+
+export const dynamic = "force-static";
+
+export function GET() {
+  return new Response(ROBOTS_TXT, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "public, max-age=86400",
+    },
+  });
 }

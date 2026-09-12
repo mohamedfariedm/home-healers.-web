@@ -269,9 +269,9 @@ export default function OffersListingClient({
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1440px] px-4 pb-16">
+    <div className="mx-auto w-full max-w-[1440px] px-4 pb-16 sm:px-6">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-        <div className="relative min-w-0 flex-1">
+        <div className="relative min-w-0 w-full flex-1">
           <Search className="pointer-events-none absolute top-1/2 start-3 size-4 -translate-y-1/2 text-[#4a5568]" />
           <Input
             value={search}
@@ -293,11 +293,11 @@ export default function OffersListingClient({
             </button>
           ) : null}
         </div>
-        <div className="flex items-center gap-2">
-          <div className="lg:hidden">
+        <div className="flex w-full min-w-0 items-center gap-2 lg:w-auto">
+          <div className="shrink-0 lg:hidden">
             <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" className="relative h-12 gap-2 rounded-2xl">
+                <Button variant="outline" className="relative h-12 gap-2 rounded-2xl px-3 sm:px-4">
                   <SlidersHorizontal className="size-4" />
                   {t("filters")}
                   {filterCount > 0 ? (
@@ -323,7 +323,7 @@ export default function OffersListingClient({
             onValueChange={(value) => updateQuery({ sort: value })}
           >
             <SelectTrigger
-              className="h-12 min-w-[190px] rounded-2xl border-[#d7e4f8]"
+              className="h-12 w-full min-w-0 flex-1 rounded-2xl border-[#d7e4f8] sm:min-w-[190px] lg:w-auto lg:flex-none"
               aria-label={t("sort")}
             >
               <SelectValue placeholder={t("sort")} />
@@ -386,7 +386,7 @@ export default function OffersListingClient({
       </div>
 
       {featured?.slug ? (
-        <div className="mt-8 overflow-hidden rounded-3xl">
+        <div className="mt-6 overflow-hidden rounded-2xl sm:mt-8 sm:rounded-3xl">
           <FeaturedOfferBanner offer={featured} locale={locale} />
         </div>
       ) : null}
@@ -448,7 +448,7 @@ export default function OffersListingClient({
               ))}
             </div>
           ) : emptyKind ? (
-            <div className="rounded-2xl border border-gray-100 bg-white p-10 text-center">
+            <div className="rounded-2xl border border-gray-100 bg-white p-6 text-center sm:p-10">
               <p className="mb-4 text-lg text-[#1e1e1e]">
                 {emptyKind === "search"
                   ? t("empty.search", { query: query.name })
@@ -501,7 +501,7 @@ export default function OffersListingClient({
           {meta.last_page > 1 ? (
             <nav
               aria-label={t("pagination.page", { page: meta.current_page })}
-              className="mt-10 flex flex-wrap items-center justify-center gap-2"
+              className="mt-8 flex flex-wrap items-center justify-center gap-1.5 sm:mt-10 sm:gap-2"
             >
               {meta.current_page > 1 ? (
                 <a

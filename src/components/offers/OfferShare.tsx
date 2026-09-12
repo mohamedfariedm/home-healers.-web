@@ -43,7 +43,7 @@ export default function OfferShare({ url, title }: OfferShareProps) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex min-w-0 flex-wrap items-center gap-2">
       <p className="text-sm font-medium text-[#143087]">{t("share")}</p>
       {canNativeShare ? (
         <button
@@ -88,7 +88,7 @@ export default function OfferShare({ url, title }: OfferShareProps) {
         <Copy className="size-4" />
         {copied ? t("copied") : t("copyLink")}
       </button>
-      <p className="w-full break-all text-xs text-[#4a5568]">
+      <p className="hidden w-full break-all text-xs text-[#4a5568] sm:block">
         <span className="sr-only">{t("canonicalUrl")}: </span>
         {url}
       </p>

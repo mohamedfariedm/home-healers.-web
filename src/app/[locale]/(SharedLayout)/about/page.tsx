@@ -7,23 +7,23 @@ import {
   HeroBanner,
   PartnersSection,
 } from "@/components/AboutUs";
-import ClientAPI from "@/app/api/api";
 import { createMetadata } from "@/lib/seo";
-import { getCachedSettings } from "@/lib/cached-api";
+import { createFaqPageSchema, renderJsonLd } from "@/lib/structured-data";
+import { formatFaqData } from "@/utils/faq-helpers";
+import {
+  getCachedAboutUs,
+  getCachedDoctors,
+  getCachedFAQs,
+  getCachedSettings,
+} from "@/lib/cached-api";
 import {
   slimBanner,
   slimDoctorCard,
   slimHomeSection,
   slimSettingsForChrome,
 } from "@/lib/public-payload";
-import { generateLocaleStaticParams } from "@/lib/static-pages";
-
-export function generateStaticParams() {
-  return generateLocaleStaticParams();
-}
-
-export const dynamic = "force-static";
-export const revalidate = 300;
+import { localePath } from "@/lib/offers";
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -35,7 +35,8 @@ export async function generateMetadata({
   const seo = settings?.data[0]?.setting?.seo["about-us"];
 
   return createMetadata(seo, locale, "/about", {
-    title: "Home Hellers",
+    title: "Home Healers | About",
+    description: "About Home Healers, our doctors, and in-home healthcare services",
   });
 }
 
@@ -43,9 +44,9 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const { t } = await initTranslations(locale, ["aboutUs"]);
   const [aboutData, doctorsData, faqsData, settings] = await Promise.all([
-    ClientAPI.getAboutUs(locale),
-    ClientAPI.getDoctors(locale),
-    ClientAPI.getFAQs(locale),
+    getCachedAboutUs(locale),
+    getCachedDoctors(locale),
+    getCachedFAQs(locale),
     getCachedSettings(locale),
   ]);
 
@@ -70,13 +71,21 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
     (section: any) => section?.id === 11
   );
 
+  const faqSchema = createFaqPageSchema(formatFaqData(faqsData?.data || [], locale));
+
   return (
     <>
+      {faqSchema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: renderJsonLd(faqSchema) }}
+        />
+      ) : null}
       <div className="min-h-screen bg-white">
         <HeroBanner
           title={t("breadcrumb.title")}
           breadcrumbItems={[
-            { label: t("home") },
+            { label: t("home"), href: localePath(locale, "/") },
             { label: t("breadcrumb.name"), isActive: true },
           ]}
         />

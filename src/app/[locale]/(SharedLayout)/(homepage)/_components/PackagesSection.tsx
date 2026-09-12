@@ -99,6 +99,7 @@ export default function PackagesSection({ locale, data }: PackagesSectionProps) 
                   }
                   alt={pkg.name}
                   fill
+                  sizes="(max-width: 768px) 100vw, 400px"
                   className="object-cover"
                 />
                 <div

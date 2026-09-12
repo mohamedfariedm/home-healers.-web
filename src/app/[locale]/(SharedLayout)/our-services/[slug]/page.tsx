@@ -17,6 +17,8 @@ import type { Service } from "@/types/booking";
 import { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 async function loadService(locale: string, slug: string) {
   const decoded = decodeURIComponent(slug);
   const res = await getCachedServiceBySlug(locale, decoded);
@@ -49,18 +51,26 @@ export async function generateMetadata({
     : `/our-services/${encodeURIComponent(serviceSlug)}`;
   const canonical = buildCanonicalUrl(locale, path);
   const title = loaded.service.name || "Home Healers";
+  const description =
+    (typeof loaded.service.meta_description === "object"
+      ? loaded.service.meta_description?.[locale]
+      : loaded.service.meta_description) ||
+    (typeof loaded.service.description === "string"
+      ? loaded.service.description.replace(/<[^>]+>/g, "").slice(0, 160)
+      : `${title} | Home Healers`);
 
   const baseMeta = createMetadata(
     null,
     locale,
     path,
-    { title },
+    { title, description },
     { preferPathCanonical: true },
   );
 
   return {
     ...baseMeta,
     title,
+    description,
     alternates: {
       canonical,
       languages: loaded.categorySlug

@@ -18,26 +18,60 @@ const alexandria = Alexandria({
   subsets: ['arabic', 'latin'],
   display: 'swap',
   variable: '--font-alexandria',
+  preload: true,
+  adjustFontFallback: true,
 });
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_WEBSITE_URL || "https://home-healers.com";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_WEBSITE_URL || "https://home-healers.com",
-  ),
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Home Healers",
+    template: "%s",
+  },
+  description:
+    "Home Healers — in-home physiotherapy and medical rehabilitation services in Saudi Arabia",
+  applicationName: "Home Healers",
+  authors: [{ name: "Home Healers", url: SITE_URL }],
+  creator: "Home Healers",
+  publisher: "Home Healers",
+  category: "healthcare",
   icons: {
     icon: "/assets/images/favicon.ico",
+    shortcut: "/assets/images/favicon.ico",
+    apple: "/assets/images/favicon.ico",
   },
   openGraph: {
     type: "website",
     siteName: "Home Healers",
+    locale: "ar_SA",
+    alternateLocale: ["en_SA"],
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
 };
 
+export const dynamic = "force-dynamic";
 export const dynamicParams = true;
 
 export const viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: "#143087",
 };
 
 export default async function RootLayout({
@@ -66,8 +100,8 @@ export default async function RootLayout({
       <head>
         <link rel="preconnect" href="https://backend.home-healers.com" />
         <link rel="dns-prefetch" href="https://backend.home-healers.com" />
-        <link rel="preconnect" href="https://development.home-healers.com" />
-        <link rel="dns-prefetch" href="https://development.home-healers.com" />
+        <link rel="preconnect" href="https://apis.home-healers.com" />
+        <link rel="dns-prefetch" href="https://apis.home-healers.com" />
       </head>
       <body className={alexandria.className}>
         {/* Organization Schema - JSON-LD can be placed in body per Schema.org spec */}

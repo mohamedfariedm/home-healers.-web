@@ -1,55 +1,75 @@
 import { cache } from "react";
-import { unstable_cache } from "next/cache";
 import ClientAPI from "@/app/api/api";
+import { slimBlogForHome } from "@/lib/public-payload";
 import { getCategorySlug, getServiceSlug, unwrapClientData } from "@/lib/slugs";
 
-const REVALIDATE_SECONDS = 300;
-
-function cached<T>(
-  key: string[],
-  fn: () => Promise<T>,
-): Promise<T> {
-  return unstable_cache(fn, key, {
-    revalidate: REVALIDATE_SECONDS,
-    tags: key,
-  })();
-}
-
 export const getCachedHomeData = cache((locale: string) =>
-  cached(["home-data", locale], () => ClientAPI.getHomeData(locale)),
+  ClientAPI.getHomeData(locale),
 );
 
 export const getCachedSettings = cache((locale: string) =>
-  cached(["settings", locale], () => ClientAPI.getSettings(locale)),
+  ClientAPI.getSettings(locale),
 );
 export const getCachedServiceBySlug = cache((locale: string, slug: string) =>
-  cached(["service-slug", locale, slug], () =>
-    ClientAPI.getAllServicesSlug(locale, slug),
-  ),
+  ClientAPI.getAllServicesSlug(locale, slug),
 );
 
 export const getCachedCategory = cache((locale: string, key: string) =>
-  cached(["category", locale, key], () => ClientAPI.getCategory(key, locale)),
+  ClientAPI.getCategory(key, locale),
 );
 
 export const getCachedSingleBlog = cache((blogID: string, locale: string) =>
-  cached(["blog", locale, blogID], () =>
-    ClientAPI.getSingleBlog(blogID, locale),
-  ),
+  ClientAPI.getSingleBlog(blogID, locale),
 );
 
 export const getCachedOfferBySlug = cache((locale: string, slug: string) =>
-  cached(["offer", locale, slug], () =>
-    ClientAPI.getOfferBySlug(slug, locale),
-  ),
+  ClientAPI.getOfferBySlug(slug, locale),
 );
 
 export const getCachedServices = cache((locale: string) =>
-  cached(["services", locale], () => ClientAPI.getAllServices(locale)),
+  ClientAPI.getAllServices(locale),
 );
 
 export const getCachedCategories = cache((locale: string) =>
-  cached(["categories", locale], () => ClientAPI.getCategories(locale)),
+  ClientAPI.getCategories(locale),
+);
+
+export const getCachedBlogs = cache(async (locale: string) => {
+  const res = await ClientAPI.getAllBlogs(locale, { page: 1, limit: 100 });
+  if (!res?.data) {
+    throw new Error("Failed to load blogs");
+  }
+  return {
+    ...res,
+    data: res.data.map(slimBlogForHome),
+  };
+});
+
+export const getCachedHomeBlogs = cache(async (locale: string) => {
+  const res = await ClientAPI.getAllBlogs(locale, {
+    show_home: true,
+    limit: 4,
+    page: 1,
+  });
+  if (!res?.data) {
+    throw new Error("Failed to load home blogs");
+  }
+  return {
+    ...res,
+    data: res.data.map(slimBlogForHome),
+  };
+});
+
+export const getCachedAboutUs = cache((locale: string) =>
+  ClientAPI.getAboutUs(locale),
+);
+
+export const getCachedDoctors = cache((locale: string) =>
+  ClientAPI.getDoctors(locale),
+);
+
+export const getCachedFAQs = cache((locale: string) =>
+  ClientAPI.getFAQs(locale),
 );
 
 export async function resolveServiceCategorySlug(

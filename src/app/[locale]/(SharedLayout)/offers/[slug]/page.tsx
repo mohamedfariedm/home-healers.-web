@@ -14,6 +14,7 @@ import {
   one,
   offerHref,
   offerOgImage,
+  safeDecodeUriSlug,
   toAbsoluteUrl,
 } from "@/lib/offers";
 import { getOfferSlug } from "@/lib/slugs";
@@ -21,6 +22,8 @@ import { getCachedOfferBySlug } from "@/lib/cached-api";
 import type { OfferDetails } from "@/types/offers";
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: Promise<{ locale: string; slug: string }>;
@@ -30,7 +33,8 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;
-  const res = await getCachedOfferBySlug(locale, slug);
+  const decodedSlug = safeDecodeUriSlug(slug);
+  const res = await getCachedOfferBySlug(locale, decodedSlug);
   const offer = one<OfferDetails>(res);
   if (!offer || res?._httpStatus === 404) {
     return { robots: { index: false, follow: false } };
@@ -38,7 +42,7 @@ export async function generateMetadata({
 
   const title = offer.meta_title || offer.name;
   const description = offer.meta_description || offer.short_description || "";
-  const offerSlug = getOfferSlug(offer, locale) || decodeURIComponent(slug);
+  const offerSlug = getOfferSlug(offer, locale) || decodedSlug;
   const path = `${OFFERS_WEBSITE_BASE_PATH}/${encodeURIComponent(offerSlug)}`;
   const canonical =
     offer.canonical_url || buildCanonicalUrl(locale, path);
@@ -85,7 +89,8 @@ export async function generateMetadata({
 
 export default async function OfferDetailsPage({ params }: PageProps) {
   const { locale, slug } = await params;
-  const res = await getCachedOfferBySlug(locale, slug);
+  const decodedSlug = safeDecodeUriSlug(slug);
+  const res = await getCachedOfferBySlug(locale, decodedSlug);
 
   if (!res) {
     throw new Error("Failed to load offer");
@@ -101,12 +106,12 @@ export default async function OfferDetailsPage({ params }: PageProps) {
   if (!offer) notFound();
 
   const offerSlug = getOfferSlug(offer, locale);
-  if (offerSlug && offerSlug !== decodeURIComponent(slug)) {
+  if (offerSlug && safeDecodeUriSlug(offerSlug) !== decodedSlug) {
     permanentRedirect(offerHref(locale, offerSlug));
   }
 
   const { t } = await initTranslations(locale, ["offers"]);
-  const path = `${OFFERS_WEBSITE_BASE_PATH}/${encodeURIComponent(offerSlug || slug)}`;
+  const path = `${OFFERS_WEBSITE_BASE_PATH}/${encodeURIComponent(offerSlug || decodedSlug)}`;
   const canonical = offer.canonical_url || buildCanonicalUrl(locale, path);
   const category = offer.categories?.[0];
   const categoryName = category ? localizedName(category.name, locale) : "";
@@ -146,7 +151,7 @@ export default async function OfferDetailsPage({ params }: PageProps) {
       : null;
 
   return (
-    <div className="w-full bg-white">
+    <div className="w-full overflow-x-hidden bg-white">
       {offer.structured_data ? (
         <script
           type="application/ld+json"

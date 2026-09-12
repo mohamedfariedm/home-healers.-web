@@ -1,13 +1,7 @@
-import ClientAPI from "@/app/api/api";
-import initTranslations from "@/app/i18n";
-import { createMetadata } from "@/lib/seo";
-import { AnimatedServicesSection } from "@/components/Services";
 import PaymentSuccess from "@/components/success";
-export const dynamic = "force-dynamic";
+import { createNoIndexMetadata } from "@/lib/seo";
 
-type props = {
-  params: { locale: string; slug: string };
-};
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -15,13 +9,10 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const { t } = await initTranslations(locale, ["homepage"]);
-  const settings = await ClientAPI.getSettings(locale);
-  const seo = settings?.data[0]?.setting?.seo["services"];
-
-  return createMetadata(seo, locale, `/success/${slug}`, {
-    title: "Home Healers",
-  }, { preferPathCanonical: true });
+  return createNoIndexMetadata(locale, `/success/${slug}`, {
+    title: "Home Healers | Payment successful",
+    description: "Your Home Healers payment was completed successfully",
+  });
 }
 
 async function page({ params }: { params: Promise<{ locale: string; slug: string }> }) {

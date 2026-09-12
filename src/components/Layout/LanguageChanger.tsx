@@ -15,7 +15,7 @@ import {
   serviceHref,
   unwrapDetail,
 } from "@/lib/slugs"
-import { offerHref, one } from "@/lib/offers"
+import { offerHref, one, safeDecodeUriSlug } from "@/lib/offers"
 
 export default function LanguageChanger() {
   const { i18n } = useTranslation()
@@ -56,7 +56,7 @@ export default function LanguageChanger() {
         }
       } else if (pathParts[0] === "offers" && pathParts[1]) {
         const res = await ClientAPI.getOfferBySlug(
-          decodeURIComponent(pathParts[1]),
+          safeDecodeUriSlug(pathParts[1]),
           currentLocale,
         )
         const offer = one<{ slug?: unknown }>(res)

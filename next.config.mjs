@@ -1,10 +1,27 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
+  compress: true,
+  poweredByHeader: false,
+  compiler: {
+    removeConsole:
+      process.env.NODE_ENV === "production"
+        ? { exclude: ["error", "warn"] }
+        : false,
+  },
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "react-icons",
+      "@radix-ui/react-icons",
+      "date-fns",
+      "framer-motion",
+    ],
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 3600,
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     // Dev-mode optimization is on-demand and very slow; skip locally.
     unoptimized: process.env.NODE_ENV === "development",
@@ -30,6 +47,14 @@ const nextConfig = {
         hostname: "apis.home-healers.com",
       },
       {
+        protocol: "https",
+        hostname: "home-healers.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.home-healers.com",
+      },
+      {
         protocol: "http",
         hostname: "backend.home-healers.com",
       },
@@ -44,6 +69,8 @@ const nextConfig = {
       "development.home-healers.com",
       "codia-f2c.s3.us-west-1.amazonaws.com",
       "apis.home-healers.com",
+      "home-healers.com",
+      "www.home-healers.com",
     ],
   },
   async redirects() {
@@ -128,6 +155,15 @@ const nextConfig = {
       {
         source: "/.well-known/assetlinks.json",
         headers: [{ key: "Content-Type", value: "application/json" }],
+      },
+      {
+        source: "/assets/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
       },
     ];
   },

@@ -137,7 +137,10 @@ export default function LandingSlider({
             break;
 
           case "blogs":
-            const blogsData = await ClientAPI.getAllBlogs(locale);
+            const blogsData = await ClientAPI.getAllBlogs(locale, {
+              page: 1,
+              limit: 24,
+            });
             fetchedData = blogsData?.data || [];
             if (selectedIds.length > 0) {
               fetchedData = fetchedData.filter((item: any) =>
@@ -245,6 +248,7 @@ export default function LandingSlider({
                     src={item.image?.original || item.image}
                     alt={item.name || "Doctor"}
                     fill
+                    sizes="(max-width: 768px) 100vw, 360px"
                     className="object-cover"
                   />
                 )}
@@ -402,6 +406,7 @@ export default function LandingSlider({
                     src={item.image[0].original}
                     alt={item.name}
                     fill
+                    sizes="(max-width: 768px) 100vw, 360px"
                     className="object-cover"
                   />
                 )}

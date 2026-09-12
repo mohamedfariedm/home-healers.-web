@@ -4,15 +4,12 @@ import ContactSection from "./_components/ContactForm";
 import MapComponent from "./_components/MapComponent";
 import { Bannar } from "../(homepage)/_components";
 import { createMetadata } from "@/lib/seo";
-import { generateLocaleStaticParams } from "@/lib/static-pages";
+import { HeroBreadcrumb } from "@/components/Shared/HeroBreadcrumb";
+import { localePath } from "@/lib/offers";
 import { getCachedSettings } from "@/lib/cached-api";
+import { slimBanner, slimSettingsForContact } from "@/lib/public-payload";
 
-export function generateStaticParams() {
-  return generateLocaleStaticParams();
-}
-
-export const dynamic = "force-static";
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: {
@@ -24,7 +21,8 @@ export async function generateMetadata({
   const seo = settings?.data[0]?.setting?.seo["contact"];
 
   return createMetadata(seo, locale, "/contact", {
-    title: "Home Hellers",
+    title: "Home Healers | Contact",
+    description: "Contact Home Healers for in-home physiotherapy in Saudi Arabia",
   });
 }
 
@@ -76,21 +74,18 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
               <h1 className="text-white text-[24px] font-semibold leading-[32px]">
                 {t("hero.title")}
               </h1>
-              <div className="mt-2 flex justify-center items-center gap-2">
-                <span className="text-[#62a0f6] text-sm font-semibold">
-                  {t("hero.breadcrumb")}
-                </span>
-                <div
-                  className="w-4 h-4 bg-no-repeat bg-cover"
-                  style={{
-                    backgroundImage:
-                      "url(/assets/images/shared/hero-banner/hero-breadcrumb-arrow.svg)",
-                  }}
-                />
-                <span className="text-white text-sm font-semibold">
-                  {t("hero.home")}
-                </span>
-              </div>
+              <HeroBreadcrumb
+                items={[
+                  {
+                    label: t("hero.home"),
+                    href: localePath(locale, "/"),
+                  },
+                  {
+                    label: t("hero.breadcrumb"),
+                    isActive: true,
+                  },
+                ]}
+              />
             </div>
 
             {/* Decorative Elements */}
@@ -117,11 +112,11 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
             />
           </div>
         </div>
-        <ContactSection settings={settings} />
+        <ContactSection settings={slimSettingsForContact(settings)} />
         <MapComponent />
         {homeBanners?.length > 0 &&
           homeBanners.map((banner: any, index: number) => (
-            <Bannar key={index} banner={banner} />
+            <Bannar key={index} banner={slimBanner(banner)} />
           ))}
       </div>
     </>

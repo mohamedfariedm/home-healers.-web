@@ -75,7 +75,6 @@ export default function LandingSection({
                   sizes="(max-width: 768px) 100vw, 50vw"
                   unoptimized={image.startsWith("http")}
                   onError={() => {
-                    console.error("Section image failed to load:", image);
                     setImageError(true);
                   }}
                 />

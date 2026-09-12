@@ -12,6 +12,7 @@ interface OrganizationSchemaOptions {
     telephone?: string;
     email?: string;
     contactType?: string;
+    availableLanguage?: string[];
   };
   address?: {
     streetAddress?: string;
@@ -54,10 +55,17 @@ export function createOrganizationSchema(
 ): object {
   const schema: any = {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": ["MedicalOrganization", "LocalBusiness"],
     name: options.name,
     url: options.url,
     logo: options.logo,
+    image: options.logo,
+    priceRange: "$$",
+    medicalSpecialty: "Physical Therapy",
+    areaServed: {
+      "@type": "Country",
+      name: "Saudi Arabia",
+    },
   };
 
   if (options.description) {
@@ -170,14 +178,80 @@ export const defaultOrganizationData: OrganizationSchemaOptions = {
   name: "Home Healers",
   url: "https://home-healers.com",
   logo: "https://home-healers.com/assets/images/logo.svg",
-  description: "Home Healers - Professional healthcare services at your doorstep",
+  description:
+    "Home Healers — in-home physiotherapy and medical rehabilitation services across Saudi Arabia",
   contactPoint: {
-    contactType: "Customer Service",
+    contactType: "customer service",
+    email: "customer.service@home-healers.com",
+    availableLanguage: ["Arabic", "English"],
   },
   address: {
+    addressLocality: "Riyadh",
     addressCountry: "SA",
   },
-  sameAs: [
-    // Add social media URLs here
-  ],
+  sameAs: [],
 };
+
+export function createArticleSchema(options: {
+  headline: string;
+  description?: string;
+  image?: string;
+  datePublished?: string;
+  dateModified?: string;
+  authorName?: string;
+  url: string;
+}): object {
+  const schema: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: options.headline,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": options.url,
+    },
+    url: options.url,
+    publisher: {
+      "@type": "Organization",
+      name: "Home Healers",
+      logo: {
+        "@type": "ImageObject",
+        url: defaultOrganizationData.logo,
+      },
+    },
+  };
+
+  if (options.description) schema.description = options.description;
+  if (options.image) {
+    schema.image = [options.image];
+  }
+  if (options.datePublished) schema.datePublished = options.datePublished;
+  if (options.dateModified) schema.dateModified = options.dateModified;
+  if (options.authorName) {
+    schema.author = {
+      "@type": "Person",
+      name: options.authorName,
+    };
+  }
+
+  return schema;
+}
+
+export function createFaqPageSchema(
+  items: Array<{ question: string; answer: string }>,
+): object | null {
+  const valid = items.filter((item) => item.question && item.answer);
+  if (!valid.length) return null;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: valid.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer.replace(/<[^>]+>/g, "").trim(),
+      },
+    })),
+  };
+}

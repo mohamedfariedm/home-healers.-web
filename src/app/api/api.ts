@@ -1,5 +1,5 @@
 import { ClientApiError } from "@/lib/client-api-error";
-import { compactQuery, one } from "@/lib/offers";
+import { compactQuery, one, safeDecodeUriSlug } from "@/lib/offers";
 import type { OffersListQuery } from "@/types/offers";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -7,6 +7,59 @@ const SERVER_API_BASE_URL = process.env.API_URL;
 const WEBSITE_URL = process.env.NEXT_PUBLIC_WEBSITE_URL || "https://home-healers.com";
 const DEFAULT_ROBOTS_TXT = `User-agent: *\nAllow: /\n\nSitemap: ${WEBSITE_URL}/sitemap.xml`;
 const ROBOTS_LOG_PREFIX = "[ROBOTS]";
+const FETCH_TIMEOUT_MS = 20000;
+const FETCH_RETRY_COUNT = 2;
+
+function isRetryableFetchError(error: unknown) {
+  const err = error as { name?: string; cause?: { code?: string; name?: string } };
+  const message = String(error);
+  return (
+    err?.name === "TimeoutError" ||
+    err?.cause?.code === "UND_ERR_CONNECT_TIMEOUT" ||
+    err?.cause?.name === "ConnectTimeoutError" ||
+    message.includes("fetch failed") ||
+    message.includes("Connect Timeout")
+  );
+}
+
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  retries = FETCH_RETRY_COUNT,
+) {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const timeoutSignal = AbortSignal.timeout(FETCH_TIMEOUT_MS);
+      let signal: AbortSignal = timeoutSignal;
+      if (options.signal) {
+        if (typeof AbortSignal.any === "function") {
+          signal = AbortSignal.any([options.signal, timeoutSignal]);
+        } else {
+          const controller = new AbortController();
+          const abort = () => controller.abort();
+          if (options.signal.aborted || timeoutSignal.aborted) {
+            controller.abort();
+          } else {
+            options.signal.addEventListener("abort", abort, { once: true });
+            timeoutSignal.addEventListener("abort", abort, { once: true });
+          }
+          signal = controller.signal;
+        }
+      }
+      return await fetch(url, { ...options, signal });
+    } catch (error) {
+      lastError = error;
+      const abortedByCaller =
+        options.signal?.aborted && (error as { name?: string })?.name === "AbortError";
+      if (abortedByCaller || !isRetryableFetchError(error) || attempt === retries) {
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 400 * (attempt + 1)));
+    }
+  }
+  throw lastError;
+}
 
 const fetchData = async (endpoint: string, locale: string, params: Record<string, any> = {}) => {
   try {
@@ -40,19 +93,11 @@ const fetchData = async (endpoint: string, locale: string, params: Record<string
 
     const method = params.method || "GET";
     const isMutation = method === "POST" || method === "PUT" || method === "DELETE";
-    const bypassCache =
-      isMutation ||
-      params.requiresAuth ||
-      params.authToken ||
-      params.noCache ||
-      params.cache === "no-store";
 
     const fetchOptions: RequestInit = {
       method,
       headers,
-      ...(bypassCache
-        ? { cache: "no-store" as const }
-        : { next: { revalidate: params.revalidate ?? 300 } }),
+      cache: "no-store",
     };
 
     if (params.signal) {
@@ -63,7 +108,11 @@ const fetchData = async (endpoint: string, locale: string, params: Record<string
       fetchOptions.body = params.isFormData ? params.body : JSON.stringify(params.body);
     }
 
-    const response = await fetch(url.toString(), fetchOptions);
+    const response = await fetchWithRetry(
+      url.toString(),
+      fetchOptions,
+      isMutation ? 0 : FETCH_RETRY_COUNT,
+    );
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
@@ -152,7 +201,10 @@ const ClientAPI = {
     fetchData(`client/packages/${id}`, locale),
 
   getOfferBySlug: (slug: string, locale: string) =>
-    fetchData(`client/offers/${encodeURIComponent(slug)}`, locale),
+    fetchData(
+      `client/offers/${encodeURIComponent(safeDecodeUriSlug(slug))}`,
+      locale,
+    ),
 
   getFeaturedPackage: (locale: string) =>
     fetchData("client/packages-featured", locale),

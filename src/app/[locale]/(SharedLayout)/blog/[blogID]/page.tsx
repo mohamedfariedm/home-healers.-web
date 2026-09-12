@@ -7,14 +7,20 @@ import {
   buildLocalizedSlugAlternates,
   createMetadata,
 } from "@/lib/seo";
-import { getCachedSingleBlog } from "@/lib/cached-api";
+import { createArticleSchema, renderJsonLd } from "@/lib/structured-data";
+import { getCachedSettings, getCachedSingleBlog } from "@/lib/cached-api";
+import { slimBlogForHome } from "@/lib/public-payload";
 import {
   blogHref,
   getBlogSlug,
   getNewsTitle,
   unwrapDetail,
 } from "@/lib/slugs";
+import { HeroBreadcrumb } from "@/components/Shared/HeroBreadcrumb";
+import { localePath } from "@/lib/offers";
 import { notFound, permanentRedirect } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 
 async function loadBlog(locale: string, param: string) {
   const decoded = decodeURIComponent(param);
@@ -50,7 +56,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; blogID: string }>;
 }) {
   const { locale, blogID } = await params;
-  const settings = await ClientAPI.getSettings(locale);
+  const settings = await getCachedSettings(locale);
   const seo = settings?.data?.[0]?.setting?.seo?.["blogs"];
   const loaded = await loadBlog(locale, blogID);
   const data = loaded?.data;
@@ -63,11 +69,14 @@ export async function generateMetadata({
     "Home Healers";
   const description = localizedMeta(data?.meta_description, locale);
 
+  const image =
+    (data?.image as { original?: string }[] | undefined)?.[0]?.original ||
+    undefined;
   const baseMeta = createMetadata(
     seo,
     locale,
     path,
-    { title, ogType: "article" },
+    { title, description, ogType: "article" },
     { preferPathCanonical: true },
   );
 
@@ -78,6 +87,22 @@ export async function generateMetadata({
     alternates: {
       canonical,
       languages: buildLocalizedSlugAlternates("/blog", data?.slug, blogSlug),
+    },
+    openGraph: {
+      ...baseMeta.openGraph,
+      type: "article",
+      title,
+      description: description || baseMeta.description,
+      url: canonical,
+      images: image
+        ? [{ url: image, width: 1200, height: 630, alt: title }]
+        : baseMeta.openGraph?.images,
+    },
+    twitter: {
+      ...baseMeta.twitter,
+      title,
+      description: description || baseMeta.description,
+      images: image ? [image] : baseMeta.twitter?.images,
     },
   };
 }
@@ -100,32 +125,54 @@ async function page({
     permanentRedirect(blogHref(locale, blogSlug));
   }
 
+  const articleTitle = getNewsTitle(loaded.data, locale);
+  const articleImage = (
+    loaded.data?.image as { original?: string }[] | undefined
+  )?.[0]?.original;
+  const publisher = loaded.data?.publisher as { name?: string } | undefined;
+  const articleSchema = createArticleSchema({
+    headline: articleTitle || "Home Healers",
+    description: localizedMeta(loaded.data?.meta_description, locale),
+    image: articleImage,
+    datePublished: localizedMeta(loaded.data?.date, locale) || localizedMeta(loaded.data?.created_at, locale),
+    dateModified: localizedMeta(loaded.data?.updated_at, locale) || localizedMeta(loaded.data?.date, locale),
+    authorName: publisher?.name || "Home Healers",
+    url: buildCanonicalUrl(
+      locale,
+      `/blog/${encodeURIComponent(blogSlug || decodeURIComponent(blogID))}`,
+    ),
+  });
+
   return (
-    <div className="main-container w-full  mx-auto relative">
+    <div className="main-container relative mx-auto w-full overflow-x-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: renderJsonLd(articleSchema) }}
+      />
       <div
-        className="w-full h-[250px] relative bg-no-repeat bg-cover bg-center"
+        className="relative h-[200px] w-full overflow-hidden bg-cover bg-center bg-no-repeat sm:h-[250px]"
         style={{
           backgroundImage:
             "url(/assets/images/shared/hero-banner/hero-bg-main.png)",
         }}
       >
         <div
-          className="absolute inset-0 w-full h-full bg-no-repeat bg-cover"
+          className="absolute inset-0 h-full w-full bg-cover bg-no-repeat"
           style={{
             backgroundImage:
               "url(/assets/images/shared/hero-banner/hero-layer-2.png)",
           }}
         >
-          <div className="absolute top-[19.2%] left-[70.76%] w-[2.01%] h-[56.4%]">
+          <div className="pointer-events-none absolute top-[19.2%] left-[70.76%] hidden h-[56.4%] w-[2.01%] md:block">
             <div
-              className="w-[29px] h-[29px] bg-no-repeat bg-cover"
+              className="h-[29px] w-[29px] bg-cover bg-no-repeat"
               style={{
                 backgroundImage:
                   "url(/assets/images/shared/hero-banner/hero-deco-1.svg)",
               }}
             />
             <div
-              className="w-[29px] h-[29px] mt-[83px] bg-no-repeat bg-cover"
+              className="mt-[83px] h-[29px] w-[29px] bg-cover bg-no-repeat"
               style={{
                 backgroundImage:
                   "url(/assets/images/shared/hero-banner/hero-deco-2.svg)",
@@ -133,43 +180,41 @@ async function page({
             />
           </div>
 
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-            <div className="text-white text-[24px] font-semibold leading-[32px]">
+          <div className="absolute top-1/2 left-1/2 w-[90%] max-w-[640px] -translate-x-1/2 -translate-y-1/2 px-4 text-center">
+            <h1 className="text-xl font-semibold leading-8 text-white sm:text-[24px]">
               {t("hero.title", { ns: "blog" })}
-            </div>
-            <div className="mt-2 flex justify-center items-center gap-2">
-              <span className="text-[#62a0f6] text-sm font-semibold">
-                {t("hero.breadcrumb", { ns: "blog" })}
-              </span>
-              <div
-                className="w-4 h-4 bg-no-repeat bg-cover"
-                style={{
-                  backgroundImage:
-                    "url(/assets/images/shared/hero-banner/hero-breadcrumb-arrow.svg)",
-                }}
-              />
-              <span className="text-white text-sm font-semibold">
-                {t("hero.home", { ns: "blog" })}
-              </span>
-            </div>
+            </h1>
+            <HeroBreadcrumb
+              items={[
+                {
+                  label: t("hero.home", { ns: "blog" }),
+                  href: localePath(locale, "/"),
+                },
+                {
+                  label: t("hero.breadcrumb", { ns: "blog" }),
+                  href: localePath(locale, "/blog"),
+                  isActive: true,
+                },
+              ]}
+            />
           </div>
 
           <div
-            className="absolute top-[34%] left-[14.44%] w-[2.01%] h-[11.6%] bg-no-repeat bg-cover"
+            className="pointer-events-none absolute top-[34%] left-[14.44%] hidden h-[11.6%] w-[2.01%] bg-cover bg-no-repeat md:block"
             style={{
               backgroundImage:
                 "url(/assets/images/shared/hero-banner/hero-deco-3.svg)",
             }}
           />
           <div
-            className="absolute top-[41.6%] left-[93.13%] w-[2.01%] h-[11.6%] bg-no-repeat bg-cover"
+            className="pointer-events-none absolute top-[41.6%] left-[93.13%] hidden h-[11.6%] w-[2.01%] bg-cover bg-no-repeat md:block"
             style={{
               backgroundImage:
                 "url(/assets/images/shared/hero-banner/hero-deco-4.svg)",
             }}
           />
           <div
-            className="absolute top-[62.8%] left-[6.88%] w-[1.67%] h-[9.6%] bg-no-repeat bg-cover"
+            className="pointer-events-none absolute top-[62.8%] left-[6.88%] hidden h-[9.6%] w-[1.67%] bg-cover bg-no-repeat md:block"
             style={{
               backgroundImage:
                 "url(/assets/images/shared/hero-banner/hero-deco-5.svg)",
@@ -178,7 +223,16 @@ async function page({
         </div>
       </div>
 
-      <BlogRelatedSection data={loaded.data} locale={locale} />
+      <BlogRelatedSection
+        data={{
+          ...loaded.data,
+          related_blogs: (Array.isArray(loaded.data.related_blogs)
+            ? loaded.data.related_blogs
+            : []
+          ).map(slimBlogForHome),
+        }}
+        locale={locale}
+      />
       <BlogLeadForm
         locale={locale}
         blogTitle={getNewsTitle(loaded.data, locale)}

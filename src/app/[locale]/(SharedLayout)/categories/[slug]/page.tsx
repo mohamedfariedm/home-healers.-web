@@ -1,8 +1,9 @@
-import ClientAPI from "@/app/api/api";
 import initTranslations from "@/app/i18n";
 import { CategoryDetailSection } from "@/components/Categories";
 import { Bannar } from "../../(homepage)/_components";
-import { getCachedCategory } from "@/lib/cached-api";
+import { getCachedCategory, getCachedSettings } from "@/lib/cached-api";
+import { slimBanner, slimCategoryForDetail } from "@/lib/public-payload";
+import { HeroBreadcrumb } from "@/components/Shared/HeroBreadcrumb";
 import { localePath } from "@/lib/offers";
 import { getPlainTextFromHtml } from "@/lib/parse-cms-html";
 import {
@@ -21,6 +22,8 @@ import {
 import type { Category } from "@/types/booking";
 import { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 
 async function loadCategory(locale: string, key: string) {
   const decoded = decodeURIComponent(key);
@@ -128,7 +131,7 @@ export default async function CategoryDetailPage({
     permanentRedirect(categoryHref(locale, categorySlug));
   }
 
-  const settings = await ClientAPI.getSettings(locale);
+  const settings = await getCachedSettings(locale);
   const homeBanners = settings?.data?.[0]?.setting?.banners?.filter(
     (b: { page: string }) => b.page === "categories",
   );
@@ -150,49 +153,37 @@ export default async function CategoryDetailPage({
           }}
         >
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-4">
-            <div className="text-white text-[24px] font-semibold leading-[32px]">
+            <h1 className="text-white text-[24px] font-semibold leading-[32px]">
               {loaded.category.name}
-            </div>
-            <div className="mt-2 flex justify-center items-center gap-2 flex-wrap">
-              <span className="text-[#62a0f6] text-sm font-semibold">
-                {loaded.category.name}
-              </span>
-              <div
-                className="w-4 h-4 bg-no-repeat bg-cover"
-                style={{
-                  backgroundImage:
-                    "url(/assets/images/shared/hero-banner/hero-breadcrumb-arrow.svg)",
-                }}
-              />
-              <a
-                href={localePath(locale, "/categories")}
-                className="text-white text-sm font-semibold hover:underline"
-              >
-                {t("categories.hero.breadcrumb", { ns: "common" })}
-              </a>
-              <div
-                className="w-4 h-4 bg-no-repeat bg-cover"
-                style={{
-                  backgroundImage:
-                    "url(/assets/images/shared/hero-banner/hero-breadcrumb-arrow.svg)",
-                }}
-              />
-              <a
-                href={localePath(locale, "/")}
-                className="text-white text-sm font-semibold hover:underline"
-              >
-                {t("categories.hero.home", { ns: "common" })}
-              </a>
-            </div>
+            </h1>
+            <HeroBreadcrumb
+              items={[
+                {
+                  label: t("categories.hero.home", { ns: "common" }),
+                  href: localePath(locale, "/"),
+                },
+                {
+                  label: t("categories.hero.breadcrumb", { ns: "common" }),
+                  href: localePath(locale, "/categories"),
+                },
+                {
+                  label: loaded.category.name,
+                  isActive: true,
+                },
+              ]}
+            />
           </div>
         </div>
       </div>
 
-      <CategoryDetailSection locale={locale} category={loaded.category} />
+      <CategoryDetailSection
+        locale={locale}
+        category={slimCategoryForDetail(loaded.category)}
+      />
 
       {homeBanners?.length > 0 &&
         homeBanners.map((banner: { id?: number }, index: number) => (
-          <Bannar key={banner.id ?? index} banner={banner} />
+          <Bannar key={banner.id ?? index} banner={slimBanner(banner)} />
         ))}
     </div>
   );

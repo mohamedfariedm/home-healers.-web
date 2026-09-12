@@ -15,7 +15,24 @@ export const OFFERS_PAGE_SIZE = 20;
 export const OFFERS_WEBSITE_BASE_PATH = "/offers";
 
 export function one<T>(res: OffersEnvelope<T> | null | undefined): T | null {
-  return res?.data?.[0] ?? null;
+  if (Array.isArray(res?.data)) return res.data[0] ?? null;
+  if (res?.data && typeof res.data === "object") return res.data as T;
+  return null;
+}
+
+/** Undo percent-encoding so Arabic slugs are not encoded twice. */
+export function safeDecodeUriSlug(value: string): string {
+  let current = value;
+  for (let i = 0; i < 3; i += 1) {
+    try {
+      const decoded = decodeURIComponent(current);
+      if (decoded === current) return current;
+      current = decoded;
+    } catch {
+      return current;
+    }
+  }
+  return current;
 }
 
 export function localePath(locale: string, path = ""): string {
@@ -38,7 +55,7 @@ export function offerHref(
         ? slug
         : "";
   if (!resolved) return localePath(locale, OFFERS_WEBSITE_BASE_PATH);
-  const path = `${OFFERS_WEBSITE_BASE_PATH}/${encodeURIComponent(resolved)}`;
+  const path = `${OFFERS_WEBSITE_BASE_PATH}/${encodeURIComponent(safeDecodeUriSlug(resolved))}`;
   return `${localePath(locale, path)}${hash ? `#${hash}` : ""}`;
 }
 

@@ -3,6 +3,7 @@ import OurStory from "./OurStory";
 import ClientReviewsSection from "./ClientReviewsSection";
 import ReservationReviewsSection from "./ReservationReviewsSection";
 import OffersTeaserRail from "@/components/offers/OffersTeaserRail";
+import { getCachedHomeBlogs } from "@/lib/cached-api";
 import {
   slimBlogForHome,
   slimClientReview,
@@ -11,10 +12,7 @@ import {
 } from "@/lib/public-payload";
 
 export async function DeferredOurStory({ locale }: { locale: string }) {
-  const blogData = await ClientAPI.getAllBlogs(locale, {
-    show_home: true,
-    limit: 4,
-  });
+  const blogData = await getCachedHomeBlogs(locale).catch(() => null);
   const posts = (blogData?.data || [])
     .filter((item: { show_in_home_page?: boolean }) => item.show_in_home_page)
     .slice(0, 4)

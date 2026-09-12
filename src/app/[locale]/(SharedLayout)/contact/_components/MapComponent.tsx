@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { GoogleMap, LoadScript, MarkerF } from "@react-google-maps/api";
 
 const mapContainerStyle = {
@@ -35,38 +35,73 @@ const locations = [
   },
 ];
 
-const MapComponent: React.FC = () => {
+function LoadedMap() {
   const [mapLoaded, setMapLoaded] = useState(false);
 
-  const handleMapLoad = () => {
-    setMapLoaded(true);
-  };
+  return (
+    <LoadScript
+      googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY || ""}
+    >
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={center}
+        zoom={12}
+        onLoad={() => setMapLoaded(true)}
+        options={{ scrollwheel: true, disableDefaultUI: false }}
+      >
+        {mapLoaded &&
+          locations.map(({ id, position, popup }) => (
+            <MarkerF
+              key={id}
+              position={position}
+              icon={{
+                url: "/assets/images/homehellers/hero.svg",
+                scaledSize: new window.google.maps.Size(40, 40),
+                anchor: new window.google.maps.Point(20, 40),
+              }}
+              title={popup}
+            />
+          ))}
+      </GoogleMap>
+    </LoadScript>
+  );
+}
+
+const MapComponent: React.FC = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "240px" },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <div className="max-w-[1280px] w-full h-[300px] md:h-[400px] lg:h-[570px] rounded-[16px] mx-auto mt-24 px-4 xl:px-0">
-      <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY || ""}>
-        <GoogleMap
-          mapContainerStyle={mapContainerStyle}
-          center={center}
-          zoom={12}
-          onLoad={handleMapLoad}
-          options={{ scrollwheel: true, disableDefaultUI: false }}
-        >
-          {mapLoaded &&
-            locations.map(({ id, position, popup }) => (
-              <MarkerF
-                key={id}
-                position={position}
-                icon={{
-                  url: "/assets/images/homehellers/hero.svg",
-                  scaledSize: new window.google.maps.Size(40, 40),
-                  anchor: new window.google.maps.Point(20, 40),
-                }}
-                title={popup}
-              />
-            ))}
-        </GoogleMap>
-      </LoadScript>
+    <div
+      ref={ref}
+      className="max-w-[1280px] w-full h-[300px] md:h-[400px] lg:h-[570px] rounded-[16px] mx-auto mt-24 px-4 xl:px-0"
+    >
+      {visible ? (
+        <LoadedMap />
+      ) : (
+        <div
+          className="h-full w-full rounded-[16px] bg-white"
+          aria-hidden
+        />
+      )}
     </div>
   );
 };

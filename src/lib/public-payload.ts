@@ -1,5 +1,5 @@
 import { toSecureMediaUrl } from "@/lib/image-url";
-import { getActiveServices } from "@/lib/slugs";
+import { getActiveServices, getServiceSlug } from "@/lib/slugs";
 
 const TEXT_PREVIEW = 360;
 
@@ -82,9 +82,87 @@ export function slimBlogForHome(blog: any) {
     name: blog.name,
     slug: blog.slug,
     date: blog.date,
-    description: blog.description,
+    description: previewText(blog.description, 160),
     image: slimImage(blog.image),
     show_in_home_page: blog.show_in_home_page,
+  };
+}
+
+export function slimServiceForList(
+  service: any,
+  options?: { includeFullDescription?: boolean },
+) {
+  if (!service) return service;
+  return {
+    id: service.id,
+    name: service.name,
+    slug: service.slug,
+    active: service.active,
+    image: slimImage(service.image),
+    icon: slimImage(service.icon),
+    description: options?.includeFullDescription
+      ? service.description
+      : previewText(service.description, 160),
+    category: service.category
+      ? {
+          id: service.category.id,
+          slug: service.category.slug,
+          name: service.category.name,
+        }
+      : null,
+  };
+}
+
+export function slimCategoryForDetail(category: any) {
+  if (!category) return category;
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description,
+    image: slimImage(category.image),
+    icon: slimImage(category.icon),
+    active: category.active,
+    services: getActiveServices(category.services).map((service) =>
+      slimServiceForList(service),
+    ),
+  };
+}
+
+export function slimCategoryForServicePage(
+  category: any,
+  activeServiceSlug: string,
+  locale: string,
+) {
+  if (!category) return category;
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    image: slimImage(category.image),
+    icon: slimImage(category.icon),
+    active: category.active,
+    services: getActiveServices(category.services).map((service: any) =>
+      slimServiceForList(service, {
+        includeFullDescription:
+          getServiceSlug(service, locale) === activeServiceSlug,
+      }),
+    ),
+  };
+}
+
+export function slimSettingsForContact(settings: unknown) {
+  const setting = (settings as { data?: Array<{ setting?: Record<string, unknown> }> })
+    ?.data?.[0]?.setting;
+  if (!setting) return null;
+  return {
+    data: [
+      {
+        setting: {
+          business_info: setting.business_info,
+        },
+      },
+    ],
   };
 }
 
