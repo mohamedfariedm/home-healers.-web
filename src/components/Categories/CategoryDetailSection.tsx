@@ -54,9 +54,9 @@ const CategoryDetailSection = ({
           <img src={image} alt={category.name} className="h-14 w-14 object-contain" />
         </div>
         <div className="flex flex-col gap-2">
-          <h1 className="text-2xl sm:text-3xl font-semibold text-[#1e1e1e]">
+          <h2 className="text-2xl sm:text-3xl font-semibold text-[#1e1e1e]">
             {category.name}
-          </h1>
+          </h2>
           <p className="text-[#62a0f6] text-sm font-semibold">
             {services.length}{" "}
             {isRTL

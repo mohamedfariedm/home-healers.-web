@@ -13,13 +13,15 @@ interface DoctorCardProps {
   onClick: () => void;
   translations: DoctorsTranslations;
   locale: string;
+  simplifyMotion?: boolean;
 }
 
 const DoctorCard: React.FC<DoctorCardProps> = ({ 
   doctor, 
   onClick, 
   translations,
-  locale 
+  locale,
+  simplifyMotion = false,
 }) => {
   const doctorImage = getDoctorImage(doctor);
   const rating = getDoctorRating(doctor);
@@ -28,17 +30,17 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
 
   return (
     <motion.div
-      className="relative w-full h-[520px] max-w-sm mx-auto cursor-pointer group"
-      initial={{ opacity: 0, y: 30 }}
+      className="relative mx-auto h-[440px] w-full max-w-sm cursor-pointer group sm:h-[500px] lg:h-[520px]"
+      initial={{ opacity: 0, y: simplifyMotion ? 12 : 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: false, amount: 0.3 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      whileHover={{ scale: 1.02 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: simplifyMotion ? 0.4 : 0.55, ease: "easeOut" }}
+      whileHover={simplifyMotion ? undefined : { scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
     >
       {/* Doctor Image */}
-      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-[85%] h-[400px] z-10">
+      <div className="absolute top-0 left-1/2 z-10 h-[300px] w-[85%] -translate-x-1/2 sm:h-[360px] lg:h-[400px]">
         <div
           className="w-full h-full bg-cover bg-center bg-no-repeat rounded-t-2xl shadow-lg group-hover:shadow-xl transition-shadow duration-300"
           style={{ backgroundImage: `url(${doctorImage})` }}
@@ -55,7 +57,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
       <div className="absolute top-[15%] w-full h-[80%] bg-gradient-to-b from-[#eff6fe] to-white rounded-2xl shadow-lg group-hover:shadow-xl transition-shadow duration-300" />
 
       {/* Content Section */}
-      <div className="absolute bottom-0 w-full bg-gradient-to-r from-[#62a0f6] to-[#4f8ae8] rounded-b-2xl p-6 text-white z-20">
+      <div className="absolute bottom-0 z-20 w-full rounded-b-2xl bg-gradient-to-r from-[#62a0f6] to-[#4f8ae8] p-4 text-white sm:p-6">
         {/* Doctor Name */}
         <h3 className="text-lg font-bold leading-6 text-center mb-2 line-clamp-1">
           {doctor.name}

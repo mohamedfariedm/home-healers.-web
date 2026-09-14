@@ -81,7 +81,7 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
           dangerouslySetInnerHTML={{ __html: renderJsonLd(faqSchema) }}
         />
       ) : null}
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen overflow-x-hidden bg-white">
         <HeroBanner
           title={t("breadcrumb.title")}
           breadcrumbItems={[
@@ -90,22 +90,20 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
           ]}
         />
 
-        <div className="flex flex-col items-center gap-14 mt-24 w-full mx-auto">
-          <div className="flex max-w-screen-xl rtl:ltr ltr:rtl flex-col xl:flex-row gap-6 items-center justify-between w-full px-4 xl:px-0">
-            {/* This is a placeholder for the AboutAppTwoColumns component which is imported in the original file */}
-            <div className="w-full py-8 text-center">
-              <AboutAppTwoColumns
-                aboutHomeSection={slimHomeSection(aboutSection, 4)}
-                locale={locale}
-              />
-            </div>
-          </div>
+        <div className="mx-auto mt-10 flex w-full max-w-screen-xl flex-col items-center px-4 sm:mt-16 lg:mt-24 xl:px-0">
+          <AboutAppTwoColumns
+            aboutHomeSection={slimHomeSection(aboutSection, 4)}
+            locale={locale}
+            showCta={false}
+          />
         </div>
 
         <FeaturesSection data={slimHomeSection(featuresSection, 8)} locale={locale} />
         {homeBanners?.length > 0 &&
           homeBanners.map((banner: any, index: number) => (
-            <Bannar key={index} banner={slimBanner(banner)} />
+            <div key={index} className="mx-auto w-full max-w-screen-xl overflow-hidden px-4">
+              <Bannar banner={slimBanner(banner)} />
+            </div>
           ))}
         <DoctorsSection
           doctorsData={(doctorsData?.data || []).map(slimDoctorCard)}

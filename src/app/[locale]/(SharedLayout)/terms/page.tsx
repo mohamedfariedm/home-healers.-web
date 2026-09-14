@@ -4,6 +4,7 @@ import { getCachedSettings } from "@/lib/cached-api";
 import { createMetadata } from "@/lib/seo";
 import { Metadata } from "next";
 import { localePath } from "@/lib/offers";
+import { demoteH1, normalizeCmsHtml } from "@/lib/parse-cms-html";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
@@ -91,7 +92,9 @@ export default async function TermsPage({
               text-[15px]
               prose prose-blue max-w-none
             "
-                    dangerouslySetInnerHTML={{ __html: section.content }}
+                    dangerouslySetInnerHTML={{
+                      __html: demoteH1(normalizeCmsHtml(section.content || "")),
+                    }}
                   />
                 </div>
               ))}

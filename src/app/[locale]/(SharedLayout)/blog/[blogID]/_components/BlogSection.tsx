@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { toast } from "sonner";
 import Link from "next/link";
+import { demoteH1, normalizeCmsHtml } from "@/lib/parse-cms-html";
 import { blogHref, formatApiDate, getBlogSlug, getNewsTitle } from "@/lib/slugs";
 
 // ---- Simple i18n dictionary ----
@@ -332,7 +333,7 @@ export default function BlogRelatedSection({
             <div
               className="editor-content w-full min-w-0 overflow-x-auto"
               dangerouslySetInnerHTML={{
-                __html: data?.description || "",
+                __html: demoteH1(normalizeCmsHtml(data?.description || "")),
               }}
             />
           </div>

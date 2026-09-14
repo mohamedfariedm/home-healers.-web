@@ -20,7 +20,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   const components: Partial<Components> = {
     // Headers
     h1: ({ children }) => (
-      <h1 className="text-4xl font-bold text-center mb-4">{children}</h1>
+      <h2 className="text-4xl font-bold text-center mb-4">{children}</h2>
     ),
     h2: ({ children }) => (
       <h2 className="text-2xl font-bold mt-8 mb-4">{children}</h2>

@@ -1,126 +1,137 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
-import { ShowMore } from "@/components/Animations/ShowMore";
 import { parseCmsHtml } from "@/lib/parse-cms-html";
 import { toSecureMediaUrl } from "@/lib/image-url";
+import { useIsMobile } from "@/Hooks/use-mobile";
 
 function AboutApp({
   locale,
   aboutHomeSection,
+  showCta = true,
 }: {
   locale: string;
   aboutHomeSection?: any;
+  showCta?: boolean;
 }) {
-  // Extract the latest three posts for list items and icons
   const latestPosts = aboutHomeSection?.Posts?.slice(1, 4) || [];
+  const isMobile = useIsMobile();
+  const prefersReducedMotion = useReducedMotion();
+  const simplifyMotion = isMobile || !!prefersReducedMotion;
 
   return (
-    <>
-      {/* Two Column Layout */}
-      <div className="flex rtl:ltr ltr:rtl flex-col xl:flex-row gap-6 items-center mb-[91px] justify-between w-full px-4 xl:px-0">
-        {/* Visual Block (left) */}
-        <motion.div
-          className="relative w-full xl:w-[597px] h-[531px] bg-contain bg-no-repeat"
-          style={{
-            backgroundImage: `url(${
-              toSecureMediaUrl(
-                aboutHomeSection?.Posts?.[0]?.attachment?.[0]?.original,
-              ) || "/assets/images/homehellers/about.svg"
-            })`,
-          }}
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: false, amount: 0.5 }}
-        />
+    <div
+      className={`flex w-full flex-col items-center justify-between gap-8 overflow-x-hidden rtl:ltr ltr:rtl xl:flex-row xl:gap-6 ${
+        showCta ? "mb-10 xl:mb-[91px]" : ""
+      }`}
+    >
+      <motion.div
+        className="relative aspect-[597/531] w-full max-w-[597px] overflow-hidden bg-contain bg-center bg-no-repeat xl:w-[597px]"
+        style={{
+          backgroundImage: `url(${
+            toSecureMediaUrl(
+              aboutHomeSection?.Posts?.[0]?.attachment?.[0]?.original,
+            ) || "/assets/images/homehellers/about.svg"
+          })`,
+        }}
+        initial={{ opacity: 0, y: simplifyMotion ? 12 : 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: simplifyMotion ? 0.4 : 0.7, ease: "easeOut" }}
+        viewport={{ once: true, amount: 0.2 }}
+      />
 
-        {/* Content Block (right) */}
-        <motion.div
-          className="w-full xl:w-[660px] flex flex-col items-end gap-8"
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: false, amount: 0.5 }}
-        >
-          <div className="flex flex-col items-end gap-4 text-end">
-            <span className="text-[#62a0f6] text-base font-medium">
-              {locale === "ar" ? "عن هوم هيليرز" : "About Home Healers"}
-            </span>
-            <h2 className="text-2xl xl:text-[30px] font-semibold text-[#1e1e1e]">
-              {aboutHomeSection?.Posts?.[0]?.title || ""}
-            </h2>
-            <div className="text-lg leading-8 text-[#1e1e1e]">
-              {aboutHomeSection?.Posts?.[0]?.description
-                ? parseCmsHtml(aboutHomeSection?.Posts[0]?.description)
-                : ""}
-            </div>
+      <motion.div
+        className="flex w-full max-w-[660px] flex-col items-end gap-6 sm:gap-8 xl:w-[660px]"
+        initial={{ opacity: 0, y: simplifyMotion ? 12 : 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: simplifyMotion ? 0.4 : 0.7, ease: "easeOut" }}
+        viewport={{ once: true, amount: 0.2 }}
+      >
+        <div className="flex flex-col items-end gap-4 text-end">
+          <span className="text-sm font-medium text-[#62a0f6] sm:text-base">
+            {locale === "ar" ? "عن هوم هيليرز" : "About Home Healers"}
+          </span>
+          <h2 className="text-xl font-semibold text-[#1e1e1e] sm:text-2xl xl:text-[30px]">
+            {aboutHomeSection?.Posts?.[0]?.title || ""}
+          </h2>
+          <div className="text-base leading-7 text-[#1e1e1e] sm:text-lg sm:leading-8">
+            {aboutHomeSection?.Posts?.[0]?.description
+              ? parseCmsHtml(aboutHomeSection?.Posts[0]?.description)
+              : ""}
           </div>
+        </div>
 
-          <div className="flex flex-col items-end gap-4 text-end">
-            {latestPosts.map((post: any, i: number) => (
-              <motion.div
-                key={i}
-                className="flex items-center gap-3"
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + i * 0.2 }}
-                viewport={{ once: false, amount: 0.5 }}
-              >
-                <span className="text-base xl:text-lg font-light text-[#1e1e1e]">
-                  {post.title}
-                </span>
-                <div
-                  className="w-6 h-6 bg-cover bg-center bg-no-repeat"
-                  style={{
-                    backgroundImage: `url(${toSecureMediaUrl(post.attachment?.[0]?.original)})`,
-                  }}
-                />
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-6 mt-4">
+        <div className="flex flex-col items-end gap-4 text-end">
+          {latestPosts.map((post: any, i: number) => (
             <motion.div
-              animate={{
-                rotate: [0, 5, -5, 5, 0],
-                scale: [1, 1.05, 1, 1.05, 1],
+              key={i}
+              className="flex items-center gap-3"
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{
+                delay: simplifyMotion ? 0.08 * i : 0.2 + i * 0.15,
+                duration: 0.4,
               }}
+              viewport={{ once: true, amount: 0.2 }}
+            >
+              <span className="text-sm font-light text-[#1e1e1e] sm:text-base xl:text-lg">
+                {post.title}
+              </span>
+              <div
+                className="h-6 w-6 shrink-0 bg-cover bg-center bg-no-repeat"
+                style={{
+                  backgroundImage: `url(${toSecureMediaUrl(post.attachment?.[0]?.original)})`,
+                }}
+              />
+            </motion.div>
+          ))}
+        </div>
+
+        {showCta ? (
+          <div className="mt-2 flex items-center gap-4 sm:mt-4 sm:gap-6">
+            <motion.div
+              animate={
+                simplifyMotion
+                  ? undefined
+                  : {
+                      rotate: [0, 5, -5, 5, 0],
+                      scale: [1, 1.05, 1, 1.05, 1],
+                    }
+              }
               transition={{
                 duration: 2,
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
-              className="w-14 h-14 bg-[#62a0f6] rounded-full flex items-center justify-center rotate-180"
+              className="flex h-12 w-12 rotate-180 items-center justify-center rounded-full bg-[#62a0f6] sm:h-14 sm:w-14"
             >
               <div
-                className="w-8 h-8 bg-cover bg-center bg-no-repeat"
+                className="h-7 w-7 bg-cover bg-center bg-no-repeat sm:h-8 sm:w-8"
                 style={{
                   backgroundImage:
                     "url('/assets/images/homehellers/vedio.svg')",
                 }}
               />
             </motion.div>
-            <motion.button
-              className="flex items-center gap-3 px-4 py-2 bg-[#143087] text-white rounded-xl text-lg font-medium"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <motion.div
+              whileHover={simplifyMotion ? undefined : { scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <Link
-                className="flex items-center gap-3 bg-[#143087] text-white rounded-md text-lg font-medium"
+                className="flex items-center gap-3 rounded-xl bg-[#143087] px-4 py-2 text-base font-medium text-white sm:text-lg"
                 href={`${locale === "ar" ? "" : "/en"}/about`}
               >
-                <ArrowLeft className="w-6 h-6 ml-2 text-white" />
+                <ArrowLeft className="ml-2 h-5 w-5 text-white sm:h-6 sm:w-6" />
                 {locale === "ar" ? "اكتشف المزيد" : "Discover More"}
               </Link>
-            </motion.button>
+            </motion.div>
           </div>
-        </motion.div>
-      </div>
-    </>
+        ) : null}
+      </motion.div>
+    </div>
   );
 }
 

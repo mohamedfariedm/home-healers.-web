@@ -103,14 +103,14 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
           onClick={onClose}
         >
           <motion.div
-            className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            className="max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-2xl"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="relative bg-gradient-to-r from-[#62a0f6] to-[#4f8ae8] p-6 text-white">
+            <div className="relative bg-gradient-to-r from-[#62a0f6] to-[#4f8ae8] p-4 text-white sm:p-6">
               <button
                 onClick={onClose}
                 className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors z-10"
@@ -119,10 +119,10 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
                 <X size={24} />
               </button>
 
-              <div className="flex flex-col lg:flex-row gap-6 items-center">
+              <div className="flex flex-col items-center gap-4 sm:gap-6 lg:flex-row">
                 <div className="relative">
                   <div
-                    className="w-32 h-32 bg-cover bg-center rounded-full border-4 border-white shadow-lg"
+                    className="h-24 w-24 rounded-full border-4 border-white bg-cover bg-center shadow-lg sm:h-32 sm:w-32"
                     style={{ backgroundImage: `url(${doctorImage})` }}
                   />
                   <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-2 shadow-lg">
@@ -130,9 +130,9 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
                   </div>
                 </div>
 
-                <div className="text-center lg:text-left flex-1">
-                  <h2 className="text-3xl font-bold mb-2">{doctor.name}</h2>
-                  <p className="text-xl opacity-90 mb-2">
+                <div className="flex-1 text-center lg:text-left">
+                  <h2 className="mb-2 text-2xl font-bold sm:text-3xl">{doctor.name}</h2>
+                  <p className="mb-2 text-lg opacity-90 sm:text-xl">
                     {doctor.specialist || doctor.department}
                   </p>
                   <p className="opacity-80 mb-3">{doctor.clinic_name}</p>
@@ -162,8 +162,8 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
             </div>
 
             {/* Content */}
-            <div className="overflow-y-auto max-h-[calc(90vh-200px)]">
-              <div className="p-6 space-y-8">
+            <div className="max-h-[calc(92vh-180px)] overflow-y-auto">
+              <div className="space-y-6 p-4 sm:space-y-8 sm:p-6">
                 {/* Basic Information & Professional Details */}
                 <div className="grid lg:grid-cols-2 gap-8">
                   {/* Basic Information */}
@@ -302,13 +302,13 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
               </div>
 
               {/* Action Buttons */}
-              <div className="sticky bottom-0 bg-white border-t p-6">
+              <div className="sticky bottom-0 border-t bg-white p-4 sm:p-6">
                 <div className="flex flex-col sm:flex-row gap-4">
                   <motion.a
                     href={`${locale === "ar" ? "" : "/en"}/booking?doctorId=${
                       doctor.id
                     }`}
-                    className="flex-1 text-center bg-gradient-to-r from-[#62a0f6] to-[#4f8ae8] text-white py-4 px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                    className="flex-1 rounded-xl bg-gradient-to-r from-[#62a0f6] to-[#4f8ae8] px-6 py-3 text-center font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl sm:py-4"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >

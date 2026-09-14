@@ -1,0 +1,7 @@
+﻿# Keep Cursor indexing off generated/heavy folders so the laptop stays responsive.
+.next/
+out/
+node_modules/
+coverage/
+lighthouse-reports/
+*.tsbuildinfo

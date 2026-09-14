@@ -292,9 +292,9 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
         <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle className="w-12 h-12 text-green-600" />
         </div>
-        <h1 className="text-3xl font-bold text-green-800 mb-4">
+        <h2 className="text-3xl font-bold text-green-800 mb-4">
           {t("step6.successTitle")}
-        </h1>
+        </h2>
         <p className="text-lg text-gray-600 mb-6">
           {t("step6.successMessage")}
         </p>

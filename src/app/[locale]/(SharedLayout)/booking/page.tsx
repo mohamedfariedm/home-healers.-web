@@ -73,15 +73,16 @@ async function Page({
     }
   }
 
-  const heading = seo?.[locale]?.h1 || seo?.[locale]?.title;
+  const heading =
+    seo?.[locale]?.h1 ||
+    seo?.[locale]?.title ||
+    (locale === "ar" ? "احجز جلستك" : "Book Your Session");
 
   return (
     <Suspense fallback={null}>
-      {heading ? (
-        <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
-          {heading}
-        </h1>
-      ) : null}
+      <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
+        {heading}
+      </h1>
       <BookingFlow
           locale={locale}
           doctorsData={doctorsData}

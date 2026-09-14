@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import type SwiperCore from "swiper";
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -14,6 +14,7 @@ import DoctorCard from "./doctor-card";
 import DoctorModal from "./doctor-modal";
 import { doctorsTranslations } from "@/translations/doctors";
 import { Doctor, DoctorsSectionData } from "@/types/doctors";
+import { useIsMobile } from "@/Hooks/use-mobile";
 
 interface DoctorsSectionProps {
   data?: DoctorsSectionData;
@@ -30,8 +31,13 @@ const DoctorsSection: React.FC<DoctorsSectionProps> = ({
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const swiperRef = useRef<SwiperCore>();
+  const isMobile = useIsMobile();
+  const prefersReducedMotion = useReducedMotion();
+  const simplifyMotion = isMobile || !!prefersReducedMotion;
 
-  const translations = doctorsTranslations[locale as keyof typeof doctorsTranslations] || doctorsTranslations.ar;
+  const translations =
+    doctorsTranslations[locale as keyof typeof doctorsTranslations] ||
+    doctorsTranslations.ar;
   const isRTL = locale === "ar";
 
   const handleDotClick = (index: number) => {
@@ -48,7 +54,6 @@ const DoctorsSection: React.FC<DoctorsSectionProps> = ({
     setSelectedDoctor(null);
   };
 
-  // Parse subtitle for highlighting
   const subtitle = data?.Posts?.[0]?.title || translations.sectionTitle;
   const words = subtitle.split(" ");
   const subtitleParts = {
@@ -59,38 +64,37 @@ const DoctorsSection: React.FC<DoctorsSectionProps> = ({
 
   if (!doctorsData || doctorsData.length === 0) {
     return (
-      <div className="w-full max-w-screen-xl mx-auto mt-24 px-4 py-16 text-center">
-        <div className="text-gray-500 text-lg">{translations.noData}</div>
+      <div className="mx-auto mt-12 w-full max-w-screen-xl px-4 py-10 text-center sm:mt-16 lg:mt-24">
+        <div className="text-lg text-gray-500">{translations.noData}</div>
       </div>
     );
   }
 
   return (
     <>
-      <section className="w-full max-w-screen-xl mx-auto mt-24 px-4 py-8">
-        <div className="flex flex-col gap-16 items-center">
-          {/* Title Section */}
+      <section className="mx-auto mt-12 w-full max-w-screen-xl overflow-x-hidden px-4 py-6 sm:mt-16 sm:py-8 lg:mt-24">
+        <div className="flex flex-col items-center gap-10 sm:gap-14 lg:gap-16">
           <motion.div
-            className="flex flex-col items-center text-center gap-4 max-w-4xl"
-            initial={{ opacity: 0, y: 20 }}
+            className="flex max-w-4xl flex-col items-center gap-3 text-center sm:gap-4"
+            initial={{ opacity: 0, y: simplifyMotion ? 10 : 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: simplifyMotion ? 0.4 : 0.55 }}
           >
-            <span className="text-[#62a0f6] text-base font-semibold leading-6 tracking-wide uppercase">
+            <span className="text-sm font-semibold uppercase leading-6 tracking-wide text-[#62a0f6] sm:text-base">
               {data?.title || translations.sectionTitle}
             </span>
-            <h2 className="text-3xl sm:text-3xl lg:text-3xl font-bold leading-tight text-[#1e1e1e]">
+            <h2 className="text-[22px] font-bold leading-tight text-[#1e1e1e] sm:text-3xl">
               {subtitleParts.before && <span>{subtitleParts.before} </span>}
               {subtitleParts.highlight && (
-                <span className="text-[#62a0f6] relative">
+                <span className="relative text-[#62a0f6]">
                   {subtitleParts.highlight}
                   <motion.div
                     className="absolute -bottom-2 left-0 right-0 h-1 bg-[#62a0f6] opacity-30"
                     initial={{ scaleX: 0 }}
                     whileInView={{ scaleX: 1 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.8, delay: 0.3 }}
+                    transition={{ duration: simplifyMotion ? 0.4 : 0.8, delay: 0.2 }}
                   />
                 </span>
               )}
@@ -98,39 +102,46 @@ const DoctorsSection: React.FC<DoctorsSectionProps> = ({
             </h2>
           </motion.div>
 
-          {/* Swiper Container */}
-          <div className="w-full relative">
-            {/* Navigation Buttons */}
-            <div className="absolute top-1/2 -translate-y-1/2 left-4 z-10">
+          <div className="relative w-full overflow-hidden">
+            <div className="absolute top-1/2 left-0 z-10 hidden -translate-y-1/2 md:block lg:left-2">
               <button
                 onClick={() => swiperRef.current?.slidePrev()}
-                className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:bg-[#62a0f6]"
+                className="group flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-all duration-300 hover:bg-[#62a0f6] hover:shadow-xl lg:h-12 lg:w-12"
                 aria-label="Previous doctor"
               >
-                <ChevronLeft size={20} className="text-[#62a0f6] group-hover:text-white transition-colors" />
-              </button>
-            </div>
-            
-            <div className="absolute top-1/2 -translate-y-1/2 right-4 z-10">
-              <button
-                onClick={() => swiperRef.current?.slideNext()}
-                className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:bg-[#62a0f6]"
-                aria-label="Next doctor"
-              >
-                <ChevronRight size={20} className="text-[#62a0f6] group-hover:text-white transition-colors" />
+                <ChevronLeft
+                  size={20}
+                  className="text-[#62a0f6] transition-colors group-hover:text-white"
+                />
               </button>
             </div>
 
-            {/* Swiper */}
+            <div className="absolute top-1/2 right-0 z-10 hidden -translate-y-1/2 md:block lg:right-2">
+              <button
+                onClick={() => swiperRef.current?.slideNext()}
+                className="group flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-all duration-300 hover:bg-[#62a0f6] hover:shadow-xl lg:h-12 lg:w-12"
+                aria-label="Next doctor"
+              >
+                <ChevronRight
+                  size={20}
+                  className="text-[#62a0f6] transition-colors group-hover:text-white"
+                />
+              </button>
+            </div>
+
             <Swiper
               modules={[Autoplay, Navigation, Pagination]}
-              spaceBetween={30}
+              spaceBetween={16}
               slidesPerView={1}
-              autoplay={{ 
-                delay: 4000,
-                disableOnInteraction: false,
-                pauseOnMouseEnter: true
-              }}
+              autoplay={
+                prefersReducedMotion
+                  ? false
+                  : {
+                      delay: 4000,
+                      disableOnInteraction: false,
+                      pauseOnMouseEnter: true,
+                    }
+              }
               loop={doctorsData.length > 3}
               dir={isRTL ? "rtl" : "ltr"}
               onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
@@ -139,38 +150,36 @@ const DoctorsSection: React.FC<DoctorsSectionProps> = ({
               }}
               breakpoints={{
                 640: { slidesPerView: 1, spaceBetween: 20 },
-                768: { slidesPerView: 2, spaceBetween: 25 },
+                768: { slidesPerView: 2, spaceBetween: 24 },
                 1024: { slidesPerView: 3, spaceBetween: 30 },
                 1280: { slidesPerView: 3, spaceBetween: 35 },
               }}
-              className="w-full !pb-16"
+              className="w-full !pb-10 sm:!pb-16"
             >
               {doctorsData.map((doctor) => (
-                <SwiperSlide key={doctor.id} className="!h-auto">
+                <SwiperSlide key={doctor.id} className="!h-auto px-1 sm:px-2">
                   <DoctorCard
                     doctor={doctor}
                     onClick={() => handleDoctorClick(doctor)}
                     translations={translations}
                     locale={locale}
+                    simplifyMotion={simplifyMotion}
                   />
                 </SwiperSlide>
               ))}
             </Swiper>
 
-            {/* Custom Pagination Dots */}
-            <div className="flex justify-center gap-3 mt-8">
-              {Array.from({ 
-                length: Math.min(doctorsData.length, doctorsData.length > 3 ? doctorsData.length : doctorsData.length) 
-              }).map((_, index) => (
+            <div className="mt-6 flex justify-center gap-3 sm:mt-8">
+              {doctorsData.map((_, index) => (
                 <motion.button
                   key={index}
                   onClick={() => handleDotClick(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    activeIndex === index 
-                      ? "bg-[#62a0f6] scale-125" 
+                  className={`h-2.5 w-2.5 rounded-full transition-all duration-300 sm:h-3 sm:w-3 ${
+                    activeIndex === index
+                      ? "scale-125 bg-[#62a0f6]"
                       : "bg-[#cee2fc] hover:bg-[#a8c8f0]"
                   }`}
-                  whileHover={{ scale: 1.2 }}
+                  whileHover={simplifyMotion ? undefined : { scale: 1.2 }}
                   whileTap={{ scale: 0.9 }}
                   aria-label={`Go to slide ${index + 1}`}
                 />
@@ -180,7 +189,6 @@ const DoctorsSection: React.FC<DoctorsSectionProps> = ({
         </div>
       </section>
 
-      {/* Doctor Modal */}
       <DoctorModal
         doctor={selectedDoctor}
         isOpen={isModalOpen}

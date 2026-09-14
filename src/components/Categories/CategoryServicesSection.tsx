@@ -71,9 +71,9 @@ const CategoryServicesSection = ({
             className="w-16 h-16 object-cover rounded-full"
           />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-semibold text-[#1e1e1e]">
+        <h2 className="text-2xl sm:text-3xl font-semibold text-[#1e1e1e]">
           {category.name}
-        </h1>
+        </h2>
         <p className="text-gray-600">
           {services.length}{" "}
           {locale === "ar" ? "خدمة في هذا التخصص" : "services in this category"}

@@ -170,6 +170,7 @@ export default function OfferDetailsView({
               bookHref={bookHref}
               canonicalUrl={canonicalUrl}
               ctaClass={ctaClass}
+              isPageHeading
             />
           </div>
 
@@ -349,6 +350,7 @@ function OfferSummary({
   canonicalUrl,
   ctaClass,
   showTitle = true,
+  isPageHeading = false,
 }: {
   offer: OfferDetails;
   locale: string;
@@ -362,7 +364,11 @@ function OfferSummary({
   canonicalUrl: string;
   ctaClass: string;
   showTitle?: boolean;
+  isPageHeading?: boolean;
 }) {
+  const titleClassName =
+    "break-words text-2xl font-bold text-[#1e1e1e] sm:text-3xl";
+
   return (
     <div className="relative flex flex-col gap-4">
       {discount && discount > 0 ? (
@@ -371,12 +377,12 @@ function OfferSummary({
         </span>
       ) : null}
       {showTitle ? (
-        <h1 className="break-words text-2xl font-bold text-[#1e1e1e] sm:text-3xl">{offer.name}</h1>
-      ) : (
-        <h1 className="break-words text-2xl font-bold text-[#1e1e1e] sm:text-3xl lg:hidden">
-          {offer.name}
-        </h1>
-      )}
+        isPageHeading ? (
+          <h1 className={titleClassName}>{offer.name}</h1>
+        ) : (
+          <p className={titleClassName}>{offer.name}</p>
+        )
+      ) : null}
       <div className="flex flex-wrap items-center gap-3">
         <OfferRating
           rating={offer.display_rating}

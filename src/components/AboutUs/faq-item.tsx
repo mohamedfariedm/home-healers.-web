@@ -29,15 +29,14 @@ const FaqItem: React.FC<FaqItemProps> = ({
 
   return (
     <motion.div
-      className="relative bg-gradient-to-r from-[#f8faff] to-[#e8eaf3] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
-      initial={{ opacity: 0, y: 20 }}
+      className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#f8faff] to-[#e8eaf3] shadow-sm transition-shadow duration-300 hover:shadow-md"
+      initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      whileHover={{ scale: 1.01 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.4, delay: Math.min(index * 0.05, 0.25) }}
     >
       <button
-        className="w-full p-6 text-left focus:outline-none focus:ring-2 focus:ring-[#62a0f6] focus:ring-inset"
+        className="w-full p-4 text-left focus:outline-none focus:ring-2 focus:ring-[#62a0f6] focus:ring-inset sm:p-6"
         onClick={onToggle}
         aria-expanded={isOpen}
         aria-controls={`faq-answer-${index}`}
@@ -53,7 +52,7 @@ const FaqItem: React.FC<FaqItemProps> = ({
 
           {/* Question Content */}
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-[#1e1e1e] mb-1 pr-8">
+            <h3 className="mb-1 pr-4 text-base font-semibold text-[#1e1e1e] sm:pr-8 sm:text-lg">
               {question}
             </h3>
             

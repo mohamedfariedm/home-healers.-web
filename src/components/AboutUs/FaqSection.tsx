@@ -125,29 +125,29 @@ const FaqSection: React.FC<FaqSectionProps> = ({
   }
 
   return (
-    <section className="w-full max-w-screen-xl mx-auto mt-24 px-4 py-8">
-      <div className="flex flex-col gap-16 items-center">
+    <section className="mx-auto mt-12 w-full max-w-screen-xl overflow-x-hidden px-4 py-6 sm:mt-16 sm:py-8 lg:mt-24">
+      <div className="flex flex-col items-center gap-10 sm:gap-14 lg:gap-16">
         {/* Header Section */}
-        <motion.div
-          className="text-center max-w-4xl"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          {/* Section Badge */}
           <motion.div
-            className="inline-block bg-[#62a0f6] bg-opacity-10 text-[#62a0f6] px-4 py-2 rounded-full text-sm font-semibold mb-4"
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            className="max-w-4xl text-center"
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.45 }}
           >
-            {data?.title || translations.sectionTitle}
-          </motion.div>
+            {/* Section Badge */}
+            <motion.div
+              className="mb-4 inline-block rounded-full bg-[#62a0f6] bg-opacity-10 px-4 py-2 text-sm font-semibold text-[#62a0f6]"
+              initial={{ opacity: 0, y: 8 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+            >
+              {data?.title || translations.sectionTitle}
+            </motion.div>
 
-          {/* Main Title */}
-          <h2 className="text-3xl font-bold leading-tight text-[#1e1e1e] mb-6">
+            {/* Main Title */}
+            <h2 className="mb-4 text-[22px] font-bold leading-tight text-[#1e1e1e] sm:mb-6 sm:text-3xl">
             {subtitleParts.before && <span>{subtitleParts.before} </span>}
             {subtitleParts.highlight && (
               <span className="text-[#62a0f6] relative">
@@ -166,7 +166,7 @@ const FaqSection: React.FC<FaqSectionProps> = ({
 
           {/* Description */}
           {data?.Posts?.[0]?.description && (
-            <p className="text-lg text-[#4a5568] leading-relaxed">
+            <p className="text-base leading-relaxed text-[#4a5568] sm:text-lg">
               {data.Posts[0].description}
             </p>
           )}
@@ -196,10 +196,10 @@ const FaqSection: React.FC<FaqSectionProps> = ({
         )}
 
         {/* Main Content */}
-        <div className="flex flex-col xl:flex-row gap-12 w-full items-start">
+        <div className="flex w-full flex-col items-stretch gap-8 xl:flex-row xl:items-start xl:gap-12">
                     {/* Contact Card */}
           <div className="w-full xl:w-1/3">
-            <div className="sticky top-8">
+            <div className="xl:sticky xl:top-8">
               <ContactCard
                 translations={translations}
                 locale={locale}

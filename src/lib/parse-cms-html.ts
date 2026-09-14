@@ -7,6 +7,22 @@ function downgradeHeadings(html: string): string {
     .replace(/<\/h[1-6]>/gi, "</p>");
 }
 
+/** Keep one page-level h1; CMS copy may still use h2–h6. */
+export function demoteH1(html: string): string {
+  return html.replace(/<h1(\s[^>]*)?>/gi, "<h2$1>").replace(/<\/h1>/gi, "</h2>");
+}
+
+/** Decode CMS HTML and ensure it cannot introduce a second page h1. */
+export function sanitizeCmsHtml(
+  html: string,
+  options?: { keepHeadings?: boolean },
+): string {
+  const normalized = normalizeCmsHtml(html);
+  return options?.keepHeadings
+    ? demoteH1(normalized)
+    : downgradeHeadings(normalized);
+}
+
 /** Decode entity-escaped HTML from CMS text editors (e.g. &lt;p&gt; → <p>). */
 export function normalizeCmsHtml(html: string): string {
   if (!html) return "";
@@ -37,8 +53,5 @@ export function parseCmsHtml(
   html: string,
   options?: { keepHeadings?: boolean },
 ) {
-  const normalized = normalizeCmsHtml(html);
-  return parse(
-    options?.keepHeadings ? normalized : downgradeHeadings(normalized),
-  );
+  return parse(sanitizeCmsHtml(html, options));
 }

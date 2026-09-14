@@ -181,9 +181,9 @@ async function page({
           </div>
 
           <div className="absolute top-1/2 left-1/2 w-[90%] max-w-[640px] -translate-x-1/2 -translate-y-1/2 px-4 text-center">
-            <h1 className="text-xl font-semibold leading-8 text-white sm:text-[24px]">
+            <p className="text-xl font-semibold leading-8 text-white sm:text-[24px]">
               {t("hero.title", { ns: "blog" })}
-            </h1>
+            </p>
             <HeroBreadcrumb
               items={[
                 {

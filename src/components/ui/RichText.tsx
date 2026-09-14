@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { isRichTextEmpty } from "@/lib/offers";
+import { demoteH1, normalizeCmsHtml } from "@/lib/parse-cms-html";
 
 type RichTextProps = {
   html?: string | null;
@@ -13,7 +14,9 @@ export default function RichText({ html, className }: RichTextProps) {
   return (
     <div
       className={cn("offer-prose", className)}
-      dangerouslySetInnerHTML={{ __html: html as string }}
+      dangerouslySetInnerHTML={{
+        __html: demoteH1(normalizeCmsHtml(html as string)),
+      }}
     />
   );
 }
