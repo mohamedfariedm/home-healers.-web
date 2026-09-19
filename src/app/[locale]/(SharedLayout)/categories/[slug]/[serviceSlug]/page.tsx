@@ -17,7 +17,7 @@ import {
   getCachedServiceBySlug,
   getCachedSettings,
 } from "@/lib/cached-api";
-import { HeroBreadcrumb } from "@/components/Shared/HeroBreadcrumb";
+import { PageHero } from "@/components/Shared/PageHero";
 import { localePath } from "@/lib/offers";
 import {
   categoryHref,
@@ -222,7 +222,7 @@ export default async function CategoryServicePage({
   );
 
   return (
-    <div className="main-container w-full bg-[#fff] relative overflow-hidden mx-auto my-0 pb-12">
+    <div className="page-shell bg-white pb-12">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -258,50 +258,30 @@ export default async function CategoryServicePage({
           ),
         }}
       />
-      <div
-        className="w-full h-[250px] relative bg-no-repeat bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url(/assets/images/shared/hero-banner/hero-bg-main.png)",
-        }}
-      >
-        <div
-          className="absolute inset-0 w-full h-full bg-no-repeat bg-cover"
-          style={{
-            backgroundImage:
-              "url(/assets/images/shared/hero-banner/hero-layer-2.png)",
-          }}
-        >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-4">
-            <h1 className="text-white text-[24px] font-semibold leading-[32px]">
-              {loaded.service.name || loaded.category.name}
-            </h1>
-            <HeroBreadcrumb
-              items={[
-                {
-                  label: t("categories.hero.home", { ns: "common" }),
-                  href: localePath(locale, "/"),
-                },
-                {
-                  label: t("categories.hero.breadcrumb", { ns: "common" }),
-                  href: localePath(locale, "/categories"),
-                },
-                {
-                  label: loaded.category.name,
-                  href: categoryHref(
-                    locale,
-                    categorySlug || loaded.requestedCategory,
-                  ),
-                },
-                {
-                  label: loaded.service.name || loaded.category.name,
-                  isActive: true,
-                },
-              ]}
-            />
-          </div>
-        </div>
-      </div>
+      <PageHero
+        title={loaded.service.name || loaded.category.name}
+        breadcrumbItems={[
+          {
+            label: t("categories.hero.home", { ns: "common" }),
+            href: localePath(locale, "/"),
+          },
+          {
+            label: t("categories.hero.breadcrumb", { ns: "common" }),
+            href: localePath(locale, "/categories"),
+          },
+          {
+            label: loaded.category.name,
+            href: categoryHref(
+              locale,
+              categorySlug || loaded.requestedCategory,
+            ),
+          },
+          {
+            label: loaded.service.name || loaded.category.name,
+            isActive: true,
+          },
+        ]}
+      />
 
       <CategoryServicesSection
         locale={locale}

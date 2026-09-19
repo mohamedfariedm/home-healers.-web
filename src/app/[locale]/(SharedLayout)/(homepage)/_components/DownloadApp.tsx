@@ -16,7 +16,7 @@ function DownloadApp({ section, locale }: { section: any; locale: string }) {
   const post = section?.Posts?.[0]; // safely get the first post
 
   return (
-    <div className="w-full max-w-7xl mx-auto my-16 relative overflow-hidden bg-[#eff6fe] rounded-[32px] shadow-lg">
+    <div className="relative mx-4 my-12 overflow-hidden rounded-[32px] bg-[#eff6fe] shadow-[0_18px_50px_rgba(20,48,135,0.08)] sm:mx-6 lg:mx-auto lg:max-w-7xl">
       <div className="flex flex-col lg:flex-row">
         {/* End side with content - becomes bottom on mobile */}
         <div className="w-full lg:w-1/2 p-6 lg:p-10 flex flex-col justify-center relative">

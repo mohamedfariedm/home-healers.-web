@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { demoteH1, normalizeCmsHtml } from "@/lib/parse-cms-html";
 import { blogHref, formatApiDate, getBlogSlug, getNewsTitle } from "@/lib/slugs";
+import { toSecureMediaUrl } from "@/lib/image-url";
 
 // ---- Simple i18n dictionary ----
 const dict = {
@@ -72,6 +73,29 @@ const dict = {
 
 type Locale = keyof typeof dict;
 
+const FALLBACK_IMAGE = "/assets/images/homehellers/guidance_physical-therapy.svg";
+
+function resolveBlogImage(source: unknown): string {
+  if (!source) return FALLBACK_IMAGE;
+  if (typeof source === "string") {
+    return toSecureMediaUrl(source) || FALLBACK_IMAGE;
+  }
+  const first = Array.isArray(source) ? source[0] : source;
+  if (!first) return FALLBACK_IMAGE;
+  if (typeof first === "string") {
+    return toSecureMediaUrl(first) || FALLBACK_IMAGE;
+  }
+  return (
+    toSecureMediaUrl(
+      first.original ||
+        first.thumbnail ||
+        first.converted ||
+        first.url ||
+        "",
+    ) || FALLBACK_IMAGE
+  );
+}
+
 export default function BlogRelatedSection({
   data,
   locale,
@@ -106,7 +130,7 @@ export default function BlogRelatedSection({
         getNewsTitle(blog, locale) ||
         (isRTL ? "عنوان غير متوفر" : "Untitled"),
       date: formatDate(blog.date),
-      image: blog.image?.[0]?.original || "/assets/images/placeholder.jpg",
+      image: resolveBlogImage(blog.image),
       slug: getBlogSlug(blog, locale),
     })) ?? [];
 
@@ -176,14 +200,9 @@ export default function BlogRelatedSection({
     setIsPopupOpen(false);
   };
 
-  // Handy dir-aware classes
-  const textDir = isRTL ? "text-right" : "text-left";
-  const justifyStart = isRTL ? "items-start" : "items-start"; // same, but kept for clarity
-  const tagContainerJustify = isRTL ? "justify-start" : "justify-start"; // both fine
-  
   return (
     <motion.div
-      className="mx-auto mb-10 mt-8 flex max-w-screen-xl flex-col-reverse gap-8 px-4 sm:mt-12 sm:gap-10 lg:mt-16 lg:flex-row xl:px-0"
+      className="mx-auto mb-10 mt-8 flex max-w-screen-xl flex-col gap-8 px-4 sm:mt-12 sm:gap-10 lg:mt-16 lg:flex-row lg:items-start xl:px-0"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.15 }}
@@ -198,15 +217,81 @@ export default function BlogRelatedSection({
       dir={isRTL ? "rtl" : "ltr"}
       lang={lang}
     >
-      {/* Left Column */}
+      {/* Article — start side in both RTL and LTR */}
       <motion.div
-        className="flex w-full min-w-0 flex-col gap-5 lg:w-[348px] lg:shrink-0"
+        className="flex min-w-0 flex-1 flex-col items-stretch gap-5 sm:gap-6"
+        variants={{
+          hidden: { opacity: 1 },
+          visible: { opacity: 1, x: 0, transition: { duration: 0.6 } },
+        }}
+      >
+        <motion.div
+          className="relative h-[220px] w-full overflow-hidden rounded-[24px] bg-[#eff6fe] shadow-[0_16px_40px_rgba(20,48,135,0.1)] sm:h-[320px] md:h-[420px] lg:h-[456px]"
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          <img
+            src={resolveBlogImage(data?.image)}
+            alt={
+              (isRTL ? "صورة المقال " : "Article image ") +
+              getNewsTitle(data, locale)
+            }
+            className="h-full w-full object-cover"
+          />
+        </motion.div>
+
+        <div className="flex flex-col items-stretch gap-2">
+          <span className="text-start text-sm font-medium text-[#62a0f6]">
+            {formatDate(data?.date)}
+          </span>
+
+          <div className="flex flex-col items-stretch gap-6">
+            <h1 className="break-words text-start text-xl font-semibold leading-snug text-[#1e1e1e] sm:text-2xl md:text-[30px]">
+              {getNewsTitle(data, locale)}
+            </h1>
+
+            <div
+              className="editor-content w-full min-w-0 overflow-x-auto"
+              dangerouslySetInnerHTML={{
+                __html: demoteH1(normalizeCmsHtml(data?.description || "")),
+              }}
+            />
+          </div>
+        </div>
+
+        <motion.button
+          type="button"
+          className="inline-flex w-fit cursor-pointer items-center"
+          onClick={() => setIsPopupOpen(true)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="group flex w-fit items-center gap-2 rounded-xl border border-[#143087] px-3 py-2 transition-colors duration-300 hover:bg-[#143087] hover:text-white">
+            <span className="text-sm font-medium text-[#143087] group-hover:text-white">
+              {t.shareArticle}
+            </span>
+            <div
+              className="h-6 w-6 bg-cover bg-no-repeat ltr:-scale-x-100"
+              style={{
+                backgroundImage:
+                  "url('/assets/images/shared/blog-section-bg.svg')",
+              }}
+            />
+          </div>
+        </motion.button>
+      </motion.div>
+
+      {/* Sidebar — end side in both RTL and LTR */}
+      <motion.aside
+        className="flex w-full min-w-0 flex-col gap-5 lg:sticky lg:top-28 lg:w-[348px] lg:shrink-0"
         variants={{
           hidden: { opacity: 1, x: isRTL ? -40 : 40 },
           visible: { opacity: 1, x: 0, transition: { duration: 0.6 } },
         }}
       >
-        <h3 className={`${textDir} text-2xl font-medium text-[#1e1e1e] sm:text-[30px]`}>
+        <h3 className="text-start text-2xl font-semibold text-[#1e1e1e] sm:text-[28px]">
           {t.relatedTopics} <span className="text-[#62a0f6]">{t.related}</span>
         </h3>
 
@@ -226,10 +311,10 @@ export default function BlogRelatedSection({
                 key={`${slug}-${index}`}
               >
                 <motion.div
-                  className="flex min-w-0 cursor-pointer items-center gap-3 border-b border-[#d0d5dd] pb-5 sm:gap-4"
+                  className="flex min-w-0 cursor-pointer items-center gap-3 rounded-2xl border border-transparent p-2 pb-4 sm:gap-4"
                   whileHover={{
                     scale: 1.01,
-                    boxShadow: "0 8px 15px rgba(0,0,0,0.1)",
+                    boxShadow: "0 8px 15px rgba(20,48,135,0.08)",
                   }}
                   variants={{
                     hidden: { opacity: 1, y: 20 },
@@ -237,44 +322,39 @@ export default function BlogRelatedSection({
                   }}
                   transition={{ delay: index * 0.15 }}
                 >
-                  <div
-                    className="h-20 w-20 shrink-0 rounded-md bg-cover bg-center bg-no-repeat sm:h-[104px] sm:w-[104px]"
-                    style={{ backgroundImage: `url(${image})` }}
-                    role="img"
-                    aria-label={
-                      (isRTL ? "صورة للمقال " : "Thumbnail for ") + title
-                    }
-                  />
-                  <div className={`flex min-w-0 flex-1 flex-col ${justifyStart} gap-1`}>
-                    <p
-                      className={`${textDir} line-clamp-2 break-words text-base leading-7 text-[#1e1e1e] sm:text-lg sm:leading-[30px]`}
-                    >
+                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#eff6fe] sm:h-[88px] sm:w-[88px]">
+                    <img
+                      src={image}
+                      alt={title}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="flex min-w-0 flex-1 flex-col items-start gap-1 border-b border-[#d0d5dd] pb-3">
+                    <p className="line-clamp-2 break-words text-start text-base font-medium leading-7 text-[#1e1e1e] sm:text-lg sm:leading-[30px]">
                       {title}
                     </p>
-                    <span className="text-xs text-[#62a0f6]">{date}</span>
+                    <span className="text-start text-xs text-[#62a0f6]">{date}</span>
                   </div>
                 </motion.div>
               </Link>
             )
           )
         ) : (
-          <p className={`${textDir} text-gray-600`}>{t.noRelated}</p>
+          <p className="text-start text-gray-600">{t.noRelated}</p>
         )}
 
-        <h3
-          className={`${textDir} mt-8 text-2xl font-medium text-[#1e1e1e] sm:text-[30px]`}
-        >
+        <h3 className="mt-4 text-start text-2xl font-semibold text-[#1e1e1e] sm:text-[28px]">
           {t.tags}
         </h3>
 
-        <div className={`flex flex-wrap ${tagContainerJustify} gap-2 sm:gap-4`}>
+        <div className="flex flex-wrap justify-start gap-2 sm:gap-3">
           {blogTags.length > 0 ? (
             blogTags.map((tag: string, i: number) => (
               <motion.div
                 key={`${tag}-${i}`}
-                className="border border-[#d0d5dd] rounded-md px-2 py-1 cursor-pointer"
+                className="cursor-pointer rounded-full border border-[#d0d5dd] px-3 py-1.5"
                 whileHover={{
-                  scale: 1.1,
+                  scale: 1.05,
                   backgroundColor: "#62a0f6",
                   borderColor: "#62a0f6",
                 }}
@@ -282,86 +362,16 @@ export default function BlogRelatedSection({
                 transition={{ duration: 0.3 }}
                 aria-label={(isRTL ? "هاشتاج " : "Tag ") + tag}
               >
-                <span className="text-sm text-[#736b7a] hover:text-white sm:text-lg">
+                <span className="text-sm text-[#736b7a] hover:text-white sm:text-base">
                   {tag}
                 </span>
               </motion.div>
             ))
           ) : (
-            <p className={`${textDir} text-gray-600`}>{t.noTags}</p>
+            <p className="text-start text-gray-600">{t.noTags}</p>
           )}
         </div>
-      </motion.div>
-
-      {/* Right Column */}
-      <motion.div
-        className="flex min-w-0 flex-1 flex-col items-start gap-5 sm:gap-6"
-        variants={{
-          hidden: { opacity: 1 },
-          visible: { opacity: 1, x: 0, transition: { duration: 0.6 } },
-        }}
-      >
-        <motion.div
-          className="h-[200px] w-full rounded-[20px] bg-cover bg-center bg-no-repeat sm:h-[300px] sm:rounded-[24px] md:h-[456px]"
-          style={{
-            backgroundImage: `url(${
-              data?.image?.[0]?.original || "/assets/images/placeholder.jpg"
-            })`,
-          }}
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          role="img"
-          aria-label={
-            (isRTL ? "صورة المقال " : "Article image ") +
-            getNewsTitle(data, locale)
-          }
-        />
-
-        <div className={`flex flex-col gap-2 ${justifyStart}`}>
-          <span className="text-[#62a0f6] text-sm font-medium">
-            {formatDate(data?.date)}
-          </span>
-
-          <div className={`flex flex-col gap-6 ${justifyStart}`}>
-            <h1
-              className={`${textDir} break-words text-xl font-medium text-[#1e1e1e] sm:text-2xl md:text-[30px]`}
-            >
-              {getNewsTitle(data, locale)}
-            </h1>
-
-            <div
-              className="editor-content w-full min-w-0 overflow-x-auto"
-              dangerouslySetInnerHTML={{
-                __html: demoteH1(normalizeCmsHtml(data?.description || "")),
-              }}
-            />
-          </div>
-        </div>
-
-        <motion.span
-          className={`flex ${
-            isRTL ? "justify-end" : "justify-start"
-          } w-fit cursor-pointer`}
-          onClick={() => setIsPopupOpen(true)}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="flex items-center gap-2 border border-[#143087] rounded-md px-2 py-2 w-fit group hover:bg-[#143087] hover:text-white transition-colors duration-300">
-            <span className="text-sm font-medium text-[#143087] group-hover:text-white">
-              {t.shareArticle}
-            </span>
-            <div
-              className="w-6 h-6 bg-cover bg-no-repeat"
-              style={{
-                backgroundImage:
-                  "url('/assets/images/shared/blog-section-bg.svg')",
-              }}
-            />
-          </div>
-        </motion.span>
-      </motion.div>
+      </motion.aside>
 
       {/* Share Popup */}
       <AnimatePresence>
@@ -384,14 +394,14 @@ export default function BlogRelatedSection({
               lang={lang}
             >
               <h3
-                className={`${textDir} text-2xl font-semibold text-[#1e1e1e] mb-6`}
+                className={`text-start text-2xl font-semibold text-[#1e1e1e] mb-6`}
               >
                 {t.shareArticle}
               </h3>
 
               <div className="grid grid-cols-1 gap-4">
                 <motion.button
-                  className={`flex items-center gap-3 border border-[#143087] rounded-lg px-4 py-3 text-[#143087] hover:bg-[#143087] hover:text-white transition-colors duration-300 ${textDir}`}
+                  className={`flex items-center gap-3 border border-[#143087] rounded-lg px-4 py-3 text-[#143087] hover:bg-[#143087] hover:text-white transition-colors duration-300 text-start`}
                   onClick={handleFacebookShare}
                   whileHover={{
                     scale: 1.05,
@@ -405,7 +415,7 @@ export default function BlogRelatedSection({
                 </motion.button>
 
                 <motion.button
-                  className={`flex items-center gap-3 border border-[#143087] rounded-lg px-4 py-3 text-[#143087] hover:bg-[#143087] hover:text-white transition-colors duration-300 ${textDir}`}
+                  className={`flex items-center gap-3 border border-[#143087] rounded-lg px-4 py-3 text-[#143087] hover:bg-[#143087] hover:text-white transition-colors duration-300 text-start`}
                   onClick={handleTwitterShare}
                   whileHover={{
                     scale: 1.05,
@@ -419,7 +429,7 @@ export default function BlogRelatedSection({
                 </motion.button>
 
                 <motion.button
-                  className={`flex items-center gap-3 border border-[#143087] rounded-lg px-4 py-3 text-[#143087] hover:bg-[#143087] hover:text-white transition-colors duration-300 ${textDir}`}
+                  className={`flex items-center gap-3 border border-[#143087] rounded-lg px-4 py-3 text-[#143087] hover:bg-[#143087] hover:text-white transition-colors duration-300 text-start`}
                   onClick={handleInstagramShare}
                   whileHover={{
                     scale: 1.05,
@@ -433,7 +443,7 @@ export default function BlogRelatedSection({
                 </motion.button>
 
                 <motion.button
-                  className={`flex items-center gap-3 border border-[#143087] rounded-lg px-4 py-3 text-[#143087] hover:bg-[#143087] hover:text-white transition-colors duration-300 ${textDir}`}
+                  className={`flex items-center gap-3 border border-[#143087] rounded-lg px-4 py-3 text-[#143087] hover:bg-[#143087] hover:text-white transition-colors duration-300 text-start`}
                   onClick={handleEmailShare}
                   whileHover={{
                     scale: 1.05,
@@ -447,7 +457,7 @@ export default function BlogRelatedSection({
                 </motion.button>
 
                 <motion.button
-                  className={`flex items-center gap-3 border border-[#143087] rounded-lg px-4 py-3 text-[#143087] hover:bg-[#143087] hover:text-white transition-colors duration-300 ${textDir}`}
+                  className={`flex items-center gap-3 border border-[#143087] rounded-lg px-4 py-3 text-[#143087] hover:bg-[#143087] hover:text-white transition-colors duration-300 text-start`}
                   onClick={handleCopyLink}
                   whileHover={{
                     scale: 1.05,
@@ -462,7 +472,7 @@ export default function BlogRelatedSection({
               </div>
 
               <motion.button
-                className={`mt-6 text-[#62a0f6] text-base font-medium ${textDir} w-full hover:underline`}
+                className={`mt-6 text-[#62a0f6] text-base font-medium text-start w-full hover:underline`}
                 onClick={() => setIsPopupOpen(false)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

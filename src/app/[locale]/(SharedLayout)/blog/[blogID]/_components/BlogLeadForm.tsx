@@ -178,7 +178,8 @@ export default function BlogLeadForm({ locale, blogTitle }: BlogLeadFormProps) {
                 {t("leadForm.phone")}
               </label>
               <div
-                className={`flex items-center border rounded-lg overflow-hidden focus-within:border-[#143087] focus-within:ring-2 focus-within:ring-[#143087]/10 ${
+                dir="ltr"
+                className={`flex items-center overflow-hidden rounded-lg border focus-within:border-[#143087] focus-within:ring-2 focus-within:ring-[#143087]/10 ${
                   fieldErrors.mobile_phone
                     ? "border-red-400"
                     : "border-[#d0d5dd]"
@@ -201,7 +202,7 @@ export default function BlogLeadForm({ locale, blogTitle }: BlogLeadFormProps) {
                   inputMode="tel"
                   value={formData.mobile_phone}
                   onChange={handleChange}
-                  className="bg-white flex-1 min-w-0 px-3.5 py-2.5 text-sm text-start placeholder:text-[#98a2b3] focus:outline-none"
+                  className="min-w-0 flex-1 bg-white px-3.5 py-2.5 text-start text-sm placeholder:text-[#98a2b3] focus:outline-none"
                   placeholder={t("leadForm.phonePlaceholder")}
                   autoComplete="tel"
                 />

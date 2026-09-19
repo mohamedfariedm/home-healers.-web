@@ -10,7 +10,6 @@ const STATIC_PATHS = [
   "/blog",
   "/categories",
   "/offers",
-  "/our-services",
   "/booking",
   "/doctors-apply",
   "/privacy",

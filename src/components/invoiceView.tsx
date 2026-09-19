@@ -192,14 +192,14 @@ export default function InvoiceView({ invoiceData }: InvoiceViewProps) {
     "data:image/png;base64,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";
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white" dir="rtl">
+    <div className="mx-auto max-w-4xl overflow-x-auto bg-white p-4 sm:p-6" dir="rtl">
       <div className="flex justify-center items-center mb-4">
         <Button onClick={handleDownloadPDF} className="mb-4 bg-blue-600 text-white hover:bg-blue-700">
           تحميل الفاتورة كـ PDF
         </Button>
       </div>
 
-      <Card ref={invoiceRef} className="p-8 shadow-lg">
+        <Card ref={invoiceRef} className="p-4 shadow-lg sm:p-8">
         {/* Header */}
         <div className="flex justify-between items-start mb-8">
           <div className="text-right">

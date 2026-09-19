@@ -7,9 +7,9 @@ import { toSecureMediaUrl } from "@/lib/image-url";
 
 function BeCloser({ locale, section }: { locale: string; section: any }) {
   return (
-    <div className="main-container relative w-full max-w-[1280px] mx-auto px-4 py-8 md:py-12 flex flex-col lg:flex-row justify-between items-center gap-6">
+    <div className="relative mx-auto my-8 w-full max-w-[1280px] px-4 md:my-12">
+      <div className="relative flex flex-col items-center justify-between gap-6 overflow-hidden rounded-[24px] bg-[#143087] px-4 py-8 md:p-10 lg:flex-row lg:p-12">
       {/* Background Layer */}
-      <div className="absolute inset-0 w-full h-full bg-[#143087] rounded-[24px] z-0" />
 
       {/* Background Animated Layers */}
       <motion.div
@@ -60,7 +60,7 @@ function BeCloser({ locale, section }: { locale: string; section: any }) {
             >
               {/* Image */}
               <div
-                className="w-full md:w-[140px] h-[280px] md:h-auto bg-cover bg-center"
+                className="h-[180px] w-full bg-cover bg-center md:h-auto md:w-[140px]"
                 style={{
                   backgroundImage: `url(${
                     toSecureMediaUrl(post.attachment?.[0]?.original) ||
@@ -99,6 +99,7 @@ function BeCloser({ locale, section }: { locale: string; section: any }) {
             </motion.div>
           ))}
         </div>
+      </div>
       </div>
     </div>
   );

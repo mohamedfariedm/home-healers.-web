@@ -29,11 +29,11 @@ export default function BlogCard({
   return (
     <Link
       href={blogHref(locale, getBlogSlug(blog, locale) || String(blog?.id || ""))}
-      className={cn("w-full justify-self-center ", !main && "max-w-[450px]")}
+      className={cn("w-full justify-self-center", !main && "max-w-[450px]")}
     >
       <Card
         className={cn(
-          " w-full  rounded-none shadow-none border-none group bg-transparent relative "
+          "w-full overflow-hidden rounded-3xl border border-[#e6eef8] bg-white shadow-[0_10px_30px_rgba(20,48,135,0.06)] group relative transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(20,48,135,0.12)]",
         )}
       >
         <div

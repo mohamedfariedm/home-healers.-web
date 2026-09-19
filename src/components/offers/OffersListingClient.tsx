@@ -270,7 +270,7 @@ export default function OffersListingClient({
   }
 
   return (
-    <div dir={dir} className="mx-auto w-full max-w-[1440px] px-4 pb-16 sm:px-6">
+    <div dir={dir} className="mx-auto w-full max-w-[1440px] px-4 py-8 pb-16 sm:px-6 sm:py-10">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
         <div className="relative min-w-0 w-full flex-1">
           <Search className="pointer-events-none absolute top-1/2 start-3 size-4 -translate-y-1/2 text-[#4a5568]" />
@@ -494,7 +494,7 @@ export default function OffersListingClient({
                 </a>
               ) : (
                 <a
-                  href={localePath(locale, "/our-services")}
+                  href={localePath(locale, "/categories")}
                   className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-medium text-white"
                 >
                   {t("browseServices")}

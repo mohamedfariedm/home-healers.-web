@@ -62,7 +62,7 @@ export default async function ConditionsPage({
           ]}
         />
 
-        <div className="flex flex-col items-center gap-14 mt-24 w-full mx-auto px-4">
+        <div className="mx-auto mt-12 flex w-full max-w-4xl flex-col items-center gap-10 px-4 sm:mt-16 lg:mt-20">
           <div className="max-w-4xl w-full">
             <div className="space-y-10">
               {conditions?.items?.map((item: any, index: number) => (

@@ -85,13 +85,12 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
   ]);
 
   return (
-    <div className="main-container w-full xl:w-[1440px] bg-[#fff] relative overflow-hidden mx-auto my-0">
+    <div className="page-shell bg-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: renderJsonLd(breadcrumbSchema) }}
       />
       <div>
-        <div className="w-full xl:w-[1440px] h-[1px] bg-[#fff] relative shadow-[0_1px_2px_0_rgba(16,24,40,0.06)] mt-0 mr-0 mb-0 ml-0" />
         <Hero
           locale={locale}
           section={{

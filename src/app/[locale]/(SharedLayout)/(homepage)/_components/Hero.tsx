@@ -14,54 +14,54 @@ function Hero({ locale, section }: { locale: string; section: any }) {
   const bookingHref = `${locale === "ar" ? "" : "/en"}/booking`;
 
   return (
-    <div className="w-full xl:max-w-[1280px] relative mx-auto pb-8 px-4 lg:px-0">
-      <div className="flex relative flex-col-reverse xl:flex-row gap-10 items-center">
+    <div className="relative mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 md:pb-12 lg:px-8">
+      <div className="relative flex flex-col-reverse items-center gap-8 xl:flex-row xl:gap-12">
         <div
-          className="absolute top-20 right-0 left-[50px] bottom-0 bg-[url(/assets/images/homehellers/dots.svg)] bg-contain -z-0"
+          className="pointer-events-none absolute top-16 right-0 left-8 bottom-0 -z-0 hidden bg-[url(/assets/images/homehellers/dots.svg)] bg-contain opacity-60 sm:block"
           aria-hidden
         />
 
-        <div className="relative w-full xl:w-1/2 flex flex-col gap-8 justify-center bg-no-repeat bg-contain">
-          <h1 className="text-[#1e1e1e] text-2xl sm:text-3xl lg:text-4xl font-semibold leading-snug text-start relative z-10">
+        <div className="relative flex w-full flex-col justify-center gap-6 bg-contain bg-no-repeat xl:w-1/2 xl:gap-8">
+          <h1 className="relative z-10 text-start text-2xl font-semibold leading-snug text-[#1e1e1e] sm:text-3xl lg:text-4xl lg:leading-tight">
             {post?.title ||
               "Physical Therapy and Rehabilitation Services"}
           </h1>
 
-          <p className="text-[#1e1e1e] text-base sm:text-lg leading-relaxed text-start">
+          <p className="max-w-xl text-start text-base leading-relaxed text-[#475467] sm:text-lg">
             {post?.description ||
               "A specialized application and website providing in-home physical therapy and medical rehabilitation services through highly qualified specialists."}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 items-center relative z-10">
+          <div className="relative z-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
             <div
-              className="w-[200px] h-[56px] bg-[url(/assets/images/homehellers/rating.svg)] bg-cover bg-no-repeat"
+              className="h-[56px] w-[200px] bg-[url(/assets/images/homehellers/rating.svg)] bg-cover bg-no-repeat"
               aria-hidden
             />
             <div className="flex flex-col gap-1">
-              <span className="text-sm sm:text-base font-semibold text-[#1e1e1e] whitespace-nowrap">
+              <span className="whitespace-nowrap text-sm font-semibold text-[#1e1e1e] sm:text-base">
                 {locale === "ar" ? "تقيم المرضي" : "Patient Rating"}
               </span>
-              <div className="flex gap-1 items-center" aria-hidden>
+              <div className="flex items-center gap-1" aria-hidden>
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className="w-5 h-5 text-yellow-400 fill-yellow-400"
+                    className="h-5 w-5 fill-yellow-400 text-yellow-400"
                   />
                 ))}
               </div>
             </div>
           </div>
 
-          <Link className="rounded-md w-fit" href={bookingHref}>
-            <span className="flex items-center gap-3 px-5 py-3 bg-[#143087] rounded-2xl w-fit hover:bg-[#0f245f] transition z-10 relative text-white text-base sm:text-lg font-medium">
+          <Link className="w-fit rounded-2xl" href={bookingHref}>
+            <span className="relative z-10 flex w-fit items-center gap-3 rounded-2xl bg-[#143087] px-5 py-3 text-base font-semibold text-white shadow-[0_12px_28px_rgba(20,48,135,0.28)] transition hover:bg-[#0f245f] sm:text-lg">
               {locale === "ar" ? "احجز جلستك الان" : " Book Your Session Now"}
-              <ArrowLeft className="w-6 h-6 text-white" />
+              <ArrowLeft className="h-6 w-6 text-white" />
             </span>
           </Link>
         </div>
 
-        <div className="w-full xl:w-auto z-10 max-w-[727px]">
-          <div className="relative w-full max-w-[727px] h-[624px] xl:w-[727px] xl:mx-0 mx-auto">
+        <div className="z-10 w-full max-w-[727px] xl:w-auto">
+          <div className="relative mx-auto h-[280px] w-full overflow-hidden rounded-3xl bg-[#eef4ff] shadow-[0_18px_50px_rgba(20,48,135,0.14)] xs:h-[340px] sm:h-[420px] md:h-[480px] xl:mx-0 xl:h-[560px] xl:w-[640px] 2xl:h-[600px] 2xl:w-[720px]">
             <Image
               src={heroImages[0]}
               alt={alt}

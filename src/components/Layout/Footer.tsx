@@ -473,9 +473,9 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
         </AnimatePresence>
       )}
 
-      <footer className="w-full mt-20">
+      <footer className="mt-12 w-full sm:mt-16 lg:mt-20">
         {/* Certification/Award Celebration Section */}
-        <section ref={celebrationRef} className="w-full mb-20 px-5 ">
+        <section ref={celebrationRef} className="mb-12 w-full px-4 sm:mb-16 sm:px-5 lg:mb-20">
           <div className="max-w-7xl mx-auto ">
             <motion.div
               className="flex md:flex-row flex-col  items-center gap-8"
@@ -494,8 +494,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                   className="inline-block"
                 >
                   <h2
-  className="text-4xl font-bold text-[#143087] mb-4"
-  style={{ lineHeight: "inherit" }}
+  className="mb-4 text-2xl font-bold leading-tight text-[#143087] sm:text-3xl lg:text-4xl"
 >
                     {locale === "ar" ? (
                       <>
@@ -652,7 +651,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                         href={social.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex w-10 h-10 items-center justify-center bg-[#62a0f6] rounded-xl hover:bg-[#4f8ae8] transition-colors text-white"
+                        className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#62a0f6] text-white shadow-sm transition-colors hover:bg-[#4f8ae8]"
                         variants={animationVariants.button}
                         whileHover="hover"
                         whileTap="tap"
@@ -690,10 +689,6 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     {
                       href: `${locale === "ar" ? "" : "/en"}/about`,
                       text: t.navigation.about,
-                    },
-                    {
-                      href: `${locale === "ar" ? "" : "/en"}/our-services`,
-                      text: t.navigation.services,
                     },
                     {
                       href: `${locale === "ar" ? "" : "/en"}/categories`,

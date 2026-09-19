@@ -46,11 +46,14 @@ export default function MenuItemsDesktop({
             key={index}
             href={`${locale === "ar" ? "" : "/en"}${item.href}`}
             onClick={onLinkClick}
-            className="relative flex h-10 shrink-0 items-center justify-center px-1 py-2 lg:h-10 xl:h-12 xl:px-2"
+            className={cn(
+              "relative flex h-10 shrink-0 items-center justify-center rounded-full px-2 py-2 transition-colors duration-200 hover:bg-[#eff6fe] lg:h-10 xl:h-11 xl:px-3",
+              isActive && "bg-[#eff6fe]"
+            )}
           >
             <span
               className={cn(
-                "whitespace-nowrap text-sm font-semibold leading-6 lg:text-[12px] xl:text-sm rtl:lg:text-[13px] rtl:xl:text-base",
+                "whitespace-nowrap text-sm font-semibold leading-6 lg:text-[13px] xl:text-sm rtl:lg:text-[14px] rtl:xl:text-base",
                 isActive ? "text-[#62a0f6]" : "text-[#1e1e1e]"
               )}
             >

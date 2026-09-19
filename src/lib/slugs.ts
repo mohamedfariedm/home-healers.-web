@@ -166,7 +166,7 @@ export function serviceHref(
   categorySlug: string,
   serviceSlug: string,
 ): string {
-  if (!categorySlug) return localePath(locale, "/our-services");
+  if (!categorySlug) return localePath(locale, "/categories");
   if (!serviceSlug) return categoryHref(locale, categorySlug);
   return localePath(
     locale,

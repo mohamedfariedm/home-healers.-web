@@ -25,7 +25,7 @@ function Banner({ banner }: { banner: any }) {
   return (
     <div
       ref={bannerRef}
-      className="my-8 overflow-hidden rounded-2xl sm:my-14 sm:rounded-[24px]"
+      className="mx-4 my-8 overflow-hidden rounded-2xl sm:mx-6 sm:my-14 sm:rounded-[24px] lg:mx-auto lg:max-w-7xl"
     >
       {src ? (
         <motion.img

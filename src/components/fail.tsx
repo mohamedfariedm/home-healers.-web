@@ -70,7 +70,7 @@ export default function PaymentFail({ orderRef }: PaymentFailProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 py-12" dir="rtl">
+    <div className="mx-auto max-w-4xl space-y-8 px-4 py-12 sm:px-6" dir="rtl">
       <div className="text-center py-12">
         <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <AlertTriangle className="w-12 h-12 text-red-600" />

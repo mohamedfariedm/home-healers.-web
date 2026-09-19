@@ -63,7 +63,7 @@ const AnimatedServicesSection = ({
 
   return (
     <motion.div
-      className="max-w-screen-xl mx-auto px-4 mt-12 flex flex-col lg:flex-row gap-8"
+      className="mx-auto mt-8 flex max-w-screen-xl flex-col gap-8 px-4 sm:mt-12 lg:flex-row"
       whileInView="visible"
       viewport={{ once: false, amount: 0.3 }}
       variants={{
@@ -101,10 +101,10 @@ const AnimatedServicesSection = ({
               >
                 <Link
                   href={href}
-                  className={`flex items-center gap-[10px] p-3 border rounded-md focus:outline-none transition-transform ${
+                  className={`flex items-center gap-3 rounded-2xl border p-3 transition-all focus:outline-none ${
                     isActive
-                      ? "bg-[#EFF6FE] border-[#62A0F6]"
-                      : "border-[#62A0F6]"
+                      ? "border-[#62A0F6] bg-[#EFF6FE] shadow-[0_10px_24px_rgba(98,160,246,0.16)]"
+                      : "border-[#d7e4f8] bg-white hover:border-[#62A0F6]"
                   }`}
                 >
                   <div
@@ -142,7 +142,7 @@ const AnimatedServicesSection = ({
         transition={{ duration: 0.8 }}
       >
         <div
-          className="h-72 lg:h-[456px] bg-cover bg-no-repeat rounded-2xl"
+          className="h-56 rounded-3xl bg-cover bg-no-repeat shadow-[0_16px_40px_rgba(20,48,135,0.1)] sm:h-72 lg:h-[456px]"
           style={{
             backgroundImage: `url(${
               activeService.image?.[0]?.original ||

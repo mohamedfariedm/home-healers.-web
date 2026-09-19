@@ -80,6 +80,17 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl, 301)
   }
 
+  const isOurServicesListing =
+    pathname === "/our-services" ||
+    pathname === "/our-services/" ||
+    pathname === "/en/our-services" ||
+    pathname === "/en/our-services/"
+
+  if (isOurServicesListing) {
+    const dest = pathname.startsWith("/en") ? "/en/categories" : "/categories"
+    return NextResponse.redirect(new URL(dest, request.url), 301)
+  }
+
   // English already has an explicit /en prefix — pass through
   if (hasEnPrefix) {
     const response = NextResponse.next()

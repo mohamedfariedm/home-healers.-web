@@ -1,5 +1,5 @@
 import { toSecureMediaUrl } from "@/lib/image-url";
-import { getActiveServices, getServiceSlug } from "@/lib/slugs";
+import { getActiveServices, getBlogSlug, getServiceSlug } from "@/lib/slugs";
 
 const TEXT_PREVIEW = 360;
 
@@ -86,6 +86,34 @@ export function slimBlogForHome(blog: any) {
     image: slimImage(blog.image),
     show_in_home_page: blog.show_in_home_page,
   };
+}
+
+function relatedBlogMatches(catalogItem: any, relatedItem: any, locale: string) {
+  if (catalogItem?.id != null && relatedItem?.id != null) {
+    return Number(catalogItem.id) === Number(relatedItem.id);
+  }
+  return (
+    getBlogSlug(catalogItem, locale) === getBlogSlug(relatedItem, locale) ||
+    getBlogSlug(catalogItem, "en") === getBlogSlug(relatedItem, "en") ||
+    getBlogSlug(catalogItem, "ar") === getBlogSlug(relatedItem, "ar")
+  );
+}
+
+/** Detail `related_blogs` often has slug/name/date only — copy images from the blogs list. */
+export function hydrateRelatedBlogs(
+  related: unknown,
+  catalog: any[],
+  locale: string,
+) {
+  const list = Array.isArray(related) ? related : [];
+  return list.map((item) => {
+    const match = catalog.find((blog) => relatedBlogMatches(blog, item, locale));
+    return slimBlogForHome({
+      ...item,
+      id: item?.id ?? match?.id,
+      image: item?.image || match?.image,
+    });
+  });
 }
 
 export function slimServiceForList(

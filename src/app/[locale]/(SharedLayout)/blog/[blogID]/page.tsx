@@ -8,15 +8,15 @@ import {
   createMetadata,
 } from "@/lib/seo";
 import { createArticleSchema, renderJsonLd } from "@/lib/structured-data";
-import { getCachedSettings, getCachedSingleBlog } from "@/lib/cached-api";
-import { slimBlogForHome } from "@/lib/public-payload";
+import { getCachedBlogs, getCachedSettings, getCachedSingleBlog } from "@/lib/cached-api";
+import { hydrateRelatedBlogs } from "@/lib/public-payload";
 import {
   blogHref,
   getBlogSlug,
   getNewsTitle,
   unwrapDetail,
 } from "@/lib/slugs";
-import { HeroBreadcrumb } from "@/components/Shared/HeroBreadcrumb";
+import { PageHero } from "@/components/Shared/PageHero";
 import { localePath } from "@/lib/offers";
 import { notFound, permanentRedirect } from "next/navigation";
 
@@ -113,8 +113,11 @@ async function page({
   params: Promise<{ locale: "ar" | "en"; blogID: string }>;
 }) {
   const { locale, blogID } = await params;
-  const { t } = await initTranslations(locale, ["blog"]);
-  const loaded = await loadBlog(locale, blogID);
+  const [{ t }, loaded, blogsRes] = await Promise.all([
+    initTranslations(locale, ["blog"]),
+    loadBlog(locale, blogID),
+    getCachedBlogs(locale).catch(() => ({ data: [] as any[] })),
+  ]);
 
   if (!loaded) {
     notFound();
@@ -144,92 +147,38 @@ async function page({
   });
 
   return (
-    <div className="main-container relative mx-auto w-full overflow-x-hidden">
+    <div className="page-shell">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: renderJsonLd(articleSchema) }}
       />
-      <div
-        className="relative h-[200px] w-full overflow-hidden bg-cover bg-center bg-no-repeat sm:h-[250px]"
-        style={{
-          backgroundImage:
-            "url(/assets/images/shared/hero-banner/hero-bg-main.png)",
-        }}
-      >
-        <div
-          className="absolute inset-0 h-full w-full bg-cover bg-no-repeat"
-          style={{
-            backgroundImage:
-              "url(/assets/images/shared/hero-banner/hero-layer-2.png)",
-          }}
-        >
-          <div className="pointer-events-none absolute top-[19.2%] left-[70.76%] hidden h-[56.4%] w-[2.01%] md:block">
-            <div
-              className="h-[29px] w-[29px] bg-cover bg-no-repeat"
-              style={{
-                backgroundImage:
-                  "url(/assets/images/shared/hero-banner/hero-deco-1.svg)",
-              }}
-            />
-            <div
-              className="mt-[83px] h-[29px] w-[29px] bg-cover bg-no-repeat"
-              style={{
-                backgroundImage:
-                  "url(/assets/images/shared/hero-banner/hero-deco-2.svg)",
-              }}
-            />
-          </div>
-
-          <div className="absolute top-1/2 left-1/2 w-[90%] max-w-[640px] -translate-x-1/2 -translate-y-1/2 px-4 text-center">
-            <p className="text-xl font-semibold leading-8 text-white sm:text-[24px]">
-              {t("hero.title", { ns: "blog" })}
-            </p>
-            <HeroBreadcrumb
-              items={[
-                {
-                  label: t("hero.home", { ns: "blog" }),
-                  href: localePath(locale, "/"),
-                },
-                {
-                  label: t("hero.breadcrumb", { ns: "blog" }),
-                  href: localePath(locale, "/blog"),
-                  isActive: true,
-                },
-              ]}
-            />
-          </div>
-
-          <div
-            className="pointer-events-none absolute top-[34%] left-[14.44%] hidden h-[11.6%] w-[2.01%] bg-cover bg-no-repeat md:block"
-            style={{
-              backgroundImage:
-                "url(/assets/images/shared/hero-banner/hero-deco-3.svg)",
-            }}
-          />
-          <div
-            className="pointer-events-none absolute top-[41.6%] left-[93.13%] hidden h-[11.6%] w-[2.01%] bg-cover bg-no-repeat md:block"
-            style={{
-              backgroundImage:
-                "url(/assets/images/shared/hero-banner/hero-deco-4.svg)",
-            }}
-          />
-          <div
-            className="pointer-events-none absolute top-[62.8%] left-[6.88%] hidden h-[9.6%] w-[1.67%] bg-cover bg-no-repeat md:block"
-            style={{
-              backgroundImage:
-                "url(/assets/images/shared/hero-banner/hero-deco-5.svg)",
-            }}
-          />
-        </div>
-      </div>
+      <PageHero
+        titleAs="p"
+        title={t("hero.title", { ns: "blog" })}
+        breadcrumbItems={[
+          {
+            label: t("hero.home", { ns: "blog" }),
+            href: localePath(locale, "/"),
+          },
+          {
+            label: t("hero.breadcrumb", { ns: "blog" }),
+            href: localePath(locale, "/blog"),
+          },
+          {
+            label: articleTitle || t("hero.breadcrumb", { ns: "blog" }),
+            isActive: true,
+          },
+        ]}
+      />
 
       <BlogRelatedSection
         data={{
           ...loaded.data,
-          related_blogs: (Array.isArray(loaded.data.related_blogs)
-            ? loaded.data.related_blogs
-            : []
-          ).map(slimBlogForHome),
+          related_blogs: hydrateRelatedBlogs(
+            loaded.data.related_blogs,
+            blogsRes?.data || [],
+            locale,
+          ),
         }}
         locale={locale}
       />

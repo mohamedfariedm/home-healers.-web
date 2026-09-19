@@ -23,7 +23,7 @@ function AboutApp({
 
   return (
     <div
-      className={`flex w-full flex-col items-center justify-between gap-8 overflow-x-hidden rtl:ltr ltr:rtl xl:flex-row xl:gap-6 ${
+      className={`flex w-full flex-col items-center justify-between gap-8 overflow-hidden rtl:ltr ltr:rtl xl:flex-row xl:gap-6 ${
         showCta ? "mb-10 xl:mb-[91px]" : ""
       }`}
     >
@@ -36,16 +36,16 @@ function AboutApp({
             ) || "/assets/images/homehellers/about.svg"
           })`,
         }}
-        initial={{ opacity: 0, y: simplifyMotion ? 12 : 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
         transition={{ duration: simplifyMotion ? 0.4 : 0.7, ease: "easeOut" }}
         viewport={{ once: true, amount: 0.2 }}
       />
 
       <motion.div
         className="flex w-full max-w-[660px] flex-col items-end gap-6 sm:gap-8 xl:w-[660px]"
-        initial={{ opacity: 0, y: simplifyMotion ? 12 : 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
         transition={{ duration: simplifyMotion ? 0.4 : 0.7, ease: "easeOut" }}
         viewport={{ once: true, amount: 0.2 }}
       >
@@ -68,8 +68,8 @@ function AboutApp({
             <motion.div
               key={i}
               className="flex items-center gap-3"
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               transition={{
                 delay: simplifyMotion ? 0.08 * i : 0.2 + i * 0.15,
                 duration: 0.4,

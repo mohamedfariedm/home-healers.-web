@@ -6,36 +6,34 @@ export type HeroBreadcrumbItem = {
   isActive?: boolean;
 };
 
-const ARROW_STYLE = {
-  backgroundImage:
-    "url(/assets/images/shared/hero-banner/hero-breadcrumb-arrow.svg)",
-} as const;
-
 export function HeroBreadcrumb({ items }: { items: HeroBreadcrumbItem[] }) {
   return (
-    <nav aria-label="Breadcrumb" className="mt-2">
-      <ol className="flex flex-wrap items-center justify-center gap-2">
+    <nav aria-label="Breadcrumb" className="mt-4">
+      <ol className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5">
         {items.map((item, index) => (
           <React.Fragment key={`${item.label}-${index}`}>
             {index > 0 ? (
               <li
                 aria-hidden
-                className="h-4 w-4 shrink-0 bg-cover bg-no-repeat ltr:-scale-x-100"
-                style={ARROW_STYLE}
-              />
+                className="text-white/70 text-sm leading-none"
+              >
+                /
+              </li>
             ) : null}
-            <li>
+            <li className="max-w-[min(100%,18rem)] truncate sm:max-w-[32rem]">
               {item.href && !item.isActive ? (
                 <a
                   href={item.href}
-                  className="text-sm font-semibold text-white hover:underline"
+                  className="rounded-full bg-white/10 px-3 py-1 text-sm font-semibold text-white/90 backdrop-blur-sm transition hover:bg-white/20 hover:text-white"
                 >
                   {item.label}
                 </a>
               ) : (
                 <span
-                  className={`text-sm font-semibold ${
-                    item.isActive ? "text-[#62a0f6]" : "text-white"
+                  className={`rounded-full px-3 py-1 text-sm font-semibold ${
+                    item.isActive
+                      ? "bg-[#62a0f6] text-white"
+                      : "text-white"
                   }`}
                   aria-current={item.isActive ? "page" : undefined}
                 >

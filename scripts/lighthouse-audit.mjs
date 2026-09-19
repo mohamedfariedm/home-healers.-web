@@ -18,8 +18,6 @@ const STATIC_PATHS = [
   "/en/categories",
   "/offers",
   "/en/offers",
-  "/our-services",
-  "/en/our-services",
   "/booking",
   "/en/booking",
   "/doctors-apply",

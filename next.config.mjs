@@ -100,6 +100,16 @@ const nextConfig = {
         destination: '/en/offers/:path*',
         permanent: true,
       },
+      {
+        source: '/our-services',
+        destination: '/categories',
+        permanent: true,
+      },
+      {
+        source: '/en/our-services',
+        destination: '/en/categories',
+        permanent: true,
+      },
     ];
   },
   async rewrites() {

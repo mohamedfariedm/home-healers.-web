@@ -205,7 +205,7 @@ export default function LandingSlider({
         const categorySlug = getCategorySlug(item.category, locale);
         const href = categorySlug && serviceSlug
           ? serviceHref(locale, categorySlug, serviceSlug)
-          : `${locale === "ar" ? "" : "/en"}/our-services/${encodeURIComponent(serviceSlug)}`;
+          : localePath(locale, "/categories");
 
         return (
           <SwiperSlide key={item.id || index}>

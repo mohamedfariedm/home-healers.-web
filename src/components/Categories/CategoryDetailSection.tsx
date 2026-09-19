@@ -44,7 +44,7 @@ const CategoryDetailSection = ({
 
   return (
     <motion.div
-      className="max-w-screen-xl mx-auto px-4 mt-12 mb-16 flex flex-col gap-10"
+      className="mx-auto mb-16 mt-8 flex max-w-screen-xl flex-col gap-10 px-4 sm:mt-12"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}

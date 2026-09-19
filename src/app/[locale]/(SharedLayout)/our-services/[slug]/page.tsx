@@ -8,6 +8,7 @@ import {
   createMetadata,
 } from "@/lib/seo";
 import {
+  categoryHref,
   getServiceSlug,
   isActiveRecord,
   serviceHref,
@@ -15,7 +16,7 @@ import {
 } from "@/lib/slugs";
 import type { Service } from "@/types/booking";
 import { Metadata } from "next";
-import { notFound, permanentRedirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -35,20 +36,18 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   const loaded = await loadService(locale, slug);
-  if (!loaded) {
+  if (!loaded?.categorySlug) {
     return createMetadata(
       null,
       locale,
-      `/our-services/${slug}`,
+      "/categories",
       { title: "Home Healers" },
       { preferPathCanonical: true },
     );
   }
 
   const serviceSlug = getServiceSlug(loaded.service, locale) || loaded.decoded;
-  const path = loaded.categorySlug
-    ? `/categories/${encodeURIComponent(loaded.categorySlug)}/${encodeURIComponent(serviceSlug)}`
-    : `/our-services/${encodeURIComponent(serviceSlug)}`;
+  const path = `/categories/${encodeURIComponent(loaded.categorySlug)}/${encodeURIComponent(serviceSlug)}`;
   const canonical = buildCanonicalUrl(locale, path);
   const title = loaded.service.name || "Home Healers";
   const description =
@@ -73,13 +72,11 @@ export async function generateMetadata({
     description,
     alternates: {
       canonical,
-      languages: loaded.categorySlug
-        ? buildCategoryServiceAlternates(
-            loaded.categorySlug,
-            loaded.service.slug,
-            serviceSlug,
-          )
-        : baseMeta.alternates?.languages,
+      languages: buildCategoryServiceAlternates(
+        loaded.categorySlug,
+        loaded.service.slug,
+        serviceSlug,
+      ),
     },
     openGraph: {
       ...baseMeta.openGraph,
@@ -97,15 +94,10 @@ export default async function OurServicePage({
   const { locale, slug } = await params;
   const loaded = await loadService(locale, slug);
 
-  if (!loaded) {
-    notFound();
+  if (!loaded?.categorySlug) {
+    permanentRedirect(categoryHref(locale, ""));
   }
 
   const serviceSlug = getServiceSlug(loaded.service, locale) || loaded.decoded;
-
-  if (!loaded.categorySlug) {
-    notFound();
-  }
-
   permanentRedirect(serviceHref(locale, loaded.categorySlug, serviceSlug));
 }

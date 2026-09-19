@@ -30,7 +30,7 @@ export default async function Layout({
       <Header locale={locale} />
       {IS_RAMADAN_ACTIVE && <RamadanBanner position="top" />}
       {IS_RAMADAN_ACTIVE && <RamadanBackgroundDecorations />}
-      {children}
+      <div id="page-content">{children}</div>
       <Suspense fallback={null}>
         <ChromeFooter locale={locale} />
       </Suspense>

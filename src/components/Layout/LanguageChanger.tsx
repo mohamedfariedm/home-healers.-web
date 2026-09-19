@@ -68,34 +68,41 @@ export default function LanguageChanger() {
           setDropdownOpen(false)
           return
         }
-      } else if (pathParts[0] === "our-services" && pathParts[1]) {
-        const currentServiceSlug = decodeURIComponent(pathParts[1])
-        const [res, listRes] = await Promise.all([
-          ClientAPI.getAllServicesSlug(currentLocale, currentServiceSlug),
-          ClientAPI.getAllServices(currentLocale),
-        ])
-        const service = unwrapDetail<{
-          id?: number
-          slug?: unknown
-          category?: { slug?: unknown }
-        }>(res)
-        const services = Array.isArray(listRes?.data) ? listRes.data : []
-        const match = services.find(
-          (item: { id?: number; slug?: unknown; category?: { slug?: unknown } }) =>
-            (service?.id != null && item.id === service.id) ||
-            getServiceSlug(item, currentLocale) === currentServiceSlug,
-        )
-        const categorySlug =
-          getCategorySlug(service?.category, newLocale) ||
-          getCategorySlug(match?.category, newLocale)
-        const translated = getServiceSlug(service, newLocale)
-        if (categorySlug && translated) {
-          newPath = serviceHref(newLocale, categorySlug, translated)
-          i18n.changeLanguage(newLocale)
-          router.push(newPath)
-          setDropdownOpen(false)
-          return
+      } else if (pathParts[0] === "our-services") {
+        if (pathParts[1]) {
+          const currentServiceSlug = decodeURIComponent(pathParts[1])
+          const [res, listRes] = await Promise.all([
+            ClientAPI.getAllServicesSlug(currentLocale, currentServiceSlug),
+            ClientAPI.getAllServices(currentLocale),
+          ])
+          const service = unwrapDetail<{
+            id?: number
+            slug?: unknown
+            category?: { slug?: unknown }
+          }>(res)
+          const services = Array.isArray(listRes?.data) ? listRes.data : []
+          const match = services.find(
+            (item: { id?: number; slug?: unknown; category?: { slug?: unknown } }) =>
+              (service?.id != null && item.id === service.id) ||
+              getServiceSlug(item, currentLocale) === currentServiceSlug,
+          )
+          const categorySlug =
+            getCategorySlug(service?.category, newLocale) ||
+            getCategorySlug(match?.category, newLocale)
+          const translated = getServiceSlug(service, newLocale)
+          if (categorySlug && translated) {
+            newPath = serviceHref(newLocale, categorySlug, translated)
+            i18n.changeLanguage(newLocale)
+            router.push(newPath)
+            setDropdownOpen(false)
+            return
+          }
         }
+        newPath = categoryHref(newLocale, "")
+        i18n.changeLanguage(newLocale)
+        router.push(newPath)
+        setDropdownOpen(false)
+        return
       } else if (pathParts[0] === "categories" && pathParts.length >= 3) {
         const [categoryRes, serviceRes] = await Promise.all([
           ClientAPI.getCategory(decodeURIComponent(pathParts[1]), currentLocale),
@@ -161,37 +168,42 @@ export default function LanguageChanger() {
   }, [])
 
   return (
-    <div
-      className="relative flex items-center cursor-pointer z-[3]"
-      onClick={() => setDropdownOpen((prev) => !prev)}
-      ref={dropdownRef}
-    >
-      <div className="w-[24px] h-[24px] shrink-0 bg-[url(/assets/images/shared/language-globe.png)] bg-cover bg-no-repeat relative overflow-hidden z-[4]" />
-      <div className="flex w-[28px] gap-[10px] justify-center items-center shrink-0 relative z-[50]">
-        <span className="h-[20px]  text-[14px] font-medium leading-[20px] text-[#1e1e1e] whitespace-nowrap z-[6]">
+    <div className="relative z-[3]" ref={dropdownRef}>
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={dropdownOpen}
+        onClick={() => setDropdownOpen((prev) => !prev)}
+        className="flex items-center gap-1.5 rounded-full border border-[#d7e4f8] bg-white/80 px-2.5 py-1.5 backdrop-blur-sm transition hover:border-[#62a0f6] hover:bg-white"
+      >
+        <div className="h-5 w-5 shrink-0 bg-[url(/assets/images/shared/language-globe.png)] bg-cover bg-no-repeat" />
+        <span className="text-sm font-medium leading-5 text-[#1e1e1e] whitespace-nowrap">
           {currentLocale === "ar" ? "Eng" : "عربى"}
         </span>
-      </div>
+      </button>
 
       {dropdownOpen && (
         <motion.div
+          role="listbox"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="absolute top-full mt-2 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-50 w-[80px]"
+          className="absolute top-full end-0 z-50 mt-2 w-[120px] overflow-hidden rounded-2xl border border-[#d7e4f8] bg-white shadow-[0_16px_40px_rgba(20,48,135,0.12)]"
         >
-          <div
+          <button
+            type="button"
             onClick={() => handleChange("en")}
-            className="px-3 py-2 hover:bg-gray-100 text-sm text-[#1e1e1e]  cursor-pointer"
+            className="block w-full px-3 py-2.5 text-start text-sm text-[#1e1e1e] hover:bg-[#eff6fe]"
           >
             English
-          </div>
-          <div
+          </button>
+          <button
+            type="button"
             onClick={() => handleChange("ar")}
-            className="px-3 py-2 hover:bg-gray-100 text-sm text-[#1e1e1e]  cursor-pointer"
+            className="block w-full px-3 py-2.5 text-start text-sm text-[#1e1e1e] hover:bg-[#eff6fe]"
           >
             العربية
-          </div>
+          </button>
         </motion.div>
       )}
     </div>

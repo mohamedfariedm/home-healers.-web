@@ -15,10 +15,14 @@ import {
   offersQueryToSearchParams,
   parseOffersSearchParams,
 } from "@/lib/offers";
-import { createBreadcrumbSchema, renderJsonLd } from "@/lib/structured-data";
+import {
+  createBreadcrumbSchema,
+  renderJsonLd,
+} from "@/lib/structured-data";
 import { slimCategoryCard, slimOfferCard } from "@/lib/public-payload";
 import type { OfferCard } from "@/types/offers";
 import type { Metadata } from "next";
+import { PageHero } from "@/components/Shared/PageHero";
 
 export const dynamic = "force-dynamic";
 
@@ -113,29 +117,20 @@ export default async function OffersListingPage({
   ]);
 
   return (
-    <div className="w-full overflow-x-hidden bg-white">
+    <div className="page-shell bg-white">
       {prev ? <link rel="prev" href={prev} /> : null}
       {next ? <link rel="next" href={next} /> : null}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: renderJsonLd(breadcrumbSchema) }}
       />
-      <div className="mx-auto max-w-[1440px] px-4 pt-6 sm:px-6 sm:pt-10">
-        <nav aria-label="Breadcrumb" className="mb-4 text-sm text-[#4a5568]">
-          <ol className="flex flex-wrap items-center gap-2">
-            <li>
-              <a href={localePath(locale, "/")}>{t("breadcrumb.home")}</a>
-            </li>
-            <li aria-hidden className="rtl:rotate-180">›</li>
-            <li aria-current="page" className="text-[#1e1e1e]">
-              {t("breadcrumb.offers")}
-            </li>
-          </ol>
-        </nav>
-        <h1 className="mb-6 text-2xl font-bold text-[#143087] sm:mb-8 sm:text-3xl lg:text-4xl">
-          {t("title")}
-        </h1>
-      </div>
+      <PageHero
+        title={t("title")}
+        breadcrumbItems={[
+          { label: t("breadcrumb.home"), href: localePath(locale, "/") },
+          { label: t("breadcrumb.offers"), isActive: true },
+        ]}
+      />
       <OffersListingClient
         locale={locale}
         initialQuery={query}

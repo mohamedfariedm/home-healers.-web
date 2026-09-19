@@ -51,16 +51,16 @@ async function DoctorApplyPage({
   ]);
   const seo = getDoctorsApplySeo(settings);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#eff6fe] via-white to-[#ebfdf2]">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-blue-700 to-indigo-800 text-white py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-opacity-50 bg-[url('/assets/images/medical-pattern.png')] opacity-10"></div>
-        <div className="container mx-auto px-4 text-center relative z-10">
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-6 animate-fade-in-up">
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#143087] via-[#1d3fa3] to-[#62a0f6] py-16 text-white sm:py-20">
+        <div className="absolute inset-0 bg-[url('/assets/images/medical-pattern.png')] opacity-10"></div>
+        <div className="container relative z-10 mx-auto px-4 text-center">
+          <h1 className="mb-5 text-3xl font-extrabold leading-tight sm:mb-6 sm:text-4xl md:text-5xl">
             {seo?.[locale]?.h1 ||
               t("hero.title", { defaultValue: "Join Our Medical Team" })}
           </h1>
-          <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto mb-8 animate-fade-in-up animation-delay-200">
+          <p className="mx-auto mb-8 max-w-3xl text-base text-blue-100 sm:text-xl md:text-2xl">
             {t("hero.subtitle", {
               defaultValue:
                 "Apply to become part of our world-class healthcare network. Your expertise can make a difference in patients' lives.",
@@ -68,7 +68,7 @@ async function DoctorApplyPage({
           </p>
           <a
             href="#apply-form"
-            className="inline-block bg-white text-blue-700 font-semibold py-3 px-8 rounded-full hover:bg-blue-100 transition-all duration-300 animate-fade-in-up animation-delay-400"
+            className="inline-block rounded-full bg-white px-8 py-3 font-semibold text-[#143087] shadow-[0_12px_28px_rgba(8,20,60,0.2)] transition-all duration-300 hover:bg-[#eff6fe]"
           >
             {t("hero.cta", { defaultValue: "Start Your Application" })}
           </a>

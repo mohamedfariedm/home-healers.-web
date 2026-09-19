@@ -55,7 +55,7 @@ const CategoryServicesSection = ({
 
   return (
     <motion.div
-      className="max-w-screen-xl mx-auto px-4 mt-12 flex flex-col gap-8"
+      className="mx-auto mt-8 flex max-w-screen-xl flex-col gap-8 px-4 sm:mt-12"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -96,10 +96,10 @@ const CategoryServicesSection = ({
                 <Link
                   key={service.id}
                   href={href}
-                  className={`flex items-center gap-[10px] p-3 border rounded-md transition-transform hover:scale-[1.02] text-start w-full ${
+                  className={`flex w-full items-center gap-3 rounded-2xl border p-3 text-start transition-all hover:-translate-y-0.5 ${
                     isActive
-                      ? "bg-[#EFF6FE] border-[#62A0F6]"
-                      : "border-[#62A0F6]"
+                      ? "border-[#62A0F6] bg-[#EFF6FE] shadow-[0_10px_24px_rgba(98,160,246,0.14)]"
+                      : "border-[#d7e4f8] bg-white hover:border-[#62A0F6]"
                   }`}
                 >
                   <div

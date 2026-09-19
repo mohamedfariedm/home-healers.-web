@@ -111,10 +111,10 @@ const BlogAnimationSection = ({
               <Link
                 href={href}
                 key={card.id}
-                className="min-w-0 rounded-[24px] focus:outline-none focus:ring-2 focus:ring-[#62a0f6]"
+                className="min-w-0 rounded-[24px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#62a0f6]"
               >
                 <motion.div
-                  className="relative mx-auto flex h-full w-full max-w-[400px] flex-col overflow-hidden rounded-[24px] bg-[#eff6fe] shadow-md"
+                  className="relative mx-auto flex h-full w-full max-w-[400px] flex-col overflow-hidden rounded-[24px] border border-[#d7e4f8] bg-white shadow-[0_10px_30px_rgba(20,48,135,0.08)]"
                   variants={cardVariants}
                   initial="hidden"
                   animate="visible"

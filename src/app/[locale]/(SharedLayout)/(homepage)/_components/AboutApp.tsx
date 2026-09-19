@@ -24,16 +24,16 @@ function AboutApp({
 
   return (
     <div
-      className="flex w-full max-w-[1280px] flex-col gap-[80px] xl:gap-[100px] items-stretch relative z-[487] mt-[72px] xl:mt-[91px] mx-auto px-4"
+      className="relative z-10 mx-auto mt-12 flex w-full max-w-[1280px] flex-col items-stretch gap-16 overflow-hidden px-4 sm:mt-16 xl:mt-[91px] xl:gap-[100px]"
       dir={isRTL ? "rtl" : "ltr"}
     >
       <section className="w-full">
         <motion.div
           className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          viewport={{ once: true, amount: 0.3 }}
+          viewport={{ once: true, amount: 0.2 }}
         >
           <div className="text-start max-w-2xl">
             <span className="text-sm text-[#62a0f6] font-medium block mb-2">
@@ -67,7 +67,7 @@ function AboutApp({
         </motion.div>
 
         {categories.length > 0 ? (
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="mt-10 grid grid-cols-1 gap-5 overflow-hidden pt-1 sm:grid-cols-2 lg:grid-cols-3">
             {categories.map((category: any, index: number) => {
               const serviceCount = getActiveServices(category.services).length;
               const href = categoryHrefFrom(locale, category);
@@ -75,8 +75,8 @@ function AboutApp({
               return (
                 <motion.div
                   key={category.id ?? index}
-                  initial={{ opacity: 0, y: 18 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
                   transition={{ duration: 0.4, delay: index * 0.06 }}
                   viewport={{ once: true, amount: 0.2 }}
                 >

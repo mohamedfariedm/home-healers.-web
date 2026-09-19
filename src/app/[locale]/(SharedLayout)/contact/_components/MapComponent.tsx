@@ -92,7 +92,7 @@ const MapComponent: React.FC = () => {
   return (
     <div
       ref={ref}
-      className="max-w-[1280px] w-full h-[300px] md:h-[400px] lg:h-[570px] rounded-[16px] mx-auto mt-24 px-4 xl:px-0"
+      className="mx-auto mt-12 h-[240px] w-full max-w-[1280px] overflow-hidden rounded-3xl px-4 shadow-[0_16px_40px_rgba(20,48,135,0.08)] md:mt-16 md:h-[360px] lg:h-[480px] xl:px-0"
     >
       {visible ? (
         <LoadedMap />

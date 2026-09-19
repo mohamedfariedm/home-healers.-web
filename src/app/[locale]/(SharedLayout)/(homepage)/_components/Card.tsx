@@ -87,7 +87,7 @@ function Card({ locale, section }: CardProps) {
       return (
         <span
           key={index}
-          className={`text-[30px] font-semibold leading-[40px] relative text-start ${
+          className={`text-2xl font-semibold leading-snug relative text-start sm:text-[30px] sm:leading-[40px] ${
             isHighlighted ? "text-[#62a0f6]" : "text-[#1e1e1e]"
           }`}
         >
@@ -101,7 +101,7 @@ function Card({ locale, section }: CardProps) {
   return (
     <div
       ref={sectionRef}
-      className="main-container w-full max-w-[1280px] xl:h-[913px] relative mx-auto my-0"
+      className="relative mx-auto my-0 w-full max-w-[1280px] px-4 pb-16"
     >
       {/* Header Section */}
       <motion.div
@@ -113,13 +113,13 @@ function Card({ locale, section }: CardProps) {
         transition={{ duration: 0.5 }}
       >
         <div className="flex gap-[10px] justify-center items-center self-stretch relative z-[25]">
-          <div className="w-[610px] text-[30px] font-semibold leading-[40px] relative text-center xl:text-center z-[26]">
+          <div className="relative z-[26] w-full text-center text-2xl font-semibold leading-snug sm:text-[30px] sm:leading-[40px]">
             {parseTitle(mainPost?.title || section?.title)}
           </div>
         </div>
         {mainPost?.description && (
           <div className="flex gap-[10px] justify-center items-center self-stretch relative z-[27]">
-            <span className="flex w-[564px] justify-center items-start basis-auto text-[16px] font-medium leading-[24px] text-[#1e1e1e] relative text-center z-[28]">
+            <span className="relative z-[28] flex w-full max-w-[564px] items-start justify-center text-center text-[16px] font-medium leading-[24px] text-[#1e1e1e]">
               {mainPost.description}
             </span>
           </div>

@@ -55,7 +55,7 @@ export default function FeatureCard({
     <div
       ref={cardRef}
       className={cn(
-        "w-full h-[510px] transition-all duration-500 ease-out",
+        "w-full min-h-[360px] transition-all duration-500 ease-out sm:min-h-[440px] lg:h-[510px]",
         isVisible
           ? "opacity-100 translate-x-0"
           : isEven
@@ -70,7 +70,7 @@ export default function FeatureCard({
         )}
         style={{ background: feature?.gradientStyle }}
       >
-        <CardHeader className="w-full px-10 pt-10 space-y-2.5 shrink-0">
+        <CardHeader className="w-full shrink-0 space-y-2.5 px-5 pt-6 sm:px-8 sm:pt-8 lg:px-10 lg:pt-10">
           <div
             className={cn(
               "transition-all duration-500 ease-out",

@@ -1110,13 +1110,13 @@ export default function BookingFlow({
 
   return (
     <div
-      className="main-container w-full mx-auto flex flex-col items-center relative my-0 px-2 sm:px-4 md:px-6 lg:px-8"
+      className="main-container relative mx-auto my-0 flex w-full flex-col items-center px-3 pb-16 sm:px-4 md:px-6 lg:px-8"
       dir="rtl"
     >
       <div className="w-full h-[180px] sm:h-[200px] md:h-[247px] bg-[url(/assets/images/shared/booking-header.png)] bg-[length:100%_100%] bg-no-repeat absolute top-0 left-0 -z-10" />
 
       <div
-        className="relative w-full max-w-[960px] mt-4 sm:mt-6 md:mt-8 px-2"
+        className="relative mt-4 w-full max-w-[960px] rounded-2xl bg-white/20 px-2 py-3 backdrop-blur-md sm:mt-6 sm:px-4 md:mt-8"
         data-tour="booking-stepper"
       >
         {/* Mobile: Compact step indicators */}
