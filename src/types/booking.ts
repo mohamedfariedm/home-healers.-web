@@ -198,7 +198,7 @@ export interface BookingData {
     time: string
     start_time: string
     end_time: string
-    time_period: "morning" | "afternoon" | "evening"
+    time_period: "morning" | "afternoon" | "evening" | "night"
   }>
   sessionsCount: number
   patients: Patient[]

@@ -155,7 +155,7 @@ const config: Config = {
         disabled: "var(--disabled)",
         quaternary: "var(--quaternary)",
         placeholder: "var(--placeholder)",
-        // input: "var(--border-primary)",
+        input: "var(--input)",
         ring: "var(--ring)",
         error: "var(--fg-error-primary)",
         "focus-ring": "var(--focus-ring)",

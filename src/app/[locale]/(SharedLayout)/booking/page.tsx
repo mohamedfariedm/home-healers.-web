@@ -1,8 +1,11 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import ClientAPI from "@/app/api/api";
 import BookingFlow from "./_components/booking-flow";
 import { getCachedSettings } from "@/lib/cached-api";
+import { offerBookHref } from "@/lib/offers";
 import { createMetadata } from "@/lib/seo";
+import { getOfferSlug } from "@/lib/slugs";
 export const dynamic = "force-dynamic";
 
 function getBookingSeo(settings: any) {
@@ -38,6 +41,20 @@ async function Page({
   const sp = await searchParams;
   const packageIdRaw = sp.packageId ?? sp.packageid;
   const packageId = Array.isArray(packageIdRaw) ? packageIdRaw[0] : packageIdRaw;
+  const singlePackage = packageId
+    ? await ClientAPI.getPackageById(packageId, locale)
+    : null;
+  const selectedPackage = Array.isArray(singlePackage?.data)
+    ? singlePackage.data[0]
+    : singlePackage?.data;
+
+  if (String(selectedPackage?.type || "").toLowerCase() === "offer") {
+    const slug = getOfferSlug(selectedPackage, locale);
+    if (slug) {
+      redirect(offerBookHref(locale, slug, selectedPackage.id));
+    }
+  }
+
   const [
     doctorsData,
     packagesData,
@@ -47,7 +64,6 @@ async function Page({
     citiesData,
     nationalitiesData,
     servicesData,
-    singlePackage,
     settings,
   ] = await Promise.all([
     ClientAPI.getDoctors(locale),
@@ -58,12 +74,10 @@ async function Page({
     ClientAPI.getCities(locale),
     ClientAPI.getNationalities(locale),
     ClientAPI.getAllServices(locale),
-    packageId ? ClientAPI.getPackageById(packageId, locale) : Promise.resolve(null),
     getCachedSettings(locale),
   ]);
   const seo = getBookingSeo(settings);
 
-  const selectedPackage = singlePackage?.data?.[0];
   if (selectedPackage && packagesData?.data) {
     const exists = packagesData.data.some(
       (pkg: { id: number }) => Number(pkg.id) === Number(selectedPackage.id),

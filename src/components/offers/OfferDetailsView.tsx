@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import type { OfferDetails } from "@/types/offers";
 import RichText from "@/components/ui/RichText";
 import {
-  bookingHref,
+  offerBookHref,
   formatOfferNumber,
   isListEmpty,
   isRichTextEmpty,
@@ -76,7 +76,7 @@ export default function OfferDetailsView({
   const { t } = useTranslation("offers");
   const [ended, setEnded] = useState(false);
   const onEnded = useCallback((value: boolean) => setEnded(value), []);
-  const bookHref = bookingHref(locale, offer.id);
+  const bookHref = offerBookHref(locale, offer.slug, offer.id);
   const discount = toNumber(offer.discount_percentage);
   const sessions = toNumber(offer.sessions_count);
   const booked = toNumber(offer.booked_count);

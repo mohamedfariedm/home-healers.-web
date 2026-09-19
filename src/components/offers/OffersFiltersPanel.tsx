@@ -77,6 +77,7 @@ export default function OffersFiltersPanel({
   onReset,
 }: OffersFiltersPanelProps) {
   const { t } = useTranslation("offers");
+  const dir: "rtl" | "ltr" = locale === "ar" ? "rtl" : "ltr";
   const selectedSessions = useMemo(
     () => parseSessionFilters(query.sessions_count),
     [query.sessions_count],
@@ -123,7 +124,7 @@ export default function OffersFiltersPanel({
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div dir={dir} className="flex flex-col gap-6 text-start">
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-[#143087]">{t("filters")}</h2>
@@ -207,6 +208,7 @@ export default function OffersFiltersPanel({
           })}
         </div>
         <Slider
+          dir={dir}
           min={0}
           max={PRICE_SLIDER_MAX}
           step={50}
@@ -217,15 +219,16 @@ export default function OffersFiltersPanel({
             commitPrice(min, max);
           }}
           aria-label={t("priceRange")}
-          className="mt-2"
+          className="mt-2 [&_[data-slot=slider-track]]:bg-[#d7e4f8] [&_[data-slot=slider-thumb]]:border-[#143087] [&_[data-slot=slider-thumb]]:bg-white"
         />
         <div className="grid grid-cols-2 gap-2">
           <div className="flex flex-col gap-1">
-            <Label htmlFor="offer-price-min" className="text-xs text-[#4a5568]">
+            <Label htmlFor="offer-price-min" className="text-start text-xs text-[#4a5568]">
               {t("priceMin")}
             </Label>
             <Input
               id="offer-price-min"
+              dir="ltr"
               inputMode="numeric"
               value={minInput}
               onChange={(e) => setMinInput(e.target.value.replace(/[^\d]/g, ""))}
@@ -244,15 +247,16 @@ export default function OffersFiltersPanel({
                 }
               }}
               placeholder="0"
-              className="h-10"
+              className="h-10 border-[#d7e4f8] bg-white text-start"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <Label htmlFor="offer-price-max" className="text-xs text-[#4a5568]">
+            <Label htmlFor="offer-price-max" className="text-start text-xs text-[#4a5568]">
               {t("priceMax")}
             </Label>
             <Input
               id="offer-price-max"
+              dir="ltr"
               inputMode="numeric"
               value={maxInput}
               onChange={(e) => setMaxInput(e.target.value.replace(/[^\d]/g, ""))}
@@ -271,7 +275,7 @@ export default function OffersFiltersPanel({
                 }
               }}
               placeholder={String(PRICE_SLIDER_MAX)}
-              className="h-10"
+              className="h-10 border-[#d7e4f8] bg-white text-start"
             />
           </div>
         </div>
@@ -317,6 +321,7 @@ export default function OffersFiltersPanel({
                   onCheckedChange={(value) =>
                     onChange({ [flag.key]: value ? 1 : undefined })
                   }
+                  className="border-[#d7e4f8] bg-white data-[state=checked]:border-[#143087] data-[state=checked]:bg-[#143087] data-[state=checked]:text-white"
                 />
                 {t(flag.labelKey)}
               </label>
@@ -326,7 +331,12 @@ export default function OffersFiltersPanel({
       </section>
 
       {activeCount > 0 ? (
-        <Button type="button" variant="outline" onClick={onReset} className="h-11">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onReset}
+          className="h-11 border-[#d7e4f8] bg-white text-[#143087] hover:bg-[#eef4ff]"
+        >
           {t("resetFilters")}
         </Button>
       ) : null}

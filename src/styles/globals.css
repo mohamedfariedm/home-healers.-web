@@ -19,6 +19,26 @@ html {
 }
 
 @layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #1e1e1e;
+    --popover: #ffffff;
+    --popover-foreground: #1e1e1e;
+    --accent: #eef4ff;
+    --accent-foreground: #143087;
+    --border: #d7e4f8;
+    --input: #d7e4f8;
+    --ring: #62a0f6;
+    --radius: 0.75rem;
+    --muted: 214 45% 93%;
+    --muted-foreground: 215 16% 35%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --secondary: 214 100% 97%;
+    --secondary-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+  }
   * {
     @apply border-border;
   }

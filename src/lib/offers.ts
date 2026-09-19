@@ -63,6 +63,19 @@ export function bookingHref(locale: string, packageId: number) {
   return `${localePath(locale, "/booking")}?packageId=${packageId}`;
 }
 
+/** Fast offer checkout — one page, not the classic booking wizard. */
+export function offerBookHref(
+  locale: string,
+  slug?: unknown,
+  packageId?: number,
+) {
+  const href = offerHref(locale, slug);
+  const listHref = localePath(locale, OFFERS_WEBSITE_BASE_PATH);
+  if (href !== listHref) return `${href.replace(/\/$/, "")}/book`;
+  if (packageId) return bookingHref(locale, packageId);
+  return listHref;
+}
+
 export function localizedName(name: unknown, locale: string): string {
   if (typeof name === "string") return name;
   if (name && typeof name === "object") {

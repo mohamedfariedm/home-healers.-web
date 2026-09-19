@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ClientAPI from "@/app/api/api";
 import type { OfferCard as OfferCardType } from "@/types/offers";
-import { offerDisplayImage, offerHref, formatOfferPrice } from "@/lib/offers";
+import { offerDisplayImage, offerHref, offerBookHref, formatOfferPrice } from "@/lib/offers";
 import Image from "next/image";
 import { OfferCardSkeleton } from "./OfferCard";
 
@@ -72,37 +72,44 @@ export default function RelatedOffers({
           {offers.map((offer) => {
             if (!offer.slug) return null;
             const href = offerHref(locale, offer.slug);
+            const bookHref = offerBookHref(locale, offer.slug, offer.id);
             const image = offerDisplayImage(offer);
             return (
-              <a
+              <article
                 key={offer.id}
-                href={href}
                 className="min-w-[78%] snap-start overflow-hidden rounded-2xl border border-gray-100 bg-white sm:min-w-[240px]"
               >
-                <div className="relative aspect-[4/3] bg-[#eef4ff]">
-                  {image ? (
-                    <Image
-                      src={image}
-                      alt={offer.name}
-                      fill
-                      sizes="240px"
-                      className="object-cover"
-                      loading="lazy"
-                    />
-                  ) : null}
-                </div>
-                <div className="p-3">
-                  <p className="line-clamp-2 font-semibold text-[#1e1e1e]">
-                    {offer.name}
-                  </p>
-                  <p className="mt-1 text-sm font-bold text-[#143087]">
-                    {formatOfferPrice(offer.price, offer.currency, locale)}
-                  </p>
-                  <span className="mt-2 inline-flex text-sm font-semibold text-primary">
+                <a href={href} className="block">
+                  <div className="relative aspect-[4/3] bg-[#eef4ff]">
+                    {image ? (
+                      <Image
+                        src={image}
+                        alt={offer.name}
+                        fill
+                        sizes="240px"
+                        className="object-cover"
+                        loading="lazy"
+                      />
+                    ) : null}
+                  </div>
+                  <div className="p-3 pb-0">
+                    <p className="line-clamp-2 font-semibold text-[#1e1e1e]">
+                      {offer.name}
+                    </p>
+                    <p className="mt-1 text-sm font-bold text-[#143087]">
+                      {formatOfferPrice(offer.price, offer.currency, locale)}
+                    </p>
+                  </div>
+                </a>
+                <div className="p-3 pt-2">
+                  <a
+                    href={bookHref}
+                    className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-white"
+                  >
                     {t("bookNow")}
-                  </span>
+                  </a>
                 </div>
-              </a>
+              </article>
             );
           })}
         </div>

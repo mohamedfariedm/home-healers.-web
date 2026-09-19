@@ -9,6 +9,7 @@ import "swiper/css/pagination";
 import { parseCmsHtml } from "@/lib/parse-cms-html";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { offerHref, localePath } from "@/lib/offers";
 
 interface PackageItem {
   id: number;
@@ -19,6 +20,7 @@ interface PackageItem {
   discount: string;
   sessions_count: number;
   type: "offer" | "package";
+  slug?: string | { en?: string; ar?: string };
 }
 
 interface PackagesSectionProps {
@@ -31,7 +33,15 @@ export default function PackagesSection({ locale, data }: PackagesSectionProps) 
   const packages = data || [];
   const router = useRouter();
   const handlePackageClick = (pkg: PackageItem) => {
-    router.push(`/${locale}/booking?packageId=${pkg.id}`);
+    if (pkg.type === "offer") {
+      router.push(
+        pkg.slug
+          ? offerHref(locale, pkg.slug)
+          : `${localePath(locale, "/booking")}?packageId=${pkg.id}`,
+      );
+      return;
+    }
+    router.push(`${localePath(locale, "/booking")}?packageId=${pkg.id}`);
   };
 
   return (

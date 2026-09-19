@@ -73,6 +73,7 @@ export default function OffersListingClient({
 }: OffersListingClientProps) {
   const { t } = useTranslation("offers");
   const router = useRouter();
+  const dir: "rtl" | "ltr" = locale === "ar" ? "rtl" : "ltr";
   const [query, setQuery] = useState<OffersListQuery>(initialQuery);
   const [offers, setOffers] = useState(initialOffers);
   const [meta, setMeta] = useState(initialMeta);
@@ -269,7 +270,7 @@ export default function OffersListingClient({
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1440px] px-4 pb-16 sm:px-6">
+    <div dir={dir} className="mx-auto w-full max-w-[1440px] px-4 pb-16 sm:px-6">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
         <div className="relative min-w-0 w-full flex-1">
           <Search className="pointer-events-none absolute top-1/2 start-3 size-4 -translate-y-1/2 text-[#4a5568]" />
@@ -277,7 +278,7 @@ export default function OffersListingClient({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t("searchPlaceholder")}
-            className="h-12 rounded-2xl border-[#d7e4f8] bg-[#f8fbff] ps-10"
+            className="h-12 rounded-2xl border-[#d7e4f8] bg-[#f8fbff] ps-10 text-start"
           />
           {search ? (
             <button
@@ -297,7 +298,10 @@ export default function OffersListingClient({
           <div className="shrink-0 lg:hidden">
             <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" className="relative h-12 gap-2 rounded-2xl px-3 sm:px-4">
+                <Button
+                  variant="outline"
+                  className="relative h-12 gap-2 rounded-2xl border-[#d7e4f8] bg-white px-3 text-[#143087] hover:bg-[#f8fbff] sm:px-4"
+                >
                   <SlidersHorizontal className="size-4" />
                   {t("filters")}
                   {filterCount > 0 ? (
@@ -309,28 +313,38 @@ export default function OffersListingClient({
               </SheetTrigger>
               <SheetContent
                 side="bottom"
-                className="max-h-[88vh] overflow-y-auto rounded-t-3xl"
+                dir={dir}
+                className="max-h-[88vh] overflow-y-auto rounded-t-3xl border-[#d7e4f8] bg-white text-start"
               >
                 <SheetHeader>
-                  <SheetTitle>{t("filters")}</SheetTitle>
+                  <SheetTitle className="text-[#143087]">{t("filters")}</SheetTitle>
                 </SheetHeader>
                 <div className="px-4 pb-8">{renderFilterPanel()}</div>
               </SheetContent>
             </Sheet>
           </div>
           <Select
+            dir={dir}
             value={String(query.sort || "featured")}
             onValueChange={(value) => updateQuery({ sort: value })}
           >
             <SelectTrigger
-              className="h-12 w-full min-w-0 flex-1 rounded-2xl border-[#d7e4f8] sm:min-w-[190px] lg:w-auto lg:flex-none"
+              className="h-12 w-full min-w-0 flex-1 rounded-2xl border-[#d7e4f8] bg-white text-start text-[#1e1e1e] sm:min-w-[190px] lg:w-auto lg:flex-none"
               aria-label={t("sort")}
             >
               <SelectValue placeholder={t("sort")} />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent
+              dir={dir}
+              align="start"
+              className="rounded-xl border-[#d7e4f8] bg-white text-start text-[#1e1e1e]"
+            >
               {SORTS.map((sort) => (
-                <SelectItem key={sort} value={sort}>
+                <SelectItem
+                  key={sort}
+                  value={sort}
+                  className="focus:bg-[#eef4ff] focus:text-[#143087]"
+                >
                   {t(`sortOptions.${sort}`)}
                 </SelectItem>
               ))}
@@ -339,7 +353,10 @@ export default function OffersListingClient({
         </div>
       </div>
 
-      <div className="-mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div
+        dir={dir}
+        className="-mx-4 mt-5 flex flex-row gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
         <a
           href={buildOffersListPath(locale, { ...query, category_id: undefined, page: 1 })}
           onClick={(event) => {
@@ -426,14 +443,14 @@ export default function OffersListingClient({
         </div>
       ) : null}
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="hidden lg:sticky lg:top-24 lg:block lg:self-start">
-          <div className="rounded-3xl border border-[#e4edfb] bg-[#f8fbff] p-5">
+      <div className="mt-8 flex flex-col gap-8 lg:flex-row">
+        <aside className="hidden w-[280px] shrink-0 lg:sticky lg:top-24 lg:block lg:self-start">
+          <div className="rounded-3xl border border-[#e4edfb] bg-white p-5 text-start shadow-sm">
             {renderFilterPanel()}
           </div>
         </aside>
 
-        <div>
+        <div className="min-w-0 flex-1">
           {fetchError && !offers.length ? (
             <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-center">
               <p className="mb-3 text-[#1e1e1e]">{t("error")}</p>

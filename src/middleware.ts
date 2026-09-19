@@ -20,8 +20,14 @@ export function middleware(request: NextRequest) {
   const deepLinkPath = matchDeepLinkPath(pathname)
   const isOffersPath = isOffersWebsitePath(pathname)
   const showOffersWebsite = request.nextUrl.searchParams.get("web") === "1"
+  const normalizedPath = pathname.replace(/^\/(en|ar)(?=\/|$)/, "") || pathname
+  const isOfferBookPath = /\/offers\/[^/]+\/book\/?$/.test(normalizedPath)
 
-  if (deepLinkPath && !(isOffersPath && (!isMobileUserAgent(userAgent) || showOffersWebsite))) {
+  if (
+    deepLinkPath &&
+    !isOfferBookPath &&
+    !(isOffersPath && (!isMobileUserAgent(userAgent) || showOffersWebsite))
+  ) {
     if (isMobileUserAgent(userAgent)) {
       const appUrl = new URL(request.url)
       appUrl.searchParams.delete("web")

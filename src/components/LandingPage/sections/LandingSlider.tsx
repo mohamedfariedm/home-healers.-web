@@ -22,6 +22,7 @@ import {
   getServiceSlug,
   serviceHref,
 } from "@/lib/slugs";
+import { offerHref, localePath } from "@/lib/offers";
 
 interface LandingSliderProps {
   section: any;
@@ -387,12 +388,16 @@ export default function LandingSlider({
             <div
               onClick={() => {
                 if (typeof window !== "undefined" && !isProcessing) {
+                  if (slideType === "offers") {
+                    window.location.href = item.slug
+                      ? offerHref(locale, item.slug)
+                      : `${localePath(locale, "/booking")}?packageId=${item.id}`;
+                    return;
+                  }
                   if (usePaymentLink) {
-                    // Use API booking with payment link
                     handlePackageBooking(item.id);
                   } else {
-                    // Use regular booking page
-                    window.location.href = `/${locale}/booking?packageId=${item.id}`;
+                    window.location.href = `${localePath(locale, "/booking")}?packageId=${item.id}`;
                   }
                 }
               }}

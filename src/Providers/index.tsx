@@ -1,9 +1,11 @@
+import { dir } from "i18next";
 import initTranslations from "@/app/i18n";
 import ClientComponentsTranslationsProvider from "./client-components-translations-provider";
 import ThemeProvider from "./theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { RamadanProvider } from "./ramadan-provider";
 import { IS_RAMADAN_ACTIVE } from "@/constants/ramadan";
+import AppDirectionProvider from "./direction-provider";
 
 const i18nNamespaces = [
   "common",
@@ -37,14 +39,16 @@ export default async function GlobalProvider({
         disableTransitionOnChange
       >
         <RamadanProvider isRamadan={IS_RAMADAN_ACTIVE}>
-          <ClientComponentsTranslationsProvider
-            namespaces={i18nNamespaces}
-            locale={locale}
-            resources={resources}
-          >
-            {children}
-            <Toaster />
-          </ClientComponentsTranslationsProvider>
+          <AppDirectionProvider dir={dir(locale) === "rtl" ? "rtl" : "ltr"}>
+            <ClientComponentsTranslationsProvider
+              namespaces={i18nNamespaces}
+              locale={locale}
+              resources={resources}
+            >
+              {children}
+              <Toaster />
+            </ClientComponentsTranslationsProvider>
+          </AppDirectionProvider>
         </RamadanProvider>
       </ThemeProvider>
     </>
