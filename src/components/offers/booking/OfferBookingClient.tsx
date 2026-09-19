@@ -151,7 +151,7 @@ function normalizeNationalities(
     .filter((item) => item.id && item.name);
 }
 
-export default function  toOfferBookingClient({
+export default function OfferBookingClient({
   offer,
   locale,
   serverTime,
