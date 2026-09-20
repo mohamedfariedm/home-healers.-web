@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { i18nRouterConfig } from "./i18nRouterConfig"
 import {
   buildWebsiteRedirectPath,
+  getPublicOrigin,
   isOffersWebsitePath,
   parseDeepLinkRequest,
 } from "./lib/deep-link"
@@ -15,35 +16,25 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const userAgent = request.headers.get("user-agent") || ""
 
-  // Deep links: mobile → app (offers falls back to the website page).
-  // Desktop /offers is the website listing — do not redirect it away.
+  // /offers is a real website page (menu + listing). Never intercept it to
+  // open the app — Android App Links still handle shared links at the OS level.
   const deepLinkPath = matchDeepLinkPath(pathname)
   const isOffersPath = isOffersWebsitePath(pathname)
-  const showOffersWebsite = request.nextUrl.searchParams.get("web") === "1"
-  const normalizedPath = pathname.replace(/^\/(en|ar)(?=\/|$)/, "") || pathname
-  const isOfferBookPath = /\/offers\/[^/]+\/book\/?$/.test(normalizedPath)
+  const origin = getPublicOrigin(request)
 
-  if (
-    deepLinkPath &&
-    !isOfferBookPath &&
-    !(isOffersPath && (!isMobileUserAgent(userAgent) || showOffersWebsite))
-  ) {
+  if (deepLinkPath && !isOffersPath) {
     if (isMobileUserAgent(userAgent)) {
       const appUrl = new URL(request.url)
       appUrl.searchParams.delete("web")
-      const targetUrl = `${request.nextUrl.origin}${deepLinkPath}${appUrl.search}`
+      const targetUrl = `${origin}${deepLinkPath}${appUrl.search}`
       const isAndroid = /android/i.test(userAgent)
       const isFacebookOrInstagram = /FBAN|FBAV|FB_IAB|Instagram/i.test(userAgent)
-
-      const websiteFallback = new URL(request.url)
-      websiteFallback.searchParams.set("web", "1")
 
       return new NextResponse(
         buildMobileDeepLinkRedirectHtml({
           targetUrl,
           isAndroid,
           isFacebookOrInstagram,
-          fallbackUrl: isOffersPath ? websiteFallback.toString() : undefined,
         }),
         {
           status: 200,
@@ -63,7 +54,7 @@ export function middleware(request: NextRequest) {
         parsed.route,
         segments,
       )
-      return NextResponse.redirect(new URL(redirectPath, request.url))
+      return NextResponse.redirect(new URL(redirectPath, origin))
     }
   }
 

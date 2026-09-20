@@ -101,6 +101,39 @@ export function isOffersWebsitePath(pathname: string): boolean {
   return normalized === "/offers" || normalized.startsWith("/offers/");
 }
 
+const LOOPBACK_HOST = /^(localhost|127\.0\.0\.1)(:\d+)?$/i;
+
+/**
+ * Public site origin for redirects. Behind nginx the Node process often
+ * sees Host as localhost:3001 — never use that in Location / app-link URLs.
+ */
+export function getPublicOrigin(request: {
+  nextUrl: URL;
+  headers: Headers;
+}): string {
+  const forwardedHost = request.headers
+    .get("x-forwarded-host")
+    ?.split(",")[0]
+    ?.trim();
+  const forwardedProto = request.headers
+    .get("x-forwarded-proto")
+    ?.split(",")[0]
+    ?.trim();
+  const hostHeader = request.headers.get("host")?.split(",")[0]?.trim() || "";
+  const host = forwardedHost || hostHeader || request.nextUrl.host;
+  const proto =
+    forwardedProto || request.nextUrl.protocol.replace(":", "") || "https";
+
+  if (LOOPBACK_HOST.test(host) && process.env.NODE_ENV === "production") {
+    return (
+      process.env.NEXT_PUBLIC_WEBSITE_URL?.replace(/\/$/, "") ||
+      "https://home-healers.com"
+    );
+  }
+
+  return `${proto}://${host}`;
+}
+
 export function buildAppOpenUrl(targetUrl: string): string {
   return `${APP_SCHEME}://open?target_url=${encodeURIComponent(targetUrl)}`;
 }

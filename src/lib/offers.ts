@@ -11,7 +11,7 @@ import { toSecureMediaUrl } from "@/lib/image-url";
 export const DEFAULT_OFFER_OG_IMAGE = "/assets/images/logo2.svg";
 export const OFFERS_REVALIDATE_SECONDS = 300;
 export const OFFERS_PAGE_SIZE = 20;
-/** Public offers pages. Mobile /offers links still open the app first. */
+/** Public offers pages — always rendered on the website, never intercepted to open the app. */
 export const OFFERS_WEBSITE_BASE_PATH = "/offers";
 
 export function one<T>(res: OffersEnvelope<T> | null | undefined): T | null {
