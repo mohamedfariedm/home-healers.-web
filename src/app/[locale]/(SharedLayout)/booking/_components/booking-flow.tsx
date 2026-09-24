@@ -1191,7 +1191,7 @@ export default function BookingFlow({
       <div className="w-full max-w-[1280px] mt-6 sm:mt-8 md:mt-10 px-1 sm:px-2 relative">
         {!tourActive && isBookingTourCompleted() && (
           <div
-            className={`group/tour fixed z-[100] bottom-4 sm:bottom-6 ${
+            className={`group/tour fixed z-[100] bottom-[calc(10%+9.75rem)] sm:bottom-[calc(10%+11.25rem)] ${
               locale === "ar" || locale?.startsWith("ar")
                 ? "left-2 sm:left-4"
                 : "right-2 sm:right-4"

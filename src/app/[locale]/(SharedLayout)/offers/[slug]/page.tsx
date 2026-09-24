@@ -44,8 +44,7 @@ export async function generateMetadata({
   const description = offer.meta_description || offer.short_description || "";
   const offerSlug = getOfferSlug(offer, locale) || decodedSlug;
   const path = `${OFFERS_WEBSITE_BASE_PATH}/${encodeURIComponent(offerSlug)}`;
-  const canonical =
-    offer.canonical_url || buildCanonicalUrl(locale, path);
+  const canonical =buildCanonicalUrl(locale, path);
   const image = toAbsoluteUrl(offerOgImage(offer)) || DEFAULT_OFFER_OG_IMAGE;
 
   return {
