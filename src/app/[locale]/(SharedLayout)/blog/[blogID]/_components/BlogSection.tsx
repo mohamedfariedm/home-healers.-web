@@ -11,7 +11,7 @@ import {
 } from "react-icons/fa";
 import { toast } from "sonner";
 import Link from "next/link";
-import { demoteH1, normalizeCmsHtml } from "@/lib/parse-cms-html";
+import { demoteH1, normalizeCmsHtml, stripCanonicalLinks } from "@/lib/parse-cms-html";
 import { blogHref, formatApiDate, getBlogSlug, getNewsTitle } from "@/lib/slugs";
 import { toSecureMediaUrl } from "@/lib/image-url";
 
@@ -254,7 +254,9 @@ export default function BlogRelatedSection({
             <div
               className="editor-content w-full min-w-0 overflow-x-auto"
               dangerouslySetInnerHTML={{
-                __html: demoteH1(normalizeCmsHtml(data?.description || "")),
+                __html: stripCanonicalLinks(
+                  demoteH1(normalizeCmsHtml(data?.description || "")),
+                ),
               }}
             />
           </div>

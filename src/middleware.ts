@@ -84,7 +84,7 @@ export function middleware(request: NextRequest) {
 
   // English already has an explicit /en prefix — pass through
   if (hasEnPrefix) {
-    const response = NextResponse.next()
+    const response = continueWithPathname(request, pathname)
     response.cookies.set("NEXT_LOCALE", "en", { path: "/" })
     response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
     return response
@@ -186,11 +186,19 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone()
   url.pathname = `/ar${pathname}`
 
-  const response = NextResponse.rewrite(url)
+  const response = continueWithPathname(request, pathname, url)
   response.cookies.set("NEXT_LOCALE", "ar", { path: "/" })
   response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
 
   return response
+}
+
+function continueWithPathname(request: NextRequest, pathname: string, rewriteUrl?: URL) {
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set("x-pathname", pathname)
+  return rewriteUrl
+    ? NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } })
+    : NextResponse.next({ request: { headers: requestHeaders } })
 }
 
 export const config = {

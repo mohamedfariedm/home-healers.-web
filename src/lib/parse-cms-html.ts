@@ -23,6 +23,11 @@ export function sanitizeCmsHtml(
     : downgradeHeadings(normalized);
 }
 
+/** CMS article HTML is rendered in the body, so a canonical link there is ignored. */
+export function stripCanonicalLinks(html: string): string {
+  return html.replace(/<link\b[^>]*\brel=["']canonical["'][^>]*>/gi, "");
+}
+
 /** Decode entity-escaped HTML from CMS text editors (e.g. &lt;p&gt; → <p>). */
 export function normalizeCmsHtml(html: string): string {
   if (!html) return "";

@@ -21,6 +21,19 @@ export function buildCanonicalUrl(locale: string, path = ""): string {
     return `${SITE_URL}${localePrefix}${normalizedPath}`;
 }
 
+/** Public pathname without the `/en` or `/ar` prefix. */
+export function stripLocalePrefix(pathname: string): string {
+    const path = pathname.split("?")[0]?.split("#")[0] || "/";
+    if (path === "/en" || path.startsWith("/en/")) return path.slice(3) || "/";
+    if (path === "/ar" || path.startsWith("/ar/")) return path.slice(3) || "/";
+    return path || "/";
+}
+
+export function isBlogPath(pathname: string): boolean {
+    const path = stripLocalePrefix(pathname);
+    return path === "/blog" || path.startsWith("/blog/");
+}
+
 export function getLocalizedValue(value: unknown, locale: string): string {
     if (value && typeof value === "object") {
         const record = value as Record<string, string>;
@@ -111,7 +124,12 @@ export function createMetadata(
     locale: string,
     path = "",
     defaults: any = {},
-    options?: { preferPathCanonical?: boolean; robots?: typeof INDEXABLE_ROBOTS | typeof NOINDEX_ROBOTS },
+    options?: {
+        preferPathCanonical?: boolean;
+        /** When the canonical `<link>` is rendered in the root `<head>` instead. */
+        omitCanonical?: boolean;
+        robots?: typeof INDEXABLE_ROBOTS | typeof NOINDEX_ROBOTS;
+    },
 ) {
     const canonical = options?.preferPathCanonical
         ? buildCanonicalUrl(locale, path)
@@ -141,7 +159,7 @@ export function createMetadata(
             address: true,
         },
         alternates: {
-            canonical,
+            ...(options?.omitCanonical ? {} : { canonical }),
             languages: buildLanguageAlternates(path),
         },
         icons: {

@@ -32,10 +32,16 @@ export async function generateMetadata({
   const settings = await getCachedSettings(locale);
   const seo = settings?.data[0]?.setting?.seo["blogs"];
 
-  return createMetadata(seo, locale, "/blog", {
-    title: "Home Healers | Blog",
-    description: "Health articles and physiotherapy tips from Home Healers",
-  });
+  return createMetadata(
+    seo,
+    locale,
+    "/blog",
+    {
+      title: "Home Healers | Blog",
+      description: "Health articles and physiotherapy tips from Home Healers",
+    },
+    { omitCanonical: true },
+  );
 }
 async function page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

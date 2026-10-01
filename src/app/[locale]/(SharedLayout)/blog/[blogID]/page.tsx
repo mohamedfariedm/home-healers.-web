@@ -77,7 +77,7 @@ export async function generateMetadata({
     locale,
     path,
     { title, description, ogType: "article" },
-    { preferPathCanonical: true },
+    { preferPathCanonical: true, omitCanonical: true },
   );
 
   return {
@@ -85,7 +85,6 @@ export async function generateMetadata({
     title: title || baseMeta.title,
     description: description || baseMeta.description,
     alternates: {
-      canonical,
       languages: buildLocalizedSlugAlternates("/blog", data?.slug, blogSlug),
     },
     openGraph: {
