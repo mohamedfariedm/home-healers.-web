@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ClientAPI from "@/app/api/api";
@@ -24,6 +24,23 @@ function isValidSaudiMobile(phone: string): boolean {
   return /^05\d{8}$/.test(phone);
 }
 
+const SERVICE_KEYS = [
+  "homeDoctor",
+  "homeNursing",
+  "homePhysiotherapy",
+  "elderlyCare",
+  "healthCompanion",
+  "postOpCare",
+  "extendedCare",
+  "occupationalTherapy",
+  "speechTherapy",
+  "homeLab",
+  "homeRadiology",
+  "aba",
+  "childCare",
+  "other",
+] as const;
+
 export default function BlogLeadForm({ locale, blogTitle }: BlogLeadFormProps) {
   const { t } = useTranslation("blog");
   const isRTL = locale === "ar";
@@ -31,6 +48,7 @@ export default function BlogLeadForm({ locale, blogTitle }: BlogLeadFormProps) {
   const [formData, setFormData] = useState({
     name: "",
     mobile_phone: "",
+    service: "",
     notes: "",
   });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -52,7 +70,9 @@ export default function BlogLeadForm({ locale, blogTitle }: BlogLeadFormProps) {
   }, [blogTitle, locale]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -75,6 +95,9 @@ export default function BlogLeadForm({ locale, blogTitle }: BlogLeadFormProps) {
     } else if (!isValidSaudiMobile(phone)) {
       errors.mobile_phone = t("leadForm.invalidPhone");
     }
+    if (!formData.service) {
+      errors.service = t("leadForm.required");
+    }
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -87,11 +110,14 @@ export default function BlogLeadForm({ locale, blogTitle }: BlogLeadFormProps) {
     setSubmitStatus({ type: null, message: "" });
 
     try {
+      const serviceLabel = t(`leadForm.services.${formData.service}`);
+      const notesBody = formData.notes.trim() || notesFallback;
+
       await ClientAPI.submitCustomerSupport(
         {
           name: formData.name.trim(),
           mobile_phone: normalizeSaudiPhone(formData.mobile_phone),
-          notes: formData.notes.trim() || notesFallback,
+          notes: `${t("leadForm.service")}: ${serviceLabel}\n${notesBody}`,
           type: "seo",
         },
         locale,
@@ -101,7 +127,7 @@ export default function BlogLeadForm({ locale, blogTitle }: BlogLeadFormProps) {
         type: "success",
         message: t("leadForm.success"),
       });
-      setFormData({ name: "", mobile_phone: "", notes: "" });
+      setFormData({ name: "", mobile_phone: "", service: "", notes: "" });
       setFieldErrors({});
     } catch (error) {
       const apiErrors =
@@ -211,6 +237,39 @@ export default function BlogLeadForm({ locale, blogTitle }: BlogLeadFormProps) {
                 <p className="text-xs text-red-500">
                   {fieldErrors.mobile_phone}
                 </p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="blog-lead-service"
+                className="text-sm font-medium text-[#1e1e1e]"
+              >
+                {t("leadForm.service")}
+              </label>
+              <div className="relative">
+                <select
+                  id="blog-lead-service"
+                  name="service"
+                  value={formData.service}
+                  onChange={handleChange}
+                  className={`${inputClass} appearance-none pe-10 ${
+                    formData.service ? "" : "text-[#98a2b3]"
+                  } ${fieldErrors.service ? "border-red-400" : ""}`}
+                >
+                  <option value="" disabled>
+                    {t("leadForm.servicePlaceholder")}
+                  </option>
+                  {SERVICE_KEYS.map((key) => (
+                    <option key={key} value={key} className="text-[#1e1e1e]">
+                      {t(`leadForm.services.${key}`)}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98a2b3]" />
+              </div>
+              {fieldErrors.service && (
+                <p className="text-xs text-red-500">{fieldErrors.service}</p>
               )}
             </div>
 
