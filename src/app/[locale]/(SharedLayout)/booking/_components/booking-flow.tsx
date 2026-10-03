@@ -916,7 +916,6 @@ export default function BookingFlow({
         console.error("Failed to load payment summary:", summaryError);
       }
 
-      toast.success(t("messages.bookingCreated"));
       setCurrentStep(5);
     } catch (error: any) {
       console.error(error);
@@ -929,7 +928,7 @@ export default function BookingFlow({
         error.message ||
         t("messages.error");
       setError(message);
-      toast.error(t("messages.bookingFailed"));
+      toast.error(message);
     } finally {
       submittingRef.current = false;
       setIsLoading(false);
