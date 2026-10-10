@@ -11,8 +11,9 @@ import {
   isMobileUserAgent,
   matchDeepLinkPath,
 } from "./lib/deep-link-mobile-html"
+import { blogSlugMatchesLocale } from "./lib/blog-slug-locale"
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const userAgent = request.headers.get("user-agent") || ""
 
@@ -58,6 +59,20 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  // Categories are addressed by slug only. A numeric id is not a page.
+  if (isCategoryIdPath(pathname)) {
+    return pageGoneResponse(
+      "This category address is no longer available. Categories are opened by their name, not by id.",
+    )
+  }
+
+  // An English blog slug only opens on /en. An Arabic slug only opens on Arabic.
+  if (await isWrongLanguageBlog(pathname)) {
+    return pageGoneResponse(
+      "This article is not available in this language. English articles open in English, and Arabic articles open in Arabic.",
+    )
+  }
+
   // Check if path already has locale prefix
   const hasEnPrefix = pathname.startsWith("/en/") || pathname === "/en"
   const hasArPrefix = pathname.startsWith("/ar/") || pathname === "/ar"
@@ -69,17 +84,6 @@ export function middleware(request: NextRequest) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = unprefixedPath
     return NextResponse.redirect(redirectUrl, 301)
-  }
-
-  const isOurServicesListing =
-    pathname === "/our-services" ||
-    pathname === "/our-services/" ||
-    pathname === "/en/our-services" ||
-    pathname === "/en/our-services/"
-
-  if (isOurServicesListing) {
-    const dest = pathname.startsWith("/en") ? "/en/categories" : "/categories"
-    return NextResponse.redirect(new URL(dest, request.url), 301)
   }
 
   // English already has an explicit /en prefix — pass through
@@ -94,8 +98,84 @@ export function middleware(request: NextRequest) {
   const isServicesPage = pathname === "/services" || pathname === "/en/services"
 
   if (isServicesPage) {
-        return new NextResponse(
-      `<!DOCTYPE html>
+    return pageGoneResponse(
+      "The services page you are looking for has been permanently removed. You can find all our current offerings on our homepage.",
+    )
+  }
+
+  // For paths without locale prefix, rewrite to /ar/* (default locale)
+  // This avoids redirects by using rewrites instead
+  
+  const url = request.nextUrl.clone()
+  url.pathname = `/ar${pathname}`
+
+  const response = continueWithPathname(request, pathname, url)
+  response.cookies.set("NEXT_LOCALE", "ar", { path: "/" })
+  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
+
+  return response
+}
+
+function blogPathLocaleAndSlug(pathname: string): { locale: "en" | "ar"; slug: string } | null {
+  const match = pathname.match(/^\/(?:(en)\/)?blog\/([^/]+)\/?$/)
+  if (!match?.[2]) return null
+  try {
+    const slug = decodeURIComponent(match[2])
+    if (!slug) return null
+    return { locale: match[1] === "en" ? "en" : "ar", slug }
+  } catch {
+    return null
+  }
+}
+
+async function isWrongLanguageBlog(pathname: string): Promise<boolean> {
+  const parsed = blogPathLocaleAndSlug(pathname)
+  if (!parsed) return false
+  if (/^\d+$/.test(parsed.slug)) return true
+
+  const api = (process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || "").replace(/\/$/, "")
+  if (!api) return false
+
+  try {
+    const response = await fetch(
+      `${api}/client/news-slug/${encodeURIComponent(parsed.slug)}`,
+      {
+        headers: {
+          Accept: "application/json",
+          "Accept-Language": parsed.locale,
+          language: parsed.locale,
+        },
+        cache: "no-store",
+        signal: AbortSignal.timeout(8000),
+      },
+    )
+    if (!response.ok) return false
+    const data = await response.json()
+    const item =
+      data?.data && typeof data.data === "object" && !Array.isArray(data.data)
+        ? data.data
+        : null
+    if (!item?.slug) return false
+    return !blogSlugMatchesLocale(item, parsed.locale, parsed.slug)
+  } catch {
+    return false
+  }
+}
+
+/** /categories/27 and /en/categories/27 — the segment is an id, not a slug. */
+function isCategoryIdPath(pathname: string): boolean {
+  return /^\/(?:en|ar)\/categories\/\d+(?:\/|$)/.test(pathname) ||
+    /^\/categories\/\d+(?:\/|$)/.test(pathname)
+}
+
+function pageGoneResponse(message: string) {
+  const safeMessage = message
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+
+  return new NextResponse(
+    `<!DOCTYPE html>
       <html lang="en">
       <head>
           <meta charset="UTF-8">
@@ -165,32 +245,19 @@ export function middleware(request: NextRequest) {
           <div class="error-code">410</div>
           <div class="container">
               <h1>This Page is Gone</h1>
-              <p>The services page you are looking for has been permanently removed. You can find all our current offerings on our homepage.</p>
+              <p>${safeMessage}</p>
               <a href="/" class="btn">Back to Home</a>
           </div>
       </body>
       </html>`,
-      {
-        status: 410,
-        headers: {
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-        },
-      }
-    )
-  }
-
-  // For paths without locale prefix, rewrite to /ar/* (default locale)
-  // This avoids redirects by using rewrites instead
-  
-  const url = request.nextUrl.clone()
-  url.pathname = `/ar${pathname}`
-
-  const response = continueWithPathname(request, pathname, url)
-  response.cookies.set("NEXT_LOCALE", "ar", { path: "/" })
-  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
-
-  return response
+    {
+      status: 410,
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+      },
+    },
+  )
 }
 
 function continueWithPathname(request: NextRequest, pathname: string, rewriteUrl?: URL) {

@@ -80,36 +80,6 @@ const nextConfig = {
         destination: '/booking',
         permanent: true,
       },
-      {
-        source: '/backges',
-        destination: '/offers',
-        permanent: true,
-      },
-      {
-        source: '/backges/:path*',
-        destination: '/offers/:path*',
-        permanent: true,
-      },
-      {
-        source: '/en/backges',
-        destination: '/en/offers',
-        permanent: true,
-      },
-      {
-        source: '/en/backges/:path*',
-        destination: '/en/offers/:path*',
-        permanent: true,
-      },
-      {
-        source: '/our-services',
-        destination: '/categories',
-        permanent: true,
-      },
-      {
-        source: '/en/our-services',
-        destination: '/en/categories',
-        permanent: true,
-      },
     ];
   },
   async rewrites() {

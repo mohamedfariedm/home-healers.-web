@@ -1,7 +1,7 @@
 import initTranslations from "@/app/i18n";
 import BlogRelatedSection from "./_components/BlogSection";
 import BlogLeadForm from "./_components/BlogLeadForm";
-import ClientAPI from "@/app/api/api";
+import { blogSlugMatchesLocale } from "@/lib/blog-slug-locale";
 import {
   buildCanonicalUrl,
   buildLocalizedSlugAlternates,
@@ -11,31 +11,24 @@ import { createArticleSchema, renderJsonLd } from "@/lib/structured-data";
 import { getCachedBlogs, getCachedSettings, getCachedSingleBlog } from "@/lib/cached-api";
 import { hydrateRelatedBlogs } from "@/lib/public-payload";
 import {
-  blogHref,
-  getBlogSlug,
   getNewsTitle,
   unwrapDetail,
 } from "@/lib/slugs";
 import { PageHero } from "@/components/Shared/PageHero";
 import { localePath } from "@/lib/offers";
-import { notFound, permanentRedirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 async function loadBlog(locale: string, param: string) {
   const decoded = decodeURIComponent(param);
+  if (/^\d+$/.test(decoded)) return null;
 
   const bySlug = await getCachedSingleBlog(decoded, locale);
   const slugData = unwrapDetail<Record<string, unknown>>(bySlug);
-  if (slugData) return { data: slugData, fromId: false, requested: decoded };
+  if (!slugData || !blogSlugMatchesLocale(slugData, locale, decoded)) return null;
 
-  if (/^\d+$/.test(decoded)) {
-    const byId = await ClientAPI.getNewsItem(decoded, locale);
-    const data = unwrapDetail<Record<string, unknown>>(byId);
-    if (data) return { data, fromId: true, requested: decoded };
-  }
-
-  return null;
+  return { data: slugData, requested: decoded };
 }
 
 function localizedMeta(
@@ -60,8 +53,8 @@ export async function generateMetadata({
   const seo = settings?.data?.[0]?.setting?.seo?.["blogs"];
   const loaded = await loadBlog(locale, blogID);
   const data = loaded?.data;
-  const blogSlug = getBlogSlug(data, locale) || decodeURIComponent(blogID);
-  const path = `/blog/${encodeURIComponent(blogSlug)}`;
+  const requestedSlug = decodeURIComponent(blogID);
+  const path = `/blog/${encodeURIComponent(requestedSlug)}`;
   const canonical = buildCanonicalUrl(locale, path);
   const title =
     localizedMeta(data?.meta_title, locale) ||
@@ -85,7 +78,7 @@ export async function generateMetadata({
     title: title || baseMeta.title,
     description: description || baseMeta.description,
     alternates: {
-      languages: buildLocalizedSlugAlternates("/blog", data?.slug, blogSlug),
+      languages: buildLocalizedSlugAlternates("/blog", data?.slug, requestedSlug),
     },
     openGraph: {
       ...baseMeta.openGraph,
@@ -122,10 +115,7 @@ async function page({
     notFound();
   }
 
-  const blogSlug = getBlogSlug(loaded.data, locale);
-  if (blogSlug && (loaded.fromId || blogSlug !== loaded.requested)) {
-    permanentRedirect(blogHref(locale, blogSlug));
-  }
+  const blogSlug = loaded.requested;
 
   const articleTitle = getNewsTitle(loaded.data, locale);
   const articleImage = (

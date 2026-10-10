@@ -68,41 +68,6 @@ export default function LanguageChanger() {
           setDropdownOpen(false)
           return
         }
-      } else if (pathParts[0] === "our-services") {
-        if (pathParts[1]) {
-          const currentServiceSlug = decodeURIComponent(pathParts[1])
-          const [res, listRes] = await Promise.all([
-            ClientAPI.getAllServicesSlug(currentLocale, currentServiceSlug),
-            ClientAPI.getAllServices(currentLocale),
-          ])
-          const service = unwrapDetail<{
-            id?: number
-            slug?: unknown
-            category?: { slug?: unknown }
-          }>(res)
-          const services = Array.isArray(listRes?.data) ? listRes.data : []
-          const match = services.find(
-            (item: { id?: number; slug?: unknown; category?: { slug?: unknown } }) =>
-              (service?.id != null && item.id === service.id) ||
-              getServiceSlug(item, currentLocale) === currentServiceSlug,
-          )
-          const categorySlug =
-            getCategorySlug(service?.category, newLocale) ||
-            getCategorySlug(match?.category, newLocale)
-          const translated = getServiceSlug(service, newLocale)
-          if (categorySlug && translated) {
-            newPath = serviceHref(newLocale, categorySlug, translated)
-            i18n.changeLanguage(newLocale)
-            router.push(newPath)
-            setDropdownOpen(false)
-            return
-          }
-        }
-        newPath = categoryHref(newLocale, "")
-        i18n.changeLanguage(newLocale)
-        router.push(newPath)
-        setDropdownOpen(false)
-        return
       } else if (pathParts[0] === "categories" && pathParts.length >= 3) {
         const [categoryRes, serviceRes] = await Promise.all([
           ClientAPI.getCategory(decodeURIComponent(pathParts[1]), currentLocale),
