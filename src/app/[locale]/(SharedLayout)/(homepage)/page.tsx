@@ -121,8 +121,6 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
               <Bannar key={banner.id ?? index} banner={slimBanner(banner)} />
             ),
           )}
-
-          
         <Suspense fallback={null}>
           <DeferredOurStory locale={locale} />
         </Suspense>
