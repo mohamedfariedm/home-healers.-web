@@ -12,6 +12,7 @@ import {
   matchDeepLinkPath,
 } from "./lib/deep-link-mobile-html"
 import { blogSlugMatchesLocale } from "./lib/blog-slug-locale"
+import { isMissingPage } from "./lib/missing-page"
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -67,9 +68,17 @@ export async function middleware(request: NextRequest) {
   }
 
   // An English blog slug only opens on /en. An Arabic slug only opens on Arabic.
+  // A blog slug that does not exist is gone as well.
   if (await isWrongLanguageBlog(pathname)) {
     return pageGoneResponse(
       "This article is not available in this language. English articles open in English, and Arabic articles open in Arabic.",
+    )
+  }
+
+  // Retired addresses and any URL with no page: 410, not a not-found page.
+  if (await isMissingPage(pathname)) {
+    return pageGoneResponse(
+      "The page you are looking for has been permanently removed.",
     )
   }
 
@@ -92,15 +101,6 @@ export async function middleware(request: NextRequest) {
     response.cookies.set("NEXT_LOCALE", "en", { path: "/" })
     response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
     return response
-  }
-
-  // Handle defunct /services page with 410 Gone (for SEO/Google Indexing)
-  const isServicesPage = pathname === "/services" || pathname === "/en/services"
-
-  if (isServicesPage) {
-    return pageGoneResponse(
-      "The services page you are looking for has been permanently removed. You can find all our current offerings on our homepage.",
-    )
   }
 
   // For paths without locale prefix, rewrite to /ar/* (default locale)
@@ -131,7 +131,7 @@ function blogPathLocaleAndSlug(pathname: string): { locale: "en" | "ar"; slug: s
 async function isWrongLanguageBlog(pathname: string): Promise<boolean> {
   const parsed = blogPathLocaleAndSlug(pathname)
   if (!parsed) return false
-  if (/^\d+$/.test(parsed.slug)) return true
+  if (/^\d+$/.test(parsed.slug)) return false
 
   const api = (process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || "").replace(/\/$/, "")
   if (!api) return false
