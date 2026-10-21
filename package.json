@@ -51,6 +51,7 @@
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^11.5.4",
     "html-react-parser": "^5.2.5",
+    "html2canvas": "1.4.1",
     "i18next": "^23.14.0",
     "i18next-resources-to-backend": "^1.2.1",
     "input-otp": "^1.4.2",
