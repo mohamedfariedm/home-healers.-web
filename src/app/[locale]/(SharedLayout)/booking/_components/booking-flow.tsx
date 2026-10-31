@@ -45,6 +45,7 @@ import {
   resolveNationalityId,
 } from "@/lib/saudi-nationality";
 import BookingReservationTour from "@/components/booking/BookingReservationTour";
+import { GTM_EVENTS, trackEvent } from "@/lib/gtm";
 import {
   isBookingTourCompleted,
   resetBookingTour,
@@ -900,6 +901,13 @@ export default function BookingFlow({
       setReservationId(created.id);
       persistReservationId(created.id);
       setBookingData((prev) => applyReservationPricingFromApi(prev, created));
+      trackEvent(GTM_EVENTS.RESERVATION_CREATED, {
+        reservation_id: created.id,
+        source: "booking_flow",
+        package_id: bookingData.selectedPackage?.id,
+        doctor_id: bookingData.selectedDoctor?.id,
+        category_id: bookingData.selectedCategory?.id,
+      });
 
       try {
         const summaryResponse = await ClientAPI.getPaymentSummary(created.id, locale);
@@ -971,6 +979,11 @@ export default function BookingFlow({
           paymentStatus: "cash_pending",
         }));
         clearCheckoutStorage();
+        trackEvent(GTM_EVENTS.RESERVATION_PAYMENT, {
+          reservation_id: reservationId,
+          payment_method: "cash",
+          source: "booking_flow",
+        });
         toast.success(
           extractApiMessage(cashResponse, t("messages.cashPendingConfirmed"))
         );
@@ -980,6 +993,11 @@ export default function BookingFlow({
           reservationId,
           locale
         );
+        trackEvent(GTM_EVENTS.RESERVATION_PAYMENT, {
+          reservation_id: reservationId,
+          payment_method: "telr",
+          source: "booking_flow",
+        });
         const redirectUrl = extractTelrRedirectUrl(telrResponse);
         route.push(redirectUrl);
       }

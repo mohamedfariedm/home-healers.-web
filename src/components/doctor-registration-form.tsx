@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress"
 import { ChevronLeft, ChevronRight, Upload, User, Briefcase, GraduationCap, FileText, MapPin, CheckCircle } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import ClientAPI from "@/app/api/api"
+import { GTM_EVENTS, trackEvent } from "@/lib/gtm"
 import { toast } from "sonner"
 
 interface FormData {
@@ -237,14 +238,18 @@ export default function DoctorRegistrationForm({ nationalityOptions }: { nationa
       }
       //@ts-ignore
       delete submissionData.attachment_ids // Remove attachment_ids as it's not in the request body
-      const response = await ClientAPI.doctorApplayment(submissionData, locale)
-              toast.success(
-          tr("form.messages.success_title", "تم إرسال الطلب بنجاح"),
-          { description: tr("form.messages.success", "Your application has been submitted successfully") }
-        )
-        setFormData(initialFormData)
-        setCurrentStep(1)
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+      await ClientAPI.doctorApplayment(submissionData, locale)
+      trackEvent(GTM_EVENTS.DOCTOR_APPLY_SUBMIT, {
+        click_location: "doctors_apply",
+        doctor_role: formData.doctor_role,
+      })
+      toast.success(
+        tr("form.messages.success_title", "تم إرسال الطلب بنجاح"),
+        { description: tr("form.messages.success", "Your application has been submitted successfully") }
+      )
+      setFormData(initialFormData)
+      setCurrentStep(1)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
 
     } catch (error: any) {
       console.error(error)

@@ -348,7 +348,12 @@ export default function InvoiceView({ invoiceData }: InvoiceViewProps) {
   return (
     <div className="mx-auto max-w-4xl overflow-x-auto bg-white p-4 sm:p-6" dir="rtl">
       <div className="flex justify-center items-center mb-4">
-        <Button onClick={handleDownloadPDF} className="mb-4 bg-blue-600 text-white hover:bg-blue-700">
+        <Button
+          onClick={handleDownloadPDF}
+          data-gtm-event="invoice_download"
+          data-gtm-location="invoice_page"
+          className="mb-4 bg-blue-600 text-white hover:bg-blue-700"
+        >
           تحميل الفاتورة كـ PDF
         </Button>
       </div>

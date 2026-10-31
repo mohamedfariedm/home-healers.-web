@@ -41,6 +41,8 @@ export default function OffersTeaserRail({
         </h2>
         <a
           href={localePath(locale, OFFERS_WEBSITE_BASE_PATH)}
+          data-gtm-event="offer_click"
+          data-gtm-location="homepage_offers_teaser"
           className="text-sm font-semibold text-primary hover:underline"
         >
           {t("viewAll")}

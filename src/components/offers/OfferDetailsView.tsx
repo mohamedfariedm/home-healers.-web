@@ -418,7 +418,13 @@ function OfferSummary({
             {t("ended")}
           </span>
         ) : (
-          <a href={bookHref} className={`${ctaClass} w-full bg-primary text-white sm:w-auto`}>
+          <a
+            href={bookHref}
+            data-gtm-event="offer_book_click"
+            data-gtm-location="offer_details"
+            data-gtm-label={offer.name}
+            className={`${ctaClass} w-full bg-primary text-white sm:w-auto`}
+          >
             {t("bookNow")}
           </a>
         )}

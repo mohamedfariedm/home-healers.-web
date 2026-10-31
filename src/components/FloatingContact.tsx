@@ -5,6 +5,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import Link from "next/link";
 import { openTawkLiveChat } from "@/lib/tawk";
 import { buildWhatsAppUrl, formatWhatsAppNumber } from "@/constants/whatsapp";
+import { GTM_EVENTS } from "@/lib/gtm";
 
 interface FloatingContactProps {
   settings?: any;
@@ -50,6 +51,7 @@ export default function FloatingContact({
       label: t.whatsapp,
       href: whatsappUrl,
       external: true,
+      gtmEvent: GTM_EVENTS.WHATSAPP_CLICK,
       className: "bg-[#25D366] hover:bg-[#1ebe5d]",
       icon: <FaWhatsapp className="h-6 w-6" aria-hidden />,
     },
@@ -57,6 +59,7 @@ export default function FloatingContact({
       id: "chat",
       label: t.chat,
       onClick: openTawkLiveChat,
+      gtmEvent: GTM_EVENTS.LIVE_CHAT_CLICK,
       className: "bg-teal-500 hover:bg-teal-600",
       icon: <MessagesSquare className={iconClass} aria-hidden />,
     },
@@ -64,6 +67,7 @@ export default function FloatingContact({
       id: "phone",
       label: t.phone,
       href: `tel:${phoneNumber}`,
+      gtmEvent: GTM_EVENTS.PHONE_CLICK,
       className: "bg-blue-500 hover:bg-blue-600",
       icon: <Phone className={iconClass} aria-hidden />,
     },
@@ -85,6 +89,8 @@ export default function FloatingContact({
               target={action.external ? "_blank" : undefined}
               rel={action.external ? "noopener noreferrer" : undefined}
               aria-label={action.label}
+              data-gtm-event={action.gtmEvent}
+              data-gtm-location="floating_contact"
               className={`${btnClass} ${action.className}`}
             >
               {action.icon}
@@ -94,6 +100,8 @@ export default function FloatingContact({
               type="button"
               onClick={action.onClick}
               aria-label={action.label}
+              data-gtm-event={action.gtmEvent}
+              data-gtm-location="floating_contact"
               className={`${btnClass} ${action.className}`}
             >
               {action.icon}

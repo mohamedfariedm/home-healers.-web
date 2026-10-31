@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import ClientAPI from "@/app/api/api";
+import { GTM_EVENTS, trackEvent } from "@/lib/gtm";
 
 interface LandingFormProps {
   section: any;
@@ -125,6 +126,15 @@ export default function LandingForm({ section, locale, settings }: LandingFormPr
           whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
         }
 
+        trackEvent(GTM_EVENTS.LANDING_FORM_SUBMIT, {
+          click_location: "landing_form",
+          submit_channel: "whatsapp",
+        });
+        trackEvent(GTM_EVENTS.WHATSAPP_CLICK, {
+          click_location: "landing_form",
+          click_url: whatsappUrl,
+        });
+
         // Open WhatsApp in a new tab/window
         window.open(whatsappUrl, "_blank", "noopener,noreferrer");
         
@@ -159,6 +169,10 @@ export default function LandingForm({ section, locale, settings }: LandingFormPr
         const response = await ClientAPI.getContactMessage(formData, locale);
 
         if (response) {
+          trackEvent(GTM_EVENTS.LANDING_FORM_SUBMIT, {
+            click_location: "landing_form",
+            submit_channel: "api",
+          });
           setSubmitStatus({
             type: "success",
             message: successMessage,

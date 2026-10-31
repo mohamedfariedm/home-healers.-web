@@ -64,6 +64,7 @@ import {
 } from "@/lib/payment-summary";
 import { persistReservationId, clearCheckoutStorage } from "@/lib/checkout-storage";
 import { applyReservationPricingFromApi } from "@/lib/reservation-pricing";
+import { GTM_EVENTS, trackEvent } from "@/lib/gtm";
 import { resolveNationalityId } from "@/lib/saudi-nationality";
 import type { BookingData, Location, Patient } from "@/types/booking";
 import type { OfferDetails } from "@/types/offers";
@@ -453,6 +454,12 @@ export default function OfferBookingClient({
         phase: "payment",
       } satisfies OfferCheckoutState);
       removeStorage(draftStorageKey(offer.id));
+      trackEvent(GTM_EVENTS.RESERVATION_CREATED, {
+        reservation_id: created.id,
+        source: "offer_booking",
+        offer_id: offer.id,
+        offer_name: offer.name,
+      });
 
       try {
         const summaryResponse = await ClientAPI.getPaymentSummary(
@@ -507,6 +514,12 @@ export default function OfferBookingClient({
         });
         removeStorage(checkoutStorageKey(offer.id));
         clearCheckoutStorage();
+        trackEvent(GTM_EVENTS.RESERVATION_PAYMENT, {
+          reservation_id: reservationId,
+          payment_method: "cash",
+          source: "offer_booking",
+          offer_id: offer.id,
+        });
         toast.success(
           extractApiMessage(cashResponse, t("booking.cashConfirmed")),
         );
@@ -516,6 +529,12 @@ export default function OfferBookingClient({
           reservationId,
           locale,
         );
+        trackEvent(GTM_EVENTS.RESERVATION_PAYMENT, {
+          reservation_id: reservationId,
+          payment_method: "telr",
+          source: "offer_booking",
+          offer_id: offer.id,
+        });
         router.push(extractTelrRedirectUrl(telrResponse));
       }
     } catch (error: unknown) {
@@ -689,6 +708,9 @@ export default function OfferBookingClient({
                 type="button"
                 onClick={handleConfirm}
                 disabled={submitting}
+                data-gtm-event="offer_book_confirm"
+                data-gtm-location="offer_booking"
+                data-gtm-label={offer.name}
                 className="inline-flex h-12 min-w-[9rem] items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-white disabled:opacity-60"
               >
                 {submitting ? (

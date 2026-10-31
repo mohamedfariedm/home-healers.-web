@@ -37,6 +37,9 @@ const CategoriesGrid = ({
         >
           <Link
             href={categoryHrefFrom(locale, category)}
+            data-gtm-event="category_click"
+            data-gtm-location="categories_grid"
+            data-gtm-label={category.name}
             className="group relative flex h-full flex-col items-center gap-4 overflow-hidden rounded-[24px] border border-[#e6eef8] bg-white p-6 text-center shadow-[0_8px_30px_rgba(20,48,135,0.05)] transition-all duration-300 hover:-translate-y-1 hover:border-[#62a0f6] hover:shadow-[0_18px_40px_rgba(20,48,135,0.12)]"
           >
             <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-[#eff6fe] ring-1 ring-[#d7e7fb]">

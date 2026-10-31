@@ -218,6 +218,8 @@ function Card({ locale, section }: CardProps) {
         <Link
           className="flex rtl:w-[255px] ltr:w-[400px] h-[56px] pt-[8px] pr-[16px] pb-[8px] pl-[16px] gap-[10px] justify-center items-center bg-[#143087] rounded-[8px] border-solid border border-[#143087] relative z-[29] mt-[56px] mx-auto cursor-pointer hover:scale-110 transition-all duration-500"
           href={`${locale === "ar" ? "" : "/en"}/contact`}
+          data-gtm-event="contact_click"
+          data-gtm-location="homepage_medical_card"
         >
           <span className="h-[28px] shrink-0 basis-auto text-[18px] font-medium leading-[28px] text-[#fff] relative text-start z-[32]">
             {locale === "ar"

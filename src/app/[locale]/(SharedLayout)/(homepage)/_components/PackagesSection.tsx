@@ -10,6 +10,7 @@ import { parseCmsHtml } from "@/lib/parse-cms-html";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { offerHref, localePath } from "@/lib/offers";
+import { GTM_EVENTS, trackEvent } from "@/lib/gtm";
 
 interface PackageItem {
   id: number;
@@ -33,7 +34,14 @@ export default function PackagesSection({ locale, data }: PackagesSectionProps) 
   const packages = data || [];
   const router = useRouter();
   const handlePackageClick = (pkg: PackageItem) => {
-    if (pkg.type === "offer") {
+    const isOffer = pkg.type === "offer";
+    trackEvent(isOffer ? GTM_EVENTS.OFFER_CLICK : GTM_EVENTS.BOOKING_CLICK, {
+      click_location: "homepage_packages",
+      click_text: pkg.name,
+      package_id: pkg.id,
+      package_type: pkg.type,
+    });
+    if (isOffer) {
       router.push(
         pkg.slug
           ? offerHref(locale, pkg.slug)
@@ -97,7 +105,20 @@ export default function PackagesSection({ locale, data }: PackagesSectionProps) 
             <motion.div
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.3 }}
+              role="button"
+              tabIndex={0}
+              data-gtm-event={
+                pkg.type === "offer" ? "offer_click" : "booking_click"
+              }
+              data-gtm-location="homepage_packages"
+              data-gtm-label={pkg.name}
               onClick={() => handlePackageClick(pkg)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handlePackageClick(pkg);
+                }
+              }}
               className={`relative bg-white shadow-lg rounded-3xl overflow-hidden w-full h-full min-h-[420px] flex flex-col border border-gray-100 cursor-pointer hover:shadow-xl transition-shadow`}
             >
               {/* Image */}

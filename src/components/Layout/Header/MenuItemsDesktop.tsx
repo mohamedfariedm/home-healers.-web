@@ -46,6 +46,9 @@ export default function MenuItemsDesktop({
             key={index}
             href={`${locale === "ar" ? "" : "/en"}${item.href}`}
             onClick={onLinkClick}
+            data-gtm-event="nav_click"
+            data-gtm-location="header_nav"
+            data-gtm-label={item.label}
             className={cn(
               "relative flex h-10 shrink-0 items-center justify-center rounded-full px-2 py-2 transition-colors duration-200 hover:bg-[#eff6fe] lg:h-10 xl:h-11 xl:px-3",
               isActive && "bg-[#eff6fe]"

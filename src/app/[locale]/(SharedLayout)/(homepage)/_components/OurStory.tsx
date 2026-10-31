@@ -57,7 +57,11 @@ export default function OurStory({
             </span>
           </h2>
         </div>
-        <Link href={`${locale === "ar" ? "" : "/en"}/blog`}>
+        <Link
+          href={`${locale === "ar" ? "" : "/en"}/blog`}
+          data-gtm-event="blog_click"
+          data-gtm-location="homepage_articles"
+        >
           <motion.div className="flex items-center gap-3 hover:scale-105 transition-all duration-500  rounded-xl bg-[#143087] text-white px-4 py-2 ">
             <span className="text-base font-medium">
               {locale === "ar" ? "جميع المقالات" : "All Articles"}
@@ -72,6 +76,9 @@ export default function OurStory({
         <Link
           className="hover:scale-105 transition-all duration-500 block"
           href={blogHref(locale, getBlogSlug(featuredArticle, locale))}
+          data-gtm-event="blog_click"
+          data-gtm-location="homepage_featured_article"
+          data-gtm-label={getNewsTitle(featuredArticle, locale)}
         >
           <motion.div
             className="mt-12 bg-[#eff6fe] rounded-3xl overflow-hidden flex flex-col lg:flex-row gap-6 p-6 cursor-pointer hover:shadow-xl transition"
@@ -113,6 +120,9 @@ export default function OurStory({
             className="hover:scale-105 transition-all duration-500"
             key={article.id}
             href={blogHref(locale, getBlogSlug(article, locale))}
+            data-gtm-event="blog_click"
+            data-gtm-location="homepage_article_card"
+            data-gtm-label={getNewsTitle(article, locale)}
           >
             <motion.div
               className="bg-[#eff6fe] rounded-2xl p-5 h-full flex flex-col justify-between hover:shadow-md hover:scale-105 transition-all duration-500 "

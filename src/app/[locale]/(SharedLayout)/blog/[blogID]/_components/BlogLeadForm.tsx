@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ClientAPI from "@/app/api/api";
 import { isClientApiError } from "@/lib/client-api-error";
+import { trackEvent } from "@/lib/gtm";
 
 type Locale = "ar" | "en";
 
@@ -123,6 +124,11 @@ export default function BlogLeadForm({ locale, blogTitle }: BlogLeadFormProps) {
         locale,
       );
 
+      trackEvent("blog_lead_submit", {
+        click_location: "blog_lead_form",
+        service: formData.service,
+        blog_title: blogTitle,
+      });
       setSubmitStatus({
         type: "success",
         message: t("leadForm.success"),

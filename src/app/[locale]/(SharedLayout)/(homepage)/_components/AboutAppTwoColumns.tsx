@@ -123,6 +123,8 @@ function AboutApp({
               <Link
                 className="flex items-center gap-3 rounded-xl bg-[#143087] px-4 py-2 text-base font-medium text-white sm:text-lg"
                 href={`${locale === "ar" ? "" : "/en"}/about`}
+                data-gtm-event="about_click"
+                data-gtm-location="homepage_about"
               >
                 <ArrowLeft className="ml-2 h-5 w-5 text-white sm:h-6 sm:w-6" />
                 {locale === "ar" ? "اكتشف المزيد" : "Discover More"}

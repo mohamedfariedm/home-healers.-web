@@ -43,6 +43,9 @@ export default function StickyBookingBar({
         ) : (
           <a
             href={href}
+            data-gtm-event="offer_book_click"
+            data-gtm-location="sticky_booking_bar"
+            data-gtm-label={name}
             className="shrink-0 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white"
           >
             {t("bookNow")}

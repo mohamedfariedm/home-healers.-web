@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRightIcon } from "lucide-react";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { GTM_EVENTS, trackEvent } from "@/lib/gtm";
 
 export default function ContactSection({ settings }: { settings?: any }) {
   const { t } = useTranslation("contactUs");
@@ -33,6 +34,9 @@ export default function ContactSection({ settings }: { settings?: any }) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    trackEvent(GTM_EVENTS.CONTACT_FORM_SUBMIT, {
+      click_location: "contact_page",
+    });
     // Add your submit logic here (e.g. API call)
     alert(t("successMessage"));
   };

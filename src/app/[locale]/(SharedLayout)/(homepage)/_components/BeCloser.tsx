@@ -87,6 +87,8 @@ function BeCloser({ locale, section }: { locale: string; section: any }) {
                 >
                   <Link
                     href={`${locale === "ar" ? "" : "/en"}/booking`}
+                    data-gtm-event="booking_click"
+                    data-gtm-location="homepage_be_closer"
                     className="inline-flex items-center gap-2 bg-[#143087] text-white px-4 py-2 rounded-xl text-sm font-medium transition duration-300"
                   >
                     {locale === "ar"

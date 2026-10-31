@@ -23,6 +23,7 @@ import {
   serviceHref,
 } from "@/lib/slugs";
 import { offerHref, localePath } from "@/lib/offers";
+import { GTM_EVENTS, trackEvent } from "@/lib/gtm";
 
 interface LandingSliderProps {
   section: any;
@@ -386,8 +387,25 @@ export default function LandingSlider({
         return (
           <SwiperSlide key={item.id || index}>
             <div
+              role="button"
+              tabIndex={0}
+              data-gtm-event={
+                slideType === "offers" ? "offer_click" : "booking_click"
+              }
+              data-gtm-location="landing_slider"
+              data-gtm-label={item.name}
               onClick={() => {
                 if (typeof window !== "undefined" && !isProcessing) {
+                  trackEvent(
+                    slideType === "offers"
+                      ? GTM_EVENTS.OFFER_CLICK
+                      : GTM_EVENTS.BOOKING_CLICK,
+                    {
+                      click_location: "landing_slider",
+                      click_text: item.name,
+                      package_id: item.id,
+                    },
+                  );
                   if (slideType === "offers") {
                     window.location.href = item.slug
                       ? offerHref(locale, item.slug)

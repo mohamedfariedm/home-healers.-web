@@ -596,6 +596,8 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
+              data-gtm-event="whatsapp_click"
+              data-gtm-location="footer"
               className="flex w-full sm:w-auto min-w-[200px] h-14 px-4 py-2 gap-2 justify-center items-center bg-[#12b669] rounded-xl text-white hover:bg-[#0ea55c] transition-colors"
               variants={animationVariants.button}
               whileHover="hover"
@@ -651,6 +653,9 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                         href={social.url}
                         target="_blank"
                         rel="noopener noreferrer"
+                        data-gtm-event="social_click"
+                        data-gtm-location="footer"
+                        data-gtm-label={social.name}
                         className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#62a0f6] text-white shadow-sm transition-colors hover:bg-[#4f8ae8]"
                         variants={animationVariants.button}
                         whileHover="hover"
@@ -708,7 +713,12 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     },
                   ].map((link) => (
                     <li key={link.href}>
-                      <Link href={link.href}>
+                      <Link
+                        href={link.href}
+                        data-gtm-event="nav_click"
+                        data-gtm-location="footer"
+                        data-gtm-label={link.text}
+                      >
                         <motion.span
                           className="text-base font-normal leading-6 text-[#1e1e1e] hover:text-[#62a0f6] transition-colors cursor-pointer"
                           variants={animationVariants.link}
@@ -740,6 +750,9 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     }
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-gtm-event="download_app_click"
+                    data-gtm-location="footer"
+                    data-gtm-label="Google Play"
                     className="flex w-full sm:w-[172px] px-5 py-4 gap-4 justify-center items-center bg-[#143087] rounded-xl hover:bg-[#0f2666] transition-colors"
                     variants={animationVariants.button}
                     whileHover="hover"
@@ -765,6 +778,9 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     }
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-gtm-event="download_app_click"
+                    data-gtm-location="footer"
+                    data-gtm-label="App Store"
                     className="flex w-full sm:w-[172px] px-5 py-4 gap-4 justify-center items-center bg-[#143087] rounded-xl hover:bg-[#0f2666] transition-colors"
                     variants={animationVariants.button}
                     whileHover="hover"
@@ -890,7 +906,12 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
           <div className="w-full  py-4">
             <div className="flex flex-col lg:flex-row justify-between items-center gap-4 max-w-7xl mx-auto px-4">
               <nav className="flex flex-col sm:flex-row gap-4 items-center">
-                <Link href={`${locale === "ar" ? "" : "/en"}/terms`}>
+                <Link
+                  href={`${locale === "ar" ? "" : "/en"}/terms`}
+                  data-gtm-event="nav_click"
+                  data-gtm-location="footer"
+                  data-gtm-label="terms"
+                >
                   <motion.span
                     className="text-base font-medium leading-6 text-[#1e1e1e] cursor-pointer hover:text-[#62a0f6] transition-colors"
                     variants={animationVariants.link}
@@ -899,7 +920,12 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     {t.legal.terms}
                   </motion.span>
                 </Link>
-                <Link href={`${locale === "ar" ? "" : "/en"}/privacy`}>
+                <Link
+                  href={`${locale === "ar" ? "" : "/en"}/privacy`}
+                  data-gtm-event="nav_click"
+                  data-gtm-location="footer"
+                  data-gtm-label="privacy"
+                >
                   <motion.span
                     className="text-base font-medium leading-6 text-[#1e1e1e] cursor-pointer hover:text-[#62a0f6] transition-colors"
                     variants={animationVariants.link}

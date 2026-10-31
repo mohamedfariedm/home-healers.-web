@@ -56,6 +56,8 @@ function MobileMenu({ locale }: { locale: string }) {
               className="transition-transform duration-300 hover:scale-[1.03]"
               href={`${locale === "ar" ? "" : "/en"}/booking`}
               onClick={handleLinkClick}
+              data-gtm-event="booking_click"
+              data-gtm-location="header_desktop"
             >
               <div className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#62a0f6] px-3 py-2 shadow-[0_8px_18px_rgba(98,160,246,0.28)] xl:h-11 xl:gap-2 xl:px-4">
                 <span className="whitespace-nowrap text-xs font-semibold leading-5 text-white xl:text-sm">
@@ -74,6 +76,8 @@ function MobileMenu({ locale }: { locale: string }) {
               className="transition-transform duration-300 hover:scale-[1.03]"
               href={`${locale === "ar" ? "" : "/en"}/doctors-apply`}
               onClick={handleLinkClick}
+              data-gtm-event="doctor_apply_click"
+              data-gtm-location="header_desktop"
             >
               <div className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#143087] px-3 py-2 shadow-[0_8px_18px_rgba(20,48,135,0.22)] xl:h-11 xl:gap-2 xl:px-4">
                 <span className="whitespace-nowrap text-xs font-semibold leading-5 text-white xl:text-sm">
@@ -100,6 +104,8 @@ function MobileMenu({ locale }: { locale: string }) {
             onClick={() => setOpen((prev) => !prev)}
             aria-expanded={open}
             aria-label={open ? t("a11y.close_menu") : t("a11y.open_menu")}
+            data-gtm-event={open ? "mobile_menu_close" : "mobile_menu_open"}
+            data-gtm-location="header"
           >
             {open ? <IoClose /> : <IoMenu />}
           </button>
@@ -131,6 +137,8 @@ function MobileMenu({ locale }: { locale: string }) {
                   className="w-full transition-transform duration-300 hover:scale-[1.02]"
                   href={`${locale === "ar" ? "" : "/en"}/booking`}
                   onClick={handleLinkClick}
+                  data-gtm-event="booking_click"
+                  data-gtm-location="header_mobile"
                 >
                   <div className="flex h-12 w-full items-center justify-between gap-3 rounded-2xl bg-[#62a0f6] px-4 py-2 shadow-[0_10px_24px_rgba(98,160,246,0.28)]">
                     <span className="text-sm font-semibold leading-5 text-white">
@@ -149,6 +157,8 @@ function MobileMenu({ locale }: { locale: string }) {
                   className="w-full transition-transform duration-300 hover:scale-[1.02]"
                   href={`${locale === "ar" ? "" : "/en"}/doctors-apply`}
                   onClick={handleLinkClick}
+                  data-gtm-event="doctor_apply_click"
+                  data-gtm-location="header_mobile"
                 >
                   <div className="flex h-12 w-full items-center justify-between gap-3 rounded-2xl bg-[#143087] px-4 py-2 shadow-[0_10px_24px_rgba(20,48,135,0.22)]">
                     <span className="text-sm font-semibold leading-5 text-white">

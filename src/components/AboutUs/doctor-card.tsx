@@ -37,7 +37,18 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
       transition={{ duration: simplifyMotion ? 0.4 : 0.55, ease: "easeOut" }}
       whileHover={simplifyMotion ? undefined : { scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
+      role="button"
+      tabIndex={0}
+      data-gtm-event="doctor_profile_click"
+      data-gtm-location="about_doctors"
+      data-gtm-label={doctor.name}
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
     >
       {/* Doctor Image */}
       <div className="absolute top-0 left-1/2 z-10 h-[300px] w-[85%] -translate-x-1/2 sm:h-[360px] lg:h-[400px]">

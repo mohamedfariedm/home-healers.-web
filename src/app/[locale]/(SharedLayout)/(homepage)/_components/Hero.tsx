@@ -52,7 +52,12 @@ function Hero({ locale, section }: { locale: string; section: any }) {
             </div>
           </div>
 
-          <Link className="w-fit rounded-2xl" href={bookingHref}>
+          <Link
+            className="w-fit rounded-2xl"
+            href={bookingHref}
+            data-gtm-event="booking_click"
+            data-gtm-location="homepage_hero"
+          >
             <span className="relative z-10 flex w-fit items-center gap-3 rounded-2xl bg-[#143087] px-5 py-3 text-base font-semibold text-white shadow-[0_12px_28px_rgba(20,48,135,0.28)] transition hover:bg-[#0f245f] sm:text-lg">
               {locale === "ar" ? "احجز جلستك الان" : " Book Your Session Now"}
               <ArrowLeft className="h-6 w-6 text-white" />

@@ -169,6 +169,8 @@ const CategoryDetailSection = ({
       <div className="flex justify-center">
         <Link
           href={localePath(locale, "/booking")}
+          data-gtm-event="booking_click"
+          data-gtm-location="category_detail"
           className="bg-[#143087] text-white flex items-center hover:scale-105 duration-300 transition-all justify-center gap-2 px-6 py-3 rounded-xl"
         >
           {isRTL ? "احجز جلستك العلاجية الان" : "Book Your Therapy Session Now"}

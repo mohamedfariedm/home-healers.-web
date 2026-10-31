@@ -57,6 +57,8 @@ function AboutApp({
           </div>
           <Link
             href={localePath(locale, "/categories")}
+            data-gtm-event="category_click"
+            data-gtm-location="homepage_specialties"
             className="flex items-center gap-3 rounded-xl bg-[#143087] text-white px-4 py-2.5 hover:scale-105 transition-transform duration-300 shrink-0"
           >
             <span className="text-base font-medium">
@@ -82,6 +84,9 @@ function AboutApp({
                 >
                   <Link
                     href={href}
+                    data-gtm-event="category_click"
+                    data-gtm-location="homepage_specialty_card"
+                    data-gtm-label={category.name}
                     className="group relative flex h-full flex-col overflow-hidden rounded-[24px] border border-[#e6eef8] bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#62a0f6] hover:shadow-[0_18px_40px_rgba(20,48,135,0.12)]"
                   >
                     <div className="pointer-events-none absolute -top-16 -end-16 h-36 w-36 rounded-full bg-[#eff6fe] opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />

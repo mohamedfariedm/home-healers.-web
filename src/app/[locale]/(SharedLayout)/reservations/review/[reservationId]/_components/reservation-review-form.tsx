@@ -14,6 +14,7 @@ import {
   Heart,
 } from "lucide-react";
 import ClientAPI from "@/app/api/api";
+import { GTM_EVENTS, trackEvent } from "@/lib/gtm";
 
 interface ReservationReviewFormProps {
   reservationId: string;
@@ -72,6 +73,10 @@ export default function ReservationReviewForm({
 
       if (response?.success || response?.data) {
         setIsSubmitted(true);
+        trackEvent(GTM_EVENTS.REVIEW_SUBMIT, {
+          reservation_id: reservationId,
+          click_location: "reservations_review",
+        });
         toast.success(t("messages.success"));
       } else {
         toast.error(t("messages.error"));
@@ -278,6 +283,8 @@ export default function ReservationReviewForm({
         <button
           type="submit"
           disabled={isSubmitting}
+          data-gtm-event="review_submit"
+          data-gtm-location="reservations_review"
           className="w-full h-14 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl font-bold text-lg hover:from-emerald-600 hover:to-green-700 disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
         >
           {isSubmitting ? (

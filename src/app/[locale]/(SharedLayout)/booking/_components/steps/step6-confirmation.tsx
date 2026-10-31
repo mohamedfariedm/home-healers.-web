@@ -494,14 +494,20 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <button
+          type="button"
           onClick={handleDownloadReceipt}
+          data-gtm-event="receipt_download"
+          data-gtm-location="booking_confirmation"
           className="flex items-center justify-center gap-2 px-8 py-3 border border-[#62a0f6] text-[#62a0f6] rounded-lg hover:bg-[#eff6fe] transition-colors"
         >
           <Download className="w-5 h-5" />
           {t("step6.downloadReceipt")}
         </button>
         <button
+          type="button"
           onClick={handleGoHome}
+          data-gtm-event="go_home_click"
+          data-gtm-location="booking_confirmation"
           className="flex items-center justify-center gap-2 px-8 py-3 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] transition-colors"
         >
           <Home className="w-5 h-5" />

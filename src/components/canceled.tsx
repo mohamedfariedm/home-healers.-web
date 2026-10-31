@@ -111,8 +111,11 @@ export default function PaymentCanceled({ orderRef }: PaymentCanceledProps) {
 
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <button
+          type="button"
           onClick={handleRetryPayment}
           disabled={isLoading || !reservationId}
+          data-gtm-event="payment_retry"
+          data-gtm-location="payment_canceled"
           className="flex items-center justify-center gap-2 px-8 py-3 bg-[#62a0f6] text-white rounded-lg hover:bg-[#5090e6] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         >
           {isLoading ? (
@@ -128,7 +131,10 @@ export default function PaymentCanceled({ orderRef }: PaymentCanceledProps) {
           )}
         </button>
         <button
+          type="button"
           onClick={handleGoHome}
+          data-gtm-event="go_home_click"
+          data-gtm-location="payment_canceled"
           className="flex items-center justify-center gap-2 px-8 py-3 bg-[#143087] text-white rounded-lg hover:bg-[#0f2470] transition-colors"
         >
           <Home className="w-5 h-5" />

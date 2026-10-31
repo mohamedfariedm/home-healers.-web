@@ -64,6 +64,9 @@ export default function FeaturedOfferBanner({
           ) : null}
           <a
             href={href}
+            data-gtm-event="offer_click"
+            data-gtm-location="featured_offer"
+            data-gtm-label={offer.name}
             className="mt-1 inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary px-6 font-semibold text-white hover:bg-[#4f8ae8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:mt-2 sm:w-fit"
           >
             {t("bookNow")}

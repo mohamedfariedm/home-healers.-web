@@ -16,6 +16,7 @@ import {
   unwrapDetail,
 } from "@/lib/slugs"
 import { offerHref, one, safeDecodeUriSlug } from "@/lib/offers"
+import { GTM_EVENTS, trackEvent } from "@/lib/gtm"
 
 export default function LanguageChanger() {
   const { i18n } = useTranslation()
@@ -27,6 +28,12 @@ export default function LanguageChanger() {
 
   const handleChange = async (newLocale: string) => {
     if (newLocale === currentLocale) return
+
+    trackEvent(GTM_EVENTS.LANGUAGE_SWITCH, {
+      from_locale: currentLocale,
+      to_locale: newLocale,
+      click_location: "language_changer",
+    })
 
     document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${30 * 24 * 60 * 60}`
 
@@ -139,6 +146,8 @@ export default function LanguageChanger() {
         aria-haspopup="listbox"
         aria-expanded={dropdownOpen}
         onClick={() => setDropdownOpen((prev) => !prev)}
+        data-gtm-event="language_menu_toggle"
+        data-gtm-location="header"
         className="flex items-center gap-1.5 rounded-full border border-[#d7e4f8] bg-white/80 px-2.5 py-1.5 backdrop-blur-sm transition hover:border-[#62a0f6] hover:bg-white"
       >
         <div className="h-5 w-5 shrink-0 bg-[url(/assets/images/shared/language-globe.png)] bg-cover bg-no-repeat" />

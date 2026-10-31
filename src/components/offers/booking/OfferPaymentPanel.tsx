@@ -324,6 +324,8 @@ export default function OfferPaymentPanel({
         type="button"
         onClick={onPay}
         disabled={isPaying || !bookingData.paymentMethod}
+        data-gtm-event="reservation_payment"
+        data-gtm-location="offer_payment_panel"
         className="inline-flex h-14 w-full items-center justify-center rounded-2xl bg-primary text-base font-semibold text-white disabled:opacity-60 md:col-span-2"
       >
         {isPaying ? (

@@ -308,6 +308,9 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
                     href={`${locale === "ar" ? "" : "/en"}/booking?doctorId=${
                       doctor.id
                     }`}
+                    data-gtm-event="booking_click"
+                    data-gtm-location="doctor_modal"
+                    data-gtm-label={doctor.name}
                     className="flex-1 rounded-xl bg-gradient-to-r from-[#62a0f6] to-[#4f8ae8] px-6 py-3 text-center font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl sm:py-4"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}

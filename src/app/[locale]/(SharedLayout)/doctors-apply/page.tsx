@@ -68,6 +68,8 @@ async function DoctorApplyPage({
           </p>
           <a
             href="#apply-form"
+            data-gtm-event="doctor_apply_click"
+            data-gtm-location="doctors_apply_hero"
             className="inline-block rounded-full bg-white px-8 py-3 font-semibold text-[#143087] shadow-[0_12px_28px_rgba(8,20,60,0.2)] transition-all duration-300 hover:bg-[#eff6fe]"
           >
             {t("hero.cta", { defaultValue: "Start Your Application" })}

@@ -79,7 +79,13 @@ export default function RelatedOffers({
                 key={offer.id}
                 className="min-w-[78%] snap-start overflow-hidden rounded-2xl border border-gray-100 bg-white sm:min-w-[240px]"
               >
-                <a href={href} className="block">
+                <a
+                  href={href}
+                  data-gtm-event="offer_click"
+                  data-gtm-location="related_offers"
+                  data-gtm-label={offer.name}
+                  className="block"
+                >
                   <div className="relative aspect-[4/3] bg-[#eef4ff]">
                     {image ? (
                       <Image
@@ -104,6 +110,9 @@ export default function RelatedOffers({
                 <div className="p-3 pt-2">
                   <a
                     href={bookHref}
+                    data-gtm-event="offer_book_click"
+                    data-gtm-location="related_offers"
+                    data-gtm-label={offer.name}
                     className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-white"
                   >
                     {t("bookNow")}

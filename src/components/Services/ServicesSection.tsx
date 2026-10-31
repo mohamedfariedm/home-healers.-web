@@ -163,6 +163,8 @@ const AnimatedServicesSection = ({
           </div>
           <Link
             href="/booking"
+            data-gtm-event="booking_click"
+            data-gtm-location="services_section"
             className="bg-[#143087] text-white flex items-center hover:scale-105 duration-300 transition-all justify-center gap-2 px-6 py-3 rounded-xl w-fit self-end"
           >
             {locale === "ar"

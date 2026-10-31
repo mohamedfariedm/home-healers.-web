@@ -105,12 +105,18 @@ export default function OfferCard({
         <div className="mt-auto grid grid-cols-2 gap-2 p-4 pt-0">
           <a
             href={href}
+            data-gtm-event="offer_click"
+            data-gtm-location="offer_card"
+            data-gtm-label={offer.name}
             className="inline-flex h-10 items-center justify-center rounded-xl border border-[#143087] px-2 text-center text-xs font-semibold text-[#143087] transition-colors duration-200 hover:bg-[#eef4ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:px-3 sm:text-sm"
           >
             {t("viewDetails")}
           </a>
           <a
             href={bookHref}
+            data-gtm-event="offer_book_click"
+            data-gtm-location="offer_card"
+            data-gtm-label={offer.name}
             className="inline-flex h-10 items-center justify-center rounded-xl bg-primary px-2 text-center text-xs font-semibold text-white transition-colors duration-200 hover:bg-[#4f8ae8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:px-3 sm:text-sm"
           >
             {t("bookNow")}

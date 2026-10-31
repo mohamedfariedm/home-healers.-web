@@ -29,6 +29,9 @@ export default function BlogCard({
   return (
     <Link
       href={blogHref(locale, getBlogSlug(blog, locale) || String(blog?.id || ""))}
+      data-gtm-event="blog_click"
+      data-gtm-location="blog_card"
+      data-gtm-label={blog.title}
       className={cn("w-full justify-self-center", !main && "max-w-[450px]")}
     >
       <Card
