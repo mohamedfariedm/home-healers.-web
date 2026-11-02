@@ -158,9 +158,12 @@ const CategoryServicesSection = ({
                   </Link>
                 ) : null}
                 <Link
-                  href={localePath(locale, "/booking")}
+                  href={`${localePath(locale, "/booking")}?categoryId=${category.id}${
+                    activeService?.id ? `&serviceId=${activeService.id}` : ""
+                  }`}
                   data-gtm-event="booking_click"
                   data-gtm-location="category_services"
+                  data-gtm-label={activeService?.name || category.name}
                   className="bg-[#143087] text-white flex items-center hover:scale-105 duration-300 transition-all justify-center gap-2 px-6 py-3 rounded-xl"
                 >
                   {locale === "ar"

@@ -327,12 +327,17 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
   const [showModal, setShowModal] = useState(false);
   const celebrationRef = React.useRef<HTMLDivElement | null>(null);
 
+  const closeCertificationModal = () => {
+    setShowModal(false);
+    sessionStorage.setItem("hasSeenCertificationModal", "true");
+  };
+
   // Show modal on mount (only once per session)
   useEffect(() => {
     const hasSeenModal = sessionStorage.getItem("hasSeenCertificationModal");
     if (!hasSeenModal) {
-      setShowModal(false);
-      sessionStorage.setItem("hasSeenCertificationModal", "false");
+      setShowModal(true);
+      sessionStorage.setItem("hasSeenCertificationModal", "true");
 
       // Auto close after 10 seconds
       const timer = setTimeout(() => {
@@ -346,7 +351,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
   // Close modal when clicking outside
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
-      setShowModal(false);
+      closeCertificationModal();
     }
   };
 
@@ -416,7 +421,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
             >
               {/* Close Button */}
               <button
-                onClick={() => setShowModal(false)}
+                onClick={closeCertificationModal}
                 className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white rounded-full shadow-lg transition-colors"
                 aria-label={locale === "ar" ? "إغلاق" : "Close"}
               >

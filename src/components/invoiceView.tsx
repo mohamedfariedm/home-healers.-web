@@ -195,8 +195,9 @@ export default function InvoiceView({ invoiceData }: InvoiceViewProps) {
         if (clonedElement && clonedElement instanceof HTMLElement) {
           clonedElement.setAttribute('dir', 'rtl');
           clonedElement.style.direction = 'rtl';
+          clonedElement.style.unicodeBidi = 'embed';
           clonedElement.style.textAlign = 'right';
-          clonedElement.style.fontFamily = 'Arial, sans-serif';
+          clonedElement.style.fontFamily = 'Tahoma, Arial, sans-serif';
           clonedElement.style.boxSizing = 'border-box';
           clonedElement.style.overflow = 'visible';
           // Avoid double left border in PDF (Card border/shadow + page frame)
@@ -204,18 +205,38 @@ export default function InvoiceView({ invoiceData }: InvoiceViewProps) {
           clonedElement.style.border = 'none';
           clonedElement.style.outline = 'none';
         }
+        clonedDoc.documentElement.setAttribute('dir', 'rtl');
+        if (clonedDoc.body) {
+          clonedDoc.body.setAttribute('dir', 'rtl');
+          clonedDoc.body.style.direction = 'rtl';
+          clonedDoc.body.style.unicodeBidi = 'embed';
+        }
         clonedDoc.querySelectorAll('[dir], .text-right, ul, ol, li, p, h1, h2, h3, h4').forEach((node) => {
           if (node instanceof HTMLElement) {
             node.style.direction = 'rtl';
+            node.style.unicodeBidi = 'embed';
           }
         });
         clonedDoc.querySelectorAll('[data-pdf-hide]').forEach((node) => {
           if (node instanceof HTMLElement) node.style.display = 'none';
         });
-        clonedDoc.querySelectorAll('table, th, td').forEach((node) => {
+        clonedDoc.querySelectorAll('table').forEach((node) => {
           if (node instanceof HTMLElement) {
+            node.setAttribute('dir', 'rtl');
+            node.style.direction = 'rtl';
+            node.style.unicodeBidi = 'embed';
             node.style.borderCollapse = 'collapse';
             node.style.boxSizing = 'border-box';
+          }
+        });
+        clonedDoc.querySelectorAll('th, td').forEach((node) => {
+          if (node instanceof HTMLElement) {
+            node.style.direction = 'rtl';
+            node.style.borderCollapse = 'collapse';
+            node.style.boxSizing = 'border-box';
+            node.style.textAlign = node.classList.contains('text-center')
+              ? 'center'
+              : 'right';
           }
         });
       },
@@ -335,7 +356,7 @@ export default function InvoiceView({ invoiceData }: InvoiceViewProps) {
       pdf.setFontSize(9);
       pdf.setTextColor(120);
       pdf.text(
-        `Page ${pageIndex + 1} of ${totalPages}  |  Invoice #${invoiceData.invoice_number}`,
+        `صفحة ${pageIndex + 1} من ${totalPages}  |  فاتورة #${invoiceData.invoice_number}`,
         pdfWidth / 2,
         pdfHeight - 8,
         { align: 'center' }
@@ -418,8 +439,8 @@ export default function InvoiceView({ invoiceData }: InvoiceViewProps) {
           </div>
         )}
 
-           <div className="mb-8 overflow-x-auto">
-        <table className="w-full border-collapse">
+           <div className="mb-8 overflow-x-auto" dir="rtl">
+        <table className="w-full border-collapse" dir="rtl" style={{ direction: 'rtl' }}>
           <thead>
             <tr className="bg-gray-100">
               <th className="border border-gray-300 p-3 text-right font-medium">#</th>
@@ -464,45 +485,45 @@ export default function InvoiceView({ invoiceData }: InvoiceViewProps) {
       </div>
 
       {/* الإجماليات + QR */}
-      <div className="grid grid-cols-2 gap-8 mb-8">
+      <div className="mb-8 grid grid-cols-2 gap-8" dir="rtl">
         <div className="flex flex-col items-center justify-center gap-2">
-            {zatcaQr ? (
-              <div
-                className="bg-white"
-                style={{ width: 300, height: 300, boxSizing: 'border-box', padding: 20 }}
-              >
-                <QRCode value={zatcaQr} size={260} bgColor="#ffffff" fgColor="#000000" level="M" style={{ width: '100%', height: '100%' }} />
-              </div>
-            ) : (
-              <p className="max-w-[12rem] text-center text-sm text-gray-600">
-                {/* لم يتم إرسال الفاتورة إلى هيئة الزكاة بعد */}
-              </p>
-            )}
-          </div>
-        <div className="space-y-2">
-          <div className="flex justify-between">
+          {zatcaQr ? (
+            <div
+              className="bg-white"
+              style={{ width: 300, height: 300, boxSizing: 'border-box', padding: 20 }}
+            >
+              <QRCode value={zatcaQr} size={260} bgColor="#ffffff" fgColor="#000000" level="M" style={{ width: '100%', height: '100%' }} />
+            </div>
+          ) : (
+            <p className="max-w-[12rem] text-center text-sm text-gray-600">
+              {/* لم يتم إرسال الفاتورة إلى هيئة الزكاة بعد */}
+            </p>
+          )}
+        </div>
+        <div className="space-y-2 text-right">
+          <div className="flex justify-between gap-4">
             <span>الإجمالي قبل الضريبة:</span>
-            <span className="font-bold">{fmt(subtotal)} ر.س</span> {/* NEW */}
+            <span className="font-bold">{fmt(subtotal)} ر.س</span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between gap-4">
             <span>
               إجمالي الضريبة{headerTaxLabelToShow ? ` (${headerTaxLabelToShow})` : ''}:
             </span>
-            <span className="font-bold">{fmt(taxTotal)} ر.س</span> {/* NEW */}
+            <span className="font-bold">{fmt(taxTotal)} ر.س</span>
           </div>
           {discountTotal > 0 && (
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-4">
               <span>الخصم:</span>
-              <span className="font-bold">-{fmt(discountTotal)} ر.س</span> {/* NEW */}
+              <span className="font-bold">-{fmt(discountTotal)} ر.س</span>
             </div>
           )}
-          <div className="flex justify-between">
+          <div className="flex justify-between gap-4">
             <span>المجموع:</span>
-            <span className="font-bold">{fmt(grandTotal)} ر.س</span> {/* NEW */}
+            <span className="font-bold">{fmt(grandTotal)} ر.س</span>
           </div>
-          <div className="flex justify-between border-t pt-2">
+          <div className="flex justify-between gap-4 border-t pt-2">
             <span className="font-bold">المبلغ المستحق:</span>
-            <span className="font-bold text-lg">{fmt(balanceDue)} ر.س</span> {/* NEW */}
+            <span className="font-bold text-lg">{fmt(balanceDue)} ر.س</span>
           </div>
         </div>
       </div>

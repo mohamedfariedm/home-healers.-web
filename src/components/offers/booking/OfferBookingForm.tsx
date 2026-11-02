@@ -1,8 +1,18 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { MapPin, Calendar, Clock, StickyNote, User, Plus, Star } from "lucide-react";
+import {
+  MapPin,
+  Calendar as CalendarIcon,
+  ChevronDown,
+  Clock,
+  StickyNote,
+  User,
+  Plus,
+  Star,
+} from "lucide-react";
+import { arSA, enUS } from "react-day-picker/locale";
 import { useTranslation } from "react-i18next";
 import type { Location } from "@/types/booking";
 import {
@@ -10,13 +20,17 @@ import {
   NOTES_MAX_LENGTH,
   OFFER_TIME_SLOTS,
   addDays,
-  formatDayLabel,
+  formatDayNumber,
+  formatFullDate,
   formatTimeLabel,
+  formatWeekdayShort,
   isSlotInPast,
+  parseDateKey,
   startOfLocalDay,
   toDateKey,
   toggleNoteTag,
 } from "@/lib/offer-booking";
+import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 
 export type OfferGuestForm = {
@@ -66,7 +80,7 @@ function SectionCard({
   return (
     <section
       className={cn(
-        "flex min-h-full min-w-0 flex-col rounded-[28px] border border-[#e8eef8] bg-white p-5 shadow-[0_12px_40px_rgba(20,48,135,0.06)] sm:p-6",
+        "flex min-h-full min-w-0 flex-col overflow-hidden rounded-[28px] border border-[#e8eef8] bg-white p-5 shadow-[0_12px_40px_rgba(20,48,135,0.06)] sm:p-6",
         className,
       )}
     >
@@ -135,17 +149,60 @@ export default function OfferBookingForm({
   disabled = false,
 }: OfferBookingFormProps) {
   const { t } = useTranslation("offers");
+  const isRtl = locale === "ar";
   const today = startOfLocalDay(new Date());
-  const dateOptions = [0, 1, 2].map((offset) => {
-    const date = addDays(today, offset);
-    return { key: toDateKey(date), date, offset };
-  });
-  const maxDate = toDateKey(addDays(today, 365));
-  const minDate = toDateKey(today);
-  const isPresetDate = dateOptions.some((option) => option.key === dateKey);
+  const maxDate = addDays(today, 365);
+  const quickDates = useMemo(
+    () =>
+      Array.from({ length: 14 }, (_, offset) => {
+        const date = addDays(today, offset);
+        return { key: toDateKey(date), date, offset };
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [toDateKey(today)],
+  );
+  const selectedDate = dateKey ? parseDateKey(dateKey) ?? undefined : undefined;
+  const isQuickDate = quickDates.some((option) => option.key === dateKey);
+  const [showCalendar, setShowCalendar] = useState(
+    Boolean(dateKey && !isQuickDate),
+  );
+  const [calendarMonth, setCalendarMonth] = useState<Date>(
+    selectedDate ?? today,
+  );
+  const stripRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!dateKey) return;
+    if (!isQuickDate) {
+      setShowCalendar(true);
+      if (selectedDate) setCalendarMonth(selectedDate);
+    }
+  }, [dateKey, isQuickDate, selectedDate]);
+
+  useEffect(() => {
+    if (!dateKey || !stripRef.current) return;
+    const active = stripRef.current.querySelector<HTMLElement>(
+      `[data-date-key="${dateKey}"]`,
+    );
+    active?.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+  }, [dateKey]);
+
   const isPresetTime = time
     ? OFFER_TIME_SLOTS.includes(time as (typeof OFFER_TIME_SLOTS)[number])
     : false;
+
+  const handleSelectDate = (date: Date) => {
+    const key = toDateKey(date);
+    onSelectDate(key);
+    setCalendarMonth(date);
+    if (!quickDates.some((option) => option.key === key)) {
+      setShowCalendar(true);
+    }
+  };
 
   return (
     <div
@@ -299,49 +356,128 @@ export default function OfferBookingForm({
         )}
       </SectionCard>
 
-      <SectionCard icon={Calendar} title={t("booking.date")}>
-        <div className="grid grid-cols-2 gap-3">
-          {dateOptions.map((option) => (
-            <ChoiceTile
-              key={option.key}
-              active={dateKey === option.key}
-              onClick={() => onSelectDate(option.key)}
-            >
-              <span className={cn("text-xs font-medium", dateKey === option.key ? "text-white/80" : "text-[#4a5568]")}>
-                {option.offset === 0
-                  ? t("booking.today")
-                  : option.offset === 1
-                    ? t("booking.tomorrow")
-                    : t("booking.dayAfter")}
-              </span>
-              <span className="mt-1 text-base font-bold">
-                {formatDayLabel(option.date, locale)}
-              </span>
-            </ChoiceTile>
-          ))}
-          <label
-            className={cn(
-              "flex min-h-[4.75rem] w-full cursor-pointer flex-col items-start justify-center rounded-2xl border px-4 py-3",
-              dateKey && !isPresetDate
-                ? "border-[#143087] bg-[#143087] text-white shadow-md shadow-[#143087]/20"
-                : "border-[#e4ebf7] bg-[#f8faff] text-[#1e1e1e]",
-            )}
-          >
-            <span className={cn("text-xs font-medium", dateKey && !isPresetDate ? "text-white/80" : "text-[#4a5568]")}>
-              {t("booking.customDate")}
-            </span>
-            <input
-              type="date"
-              min={minDate}
-              max={maxDate}
-              value={dateKey && !isPresetDate ? dateKey : ""}
-              onChange={(event) => {
-                if (event.target.value) onSelectDate(event.target.value);
-              }}
-              className="mt-1 w-full bg-transparent text-sm font-semibold outline-none [color-scheme:inherit]"
-            />
-          </label>
+      <SectionCard icon={CalendarIcon} title={t("booking.date")}>
+        <div
+          className={cn(
+            "mb-4 rounded-2xl border px-4 py-3 transition-colors",
+            selectedDate
+              ? "border-[#143087]/25 bg-[#eef4ff]"
+              : "border-dashed border-[#c9d8f5] bg-[#f8faff]",
+          )}
+        >
+          <p className="text-xs font-medium text-[#4a5568]">
+            {selectedDate ? t("booking.selectedDate") : t("booking.pickDateHint")}
+          </p>
+          <p className="mt-1 text-base font-bold text-[#143087]">
+            {selectedDate ? formatFullDate(selectedDate, locale) : "—"}
+          </p>
         </div>
+
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <p className="text-sm font-semibold text-[#1e1e1e]">
+            {t("booking.quickDates")}
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowCalendar((open) => !open)}
+            className="inline-flex items-center gap-1 rounded-full bg-[#eef4ff] px-3 py-1.5 text-sm font-semibold text-[#143087] transition-colors hover:bg-[#dbe7ff]"
+          >
+            {showCalendar ? t("booking.hideCalendar") : t("booking.openCalendar")}
+            <ChevronDown
+              className={cn(
+                "size-4 transition-transform duration-200",
+                showCalendar && "rotate-180",
+              )}
+              aria-hidden
+            />
+          </button>
+        </div>
+
+        <div
+          ref={stripRef}
+          className="flex max-w-full gap-2 overflow-x-auto overscroll-x-contain pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory"
+          dir={isRtl ? "rtl" : "ltr"}
+        >
+          {quickDates.map((option) => {
+            const active = dateKey === option.key;
+            const label =
+              option.offset === 0
+                ? t("booking.today")
+                : option.offset === 1
+                  ? t("booking.tomorrow")
+                  : formatWeekdayShort(option.date, locale);
+
+            return (
+              <button
+                key={option.key}
+                type="button"
+                data-date-key={option.key}
+                onClick={() => handleSelectDate(option.date)}
+                aria-pressed={active}
+                className={cn(
+                  "flex h-[4.75rem] w-[4.25rem] shrink-0 snap-center flex-col items-center justify-center rounded-2xl border px-1.5 transition-all",
+                  active
+                    ? "border-[#143087] bg-[#143087] text-white shadow-md shadow-[#143087]/20"
+                    : "border-[#e4ebf7] bg-white text-[#1e1e1e] hover:border-[#143087]/40 hover:bg-[#f8faff]",
+                )}
+              >
+                <span
+                  className={cn(
+                    "max-w-full truncate text-[11px] font-medium",
+                    active ? "text-white/80" : "text-[#4a5568]",
+                  )}
+                >
+                  {label}
+                </span>
+                <span className="mt-1 text-xl font-bold leading-none tabular-nums">
+                  {formatDayNumber(option.date, locale)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {showCalendar ? (
+          <div
+            className="mt-4 flex animate-in fade-in-0 slide-in-from-top-2 justify-center rounded-2xl border border-[#e4ebf7] bg-white p-4 shadow-[0_8px_24px_rgba(20,48,135,0.06)] duration-200"
+            dir={isRtl ? "rtl" : "ltr"}
+          >
+            <Calendar
+              mode="single"
+              locale={isRtl ? arSA : enUS}
+              dir={isRtl ? "rtl" : "ltr"}
+              selected={selectedDate}
+              month={calendarMonth}
+              onMonthChange={setCalendarMonth}
+              onSelect={(date) => {
+                if (!date) return;
+                handleSelectDate(date);
+              }}
+              disabled={{ before: today, after: maxDate }}
+              className="mx-auto bg-transparent [--cell-size:2.75rem]"
+              classNames={{
+                root: "mx-auto w-fit",
+                months: "relative mx-auto flex justify-center",
+                month: "mx-auto w-fit gap-3",
+                nav: "absolute inset-x-0 top-0 z-10 flex h-11 w-full items-center justify-between",
+                button_previous:
+                  "z-10 inline-flex size-[2.75rem] items-center justify-center rounded-xl border border-[#e4ebf7] bg-white p-0 text-[#143087] hover:bg-[#eef4ff] rtl:[&>svg]:rotate-180",
+                button_next:
+                  "z-10 inline-flex size-[2.75rem] items-center justify-center rounded-xl border border-[#e4ebf7] bg-white p-0 text-[#143087] hover:bg-[#eef4ff] rtl:[&>svg]:rotate-180",
+                month_caption:
+                  "relative mx-auto flex h-11 w-full items-center justify-center px-12",
+                caption_label: "text-center text-base font-bold text-[#143087]",
+                weekdays: "flex w-full justify-center",
+                weekday:
+                  "flex size-[2.75rem] items-center justify-center rounded-md text-center text-[0.75rem] font-semibold text-[#7b879c]",
+                week: "mt-2 flex w-full justify-center",
+                day: "relative flex size-[2.75rem] items-center justify-center p-0 text-center group/day select-none",
+                today: "rounded-xl bg-[#eef4ff] text-[#143087]",
+                selected: "rounded-xl bg-[#143087] text-white",
+              }}
+            />
+          </div>
+        ) : null}
       </SectionCard>
 
       <SectionCard icon={Clock} title={t("booking.time")}>

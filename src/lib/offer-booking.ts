@@ -297,3 +297,24 @@ export function formatDayLabel(date: Date, locale: string) {
     month: "short",
   }).format(date);
 }
+
+export function formatWeekdayShort(date: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale === "ar" ? "ar-SA" : "en-US", {
+    weekday: "short",
+  }).format(date);
+}
+
+export function formatDayNumber(date: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale === "ar" ? "ar-SA" : "en-US", {
+    day: "numeric",
+  }).format(date);
+}
+
+export function formatFullDate(date: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale === "ar" ? "ar-SA" : "en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}

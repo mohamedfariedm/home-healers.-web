@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { parseCmsHtml } from "@/lib/parse-cms-html";
+import { localePath } from "@/lib/offers";
 import {
   getActiveServices,
   getCategorySlug,
@@ -162,9 +163,16 @@ const AnimatedServicesSection = ({
               : "وصف الخدمة غير متوفر حالياً."}
           </div>
           <Link
-            href="/booking"
+            href={`${localePath(locale, "/booking")}${
+              activeService?.category?.id
+                ? `?categoryId=${activeService.category.id}${
+                    activeService?.id ? `&serviceId=${activeService.id}` : ""
+                  }`
+                : ""
+            }`}
             data-gtm-event="booking_click"
             data-gtm-location="services_section"
+            data-gtm-label={serviceTitle}
             className="bg-[#143087] text-white flex items-center hover:scale-105 duration-300 transition-all justify-center gap-2 px-6 py-3 rounded-xl w-fit self-end"
           >
             {locale === "ar"

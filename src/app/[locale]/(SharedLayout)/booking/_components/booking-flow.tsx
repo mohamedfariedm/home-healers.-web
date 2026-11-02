@@ -352,34 +352,69 @@ export default function BookingFlow({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doctorsList, bookingData.selectedCategory]);
 
-  // Step 1: default first category (and first service when enabled), once per visit
+  // Step 1: prefer category/service from URL, else default first category (once per visit)
   useEffect(() => {
     const packageId =
       searchParams.get("packageId") || searchParams.get("packageid");
     if (packageId || packageInitRef.current) return;
 
-    const firstCat = categoriesData?.data?.[0];
-    if (!firstCat || step1DefaultsAppliedRef.current) return;
+    const categories = categoriesData?.data ?? [];
+    if (!categories.length || step1DefaultsAppliedRef.current) return;
 
-    setBookingData((prev:any) => {
+    const categoryIdParam =
+      searchParams.get("categoryId") || searchParams.get("categoryid");
+    const serviceIdParam =
+      searchParams.get("serviceId") || searchParams.get("serviceid");
+    const categoryId = categoryIdParam
+      ? Number.parseInt(categoryIdParam, 10)
+      : NaN;
+    const serviceId = serviceIdParam
+      ? Number.parseInt(serviceIdParam, 10)
+      : NaN;
+
+    const matchedCategory =
+      Number.isFinite(categoryId)
+        ? categories.find((cat: Category) => Number(cat.id) === categoryId)
+        : undefined;
+    const targetCategory = matchedCategory ?? categories[0];
+    if (!targetCategory) return;
+
+    setBookingData((prev: any) => {
       if (prev.selectedCategory || prev.selectedService || prev.selectedPackage) {
         step1DefaultsAppliedRef.current = true;
         return prev;
       }
       step1DefaultsAppliedRef.current = true;
 
+      const catServices = (servicesData?.data ?? []).filter(
+        (s: any) => Number(s.category?.id) === Number(targetCategory.id)
+      );
+      const matchedService =
+        Number.isFinite(serviceId)
+          ? catServices.find((s: any) => Number(s.id) === serviceId)
+          : undefined;
+
       if (!SHOW_SERVICE_SELECTION_STEP) {
         return {
           ...prev,
-          selectedCategory: firstCat,
-          selectedService: null,
+          selectedCategory: targetCategory,
+          selectedService: matchedService ?? null,
         };
       }
 
-      const catServices = (servicesData?.data ?? []).filter(
-        (s: any) => s.category?.id === firstCat.id
-      );
-      if (catServices.length > 0) {
+      if (matchedService) {
+        return {
+          ...prev,
+          selectedCategory: {
+            id: matchedService.category?.id ?? targetCategory.id,
+            name: matchedService.category?.name ?? targetCategory.name,
+            services: [],
+          },
+          selectedService: matchedService,
+        };
+      }
+
+      if (catServices.length > 0 && !matchedCategory) {
         const s0 = catServices[0];
         return {
           ...prev,
@@ -391,9 +426,10 @@ export default function BookingFlow({
           selectedService: s0,
         };
       }
+
       return {
         ...prev,
-        selectedCategory: firstCat,
+        selectedCategory: targetCategory,
         selectedService: null,
       };
     });

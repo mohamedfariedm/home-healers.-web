@@ -35,6 +35,7 @@ import {
   formatLocalDateTime,
   formatTimeLabel,
   guestFromPatient,
+  isSlotInPast,
   parseDateKey,
   readJson,
   removeStorage,
@@ -671,6 +672,9 @@ export default function OfferBookingClient({
           dateKey={dateKey}
           onSelectDate={(nextDate) => {
             setDateKey(nextDate);
+            setTime((prev) =>
+              prev && isSlotInPast(nextDate, prev, clockOffset) ? null : prev,
+            );
           }}
           time={time}
           onSelectTime={setTime}
