@@ -5,6 +5,7 @@ import GtmClickTracker from "@/components/GtmClickTracker";
 import { ensureDataLayer } from "@/lib/gtm";
 
 const GTM_ID = "GTM-TDDDW3G3";
+const GA_ID = "G-YXJBLQXP8R";
 const CLARITY_ID = "wc9sy4cx56";
 
 function injectThirdPartyScripts() {
@@ -18,6 +19,19 @@ function injectThirdPartyScripts() {
   gtm.async = true;
   gtm.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`;
   document.head.appendChild(gtm);
+
+  if (!document.getElementById("ga-gtag-js")) {
+    const gaSrc = document.createElement("script");
+    gaSrc.id = "ga-gtag-js";
+    gaSrc.async = true;
+    gaSrc.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+    document.head.appendChild(gaSrc);
+
+    const gaConfig = document.createElement("script");
+    gaConfig.id = "ga-gtag-config";
+    gaConfig.text = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`;
+    document.head.appendChild(gaConfig);
+  }
 
   if (document.getElementById("microsoft-clarity")) return;
 
