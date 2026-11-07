@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/Layout";
 import ChromeFooter from "@/components/Layout/ChromeFooter";
+import OffersPopupHost from "@/components/offers/OffersPopupHost";
 import { IS_RAMADAN_ACTIVE } from "@/constants/ramadan";
 import { IS_WORLD_CUP_ACTIVE } from "@/constants/world-cup";
 import RamadanBanner, { RamadanBackgroundDecorations } from "@/components/RamadanOverlay";
@@ -33,6 +34,9 @@ export default async function Layout({
       <div id="page-content">{children}</div>
       <Suspense fallback={null}>
         <ChromeFooter locale={locale} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <OffersPopupHost locale={locale} />
       </Suspense>
     </>
   );

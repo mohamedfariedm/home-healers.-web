@@ -54,6 +54,9 @@ export const GTM_EVENTS = {
   DOCTOR_APPLY_SUBMIT: "doctor_apply_submit",
   LANDING_FORM_SUBMIT: "landing_form_submit",
   CTA_CLICK: "cta_click",
+  OFFER_POPUP_VIEW: "offer_popup_view",
+  OFFER_POPUP_SUBMIT: "offer_popup_submit",
+  OFFER_POPUP_CLOSE: "offer_popup_close",
 } as const;
 
 export type GtmEventName =
