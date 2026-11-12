@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { toast } from "sonner";
 import Link from "next/link";
+import Image from "next/image";
 import { demoteH1, normalizeCmsHtml, stripCanonicalLinks } from "@/lib/parse-cms-html";
 import { blogHref, formatApiDate, getBlogSlug, getNewsTitle } from "@/lib/slugs";
 import { toSecureMediaUrl } from "@/lib/image-url";
@@ -231,13 +232,16 @@ export default function BlogRelatedSection({
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <img
+          <Image
             src={resolveBlogImage(data?.image)}
             alt={
               (isRTL ? "صورة المقال " : "Article image ") +
               getNewsTitle(data, locale)
             }
-            className="h-full w-full object-cover"
+            fill
+            priority
+            sizes="(max-width: 1024px) 100vw, 800px"
+            className="object-cover"
           />
         </motion.div>
 

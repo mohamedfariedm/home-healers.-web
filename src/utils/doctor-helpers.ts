@@ -12,8 +12,7 @@ export const getDoctorImage = (doctor: Doctor): string => {
     return "/assets/images/doctorFemale.jpeg";
   }
 
-  // Final fallback
-  return "/default-doctor.png";
+  return "/assets/images/doctorMale.jpeg";
 };
 
 export const getNationalityName = (

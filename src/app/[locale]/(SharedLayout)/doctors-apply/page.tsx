@@ -4,7 +4,7 @@ import DoctorRegistrationForm from "@/components/doctor-registration-form";
 import { getCachedSettings } from "@/lib/cached-api";
 import { createMetadata } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 function getDoctorsApplySeo(settings: any) {
   return (

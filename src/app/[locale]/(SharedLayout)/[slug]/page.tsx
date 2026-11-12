@@ -4,7 +4,7 @@ import { getCachedSettings } from "@/lib/cached-api";
 import { buildCanonicalUrl, buildLanguageAlternates, ogLocale } from "@/lib/seo";
 import { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 type Props = {
   params: { locale: string; slug: string };

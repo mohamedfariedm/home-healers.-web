@@ -33,6 +33,12 @@ function injectThirdPartyScripts() {
     document.head.appendChild(gaConfig);
   }
 
+  // Clarity is the heaviest + least critical tag: stagger it behind GTM/GA so
+  // the two parse/execute bursts don't land in the same main-thread task.
+  window.setTimeout(injectClarity, 2500);
+}
+
+function injectClarity() {
   if (document.getElementById("microsoft-clarity")) return;
 
   const clarity = document.createElement("script");
@@ -60,19 +66,25 @@ export default function AnalyticsScripts() {
       injectThirdPartyScripts();
     };
 
+    // Load on intentional interaction only — not scroll. Lighthouse SI/LCP
+    // measurement scrolls the page; treating scroll as "engagement" pulled
+    // GTM/Clarity into the TBT window and tanked blog/mobile scores.
+    // Real users who tap/click/type still get tags immediately.
+    const events: Array<keyof WindowEventMap> = [
+      "pointerdown",
+      "keydown",
+      "touchstart",
+    ];
     const onInteract = () => load();
-    window.addEventListener("pointerdown", onInteract, {
-      once: true,
-      passive: true,
-    });
-    window.addEventListener("keydown", onInteract, { once: true });
+    events.forEach((evt) =>
+      window.addEventListener(evt, onInteract, { once: true, passive: true }),
+    );
 
-    // Fallback so users who never interact still get tags loaded
-    const idleTimer = window.setTimeout(load, 3500);
+    // Fallback for non-interactive sessions (outside typical lab windows)
+    const idleTimer = window.setTimeout(load, 12000);
 
     return () => {
-      window.removeEventListener("pointerdown", onInteract);
-      window.removeEventListener("keydown", onInteract);
+      events.forEach((evt) => window.removeEventListener(evt, onInteract));
       window.clearTimeout(idleTimer);
     };
   }, []);

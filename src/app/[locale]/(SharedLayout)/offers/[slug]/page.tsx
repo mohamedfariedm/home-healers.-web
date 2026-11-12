@@ -23,7 +23,7 @@ import type { OfferDetails } from "@/types/offers";
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 type PageProps = {
   params: Promise<{ locale: string; slug: string }>;

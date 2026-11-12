@@ -1,12 +1,12 @@
 import initTranslations from "@/app/i18n";
-import { BlogAnimationSection } from "@/components/Blog";
-import { Bannar } from "../(homepage)/_components";
+import BlogAnimationSection from "@/components/Blog/BlogAnimationSection";
+import Bannar from "../(homepage)/_components/Bannar";
 import { createMetadata } from "@/lib/seo";
 import { getCachedBlogs, getCachedSettings } from "@/lib/cached-api";
-import { slimBanner } from "@/lib/public-payload";
+import { slimBanner, slimBlogForHome } from "@/lib/public-payload";
 import { PageHero } from "@/components/Shared/PageHero";
 import { localePath } from "@/lib/offers";
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 type props = {
   params: { locale: string };
@@ -40,7 +40,6 @@ export async function generateMetadata({
       title: "Home Healers | Blog",
       description: "Health articles and physiotherapy tips from Home Healers",
     },
-    { omitCanonical: true },
   );
 }
 async function page({ params }: { params: Promise<{ locale: string }> }) {
@@ -73,7 +72,7 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
         />
 
         <BlogAnimationSection
-          data={data || []}
+          data={(data || []).map(slimBlogForHome)}
           locale={locale}
         />
 

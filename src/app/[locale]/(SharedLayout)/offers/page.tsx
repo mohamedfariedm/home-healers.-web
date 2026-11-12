@@ -24,7 +24,7 @@ import type { OfferCard } from "@/types/offers";
 import type { Metadata } from "next";
 import { PageHero } from "@/components/Shared/PageHero";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 type PageProps = {
   params: Promise<{ locale: string }>;

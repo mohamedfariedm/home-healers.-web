@@ -1,0 +1,1230 @@
+[
+  {
+    "path": "/",
+    "url": "http://localhost:3001/",
+    "formFactor": "mobile",
+    "performance": 78,
+    "accessibility": 88,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 1222,
+    "lcp": 4887,
+    "tbt": 210,
+    "cls": 0,
+    "si": 2336,
+    "tti": 6200,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 150
+      }
+    ],
+    "report": "home-ar__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/",
+    "url": "http://localhost:3001/",
+    "formFactor": "desktop",
+    "performance": 97,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 354,
+    "lcp": 1255,
+    "tbt": 0,
+    "cls": 0.003,
+    "si": 623,
+    "tti": 1265,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 100
+      }
+    ],
+    "report": "home-ar__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en",
+    "url": "http://localhost:3001/en",
+    "formFactor": "mobile",
+    "performance": 82,
+    "accessibility": 88,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 1550,
+    "lcp": 4359,
+    "tbt": 175,
+    "cls": 0,
+    "si": 2426,
+    "tti": 5951,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 150
+      }
+    ],
+    "report": "en__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en",
+    "url": "http://localhost:3001/en",
+    "formFactor": "desktop",
+    "performance": 99,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 418,
+    "lcp": 943,
+    "tbt": 0,
+    "cls": 0,
+    "si": 564,
+    "tti": 948,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 20
+      }
+    ],
+    "report": "en__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/about",
+    "url": "http://localhost:3001/about",
+    "formFactor": "mobile",
+    "performance": 44,
+    "accessibility": 93,
+    "bestPractices": 73,
+    "seo": 100,
+    "fcp": 1357,
+    "lcp": 95932,
+    "tbt": 2373,
+    "cls": 0,
+    "si": 4284,
+    "tti": 97455,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 150
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 0
+      }
+    ],
+    "report": "about__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/about",
+    "url": "http://localhost:3001/about",
+    "formFactor": "desktop",
+    "performance": 93,
+    "accessibility": 93,
+    "bestPractices": 73,
+    "seo": 100,
+    "fcp": 419,
+    "lcp": 1337,
+    "tbt": 145,
+    "cls": 0.005,
+    "si": 1183,
+    "tti": 1389,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 0
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 0
+      }
+    ],
+    "report": "about__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/about",
+    "url": "http://localhost:3001/en/about",
+    "formFactor": "mobile",
+    "error": "TypeError: Failed to fetch browser webSocket URL from http://127.0.0.1:1720/json/version: fetch failed"
+  },
+  {
+    "path": "/en/about",
+    "url": "http://localhost:3001/en/about",
+    "formFactor": "desktop",
+    "performance": 93,
+    "accessibility": 93,
+    "bestPractices": 73,
+    "seo": 100,
+    "fcp": 459,
+    "lcp": 1357,
+    "tbt": 145,
+    "cls": 0.001,
+    "si": 1209,
+    "tti": 1419,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 0
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 0
+      }
+    ],
+    "report": "en_about__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/contact",
+    "url": "http://localhost:3001/contact",
+    "formFactor": "mobile",
+    "performance": 77,
+    "accessibility": 100,
+    "bestPractices": 96,
+    "seo": 100,
+    "fcp": 1061,
+    "lcp": 6022,
+    "tbt": 125,
+    "cls": 0.001,
+    "si": 1296,
+    "tti": 6067,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 260
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 150
+      }
+    ],
+    "report": "contact__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/contact",
+    "url": "http://localhost:3001/contact",
+    "formFactor": "desktop",
+    "performance": 98,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 289,
+    "lcp": 1178,
+    "tbt": 0,
+    "cls": 0.004,
+    "si": 476,
+    "tti": 1186,
+    "opportunities": [
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 40
+      },
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 0
+      }
+    ],
+    "report": "contact__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/contact",
+    "url": "http://localhost:3001/en/contact",
+    "formFactor": "mobile",
+    "performance": 78,
+    "accessibility": 96,
+    "bestPractices": 96,
+    "seo": 100,
+    "fcp": 1209,
+    "lcp": 5953,
+    "tbt": 110,
+    "cls": 0,
+    "si": 1209,
+    "tti": 5992,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 260
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 150
+      }
+    ],
+    "report": "en_contact__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/contact",
+    "url": "http://localhost:3001/en/contact",
+    "formFactor": "desktop",
+    "performance": 97,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 328,
+    "lcp": 1216,
+    "tbt": 0,
+    "cls": 0,
+    "si": 493,
+    "tti": 1224,
+    "opportunities": [
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 40
+      },
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 0
+      }
+    ],
+    "report": "en_contact__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/blog",
+    "url": "http://localhost:3001/blog",
+    "formFactor": "mobile",
+    "performance": 77,
+    "accessibility": 91,
+    "bestPractices": 77,
+    "seo": 100,
+    "fcp": 1209,
+    "lcp": 6193,
+    "tbt": 111,
+    "cls": 0,
+    "si": 2490,
+    "tti": 6223,
+    "opportunities": [
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 170
+      },
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 150
+      }
+    ],
+    "report": "blog__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/blog",
+    "url": "http://localhost:3001/blog",
+    "formFactor": "desktop",
+    "performance": 97,
+    "accessibility": 95,
+    "bestPractices": 77,
+    "seo": 100,
+    "fcp": 330,
+    "lcp": 1268,
+    "tbt": 0,
+    "cls": 0.003,
+    "si": 924,
+    "tti": 1275,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 0
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 0
+      }
+    ],
+    "report": "blog__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/blog",
+    "url": "http://localhost:3001/en/blog",
+    "formFactor": "mobile",
+    "performance": 84,
+    "accessibility": 91,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 1211,
+    "lcp": 4314,
+    "tbt": 124,
+    "cls": 0,
+    "si": 1620,
+    "tti": 4337,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 150
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 100
+      }
+    ],
+    "report": "en_blog__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/blog",
+    "url": "http://localhost:3001/en/blog",
+    "formFactor": "desktop",
+    "performance": 97,
+    "accessibility": 95,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 330,
+    "lcp": 1219,
+    "tbt": 0,
+    "cls": 0,
+    "si": 519,
+    "tti": 1227,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 30
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 0
+      }
+    ],
+    "report": "en_blog__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/categories",
+    "url": "http://localhost:3001/categories",
+    "formFactor": "mobile",
+    "performance": 76,
+    "accessibility": 95,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 1060,
+    "lcp": 4369,
+    "tbt": 382,
+    "cls": 0.001,
+    "si": 1090,
+    "tti": 5367,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 110
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 0
+      }
+    ],
+    "report": "categories__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/categories",
+    "url": "http://localhost:3001/categories",
+    "formFactor": "desktop",
+    "performance": 94,
+    "accessibility": 95,
+    "bestPractices": 77,
+    "seo": 100,
+    "fcp": 284,
+    "lcp": 1188,
+    "tbt": 164,
+    "cls": 0.004,
+    "si": 767,
+    "tti": 1436,
+    "opportunities": [
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 40
+      },
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 30
+      }
+    ],
+    "report": "categories__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/categories",
+    "url": "http://localhost:3001/en/categories",
+    "formFactor": "mobile",
+    "performance": 70,
+    "accessibility": 95,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 1204,
+    "lcp": 6106,
+    "tbt": 336,
+    "cls": 0,
+    "si": 2216,
+    "tti": 6141,
+    "opportunities": [
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 300
+      },
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 160
+      }
+    ],
+    "report": "en_categories__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/categories",
+    "url": "http://localhost:3001/en/categories",
+    "formFactor": "desktop",
+    "performance": 76,
+    "accessibility": 95,
+    "bestPractices": 77,
+    "seo": 100,
+    "fcp": 326,
+    "lcp": 1232,
+    "tbt": 504,
+    "cls": 0,
+    "si": 824,
+    "tti": 3119,
+    "opportunities": [
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 40
+      },
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 30
+      }
+    ],
+    "report": "en_categories__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/offers",
+    "url": "http://localhost:3001/offers",
+    "formFactor": "mobile",
+    "performance": 69,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 1034,
+    "lcp": 6805,
+    "tbt": 348,
+    "cls": 0.001,
+    "si": 1674,
+    "tti": 6921,
+    "opportunities": [
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 150
+      },
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 70
+      }
+    ],
+    "report": "offers__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/offers",
+    "url": "http://localhost:3001/offers",
+    "formFactor": "desktop",
+    "performance": 96,
+    "accessibility": 97,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 285,
+    "lcp": 1439,
+    "tbt": 0,
+    "cls": 0.031,
+    "si": 469,
+    "tti": 1461,
+    "opportunities": [
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 40
+      },
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 20
+      }
+    ],
+    "report": "offers__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/offers",
+    "url": "http://localhost:3001/en/offers",
+    "formFactor": "mobile",
+    "performance": 75,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 1175,
+    "lcp": 6730,
+    "tbt": 148,
+    "cls": 0,
+    "si": 1516,
+    "tti": 6839,
+    "opportunities": [
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 150
+      },
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 70
+      }
+    ],
+    "report": "en_offers__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/offers",
+    "url": "http://localhost:3001/en/offers",
+    "formFactor": "desktop",
+    "performance": 95,
+    "accessibility": 97,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 314,
+    "lcp": 1480,
+    "tbt": 7,
+    "cls": 0,
+    "si": 494,
+    "tti": 1502,
+    "opportunities": [
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 80
+      },
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 20
+      }
+    ],
+    "report": "en_offers__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/booking",
+    "url": "http://localhost:3001/booking",
+    "formFactor": "mobile",
+    "performance": 48,
+    "accessibility": 93,
+    "bestPractices": 54,
+    "seo": 100,
+    "fcp": 2600,
+    "lcp": 7147,
+    "tbt": 1188,
+    "cls": 0,
+    "si": 3460,
+    "tti": 16346,
+    "opportunities": [
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 300
+      },
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 150
+      }
+    ],
+    "report": "booking__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/booking",
+    "url": "http://localhost:3001/booking",
+    "formFactor": "desktop",
+    "performance": 87,
+    "accessibility": 93,
+    "bestPractices": 54,
+    "seo": 100,
+    "fcp": 538,
+    "lcp": 1378,
+    "tbt": 216,
+    "cls": 0.005,
+    "si": 1635,
+    "tti": 3426,
+    "opportunities": [
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 80
+      },
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 40
+      }
+    ],
+    "report": "booking__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/booking",
+    "url": "http://localhost:3001/en/booking",
+    "formFactor": "mobile",
+    "performance": 49,
+    "accessibility": 93,
+    "bestPractices": 58,
+    "seo": 100,
+    "fcp": 1681,
+    "lcp": 6768,
+    "tbt": 1447,
+    "cls": 0,
+    "si": 3699,
+    "tti": 15981,
+    "opportunities": [
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 300
+      },
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 150
+      }
+    ],
+    "report": "en_booking__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/booking",
+    "url": "http://localhost:3001/en/booking",
+    "formFactor": "desktop",
+    "performance": 73,
+    "accessibility": 93,
+    "bestPractices": 54,
+    "seo": 100,
+    "fcp": 385,
+    "lcp": 1886,
+    "tbt": 382,
+    "cls": 0.001,
+    "si": 1542,
+    "tti": 3466,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 40
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 40
+      }
+    ],
+    "report": "en_booking__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/doctors-apply",
+    "url": "http://localhost:3001/doctors-apply",
+    "formFactor": "mobile",
+    "performance": 92,
+    "accessibility": 92,
+    "bestPractices": 96,
+    "seo": 100,
+    "fcp": 959,
+    "lcp": 959,
+    "tbt": 319,
+    "cls": 0.059,
+    "si": 959,
+    "tti": 3673,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 0
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 0
+      }
+    ],
+    "report": "doctors-apply__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/doctors-apply",
+    "url": "http://localhost:3001/doctors-apply",
+    "formFactor": "desktop",
+    "performance": 100,
+    "accessibility": 88,
+    "bestPractices": 96,
+    "seo": 100,
+    "fcp": 286,
+    "lcp": 286,
+    "tbt": 1,
+    "cls": 0.016,
+    "si": 320,
+    "tti": 836,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 0
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 0
+      }
+    ],
+    "report": "doctors-apply__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/doctors-apply",
+    "url": "http://localhost:3001/en/doctors-apply",
+    "formFactor": "mobile",
+    "performance": 93,
+    "accessibility": 88,
+    "bestPractices": 96,
+    "seo": 100,
+    "fcp": 952,
+    "lcp": 952,
+    "tbt": 330,
+    "cls": 0.027,
+    "si": 952,
+    "tti": 4174,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 0
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 0
+      }
+    ],
+    "report": "en_doctors-apply__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/doctors-apply",
+    "url": "http://localhost:3001/en/doctors-apply",
+    "formFactor": "desktop",
+    "performance": 100,
+    "accessibility": 88,
+    "bestPractices": 96,
+    "seo": 100,
+    "fcp": 318,
+    "lcp": 318,
+    "tbt": 0,
+    "cls": 0.002,
+    "si": 333,
+    "tti": 330,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 0
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 0
+      }
+    ],
+    "report": "en_doctors-apply__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/privacy",
+    "url": "http://localhost:3001/privacy",
+    "formFactor": "mobile",
+    "performance": 75,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 1080,
+    "lcp": 5791,
+    "tbt": 186,
+    "cls": 0.058,
+    "si": 1080,
+    "tti": 5814,
+    "opportunities": [
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 150
+      },
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 0
+      }
+    ],
+    "report": "privacy__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/privacy",
+    "url": "http://localhost:3001/privacy",
+    "formFactor": "desktop",
+    "performance": 98,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 290,
+    "lcp": 1141,
+    "tbt": 0,
+    "cls": 0.012,
+    "si": 345,
+    "tti": 1145,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 50
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 0
+      }
+    ],
+    "report": "privacy__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/privacy",
+    "url": "http://localhost:3001/en/privacy",
+    "formFactor": "mobile",
+    "performance": 78,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 1208,
+    "lcp": 6091,
+    "tbt": 81,
+    "cls": 0.009,
+    "si": 1208,
+    "tti": 6128,
+    "opportunities": [
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 300
+      },
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 150
+      }
+    ],
+    "report": "en_privacy__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/privacy",
+    "url": "http://localhost:3001/en/privacy",
+    "formFactor": "desktop",
+    "performance": 98,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 329,
+    "lcp": 1197,
+    "tbt": 0,
+    "cls": 0,
+    "si": 363,
+    "tti": 1203,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 40
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 0
+      }
+    ],
+    "report": "en_privacy__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/terms",
+    "url": "http://localhost:3001/terms",
+    "formFactor": "mobile",
+    "performance": 73,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 1059,
+    "lcp": 5718,
+    "tbt": 261,
+    "cls": 0.055,
+    "si": 1059,
+    "tti": 5748,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 150
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 150
+      }
+    ],
+    "report": "terms__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/terms",
+    "url": "http://localhost:3001/terms",
+    "formFactor": "desktop",
+    "performance": 98,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 289,
+    "lcp": 1159,
+    "tbt": 0,
+    "cls": 0.017,
+    "si": 322,
+    "tti": 1165,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 40
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 0
+      }
+    ],
+    "report": "terms__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/terms",
+    "url": "http://localhost:3001/en/terms",
+    "formFactor": "mobile",
+    "performance": 76,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 1211,
+    "lcp": 5722,
+    "tbt": 208,
+    "cls": 0,
+    "si": 1211,
+    "tti": 5737,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 160
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 150
+      }
+    ],
+    "report": "en_terms__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/terms",
+    "url": "http://localhost:3001/en/terms",
+    "formFactor": "desktop",
+    "performance": 97,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 329,
+    "lcp": 1218,
+    "tbt": 2,
+    "cls": 0.001,
+    "si": 361,
+    "tti": 1222,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 40
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 40
+      }
+    ],
+    "report": "en_terms__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/failed",
+    "url": "http://localhost:3001/failed",
+    "formFactor": "mobile",
+    "performance": 69,
+    "accessibility": 88,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 964,
+    "lcp": 6483,
+    "tbt": 327,
+    "cls": 0,
+    "si": 2895,
+    "tti": 6648,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 90
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 0
+      }
+    ],
+    "report": "failed__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/failed",
+    "url": "http://localhost:3001/failed",
+    "formFactor": "desktop",
+    "performance": 90,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 268,
+    "lcp": 2045,
+    "tbt": 24,
+    "cls": 0.003,
+    "si": 848,
+    "tti": 2103,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 0
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 0
+      }
+    ],
+    "report": "failed__desktop.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/failed",
+    "url": "http://localhost:3001/en/failed",
+    "formFactor": "mobile",
+    "performance": 68,
+    "accessibility": 88,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 1112,
+    "lcp": 7302,
+    "tbt": 333,
+    "cls": 0,
+    "si": 3045,
+    "tti": 7535,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 90
+      }
+    ],
+    "report": "en_failed__mobile.report.html",
+    "runs": 1
+  },
+  {
+    "path": "/en/failed",
+    "url": "http://localhost:3001/en/failed",
+    "formFactor": "desktop",
+    "performance": 94,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 300,
+    "lcp": 1658,
+    "tbt": 40,
+    "cls": 0,
+    "si": 945,
+    "tti": 1694,
+    "opportunities": [
+      {
+        "id": "unused-css-rules",
+        "title": "Reduce unused CSS",
+        "savingsMs": 0
+      },
+      {
+        "id": "unused-javascript",
+        "title": "Reduce unused JavaScript",
+        "savingsMs": 0
+      }
+    ],
+    "report": "en_failed__desktop.report.html",
+    "runs": 1
+  }
+]

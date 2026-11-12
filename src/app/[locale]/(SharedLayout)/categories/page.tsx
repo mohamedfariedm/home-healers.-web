@@ -1,12 +1,12 @@
 import initTranslations from "@/app/i18n";
-import { CategoriesGrid } from "@/components/Categories";
-import { Bannar } from "../(homepage)/_components";
+import CategoriesGrid from "@/components/Categories/CategoriesGrid";
+import Bannar from "../(homepage)/_components/Bannar";
 import { createMetadata } from "@/lib/seo";
 import { getCachedCategories, getCachedSettings } from "@/lib/cached-api";
 import { slimBanner, slimCategoryCard } from "@/lib/public-payload";
 import { PageHero } from "@/components/Shared/PageHero";
 import { localePath } from "@/lib/offers";
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export async function generateMetadata({
   params,

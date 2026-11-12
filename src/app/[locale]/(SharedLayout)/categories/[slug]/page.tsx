@@ -1,6 +1,6 @@
 import initTranslations from "@/app/i18n";
-import { CategoryDetailSection } from "@/components/Categories";
-import { Bannar } from "../../(homepage)/_components";
+import CategoryDetailSection from "@/components/Categories/CategoryDetailSection";
+import Bannar from "../../(homepage)/_components/Bannar";
 import { getCachedCategory, getCachedSettings } from "@/lib/cached-api";
 import { slimBanner, slimCategoryForDetail } from "@/lib/public-payload";
 import { PageHero } from "@/components/Shared/PageHero";
@@ -23,7 +23,7 @@ import type { Category } from "@/types/booking";
 import { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 async function loadCategory(locale: string, key: string) {
   const decoded = decodeURIComponent(key);

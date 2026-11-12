@@ -18,7 +18,7 @@ import { PageHero } from "@/components/Shared/PageHero";
 import { localePath } from "@/lib/offers";
 import { notFound } from "next/navigation";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 async function loadBlog(locale: string, param: string) {
   const decoded = decodeURIComponent(param);
@@ -70,7 +70,7 @@ export async function generateMetadata({
     locale,
     path,
     { title, description, ogType: "article" },
-    { preferPathCanonical: true, omitCanonical: true },
+    { preferPathCanonical: true },
   );
 
   return {
@@ -78,6 +78,7 @@ export async function generateMetadata({
     title: title || baseMeta.title,
     description: description || baseMeta.description,
     alternates: {
+      canonical,
       languages: buildLocalizedSlugAlternates("/blog", data?.slug, requestedSlug),
     },
     openGraph: {

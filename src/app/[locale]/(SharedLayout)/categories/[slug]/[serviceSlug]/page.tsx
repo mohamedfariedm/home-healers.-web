@@ -1,6 +1,6 @@
 import initTranslations from "@/app/i18n";
-import { CategoryServicesSection } from "@/components/Categories";
-import { Bannar } from "../../../(homepage)/_components";
+import CategoryServicesSection from "@/components/Categories/CategoryServicesSection";
+import Bannar from "../../../(homepage)/_components/Bannar";
 import { slimBanner, slimCategoryForServicePage } from "@/lib/public-payload";
 import {
   buildCanonicalUrl,
@@ -32,7 +32,7 @@ import { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import type { Category, Service } from "@/types/booking";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 async function loadCategoryService(
   locale: string,

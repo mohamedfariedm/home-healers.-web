@@ -1,4 +1,5 @@
 import { toSecureMediaUrl } from "@/lib/image-url";
+import { getDoctorCityName } from "@/lib/doctor-city";
 import { getActiveServices, getBlogSlug, getServiceSlug } from "@/lib/slugs";
 
 const TEXT_PREVIEW = 360;
@@ -271,6 +272,40 @@ export function slimDoctorCard(doctor: any) {
     offers: [],
     addresses: [],
   };
+}
+
+/**
+ * About-page doctor carousel/modal payload: only the fields the card + modal
+ * actually render. Image is reduced to a single `original` URL and the city to a
+ * locale-resolved name, so nothing else crosses the RSC boundary.
+ */
+export function slimDoctorForAbout(doctor: any, locale: string = "ar") {
+  if (!doctor) return doctor;
+  const image = slimImage(doctor.image)[0]?.original;
+  const cityName = getDoctorCityName(doctor, locale);
+  const slim: Record<string, unknown> = {
+    id: doctor.id,
+    name: doctor.name,
+    session_price: doctor.session_price,
+    rate: doctor.rate,
+    experience: doctor.experience,
+    specialist: doctor.specialist,
+    department: doctor.department,
+    specialized_in: doctor.specialized_in,
+    degree: doctor.degree,
+    languages_spoken: doctor.languages_spoken,
+    medical_school: doctor.medical_school,
+    awards: doctor.awards,
+    gender: doctor.gender,
+    city: cityName ? { id: 0, name: cityName } : null,
+    image: image ? [{ original: image }] : [],
+  };
+  for (const key of Object.keys(slim)) {
+    if (slim[key] === undefined || slim[key] === null || slim[key] === "") {
+      delete slim[key];
+    }
+  }
+  return slim;
 }
 
 export function slimBanner(banner: any) {

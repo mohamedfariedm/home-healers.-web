@@ -93,11 +93,19 @@ const fetchData = async (endpoint: string, locale: string, params: Record<string
 
     const method = params.method || "GET";
     const isMutation = method === "POST" || method === "PUT" || method === "DELETE";
+    // Auth / user-specific GETs and explicit noCache must not be ISR-cached
+    const skipCache =
+      isMutation ||
+      params.noCache === true ||
+      !!params.authToken ||
+      (params.requiresAuth === true && method === "GET");
 
-    const fetchOptions: RequestInit = {
+    const fetchOptions: RequestInit & { next?: { revalidate: number } } = {
       method,
       headers,
-      cache: "no-store",
+      ...(skipCache
+        ? { cache: "no-store" as RequestCache }
+        : { next: { revalidate: 60 } }),
     };
 
     if (params.signal) {
@@ -508,7 +516,7 @@ const ClientAPI = {
       const response = await fetch(url.toString(), {
         method: "GET",
         headers,
-        cache: "no-store",
+        next: { revalidate: 60 },
       });
 
       if (!response.ok) {
@@ -538,7 +546,7 @@ const ClientAPI = {
                     const response = await fetch(url.toString(), {
             method: "GET",
             headers: { Accept: "text/plain" },
-            cache: "no-store",
+            next: { revalidate: 60 },
           });
 
           if (!response.ok) {
