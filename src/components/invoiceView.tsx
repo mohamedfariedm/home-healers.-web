@@ -2,8 +2,6 @@
 import React, { useMemo, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import QRCode from 'react-qr-code';
 
 type ApiDetail = {
@@ -186,6 +184,10 @@ export default function InvoiceView({ invoiceData }: InvoiceViewProps) {
 
   const handleDownloadPDF = async () => {
     if (!invoiceRef.current) return;
+    const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+      import('html2canvas'),
+      import('jspdf'),
+    ]);
     const canvas = await html2canvas(invoiceRef.current, {
       scale: 2,
       useCORS: true,

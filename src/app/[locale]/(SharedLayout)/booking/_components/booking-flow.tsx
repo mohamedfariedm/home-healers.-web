@@ -16,19 +16,29 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-// Import all step components
-import Step1SpecialtySelection from "./steps/step1-specialty-selection";
-import Step2DoctorSelection from "./steps/step2-doctor-selection";
-import Step3LocationTime from "./steps/step3-location-time";
-import Step4PatientInfo from "./steps/step4-patient-info";
-import Step5Payment from "./steps/step5-payment";
-import Step6Confirmation from "./steps/step6-confirmation";
+import dynamic from "next/dynamic";
 
-// Import modals
-import AddPatientModal from "./modals/add-patient-modal";
-import LocationPickerModal from "./modals/location-picker-modal";
-import SymptomsSearchModal from "./modals/symptoms-search-modal";
-import DoctorProfileModal from "./modals/doctor-profile-modal";
+// Step 1 stays eager for first-paint; later steps/modals load on demand
+import Step1SpecialtySelection from "./steps/step1-specialty-selection";
+
+const Step2DoctorSelection = dynamic(
+  () => import("./steps/step2-doctor-selection"),
+);
+const Step3LocationTime = dynamic(() => import("./steps/step3-location-time"));
+const Step4PatientInfo = dynamic(() => import("./steps/step4-patient-info"));
+const Step5Payment = dynamic(() => import("./steps/step5-payment"));
+const Step6Confirmation = dynamic(() => import("./steps/step6-confirmation"));
+
+const AddPatientModal = dynamic(() => import("./modals/add-patient-modal"));
+const LocationPickerModal = dynamic(
+  () => import("./modals/location-picker-modal"),
+);
+const SymptomsSearchModal = dynamic(
+  () => import("./modals/symptoms-search-modal"),
+);
+const DoctorProfileModal = dynamic(
+  () => import("./modals/doctor-profile-modal"),
+);
 import { useLocalStorage } from "@/Hooks/use-local-storage";
 import ClientAPI from "@/app/api/api";
 import { useRouter } from "next/navigation";

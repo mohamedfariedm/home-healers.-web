@@ -9,7 +9,7 @@ import { localePath } from "@/lib/offers";
 import { getCachedSettings } from "@/lib/cached-api";
 import { slimBanner, slimSettingsForContact } from "@/lib/public-payload";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 export async function generateMetadata({
   params,
 }: {

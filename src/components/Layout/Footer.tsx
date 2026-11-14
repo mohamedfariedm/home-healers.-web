@@ -412,16 +412,16 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                 </motion.p>
               </div>
 
-              {/* Certificate Image */}
+              {/* Certificate Image — near-square asset (782×792); avoid 4:3 letterboxing */}
               <motion.div
-                className="relative w-full max-w-[500px] sm:max-w-[600px] md:max-w-[700px]"
+                className="relative w-full max-w-[360px] sm:max-w-[420px] md:max-w-[480px]"
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.4, duration: 0.6, type: "spring" }}
                 whileHover={{ scale: 1.02 }}
               >
-                <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl   bg-white">
+                <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-2xl bg-white">
                   <Image
                     src="/assets/images/certification.png"
                     alt={
@@ -430,9 +430,9 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                         : "MEA Business Awards 2025 Certificate"
                     }
                     fill
-                    sizes="(max-width: 768px) 90vw, 500px"
-                    className="object-contain p-4"
-                    quality={95}
+                    sizes="(max-width: 768px) 90vw, 480px"
+                    className="object-contain p-2 sm:p-3"
+                    quality={90}
                   />
 
                   {/* Decorative Glow Effect */}

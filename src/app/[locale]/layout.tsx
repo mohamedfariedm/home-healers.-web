@@ -12,13 +12,7 @@ import {
   defaultOrganizationData,
   renderJsonLd,
 } from "@/lib/structured-data";
-import { headers } from "next/headers";
-import {
-  buildCanonicalUrl,
-  htmlLang,
-  isBlogPath,
-  stripLocalePrefix,
-} from "@/lib/seo";
+import { htmlLang } from "@/lib/seo";
 
 const alexandria = Alexandria({
   subsets: ['arabic', 'latin'],
@@ -71,7 +65,6 @@ export const metadata: Metadata = {
   },
 };
 
-export const dynamic = "force-dynamic";
 export const dynamicParams = true;
 
 export const viewport = {
@@ -93,11 +86,6 @@ export default async function RootLayout({
     notFound();
   }
 
-  const requestPath = (await headers()).get("x-pathname") || "";
-  const blogCanonical = isBlogPath(requestPath)
-    ? buildCanonicalUrl(locale, stripLocalePrefix(requestPath))
-    : null;
-
   // Generate structured data schemas
   const organizationSchema = createOrganizationSchema(defaultOrganizationData);
   const websiteSchema = createWebsiteSchema({
@@ -113,7 +101,6 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://backend.home-healers.com" />
         <link rel="preconnect" href="https://apis.home-healers.com" />
         <link rel="dns-prefetch" href="https://apis.home-healers.com" />
-        {blogCanonical ? <link rel="canonical" href={blogCanonical} /> : null}
       </head>
       <body className={alexandria.className}>
         {/* Organization Schema - JSON-LD can be placed in body per Schema.org spec */}

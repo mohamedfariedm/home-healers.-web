@@ -9,7 +9,6 @@ import RamadanBanner, { RamadanBackgroundDecorations } from "@/components/Ramada
 import WorldCupAside from "@/components/WorldCupAside";
 import { i18nRouterConfig } from "@/i18nRouterConfig";
 
-export const dynamic = "force-dynamic";
 export const dynamicParams = true;
 
 export default async function Layout({

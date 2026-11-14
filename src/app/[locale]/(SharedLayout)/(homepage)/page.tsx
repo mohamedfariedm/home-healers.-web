@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import nextDynamic from "next/dynamic";
-import { AboutApp, Bannar } from "./_components";
+import { Bannar } from "./_components";
 import Hero from "./_components/Hero";
 import { getHeroImageUrls } from "@/lib/image-url";
 import { createMetadata } from "@/lib/seo";
@@ -22,8 +22,9 @@ import {
   DeferredReservationReviews,
 } from "./_components/DeferredSections";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
+const AboutApp = nextDynamic(() => import("./_components/AboutApp"));
 const BeCloser = nextDynamic(() => import("./_components/BeCloser"));
 const DownloadApp = nextDynamic(() => import("./_components/DownloadApp"));
 const Card = nextDynamic(() => import("./_components/Card"));

@@ -54,11 +54,6 @@ function LoadedMap() {
             <MarkerF
               key={id}
               position={position}
-              icon={{
-                url: "/assets/images/homehellers/hero.svg",
-                scaledSize: new window.google.maps.Size(40, 40),
-                anchor: new window.google.maps.Point(20, 40),
-              }}
               title={popup}
             />
           ))}
