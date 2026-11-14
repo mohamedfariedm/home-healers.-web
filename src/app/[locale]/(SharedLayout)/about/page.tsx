@@ -90,7 +90,7 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
           ]}
         />
 
-        <div className="mx-auto mt-10 flex w-full max-w-screen-xl flex-col items-center px-4 sm:mt-16 lg:mt-24 xl:px-0">
+        <div className="mx-auto mt-10 flex w-full min-w-0 max-w-screen-xl flex-col items-center px-4 sm:mt-16 sm:px-6 lg:mt-24 lg:px-8">
           <AboutAppTwoColumns
             aboutHomeSection={slimHomeSection(aboutSection, 4)}
             locale={locale}

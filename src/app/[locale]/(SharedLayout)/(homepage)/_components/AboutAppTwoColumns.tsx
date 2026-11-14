@@ -36,12 +36,12 @@ function AboutApp({
 
   return (
     <div
-      className={`flex w-full min-w-0 max-w-full flex-col items-center justify-between gap-8 overflow-x-hidden rtl:ltr ltr:rtl xl:flex-row xl:gap-6 ${
+      className={`flex w-full min-w-0 max-w-full flex-col items-center justify-between gap-8 rtl:ltr ltr:rtl xl:flex-row xl:items-center xl:gap-10 ${
         showCta ? "mb-10 xl:mb-[91px]" : ""
       }`}
     >
       <motion.div
-        className="relative aspect-[597/531] w-full min-w-0 max-w-[597px] shrink overflow-hidden xl:w-[597px] xl:shrink-0"
+        className="relative aspect-[597/531] w-full min-w-0 max-w-[597px] overflow-hidden xl:w-1/2 xl:max-w-none"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: simplifyMotion ? 0.4 : 0.7, ease: "easeOut" }}
@@ -55,14 +55,14 @@ function AboutApp({
           }
           fill
           priority
-          sizes="(max-width: 1280px) 100vw, 597px"
+          sizes="(max-width: 1280px) 100vw, 50vw"
           className="object-contain object-center"
           quality={75}
         />
       </motion.div>
 
       <motion.div
-        className="flex w-full min-w-0 max-w-[660px] flex-col items-end gap-6 sm:gap-8 xl:w-[660px]"
+        className="flex w-full min-w-0 max-w-[660px] flex-col items-end gap-6 sm:gap-8 xl:w-1/2 xl:max-w-none"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: simplifyMotion ? 0.4 : 0.7, ease: "easeOut" }}
