@@ -1,21 +1,30 @@
 "use client";
 
 import React, { useRef } from "react";
+import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
 import "swiper/css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { toSecureMediaUrl } from "@/lib/image-url";
 
 interface PartnerLogoProps {
   image: string;
+  alt: string;
 }
 
-const PartnerLogo: React.FC<PartnerLogoProps> = ({ image }) => {
+const PartnerLogo: React.FC<PartnerLogoProps> = ({ image, alt }) => {
   return (
-    <div
-      className="mx-auto h-[120px] w-[120px] bg-contain bg-center bg-no-repeat transition-transform duration-300 sm:h-[180px] sm:w-[180px] lg:h-[230px] lg:w-[230px] md:hover:scale-105"
-      style={{ backgroundImage: `url(${image})` }}
-    />
+    <div className="relative mx-auto h-[120px] w-[120px] transition-transform duration-300 sm:h-[180px] sm:w-[180px] md:hover:scale-105 lg:h-[230px] lg:w-[230px]">
+      <Image
+        src={image}
+        alt={alt}
+        fill
+        sizes="(max-width: 640px) 120px, (max-width: 1024px) 180px, 230px"
+        className="object-contain object-center"
+        quality={65}
+      />
+    </div>
   );
 };
 
@@ -43,16 +52,18 @@ const NavigationArrow: React.FC<NavigationArrowProps> = ({
 };
 
 const PartnersSection = ({ data, locale }: { data: any; locale: string }) => {
-  
   const partnerLogos: string[] =
-    data?.Posts?.[0]?.attachment?.map((att: any) => att.original) || [];
+    data?.Posts?.[0]?.attachment
+      ?.map((att: any) =>
+        toSecureMediaUrl(att.thumbnail || att.original || ""),
+      )
+      .filter(Boolean) || [];
 
   const prevRef = useRef<HTMLDivElement>(null);
   const nextRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className="mx-auto mb-12 mt-12 flex w-full max-w-screen-xl flex-col items-center gap-8 overflow-x-hidden px-4 sm:mb-16 sm:mt-16 sm:gap-10 lg:mb-24 lg:mt-24 lg:gap-14">
-      {/* Heading */}
       <div className="flex flex-col items-center gap-3 text-center">
         <span className="text-sm font-medium leading-6 text-[#62a0f6] sm:text-base">
           {data?.title}{" "}
@@ -62,13 +73,13 @@ const PartnersSection = ({ data, locale }: { data: any; locale: string }) => {
         </h2>
       </div>
 
-      {/* Partner Logos Slider */}
       <Swiper
         modules={[Navigation, Autoplay]}
         spaceBetween={16}
         slidesPerView={2}
-        autoplay={{ delay: 2500 }}
-        loop
+        // No autoplay on first paint — Lighthouse scrolls and was paying for
+        // continuous Swiper timers on /about. Users still get loop + arrows.
+        loop={partnerLogos.length > 2}
         navigation={{
           prevEl: prevRef.current,
           nextEl: nextRef.current,
@@ -80,24 +91,28 @@ const PartnersSection = ({ data, locale }: { data: any; locale: string }) => {
           swiper.params.navigation.nextEl = nextRef.current;
         }}
         breakpoints={{
-          480: { slidesPerView: 2, spaceBetween: 20 },
-          640: { slidesPerView: 2, spaceBetween: 24 },
-          768: { slidesPerView: 3, spaceBetween: 24 },
-          1024: { slidesPerView: 4, spaceBetween: 30 },
+          640: { slidesPerView: 3 },
+          1024: { slidesPerView: 4 },
         }}
         className="w-full"
       >
-        {partnerLogos.map((logo, i) => (
-          <SwiperSlide key={i} className="flex items-center justify-center">
-            <PartnerLogo image={logo} />
+        {partnerLogos.map((image, index) => (
+          <SwiperSlide key={`${image}-${index}`}>
+            <PartnerLogo
+              image={image}
+              alt={
+                locale === "ar"
+                  ? `شريك ${index + 1}`
+                  : `Partner ${index + 1}`
+              }
+            />
           </SwiperSlide>
         ))}
       </Swiper>
 
-      {/* Navigation Arrows */}
-      <div className="mt-2 flex gap-6 sm:mt-4 sm:gap-10">
-        <NavigationArrow direction="next" buttonRef={nextRef} />
+      <div className="flex items-center gap-4">
         <NavigationArrow direction="prev" buttonRef={prevRef} />
+        <NavigationArrow direction="next" buttonRef={nextRef} />
       </div>
     </div>
   );

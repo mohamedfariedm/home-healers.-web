@@ -1,10 +1,10 @@
 import dynamic from "next/dynamic";
+import Footer from "@/components/Layout/Footer";
 import { getCachedHomeData, getCachedSettings } from "@/lib/cached-api";
 import { slimHomeSection, slimSettingsForChrome } from "@/lib/public-payload";
 import { IS_RAMADAN_ACTIVE } from "@/constants/ramadan";
 import RamadanBanner from "@/components/RamadanOverlay";
 
-const Footer = dynamic(() => import("@/components/Layout/Footer"));
 const DeferredFloatingContact = dynamic(
   () => import("@/components/DeferredFloatingContact"),
 );

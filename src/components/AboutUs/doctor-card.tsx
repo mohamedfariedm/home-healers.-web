@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Star, MapPin, Clock } from 'lucide-react';
+import { MapPin, Clock } from "lucide-react";
 import type { Doctor } from "@/types/doctors";
 import { getDoctorImage, getExperienceText, getDoctorRating } from "@/utils/doctor-helpers";
 import { getDoctorCityName } from "@/lib/doctor-city";
@@ -93,19 +93,21 @@ const DoctorCard: React.FC<DoctorCardProps> = ({
           )}
         </div>
 
-        {/* Rating */}
+        {/* Rating — CSS stars avoid 5 Lucide SVGs per card (about HTML was 1MB+) */}
         <div className="flex items-center justify-center gap-2">
-          <div className="flex items-center">
+          <div
+            className="flex items-center gap-0.5 text-[14px] leading-none tracking-tight"
+            aria-hidden
+          >
             {[...Array(5)].map((_, i) => (
-              <Star
+              <span
                 key={i}
-                size={14}
-                className={`${
-                  i < Math.floor(rating)
-                    ? "text-yellow-400 fill-yellow-400"
-                    : "text-yellow-200"
-                }`}
-              />
+                className={
+                  i < Math.floor(rating) ? "text-yellow-400" : "text-yellow-200"
+                }
+              >
+                ★
+              </span>
             ))}
           </div>
           <span className="text-sm font-medium">{rating}</span>

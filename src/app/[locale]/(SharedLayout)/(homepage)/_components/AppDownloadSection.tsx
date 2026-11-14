@@ -19,7 +19,7 @@ const AppDownloadSection: React.FC = () => {
           
           <div className="relative z-20 mx-auto lg:mx-0 px-4 py-6 lg:p-0">
             <img 
-              src="/assets/images/shared/app-download/app-download-screenshot.png" 
+              src="/assets/images/shared/app-download/app-download-screenshot.webp" 
               alt="App screenshot" 
               className="w-full max-w-xs lg:max-w-md mx-auto lg:mx-8 h-auto object-contain"
             />
@@ -30,7 +30,7 @@ const AppDownloadSection: React.FC = () => {
         <div className="w-full lg:w-1/2 p-6 lg:p-10 flex flex-col justify-center relative">
           <div className="absolute top-0 right-0 w-3/4 h-3/4 z-0 opacity-50 lg:opacity-100">
             <img 
-              src="/assets/images/shared/app-download/app-download-deco.png" 
+              src="/assets/images/shared/app-download/app-download-deco.webp" 
               alt="Decorative element" 
               className="w-full h-full object-contain"
             />

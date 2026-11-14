@@ -195,10 +195,10 @@ function Card({ locale, section }: CardProps) {
           transition={{ duration: 0.6 }}
         >
           <div
-            className="holographic-card w-[480px] h-[290px] flex justify-center items-center relative overflow-hidden rounded-[15px] transition-all duration-500 ease-in-out bg-cover bg-center"
+            className="holographic-card relative flex aspect-[480/290] h-auto w-full max-w-[480px] items-center justify-center overflow-hidden rounded-[15px] bg-cover bg-center transition-all duration-500 ease-in-out"
             style={{
               backgroundImage:
-                "url(/assets/images/homepage/card-holographic.png)",
+                "url(/assets/images/homepage/card-holographic.webp)",
               backgroundPosition: "center center",
               backgroundSize: "cover",
             }}
@@ -216,7 +216,7 @@ function Card({ locale, section }: CardProps) {
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
         <Link
-          className="flex rtl:w-[255px] ltr:w-[400px] h-[56px] pt-[8px] pr-[16px] pb-[8px] pl-[16px] gap-[10px] justify-center items-center bg-[#143087] rounded-[8px] border-solid border border-[#143087] relative z-[29] mt-[56px] mx-auto cursor-pointer hover:scale-110 transition-all duration-500"
+          className="relative z-[29] mx-auto mt-[56px] flex h-[56px] w-full max-w-[400px] cursor-pointer items-center justify-center gap-[10px] rounded-[8px] border border-solid border-[#143087] bg-[#143087] px-4 py-2 transition-all duration-500 hover:scale-105 rtl:max-w-[255px]"
           href={`${locale === "ar" ? "" : "/en"}/contact`}
           data-gtm-event="contact_click"
           data-gtm-location="homepage_medical_card"

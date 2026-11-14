@@ -5,14 +5,14 @@ export const getDoctorImage = (doctor: Doctor): string => {
     return doctor.image[0].original;
   }
   if (doctor?.gender?.toLowerCase() === "male") {
-    return "/assets/images/doctorMale.jpeg";
+    return "/assets/images/doctorMale.webp";
   }
 
   if (doctor?.gender?.toLowerCase() === "female") {
-    return "/assets/images/doctorFemale.jpeg";
+    return "/assets/images/doctorFemale.webp";
   }
 
-  return "/assets/images/doctorMale.jpeg";
+  return "/assets/images/doctorMale.webp";
 };
 
 export const getNationalityName = (

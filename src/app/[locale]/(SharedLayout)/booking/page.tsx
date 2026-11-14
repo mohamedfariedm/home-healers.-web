@@ -4,6 +4,13 @@ import ClientAPI from "@/app/api/api";
 import BookingFlow from "./_components/booking-flow";
 import { getCachedSettings } from "@/lib/cached-api";
 import { offerBookHref } from "@/lib/offers";
+import {
+  slimBookingCategory,
+  slimBookingDoctor,
+  slimBookingPackage,
+  slimGeoList,
+  slimServiceForList,
+} from "@/lib/public-payload";
 import { createMetadata } from "@/lib/seo";
 import { getOfferSlug } from "@/lib/slugs";
 export const dynamic = "force-dynamic";
@@ -92,22 +99,49 @@ async function Page({
     seo?.[locale]?.title ||
     (locale === "ar" ? "احجز جلستك" : "Book Your Session");
 
+  const slimDoctors = {
+    ...doctorsData,
+    data: (doctorsData?.data || []).map(slimBookingDoctor),
+  };
+  const slimCategories = {
+    ...categoriesData,
+    data: (categoriesData?.data || []).map(slimBookingCategory),
+  };
+  const slimServices = {
+    ...servicesData,
+    data: (servicesData?.data || []).map((s: any) => slimServiceForList(s)),
+  };
+  const slimPackages = {
+    ...packagesData,
+    data: (packagesData?.data || []).map(slimBookingPackage),
+  };
+
   return (
-    <Suspense fallback={null}>
-      <h1 className="absolute text-4xl font-bold text-center mb-4 -z-50">
+    <Suspense
+      fallback={
+        // Reserve viewport height so the footer does not jump up then down (CLS ~1.6).
+        <div className="min-h-[85vh] w-full" aria-hidden />
+      }
+    >
+      <h1 className="absolute -z-50 mb-4 text-center text-4xl font-bold">
         {heading}
       </h1>
-      <BookingFlow
+      <div className="min-h-[85vh] w-full">
+        <BookingFlow
           locale={locale}
-          doctorsData={doctorsData}
-          servicesData={servicesData}
-          packagesData={packagesData}
-          categoriesData={categoriesData}
-          countriesData={countriesData}
-          statesData={statesData}
-          citiesData={citiesData}
-          nationalitiesData={nationalitiesData}
+          doctorsData={slimDoctors}
+          servicesData={slimServices}
+          packagesData={slimPackages}
+          categoriesData={slimCategories}
+          countriesData={{ ...countriesData, data: slimGeoList(countriesData?.data) }}
+          statesData={{ ...statesData, data: slimGeoList(statesData?.data) }}
+          citiesData={{ ...citiesData, data: slimGeoList(citiesData?.data) }}
+          nationalitiesData={{
+            ...nationalitiesData,
+            data: slimGeoList(nationalitiesData?.data),
+          }}
         />
+      </div>
     </Suspense>
   );
 }

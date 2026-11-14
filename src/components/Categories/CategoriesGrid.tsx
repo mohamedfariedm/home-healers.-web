@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import type { Category } from "@/types/booking";
 import { categoryHrefFrom, getActiveServices } from "@/lib/slugs";
@@ -42,14 +43,18 @@ const CategoriesGrid = ({
             data-gtm-label={category.name}
             className="group relative flex h-full flex-col items-center gap-4 overflow-hidden rounded-[24px] border border-[#e6eef8] bg-white p-6 text-center shadow-[0_8px_30px_rgba(20,48,135,0.05)] transition-all duration-300 hover:-translate-y-1 hover:border-[#62a0f6] hover:shadow-[0_18px_40px_rgba(20,48,135,0.12)]"
           >
-            <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-[#eff6fe] ring-1 ring-[#d7e7fb]">
-              <img
+            <div className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-[#eff6fe] ring-1 ring-[#d7e7fb]">
+              <Image
                 src={
+                  toSecureMediaUrl(category.image?.[0]?.thumbnail) ||
                   toSecureMediaUrl(category.image?.[0]?.original) ||
-                  "/assets/images/homehellers/Injury.svg"
+                  "/assets/images/doctorMale.webp"
                 }
                 alt={category.name}
+                width={48}
+                height={48}
                 className="h-12 w-12 object-contain"
+                quality={70}
               />
             </div>
             <div>

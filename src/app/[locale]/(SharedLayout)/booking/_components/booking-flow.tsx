@@ -17,31 +17,10 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import dynamic from "next/dynamic";
-
-// Step 1 stays eager for first-paint; later steps/modals load on demand
 import Step1SpecialtySelection from "./steps/step1-specialty-selection";
-
-const Step2DoctorSelection = dynamic(
-  () => import("./steps/step2-doctor-selection"),
-);
-const Step3LocationTime = dynamic(() => import("./steps/step3-location-time"));
-const Step4PatientInfo = dynamic(() => import("./steps/step4-patient-info"));
-const Step5Payment = dynamic(() => import("./steps/step5-payment"));
-const Step6Confirmation = dynamic(() => import("./steps/step6-confirmation"));
-
-const AddPatientModal = dynamic(() => import("./modals/add-patient-modal"));
-const LocationPickerModal = dynamic(
-  () => import("./modals/location-picker-modal"),
-);
-const SymptomsSearchModal = dynamic(
-  () => import("./modals/symptoms-search-modal"),
-);
-const DoctorProfileModal = dynamic(
-  () => import("./modals/doctor-profile-modal"),
-);
 import { useLocalStorage } from "@/Hooks/use-local-storage";
 import ClientAPI from "@/app/api/api";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { doctorMatchesCategoryId } from "@/lib/doctor-matches-category";
 import { applyReservationPricingFromApi } from "@/lib/reservation-pricing";
 import {
@@ -54,19 +33,39 @@ import { persistReservationId, clearCheckoutStorage } from "@/lib/checkout-stora
 import {
   resolveNationalityId,
 } from "@/lib/saudi-nationality";
-import BookingReservationTour from "@/components/booking/BookingReservationTour";
 import { GTM_EVENTS, trackEvent } from "@/lib/gtm";
 import {
   isBookingTourCompleted,
   resetBookingTour,
 } from "@/lib/booking-tour-storage";
-import { useSearchParams } from "next/navigation";
 import { Compass } from "lucide-react";
 import { SHOW_SERVICE_SELECTION_STEP } from "@/lib/booking-config";
 import {
   getPackageCategoryList,
   type PackageWithCategories,
 } from "@/lib/package-categories";
+
+// Step 1 stays eager for first-paint; later steps/modals load on demand
+const Step2DoctorSelection = dynamic(
+  () => import("./steps/step2-doctor-selection"),
+);
+const Step3LocationTime = dynamic(() => import("./steps/step3-location-time"));
+const Step4PatientInfo = dynamic(() => import("./steps/step4-patient-info"));
+const Step5Payment = dynamic(() => import("./steps/step5-payment"));
+const Step6Confirmation = dynamic(() => import("./steps/step6-confirmation"));
+const AddPatientModal = dynamic(() => import("./modals/add-patient-modal"));
+const LocationPickerModal = dynamic(
+  () => import("./modals/location-picker-modal"),
+);
+const SymptomsSearchModal = dynamic(
+  () => import("./modals/symptoms-search-modal"),
+);
+const DoctorProfileModal = dynamic(
+  () => import("./modals/doctor-profile-modal"),
+);
+const BookingReservationTour = dynamic(
+  () => import("@/components/booking/BookingReservationTour"),
+);
 
 function normalizePaymentMethod(method: string | undefined): string {
   if (!method || method === "cash_on_delivery") return "cash";
@@ -1176,7 +1175,7 @@ export default function BookingFlow({
       className="main-container relative mx-auto my-0 flex w-full flex-col items-center px-3 pb-16 sm:px-4 md:px-6 lg:px-8"
       dir="rtl"
     >
-      <div className="w-full h-[180px] sm:h-[200px] md:h-[247px] bg-[url(/assets/images/shared/booking-header.png)] bg-[length:100%_100%] bg-no-repeat absolute top-0 left-0 -z-10" />
+      <div className="w-full h-[180px] sm:h-[200px] md:h-[247px] bg-[url(/assets/images/shared/booking-header.webp)] bg-[length:100%_100%] bg-no-repeat absolute top-0 left-0 -z-10" />
 
       <div
         className="relative mt-4 w-full max-w-[960px] rounded-2xl bg-white/20 px-2 py-3 backdrop-blur-md sm:mt-6 sm:px-4 md:mt-8"
@@ -1251,7 +1250,7 @@ export default function BookingFlow({
         </div>
       </div>
 
-      <div className="w-full max-w-[1280px] mt-6 sm:mt-8 md:mt-10 px-1 sm:px-2 relative">
+      <div className="relative mt-6 w-full max-w-[1280px] min-h-[520px] px-1 sm:mt-8 sm:min-h-[560px] sm:px-2 md:mt-10">
         {!tourActive && isBookingTourCompleted() && (
           <div
             className={`group/tour fixed z-[100] bottom-[calc(10%+9.75rem)] sm:bottom-[calc(10%+11.25rem)] ${

@@ -1,13 +1,19 @@
 "use client";
 import { useState, useEffect } from "react";
 import { flushSync } from "react-dom";
+import Image from "next/image";
 import { Search, ArrowRight, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import type { BookingData, Category, Service, Location } from "@/types/booking";
 import { useRouter } from "next/navigation";
 import ClientAPI from "@/app/api/api";
-import LocationPickerModal from "../modals/location-picker-modal";
+import dynamic from "next/dynamic";
+import { toSecureMediaUrl } from "@/lib/image-url";
+
+const LocationPickerModal = dynamic(
+  () => import("../modals/location-picker-modal"),
+);
 import { getPackageCategoryList } from "@/lib/package-categories";
 import { extractTelrRedirectUrl } from "@/lib/payment-api";
 import { persistReservationId } from "@/lib/checkout-storage";
@@ -518,7 +524,7 @@ export default function Step1SpecialtySelection({
             </h2>
 
             {selectedType === "category" || !showServiceSelection ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid min-h-[280px] grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filteredCategories.map((c: Category) => (
                   <button
                     key={c.id}
@@ -530,13 +536,18 @@ export default function Step1SpecialtySelection({
                     }`}
                   >
                     <div className="flex flex-col items-center gap-4">
-                      <div className="w-16 h-16 bg-[#eff6fe] rounded-full flex items-center justify-center">
-                        <img
+                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#eff6fe]">
+                        <Image
                           src={
-                            c.image?.[0]?.original || "/default-category.png"
+                            toSecureMediaUrl(c.image?.[0]?.thumbnail) ||
+                            toSecureMediaUrl(c.image?.[0]?.original) ||
+                            "/assets/images/doctorMale.webp"
                           }
                           alt={c.name}
-                          className="w-8 h-8 object-cover rounded-full"
+                          width={32}
+                          height={32}
+                          className="h-8 w-8 rounded-full object-cover"
+                          quality={70}
                         />
                       </div>
                       <div className="text-center">
@@ -565,15 +576,20 @@ export default function Step1SpecialtySelection({
                     }`}
                   >
                     <div className="flex flex-col gap-4">
-                      <div className="w-12 h-12 bg-[#eff6fe] rounded-lg flex items-center justify-center">
-                        <img
+                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#eff6fe]">
+                        <Image
                           src={
-                            s.icon?.[0]?.original ||
-                            s.image?.[0]?.original ||
-                            "/default-service.png"
+                            toSecureMediaUrl(s.icon?.[0]?.thumbnail) ||
+                            toSecureMediaUrl(s.icon?.[0]?.original) ||
+                            toSecureMediaUrl(s.image?.[0]?.thumbnail) ||
+                            toSecureMediaUrl(s.image?.[0]?.original) ||
+                            "/assets/images/doctorMale.webp"
                           }
                           alt={s.name}
-                          className="w-6 h-6 object-cover"
+                          width={24}
+                          height={24}
+                          className="h-6 w-6 object-cover"
+                          quality={70}
                         />
                       </div>
                       <div>

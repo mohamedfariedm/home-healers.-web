@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -58,16 +59,21 @@ function BeCloser({ locale, section }: { locale: string; section: any }) {
               viewport={{ once: false, amount: 0.5 }}
               transition={{ duration: 0.8, ease: "easeInOut" }}
             >
-              {/* Image */}
-              <div
-                className="h-[180px] w-full bg-cover bg-center md:h-auto md:w-[140px]"
-                style={{
-                  backgroundImage: `url(${
+              {/* Image — next/image keeps same asset, smaller delivery */}
+              <div className="relative h-[180px] w-full shrink-0 overflow-hidden md:h-auto md:min-h-[140px] md:w-[140px]">
+                <Image
+                  src={
+                    toSecureMediaUrl(post.attachment?.[0]?.thumbnail) ||
                     toSecureMediaUrl(post.attachment?.[0]?.original) ||
-                    "/assets/images/homehellers/Injury.svg"
-                  })`,
-                }}
-              />
+                    "/assets/images/doctorMale.webp"
+                  }
+                  alt={post.title || ""}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 140px"
+                  className="object-cover object-center"
+                  quality={70}
+                />
+              </div>
 
               {/* Content */}
               <div className="flex flex-col justify-between p-4 flex-1 gap-3">

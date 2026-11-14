@@ -1,0 +1,290 @@
+[
+  {
+    "path": "/about",
+    "formFactor": "mobile",
+    "runs": [
+      {
+        "performance": 50,
+        "accessibility": 89,
+        "bestPractices": 100,
+        "seo": 100,
+        "lcp": 5367,
+        "tbt": 2400
+      }
+    ],
+    "performance": 50,
+    "accessibility": 89,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 1114,
+    "lcp": 5367,
+    "tbt": 2400,
+    "cls": 0.002,
+    "si": 3833,
+    "status": "FAIL"
+  },
+  {
+    "path": "/about",
+    "formFactor": "desktop",
+    "runs": [
+      {
+        "performance": 88,
+        "accessibility": 93,
+        "bestPractices": 100,
+        "seo": 100,
+        "lcp": 863,
+        "tbt": 271
+      }
+    ],
+    "performance": 88,
+    "accessibility": 93,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 352,
+    "lcp": 863,
+    "tbt": 271,
+    "cls": 0.005,
+    "si": 1150,
+    "status": "FAIL"
+  },
+  {
+    "path": "/categories",
+    "formFactor": "mobile",
+    "runs": [
+      {
+        "performance": 75,
+        "accessibility": 95,
+        "bestPractices": 100,
+        "seo": 100,
+        "lcp": 2704,
+        "tbt": 941
+      }
+    ],
+    "performance": 75,
+    "accessibility": 95,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 1347,
+    "lcp": 2704,
+    "tbt": 941,
+    "cls": 0.001,
+    "si": 2298,
+    "status": "FAIL"
+  },
+  {
+    "path": "/categories",
+    "formFactor": "desktop",
+    "runs": [
+      {
+        "performance": 99,
+        "accessibility": 95,
+        "bestPractices": 100,
+        "seo": 100,
+        "lcp": 841,
+        "tbt": 67
+      }
+    ],
+    "performance": 99,
+    "accessibility": 95,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 372,
+    "lcp": 841,
+    "tbt": 67,
+    "cls": 0.004,
+    "si": 947,
+    "status": "PASS"
+  },
+  {
+    "path": "/contact",
+    "formFactor": "mobile",
+    "runs": [
+      {
+        "performance": 71,
+        "accessibility": 100,
+        "bestPractices": 96,
+        "seo": 100,
+        "lcp": 2900,
+        "tbt": 1176
+      }
+    ],
+    "performance": 71,
+    "accessibility": 100,
+    "bestPractices": 96,
+    "seo": 100,
+    "fcp": 1384,
+    "lcp": 2900,
+    "tbt": 1176,
+    "cls": 0.011,
+    "si": 2068,
+    "status": "FAIL"
+  },
+  {
+    "path": "/contact",
+    "formFactor": "desktop",
+    "runs": [
+      {
+        "performance": 95,
+        "accessibility": 100,
+        "bestPractices": 100,
+        "seo": 100,
+        "lcp": 843,
+        "tbt": 160
+      }
+    ],
+    "performance": 95,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 306,
+    "lcp": 843,
+    "tbt": 160,
+    "cls": 0.024,
+    "si": 941,
+    "status": "PASS"
+  },
+  {
+    "path": "/offers",
+    "formFactor": "mobile",
+    "runs": [
+      {
+        "performance": 65,
+        "accessibility": 96,
+        "bestPractices": 100,
+        "seo": 100,
+        "lcp": 3113,
+        "tbt": 2521
+      }
+    ],
+    "performance": 65,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 812,
+    "lcp": 3113,
+    "tbt": 2521,
+    "cls": 0,
+    "si": 2326,
+    "status": "FAIL"
+  },
+  {
+    "path": "/offers",
+    "formFactor": "desktop",
+    "runs": [
+      {
+        "performance": 96,
+        "accessibility": 97,
+        "bestPractices": 100,
+        "seo": 100,
+        "lcp": 879,
+        "tbt": 142
+      }
+    ],
+    "performance": 96,
+    "accessibility": 97,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 356,
+    "lcp": 879,
+    "tbt": 142,
+    "cls": 0.041,
+    "si": 770,
+    "status": "PASS"
+  },
+  {
+    "path": "/booking",
+    "formFactor": "mobile",
+    "runs": [
+      {
+        "performance": 15,
+        "accessibility": 93,
+        "bestPractices": 96,
+        "seo": 100,
+        "lcp": 5815,
+        "tbt": 3480
+      }
+    ],
+    "performance": 15,
+    "accessibility": 93,
+    "bestPractices": 96,
+    "seo": 100,
+    "fcp": 2320,
+    "lcp": 5815,
+    "tbt": 3480,
+    "cls": 0.868,
+    "si": 7569,
+    "status": "FAIL"
+  },
+  {
+    "path": "/booking",
+    "formFactor": "desktop",
+    "runs": [
+      {
+        "performance": 48,
+        "accessibility": 93,
+        "bestPractices": 96,
+        "seo": 100,
+        "lcp": 1093,
+        "tbt": 395
+      }
+    ],
+    "performance": 48,
+    "accessibility": 93,
+    "bestPractices": 96,
+    "seo": 100,
+    "fcp": 545,
+    "lcp": 1093,
+    "tbt": 395,
+    "cls": 1.666,
+    "si": 3131,
+    "status": "FAIL"
+  },
+  {
+    "path": "/",
+    "formFactor": "mobile",
+    "runs": [
+      {
+        "performance": 55,
+        "accessibility": 88,
+        "bestPractices": 100,
+        "seo": 100,
+        "lcp": 3421,
+        "tbt": 2167
+      }
+    ],
+    "performance": 55,
+    "accessibility": 88,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 1240,
+    "lcp": 3421,
+    "tbt": 2167,
+    "cls": 0,
+    "si": 8772,
+    "status": "FAIL"
+  },
+  {
+    "path": "/",
+    "formFactor": "desktop",
+    "runs": [
+      {
+        "performance": 73,
+        "accessibility": 96,
+        "bestPractices": 100,
+        "seo": 100,
+        "lcp": 892,
+        "tbt": 408
+      }
+    ],
+    "performance": 73,
+    "accessibility": 96,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": 439,
+    "lcp": 892,
+    "tbt": 408,
+    "cls": 0.003,
+    "si": 3381,
+    "status": "FAIL"
+  }
+]

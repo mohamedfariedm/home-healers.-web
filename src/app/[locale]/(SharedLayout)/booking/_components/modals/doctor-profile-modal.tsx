@@ -49,9 +49,9 @@ export default function DoctorProfileModal({
   // Validate image
   const doctorImage = doctor.image?.[0]?.original || 
     (doctor.gender?.toLowerCase() === "male" 
-      ? "/assets/images/doctorMale.jpeg" 
+      ? "/assets/images/doctorMale.webp" 
       : doctor.gender?.toLowerCase() === "female"
-        ? "/assets/images/doctorFemale.jpeg"
+        ? "/assets/images/doctorFemale.webp"
         : "/default-doctor.png");
 
   // Validate placeholder fields

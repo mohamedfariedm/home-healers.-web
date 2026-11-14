@@ -28,10 +28,13 @@ function DownloadApp({ section, locale }: { section: any; locale: string }) {
         </div>
 
         {/* Left side with app image - becomes top on mobile */}
-        <div ref={containerRef} className="w-full lg:w-1/2 relative">
+        <div
+          ref={containerRef}
+          className="relative w-full min-w-0 overflow-hidden lg:w-1/2"
+        >
           {/* First Image (coming from left to right) */}
           <motion.div
-            className="absolute top-0 left-0 w-full h-full z-10"
+            className="absolute inset-0 z-10"
             initial={{ x: "-100%" }}
             animate={isInView ? { x: 0 } : { x: "-100%" }}
             transition={{
@@ -48,15 +51,15 @@ function DownloadApp({ section, locale }: { section: any; locale: string }) {
               height={640}
               loading="lazy"
               decoding="async"
-              className="w-full h-full object-cover"
+              className="h-full w-full object-cover"
             />
           </motion.div>
 
           {/* Second Image (coming from bottom to top) */}
           <motion.div
-            className="relative z-20 mx-auto lg:mx-0 px-4 py-6 lg:p-0"
-            initial={{ y: "100%" }}
-            animate={isInView ? { y: 0 } : { y: "100%" }}
+            className="relative z-20 mx-auto px-4 py-6 lg:mx-0 lg:p-0"
+            initial={{ y: "40%", opacity: 0 }}
+            animate={isInView ? { y: 0, opacity: 1 } : { y: "40%", opacity: 0 }}
             transition={{
               type: "spring",
               stiffness: 100,
@@ -66,7 +69,7 @@ function DownloadApp({ section, locale }: { section: any; locale: string }) {
             }}
           >
             <img
-              src="/assets/images/homehellers/landing_page_01.svg"
+              src="/assets/images/homehellers/landing_page_01.webp"
               alt="App screenshot"
               width={448}
               height={560}

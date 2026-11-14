@@ -1,11 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { parseCmsHtml } from "@/lib/parse-cms-html";
 import { toSecureMediaUrl } from "@/lib/image-url";
 import { useIsMobile } from "@/Hooks/use-mobile";
+
+function resolveAboutImage(aboutHomeSection?: any): string {
+  const cms = toSecureMediaUrl(
+    aboutHomeSection?.Posts?.[0]?.attachment?.[0]?.original,
+  );
+  // Prefer CMS attachment; only fall back for missing / legacy about.svg.
+  if (!cms || /about\.svg(\?|$)/i.test(cms)) {
+    return "/assets/images/homehellers/about-composed.webp";
+  }
+  return cms;
+}
 
 function AboutApp({
   locale,
@@ -20,43 +32,50 @@ function AboutApp({
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
   const simplifyMotion = isMobile || !!prefersReducedMotion;
+  const aboutSrc = resolveAboutImage(aboutHomeSection);
 
   return (
     <div
-      className={`flex w-full flex-col items-center justify-between gap-8 overflow-hidden rtl:ltr ltr:rtl xl:flex-row xl:gap-6 ${
+      className={`flex w-full min-w-0 max-w-full flex-col items-center justify-between gap-8 overflow-x-hidden rtl:ltr ltr:rtl xl:flex-row xl:gap-6 ${
         showCta ? "mb-10 xl:mb-[91px]" : ""
       }`}
     >
       <motion.div
-        className="relative aspect-[597/531] w-full max-w-[597px] overflow-hidden bg-contain bg-center bg-no-repeat xl:w-[597px]"
-        style={{
-          backgroundImage: `url(${
-            toSecureMediaUrl(
-              aboutHomeSection?.Posts?.[0]?.attachment?.[0]?.original,
-            ) || "/assets/images/homehellers/about.svg"
-          })`,
-        }}
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: simplifyMotion ? 0.4 : 0.7, ease: "easeOut" }}
-        viewport={{ once: true, amount: 0.2 }}
-      />
-
-      <motion.div
-        className="flex w-full max-w-[660px] flex-col items-end gap-6 sm:gap-8 xl:w-[660px]"
+        className="relative aspect-[597/531] w-full min-w-0 max-w-[597px] shrink overflow-hidden xl:w-[597px] xl:shrink-0"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: simplifyMotion ? 0.4 : 0.7, ease: "easeOut" }}
         viewport={{ once: true, amount: 0.2 }}
       >
-        <div className="flex flex-col items-end gap-4 text-end">
+        <Image
+          src={aboutSrc}
+          alt={
+            aboutHomeSection?.Posts?.[0]?.title ||
+            (locale === "ar" ? "عن هوم هيليرز" : "About Home Healers")
+          }
+          fill
+          priority
+          sizes="(max-width: 1280px) 100vw, 597px"
+          className="object-contain object-center"
+          quality={75}
+        />
+      </motion.div>
+
+      <motion.div
+        className="flex w-full min-w-0 max-w-[660px] flex-col items-end gap-6 sm:gap-8 xl:w-[660px]"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: simplifyMotion ? 0.4 : 0.7, ease: "easeOut" }}
+        viewport={{ once: true, amount: 0.2 }}
+      >
+        <div className="flex w-full min-w-0 flex-col items-end gap-4 text-end">
           <span className="text-sm font-medium text-[#62a0f6] sm:text-base">
             {locale === "ar" ? "عن هوم هيليرز" : "About Home Healers"}
           </span>
-          <h2 className="text-xl font-semibold text-[#1e1e1e] sm:text-2xl xl:text-[30px]">
+          <h2 className="max-w-full break-words text-xl font-semibold text-[#1e1e1e] sm:text-2xl xl:text-[30px]">
             {aboutHomeSection?.Posts?.[0]?.title || ""}
           </h2>
-          <div className="text-base leading-7 text-[#1e1e1e] sm:text-lg sm:leading-8">
+          <div className="editor-content w-full min-w-0 max-w-full break-words text-base leading-7 text-[#1e1e1e] sm:text-lg sm:leading-8 [&_img]:h-auto [&_img]:max-w-full [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto">
             {aboutHomeSection?.Posts?.[0]?.description
               ? parseCmsHtml(aboutHomeSection?.Posts[0]?.description)
               : ""}

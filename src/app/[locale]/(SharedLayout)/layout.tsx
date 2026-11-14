@@ -31,9 +31,8 @@ export default async function Layout({
       {IS_RAMADAN_ACTIVE && <RamadanBanner position="top" />}
       {IS_RAMADAN_ACTIVE && <RamadanBackgroundDecorations />}
       <div id="page-content">{children}</div>
-      <Suspense fallback={null}>
-        <ChromeFooter locale={locale} />
-      </Suspense>
+      {/* Await footer in the initial document — Suspense null/placeholder caused ~1.6 CLS */}
+      <ChromeFooter locale={locale} />
       <Suspense fallback={null}>
         <OffersPopupHost locale={locale} />
       </Suspense>

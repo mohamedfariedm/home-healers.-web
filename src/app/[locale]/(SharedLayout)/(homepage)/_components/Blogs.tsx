@@ -1,10 +1,8 @@
-import { Heading, PreHeading, SubHeading } from "@/components/Main";
-import { BlogListSkeleton } from "@/components/Skeletons";
-import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import { TFunction } from "i18next";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { blogHref, getBlogSlug, getNewsTitle } from "@/lib/slugs";
+import { toSecureMediaUrl } from "@/lib/image-url";
 
 interface ArticleData {
   id: any;
@@ -13,36 +11,58 @@ interface ArticleData {
   image: any;
   slug?: string | { en?: string; ar?: string };
 }
-function Blogs({ t, data, locale = "ar" }: { t: TFunction; data: ArticleData[]; locale?: string }) {
+function Blogs({
+  t,
+  data,
+  locale = "ar",
+}: {
+  t: TFunction;
+  data: ArticleData[];
+  locale?: string;
+}) {
   return (
-<div className="flex w-full xl:w-[1152px] gap-[24px] items-center justify-center shrink-0 flex-wrap  relative z-[4]">
-        {
-        data?.map((article, index) => (
+    <div className="relative z-[4] flex w-full flex-wrap items-center justify-center gap-[24px] xl:w-[1152px]">
+      {data?.map((article, index) => {
+        const src =
+          toSecureMediaUrl(article.image?.[0]?.thumbnail) ||
+          toSecureMediaUrl(article.image?.[0]?.original) ||
+          "/assets/images/doctorMale.webp";
+        return (
           <Link
-            href={blogHref(locale, getBlogSlug(article, locale) || String(article?.id || ""))}
+            href={blogHref(
+              locale,
+              getBlogSlug(article, locale) || String(article?.id || ""),
+            )}
             key={index}
-            className="flex w-full xs:w-[368px] xs:h-[465px] flex-col overflow-hidden items-start shrink-0 flex-nowrap relative z-[5] group"
+            className="group relative z-[5] flex w-full shrink-0 flex-col items-start overflow-hidden xs:h-[465px] xs:w-[368px]"
           >
-            <div
-              style={{ backgroundImage: `url(${article.image[0]?.original})` }}
-              className="w-full xs:w-[368px] h-[250px] shrink-0 group-hover:scale-110 transition-all duration-300  bg-cover bg-no-repeat relative z-[6]"
-            />
-            <div className="flex xs:h-[215px] pt-[16px] pr-[16px] pb-[24px] pl-[16px] flex-col gap-[24px] items-start self-stretch shrink-0 flex-nowrap bg-[#371f0b] group-hover:bg-[url(/assets/images/articles/hover.svg)] transition-all duration-300 bg-cover bg-no-repeat rounded-[16px] rounded-tl-none rounded-tr-none rounded-br-[16px] rounded-bl-[16px] relative z-[7]">
-              <div className="flex w-full xs:w-[336px] flex-col gap-[12px] items-start shrink-0 flex-nowrap relative z-[8]">
-                <span className="flex w-full line-clamp-1 xs:w-[336px]  justify-start items-start shrink-0 basis-auto text-[16px] font-semibold leading-[29px] text-[#fff] relative text-start xs:whitespace-nowrap z-[9]">
+            <div className="relative z-[6] h-[250px] w-full shrink-0 overflow-hidden xs:w-[368px]">
+              <Image
+                src={src}
+                alt={getNewsTitle(article, locale) || ""}
+                fill
+                sizes="(max-width: 480px) 100vw, 368px"
+                className="object-cover object-center transition-transform duration-300 group-hover:scale-110"
+                quality={70}
+              />
+            </div>
+            <div className="relative z-[7] flex shrink-0 flex-col items-start gap-[24px] self-stretch rounded-[16px] rounded-tl-none rounded-tr-none bg-[#371f0b] bg-cover bg-no-repeat pb-[24px] pl-[16px] pr-[16px] pt-[16px] transition-all duration-300 group-hover:bg-[url(/assets/images/articles/hover.svg)] xs:h-[215px]">
+              <div className="relative z-[8] flex w-full shrink-0 flex-col items-start gap-[12px] xs:w-[336px]">
+                <span className="relative z-[9] line-clamp-1 flex w-full shrink-0 basis-auto items-start justify-start text-start text-[16px] font-semibold leading-[29px] text-[#fff] xs:w-[336px] xs:whitespace-nowrap">
                   {getNewsTitle(article, locale)}
                 </span>
-                <span className="flex w-full line-clamp-3 xs:w-[336px] xs:h-[81px] justify-start items-start shrink-0 text-[14px] font-normal leading-[27px] text-[#dbdbdb] relative text-start z-10">
+                <span className="relative z-10 line-clamp-3 flex w-full shrink-0 items-start justify-start text-start text-[14px] font-normal leading-[27px] text-[#dbdbdb] xs:h-[81px] xs:w-[336px]">
                   {article.description}
                 </span>
               </div>
-              <span className="h-[29px] self-stretch shrink-0 basis-auto text-[16px] font-normal leading-[29px] text-[#dbdbdb] relative text-start whitespace-nowrap z-[11]">
+              <span className="relative z-[11] h-[29px] shrink-0 basis-auto self-stretch whitespace-nowrap text-start text-[16px] font-normal leading-[29px] text-[#dbdbdb]">
                 {t("articles.read_more")}
               </span>
             </div>
           </Link>
-        ))}
-      </div>
+        );
+      })}
+    </div>
   );
 }
 

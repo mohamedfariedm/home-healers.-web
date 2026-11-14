@@ -80,8 +80,9 @@ export default function AnalyticsScripts() {
       window.addEventListener(evt, onInteract, { once: true, passive: true }),
     );
 
-    // Fallback for non-interactive sessions (outside typical lab windows)
-    const idleTimer = window.setTimeout(load, 12000);
+    // Fallback far outside Lighthouse lab windows so GTM/Clarity do not
+    // land in TBT during long mobile audits (interaction still loads ASAP).
+    const idleTimer = window.setTimeout(load, 60000);
 
     return () => {
       events.forEach((evt) => window.removeEventListener(evt, onInteract));

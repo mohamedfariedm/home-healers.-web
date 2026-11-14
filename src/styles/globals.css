@@ -149,22 +149,21 @@ html {
 .page-hero__layer {
   position: absolute;
   inset: 0;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
+  overflow: hidden;
 }
 
 .page-hero__bg {
-  background-image: url(/assets/images/shared/hero-banner/hero-bg-main.png);
+  z-index: 0;
 }
 
 .page-hero__layer {
-  background-image: url(/assets/images/shared/hero-banner/hero-layer-2.png);
+  z-index: 1;
 }
 
 .page-hero__glow {
   position: absolute;
   inset: 0;
+  z-index: 2;
   pointer-events: none;
   background:
     radial-gradient(circle at 18% 20%, rgba(98, 160, 246, 0.28), transparent 42%),
@@ -337,8 +336,10 @@ html {
 }
 
 .holographic-card {
-  width: 480px;
-  height: 290px;
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 480 / 290;
+  height: auto;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -346,10 +347,9 @@ html {
   overflow: hidden;
   border-radius: 15px;
   transition: all 0.5s ease;
-  background-image:url(/assets/images/homepage/card-holographic.png);
-  background-position:center center;
-  background-size:cover;
-  
+  background-image: url(/assets/images/homepage/card-holographic.webp);
+  background-position: center center;
+  background-size: cover;
 }
 
 .holographic-card h2 {

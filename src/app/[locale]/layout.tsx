@@ -101,6 +101,12 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://backend.home-healers.com" />
         <link rel="preconnect" href="https://apis.home-healers.com" />
         <link rel="dns-prefetch" href="https://apis.home-healers.com" />
+        <link
+          rel="preload"
+          as="image"
+          href="/assets/images/shared/hero-banner/hero-bg-main.webp"
+          fetchPriority="high"
+        />
       </head>
       <body className={alexandria.className}>
         {/* Organization Schema - JSON-LD can be placed in body per Schema.org spec */}

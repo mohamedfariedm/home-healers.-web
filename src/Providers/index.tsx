@@ -7,18 +7,8 @@ import { RamadanProvider } from "./ramadan-provider";
 import { IS_RAMADAN_ACTIVE } from "@/constants/ramadan";
 import AppDirectionProvider from "./direction-provider";
 
-const i18nNamespaces = [
-  "common",
-  "homepage",
-  "offers",
-  "aboutUs",
-  "contactUs",
-  "blog",
-  "booking",
-  "doctor-apply",
-  "invite-doctor",
-  "review",
-];
+/** Chrome-only: route layouts add page namespaces via RouteTranslations. */
+const i18nNamespaces = ["common", "offers"];
 
 export default async function GlobalProvider({
   children,

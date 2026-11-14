@@ -8,7 +8,7 @@ const AppRating= ({locale}: {locale: string}) => {
     <div className="flex flex-col sm:flex-row gap-4 items-center justify-start w-full">
       <div className="flex items-center">
         <img
-          src="/assets/images/homehellers/rating.svg"
+          src="/assets/images/homehellers/rating.webp"
           alt="User avatars"
           width={216}
           height={66}

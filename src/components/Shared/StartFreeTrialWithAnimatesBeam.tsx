@@ -54,7 +54,7 @@ async function StartFreeTrial({
           {withImage && (
             <div className="w-full h-[350px] lg:w-[45%] lg:h-[400px]  relative overflow-hidden shrink-0 self-end">
               <Image
-                src="/assets/images/start-free-trial.png"
+                src="/assets/images/start-free-trial.webp"
                 alt="start free trial"
                 fill
                 sizes="(max-width: 768px) 100vw, 45vw"

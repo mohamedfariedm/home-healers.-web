@@ -181,11 +181,11 @@ export default function Step2DoctorSelection({
 
     // 4) fallback
     if (doctor?.gender?.toLowerCase() === "male") {
-      return "/assets/images/doctorMale.jpeg";
+      return "/assets/images/doctorMale.webp";
     }
 
     if (doctor?.gender?.toLowerCase() === "female") {
-      return "/assets/images/doctorFemale.jpeg";
+      return "/assets/images/doctorFemale.webp";
     }
 
     return "/default-doctor.png";

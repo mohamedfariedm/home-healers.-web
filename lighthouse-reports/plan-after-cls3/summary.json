@@ -1,0 +1,50 @@
+[
+  {
+    "path": "/booking",
+    "formFactor": "mobile",
+    "runs": [
+      {
+        "performance": 65,
+        "accessibility": 93,
+        "bestPractices": 77,
+        "seo": 100,
+        "lcp": 6911,
+        "tbt": 358
+      }
+    ],
+    "performance": 65,
+    "accessibility": 93,
+    "bestPractices": 77,
+    "seo": 100,
+    "fcp": 2027,
+    "lcp": 6911,
+    "tbt": 358,
+    "cls": 0,
+    "si": 3944,
+    "status": "FAIL"
+  },
+  {
+    "path": "/booking",
+    "formFactor": "desktop",
+    "runs": [
+      {
+        "performance": 70,
+        "accessibility": 93,
+        "bestPractices": 77,
+        "seo": 100,
+        "lcp": 1283,
+        "tbt": 8
+      }
+    ],
+    "performance": 70,
+    "accessibility": 93,
+    "bestPractices": 77,
+    "seo": 100,
+    "fcp": 433,
+    "lcp": 1283,
+    "tbt": 8,
+    "cls": 1.671,
+    "si": 1497,
+    "status": "FAIL"
+  }
+]

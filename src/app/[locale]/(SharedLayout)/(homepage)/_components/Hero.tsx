@@ -4,7 +4,7 @@ import { Star, ArrowLeft } from "lucide-react";
 import { getHeroImageUrls } from "@/lib/image-url";
 import HeroCarousel from "./HeroCarousel";
 
-const HERO_IMAGE_QUALITY = 90;
+const HERO_IMAGE_QUALITY = 75;
 
 function Hero({ locale, section }: { locale: string; section: any }) {
   const post = section?.Posts?.[0];
@@ -15,13 +15,13 @@ function Hero({ locale, section }: { locale: string; section: any }) {
 
   return (
     <div className="relative mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 md:pb-12 lg:px-8">
-      <div className="relative flex flex-col-reverse items-center gap-8 xl:flex-row xl:gap-12">
+      <div className="relative flex flex-col-reverse items-center gap-8 xl:flex-row xl:items-center xl:gap-10">
         <div
           className="pointer-events-none absolute top-16 right-0 left-8 bottom-0 -z-0 hidden bg-[url(/assets/images/homehellers/dots.svg)] bg-contain opacity-60 sm:block"
           aria-hidden
         />
 
-        <div className="relative flex w-full flex-col justify-center gap-6 bg-contain bg-no-repeat xl:w-1/2 xl:gap-8">
+        <div className="relative z-10 flex w-full min-w-0 flex-col justify-center gap-6 xl:w-1/2 xl:gap-8">
           <h1 className="relative z-10 text-start text-2xl font-semibold leading-snug text-[#1e1e1e] sm:text-3xl lg:text-4xl lg:leading-tight">
             {post?.title ||
               "Physical Therapy and Rehabilitation Services"}
@@ -34,7 +34,7 @@ function Hero({ locale, section }: { locale: string; section: any }) {
 
           <div className="relative z-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
             <div
-              className="h-[56px] w-[200px] bg-[url(/assets/images/homehellers/rating.svg)] bg-cover bg-no-repeat"
+              className="h-[56px] w-[200px] bg-[url(/assets/images/homehellers/rating.webp)] bg-cover bg-no-repeat"
               aria-hidden
             />
             <div className="flex flex-col gap-1">
@@ -65,25 +65,23 @@ function Hero({ locale, section }: { locale: string; section: any }) {
           </Link>
         </div>
 
-        <div className="z-10 w-full max-w-[727px] xl:w-auto">
-          <div className="relative mx-auto h-[280px] w-full overflow-hidden rounded-3xl bg-[#eef4ff] shadow-[0_18px_50px_rgba(20,48,135,0.14)] xs:h-[340px] sm:h-[420px] md:h-[480px] xl:mx-0 xl:h-[560px] xl:w-[640px] 2xl:h-[600px] 2xl:w-[720px]">
+        <div className="z-10 w-full min-w-0 max-w-[727px] xl:w-1/2 xl:max-w-none">
+          <div className="relative mx-auto aspect-[727/600] w-full overflow-hidden rounded-3xl bg-[#eef4ff] shadow-[0_18px_50px_rgba(20,48,135,0.14)] xl:mx-0 xl:aspect-[640/560] xl:max-h-[560px] 2xl:max-h-[600px]">
             <Image
               src={heroImages[0]}
               alt={alt}
               fill
               priority
               quality={HERO_IMAGE_QUALITY}
-              sizes="(max-width: 768px) 100vw, 727px"
+              sizes="(max-width: 1280px) 100vw, 50vw"
               className="object-cover object-center"
             />
             {heroImages.length > 1 ? (
-              <div className="absolute inset-0">
-                <HeroCarousel
-                  images={heroImages}
-                  alt={alt}
-                  quality={HERO_IMAGE_QUALITY}
-                />
-              </div>
+              <HeroCarousel
+                images={heroImages}
+                alt={alt}
+                quality={HERO_IMAGE_QUALITY}
+              />
             ) : null}
           </div>
         </div>

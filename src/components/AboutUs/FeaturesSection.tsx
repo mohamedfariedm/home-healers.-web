@@ -1,8 +1,10 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { useIsMobile } from "@/Hooks/use-mobile";
+import { toSecureMediaUrl } from "@/lib/image-url";
 
 interface FeatureCardProps {
   icon: string;
@@ -28,10 +30,16 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
       whileTap={{ scale: 0.98 }}
     >
       <div className="flex h-[84px] w-[68px] shrink-0 items-center justify-center rounded-[5px] bg-[#62A0F6] px-3 py-5 sm:h-[120px] sm:w-[96px] sm:px-[20px] sm:py-[32px]">
-        <div
-          className="h-10 w-10 bg-contain bg-center bg-no-repeat sm:h-[52.5px] sm:w-[52.5px]"
-          style={{ backgroundImage: `url(${icon})` }}
-        />
+        <div className="relative h-10 w-10 sm:h-[52.5px] sm:w-[52.5px]">
+          <Image
+            src={icon}
+            alt=""
+            fill
+            sizes="53px"
+            className="object-contain object-center"
+            quality={65}
+          />
+        </div>
       </div>
       <div className="flex min-w-0 flex-col items-start text-start">
         <span className="text-base font-semibold text-white sm:text-lg">
@@ -53,7 +61,10 @@ const FeaturesSection = ({ data, locale }: { data: any; locale: string }) => {
   const features = (data?.Posts || [])
     .filter((post: any) => post.id !== 12)
     .map((post: any) => ({
-      icon: post.attachment?.[0]?.original || "https://via.placeholder.com/52",
+      icon:
+        toSecureMediaUrl(
+          post.attachment?.[0]?.thumbnail || post.attachment?.[0]?.original,
+        ) || "/assets/images/doctorMale.webp",
       title: post.title,
       description: post.description,
     }));

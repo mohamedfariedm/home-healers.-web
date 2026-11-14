@@ -43,23 +43,38 @@ export function getOptimizedImageUrl(
   );
 }
 
+/** Dedupe same asset served from different hosts (backend vs development). */
+function heroDedupeKey(url: string): string {
+  try {
+    const parsed = new URL(url, "https://home-healers.com");
+    return decodeURIComponent(parsed.pathname).toLowerCase();
+  } catch {
+    return url.toLowerCase();
+  }
+}
+
 export function getHeroImageUrls(
   attachments?: ImageAttachment[] | ImageAttachment | null,
-  fallback = "/assets/images/homehellers/hero.svg",
+  fallback = "/assets/images/homehellers/hero.webp",
 ): string[] {
   const list = Array.isArray(attachments)
     ? attachments.flatMap((item) => (Array.isArray(item) ? item : [item]))
     : attachments
       ? [attachments]
       : [];
-  const urls = list
-    .map((att) =>
-      toSecureMediaUrl(
-        typeof att === "string"
-          ? att
-          : att?.original || att?.converted || att?.url || "",
-      ),
-    )
-    .filter(Boolean);
+  const seen = new Set<string>();
+  const urls: string[] = [];
+  for (const att of list) {
+    const url = toSecureMediaUrl(
+      typeof att === "string"
+        ? att
+        : att?.original || att?.converted || att?.url || "",
+    );
+    if (!url) continue;
+    const key = heroDedupeKey(url);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    urls.push(url);
+  }
   return urls.length ? urls : [fallback];
 }

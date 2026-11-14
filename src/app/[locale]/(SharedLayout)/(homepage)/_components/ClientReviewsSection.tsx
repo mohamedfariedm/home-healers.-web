@@ -61,7 +61,7 @@ export default function ClientReviewsSection({
 
       <div className="flex w-full max-w-[610px] flex-col gap-[16px] items-end relative z-[24] mt-[60px] mx-auto">
         <div className="flex gap-[10px] justify-center items-center self-stretch relative z-[25]">
-          <div className="w-[610px] text-[30px] font-semibold leading-[40px] relative text-center xl:text-center z-[26]">
+          <div className="relative z-[26] w-full max-w-[610px] text-center text-2xl font-semibold leading-snug sm:text-[30px] sm:leading-[40px] xl:text-center">
             {isRTL ? (
               <>
                 <span className="text-[30px] font-semibold leading-[40px] relative text-start text-[#1e1e1e]">

@@ -182,7 +182,7 @@ function Products() {
             oldPrice="2250 ر.س"
             newPrice="150 ر.س"
             title="كرسي طبي لاصابات عضلية"
-            ratingImage="/assets/images/shared/products-rating.png"
+            ratingImage="/assets/images/shared/products-rating.webp"
           />
         ))}
       </div>

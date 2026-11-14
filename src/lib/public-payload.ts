@@ -324,3 +324,87 @@ export function slimBanner(banner: any) {
     },
   };
 }
+
+/** Booking flow doctors — drop CMS essays / attachments that were ~1.8MB RSC. */
+export function slimBookingDoctor(doctor: any) {
+  if (!doctor) return doctor;
+  const city =
+    doctor.city == null
+      ? null
+      : typeof doctor.city === "object"
+        ? {
+            id: doctor.city.id,
+            name: doctor.city.name,
+            name_ar: doctor.city.name_ar,
+            name_en: doctor.city.name_en,
+          }
+        : doctor.city;
+  return {
+    id: doctor.id,
+    name: doctor.name,
+    doctor_role: doctor.doctor_role,
+    specialist: doctor.specialist,
+    department: doctor.department,
+    specialized_in:
+      typeof doctor.specialized_in === "string"
+        ? doctor.specialized_in.slice(0, 120)
+        : doctor.specialized_in,
+    degree: doctor.degree,
+    languages_spoken: doctor.languages_spoken,
+    experience: doctor.experience,
+    session_price: doctor.session_price,
+    rate: doctor.rate,
+    gender: doctor.gender,
+    city,
+    image: slimImage(doctor.image),
+  };
+}
+
+export function slimBookingCategory(category: any) {
+  if (!category) return category;
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    active: category.active,
+    image: slimImage(category.image),
+    services: getActiveServices(category.services).map((service: any) => ({
+      id: service.id,
+      name: service.name,
+      slug: service.slug,
+      active: service.active,
+      icon: slimImage(service.icon),
+      image: slimImage(service.image),
+    })),
+  };
+}
+
+export function slimBookingPackage(pkg: any) {
+  if (!pkg) return pkg;
+  return {
+    id: pkg.id,
+    name: pkg.name,
+    slug: pkg.slug,
+    type: pkg.type,
+    price: pkg.price,
+    old_price: pkg.old_price,
+    sessions_count: pkg.sessions_count,
+    image: slimImage(pkg.image || pkg.cover_image),
+    categories: Array.isArray(pkg.categories)
+      ? pkg.categories.map((c: any) => ({ id: c.id, name: c.name, slug: c.slug }))
+      : pkg.categories,
+    services: Array.isArray(pkg.services)
+      ? pkg.services.map((s: any) => ({ id: s.id, name: s.name, slug: s.slug }))
+      : pkg.services,
+  };
+}
+
+export function slimGeoList(items: any[] | undefined) {
+  if (!Array.isArray(items)) return [];
+  return items.map((item) => ({
+    id: item.id,
+    name: item.name,
+    country_id: item.country_id,
+    state_id: item.state_id,
+  }));
+}

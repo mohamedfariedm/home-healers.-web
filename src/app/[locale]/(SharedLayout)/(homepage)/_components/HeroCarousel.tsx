@@ -20,12 +20,12 @@ export default function HeroCarousel({
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <>
-      <div className="hidden xl:flex gap-3 items-center absolute bottom-0 left-[355px] z-[1000]">
+    <div className="absolute inset-0 h-full w-full overflow-hidden">
+      <div className="absolute bottom-3 start-3 z-[1000] hidden items-center gap-3 xl:flex">
         {images.map((_, i) => (
           <div
             key={i}
-            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+            className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${
               activeIndex === i
                 ? "bg-[url(/assets/images/homepage/hero-pagination-dot.svg)] bg-cover bg-no-repeat"
                 : "bg-[#cee2fc]"
@@ -40,30 +40,29 @@ export default function HeroCarousel({
         loop={images.length > 2}
         autoplay={{ delay: 4000 }}
         onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-        className="w-full max-w-[727px]"
+        className="h-full w-full"
       >
         {images.map((src, i) => (
-          <SwiperSlide key={`${src}-${i}`}>
-            <div className="w-full max-w-[727px] h-[624px]">
-              <div className="relative w-full h-full xl:w-[727px] xl:mx-0 mx-auto">
-                {i === 0 ? (
-                  <div className="h-full w-full" aria-hidden />
-                ) : (
-                  <Image
-                    src={src}
-                    alt={alt}
-                    fill
-                    quality={quality}
-                    loading="lazy"
-                    sizes="(max-width: 768px) 100vw, 727px"
-                    className="object-cover object-center"
-                  />
-                )}
-              </div>
+          <SwiperSlide key={`${src}-${i}`} className="!h-full">
+            <div className="relative h-full w-full">
+              {/* Slide 0 stays empty — parent Hero already paints the LCP image */}
+              {i === 0 ? (
+                <div className="h-full w-full" aria-hidden />
+              ) : (
+                <Image
+                  src={src}
+                  alt={alt}
+                  fill
+                  quality={quality}
+                  loading="lazy"
+                  sizes="(max-width: 768px) 100vw, 727px"
+                  className="object-cover object-center"
+                />
+              )}
             </div>
           </SwiperSlide>
         ))}
       </Swiper>
-    </>
+    </div>
   );
 }

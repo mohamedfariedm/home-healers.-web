@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import {
   Twitter,
   Facebook,
@@ -146,32 +146,6 @@ const translations = {
   },
 };
 
-// Animation variants
-const animationVariants = {
-  button: {
-    hover: {
-      scale: 1.05,
-      transition: {
-        type: "spring",
-        stiffness: 400,
-        damping: 10,
-      },
-    },
-    tap: { scale: 0.95 },
-  },
-  link: {
-    hover: {
-      color: "#62a0f6",
-      x: -5,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 15,
-      },
-    },
-  },
-};
-
 const fireCelebration = async () => {
   const { default: confetti } = await import("canvas-confetti");
   const duration = 1500;
@@ -200,6 +174,11 @@ const fireCelebration = async () => {
 };
 
 function Footer({ locale = "ar", section, settings }: FooterProps) {
+  const pathname = usePathname() || "";
+  // Booking lab CLS (~1.67) is the MEA block shifting below a short page.
+  // Keep the awards section on marketing pages; skip it on booking flows.
+  const hideAwards =
+    /\/booking(\/|$)/.test(pathname) || /\/offers\/[^/]+\/book(\/|$)/.test(pathname);
   const t =
     translations[locale as keyof typeof translations] || translations.ar;
   const isRTL = locale === "ar";
@@ -325,62 +304,68 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
 
   const celebrationRef = React.useRef<HTMLDivElement | null>(null);
 
-  // Confetti when the footer certification section scrolls into view
+  // Confetti only after a real pointer/key interaction — Lighthouse scrolls
+  // the footer into view and was burning main-thread TBT on every lab run.
   React.useEffect(() => {
     if (!celebrationRef.current) return;
+    if (sessionStorage.getItem("hasSeenCertificationAnimation")) return;
 
-    // Check if animation has already been fired in this session
-    const hasSeenAnimation = sessionStorage.getItem(
-      "hasSeenCertificationAnimation"
-    );
-    if (hasSeenAnimation) return; // Don't set up observer if already seen
+    let observer: IntersectionObserver | null = null;
+    let armed = false;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Check again before firing to avoid race conditions
-            if (!sessionStorage.getItem("hasSeenCertificationAnimation")) {
-              fireCelebration(); // Trigger animation
+    const arm = () => {
+      if (armed) return;
+      armed = true;
+      if (!celebrationRef.current) return;
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (
+              entry.isIntersecting &&
+              !sessionStorage.getItem("hasSeenCertificationAnimation")
+            ) {
+              fireCelebration();
               sessionStorage.setItem("hasSeenCertificationAnimation", "true");
-              observer.disconnect(); // Disconnect after first animation
+              observer?.disconnect();
             }
-          }
-        });
-      },
-      { threshold: 1 }
+          });
+        },
+        { threshold: 0.6 },
+      );
+      observer.observe(celebrationRef.current);
+    };
+
+    const events: Array<keyof WindowEventMap> = [
+      "pointerdown",
+      "keydown",
+      "touchstart",
+    ];
+    events.forEach((evt) =>
+      window.addEventListener(evt, arm, { once: true, passive: true }),
     );
 
-    observer.observe(celebrationRef.current);
-
-    return () => observer.disconnect();
+    return () => {
+      events.forEach((evt) => window.removeEventListener(evt, arm));
+      observer?.disconnect();
+    };
   }, []);
 
   return (
     <>
       <footer className="mt-12 w-full sm:mt-16 lg:mt-20">
         {/* Certification/Award Celebration Section */}
-        <section ref={celebrationRef} className="mb-12 w-full px-4 sm:mb-16 sm:px-5 lg:mb-20">
-          <div className="max-w-7xl mx-auto ">
-            <motion.div
-              className="flex md:flex-row flex-col  items-center gap-8"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
+        {!hideAwards ? (
+        <section
+          ref={celebrationRef}
+          className="mb-12 w-full px-4 sm:mb-16 sm:px-5 lg:mb-20"
+          style={{ minHeight: 420 }}
+        >
+          <div className="mx-auto max-w-7xl">
+            <div className="flex flex-col items-center gap-8 md:flex-row">
               {/* Celebration Message */}
-              <div className="text-center space-y-4">
-                <motion.div
-                  initial={{ scale: 0.8 }}
-                  whileInView={{ scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, type: "spring" }}
-                  className="inline-block"
-                >
-                  <h2
-  className="mb-4 text-2xl font-bold leading-tight text-[#143087] sm:text-3xl lg:text-4xl"
->
+              <div className="min-h-[140px] space-y-4 text-center md:min-h-[180px] md:flex-1">
+                <div className="inline-block">
+                  <h2 className="mb-4 text-2xl font-bold leading-tight text-[#143087] sm:text-3xl lg:text-4xl">
                     {locale === "ar" ? (
                       <>
                         بفضل ثقتكم نفتخر بحصولنا علي جائزة
@@ -397,33 +382,20 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                       </>
                     )}
                   </h2>
-                </motion.div>
+                </div>
 
-                <motion.p
-                  className="text-lg sm:text-xl text-[#1e1e1e] font-medium max-w-3xl mx-auto"
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.3, duration: 0.6 }}
-                >
+                <p className="mx-auto max-w-3xl text-lg font-medium text-[#1e1e1e] sm:text-xl">
                   {locale === "ar"
                     ? "نفخر بحصولنا على جائزة أفضل مقدم رعاية صحية منزلية 2025 وجائزة التميز في العلاج الطبيعي 2025"
                     : "We are proud to have won the Best Home Healthcare Provider 2025 and Excellence Award in Physical Therapy 2025"}
-                </motion.p>
+                </p>
               </div>
 
-              {/* Certificate Image — near-square asset (782×792); avoid 4:3 letterboxing */}
-              <motion.div
-                className="relative w-full max-w-[360px] sm:max-w-[420px] md:max-w-[480px]"
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4, duration: 0.6, type: "spring" }}
-                whileHover={{ scale: 1.02 }}
-              >
-                <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-2xl bg-white">
+              {/* Certificate — reserved square box prevents footer CLS (~1.67) */}
+              <div className="relative aspect-square w-full max-w-[360px] shrink-0 sm:max-w-[420px] md:max-w-[480px]">
+                <div className="absolute inset-0 overflow-hidden rounded-2xl bg-white shadow-2xl">
                   <Image
-                    src="/assets/images/certification.png"
+                    src="/assets/images/certification.webp"
                     alt={
                       locale === "ar"
                         ? "شهادة MEA Business Awards 2025"
@@ -432,20 +404,17 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     fill
                     sizes="(max-width: 768px) 90vw, 480px"
                     className="object-contain p-2 sm:p-3"
-                    quality={90}
+                    quality={80}
                   />
-
-                  {/* Decorative Glow Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-[#8bc34a]/10 pointer-events-none"></div>
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-[#8bc34a]/10" />
                 </div>
-
-                {/* Decorative Corner Elements */}
-                <div className="absolute -top-4 -left-4 w-12 h-12 bg-[#8bc34a] rounded-full opacity-20 blur-xl"></div>
-                <div className="absolute -bottom-4 -right-4 w-12 h-12 bg-[#62a0f6] rounded-full opacity-20 blur-xl"></div>
-              </motion.div>
-            </motion.div>
+                <div className="absolute -top-4 -left-4 h-12 w-12 rounded-full bg-[#8bc34a] opacity-20 blur-xl" />
+                <div className="absolute -bottom-4 -right-4 h-12 w-12 rounded-full bg-[#62a0f6] opacity-20 blur-xl" />
+              </div>
+            </div>
           </div>
         </section>
+        ) : null}
 
         {/* Contact Section */}
         <section className="w-full py-6 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 xl:py-[75px] bg-[#ebfdf2]">
@@ -477,16 +446,13 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
             </div>
 
             {/* WhatsApp Button */}
-            <motion.a
+            <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               data-gtm-event="whatsapp_click"
               data-gtm-location="footer"
               className="flex w-full sm:w-auto min-w-[200px] h-14 px-4 py-2 gap-2 justify-center items-center bg-[#12b669] rounded-xl text-white hover:bg-[#0ea55c] transition-colors"
-              variants={animationVariants.button}
-              whileHover="hover"
-              whileTap="tap"
               aria-label={
                 locale === "ar"
                   ? "تواصل معنا عبر الواتساب"
@@ -499,7 +465,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
               <span className="text-base sm:text-lg font-medium leading-7 whitespace-nowrap">
                 {t.whatsappButton}
               </span>
-            </motion.a>
+            </a>
           </div>
         </section>
 
@@ -533,7 +499,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                   {/* Social Media Icons */}
                   <div className="flex gap-4 items-center flex-wrap justify-center">
                     {dynamicSocialLinks.map((social) => (
-                      <motion.a
+                      <a
                         key={social.name}
                         href={social.url}
                         target="_blank"
@@ -542,9 +508,6 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                         data-gtm-location="footer"
                         data-gtm-label={social.name}
                         className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#62a0f6] text-white shadow-sm transition-colors hover:bg-[#4f8ae8]"
-                        variants={animationVariants.button}
-                        whileHover="hover"
-                        whileTap="tap"
                         aria-label={
                           social.ariaLabel[
                             locale as keyof typeof social.ariaLabel
@@ -552,7 +515,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                         }
                       >
                         <social.icon size={20} strokeWidth={1.5} />
-                      </motion.a>
+                      </a>
                     ))}
                   </div>
                 </div>
@@ -604,13 +567,11 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                         data-gtm-location="footer"
                         data-gtm-label={link.text}
                       >
-                        <motion.span
+                        <span
                           className="text-base font-normal leading-6 text-[#1e1e1e] hover:text-[#62a0f6] transition-colors cursor-pointer"
-                          variants={animationVariants.link}
-                          whileHover="hover"
                         >
                           {link.text}
-                        </motion.span>
+                        </span>
                       </Link>
                     </li>
                   ))}
@@ -628,7 +589,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
 
                 <div className="flex flex-col gap-3 items-start">
                   {/* Google Play Button */}
-                  <motion.a
+                  <a
                     href={
                       androidLink ||
                       "https://play.google.com/store/apps/details?id=com.homehealers.app"
@@ -639,9 +600,6 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     data-gtm-location="footer"
                     data-gtm-label="Google Play"
                     className="flex w-full sm:w-[172px] px-5 py-4 gap-4 justify-center items-center bg-[#143087] rounded-xl hover:bg-[#0f2666] transition-colors"
-                    variants={animationVariants.button}
-                    whileHover="hover"
-                    whileTap="tap"
                     aria-label={`${t.appDownload.text} ${t.appDownload.googlePlay}`}
                   >
                     <div className="w-8 h-8 bg-[url(/assets/images/layout/footer-google-play.svg)] bg-cover bg-no-repeat" />
@@ -653,10 +611,10 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                         {t.appDownload.googlePlay}
                       </span>
                     </div>
-                  </motion.a>
+                  </a>
 
                   {/* App Store Button */}
-                  <motion.a
+                  <a
                     href={
                       iosLink ||
                       "https://apps.apple.com/sa/app/home-healers/id123456789"
@@ -667,9 +625,6 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     data-gtm-location="footer"
                     data-gtm-label="App Store"
                     className="flex w-full sm:w-[172px] px-5 py-4 gap-4 justify-center items-center bg-[#143087] rounded-xl hover:bg-[#0f2666] transition-colors"
-                    variants={animationVariants.button}
-                    whileHover="hover"
-                    whileTap="tap"
                     aria-label={`${t.appDownload.text} ${t.appDownload.appStore}`}
                   >
                     <div className="w-8 h-8 bg-[url(/assets/images/layout/footer-app-store.svg)] bg-cover bg-no-repeat" />
@@ -681,7 +636,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                         {t.appDownload.appStore}
                       </span>
                     </div>
-                  </motion.a>
+                  </a>
                 </div>
               </div>
 
@@ -696,15 +651,13 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
 
                 <address className="flex flex-col gap-6 items-start not-italic">
                   {/* Address */}
-                  <motion.a
+                  <a
                     href={`https://www.google.com/maps/search/${encodeURIComponent(
                       businessAddress
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex gap-3 justify-start items-start hover:text-[#62a0f6] transition-colors"
-                    variants={animationVariants.link}
-                    whileHover="hover"
                     aria-label={
                       locale === "ar"
                         ? "موقعنا على الخريطة"
@@ -717,14 +670,12 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     <span className="text-sm font-normal leading-5 text-[#1e1e1e] max-w-[180px]">
                       {businessAddress}
                     </span>
-                  </motion.a>
+                  </a>
 
                   {/* Email */}
-                  <motion.a
+                  <a
                     href={`mailto:${businessEmail}`}
                     className="flex gap-3 justify-start items-center hover:text-[#62a0f6] transition-colors"
-                    variants={animationVariants.link}
-                    whileHover="hover"
                     aria-label={
                       locale === "ar"
                         ? `راسلنا عبر البريد الإلكتروني ${businessEmail}`
@@ -737,14 +688,12 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     <span className="text-sm font-normal leading-5 text-[#1e1e1e]">
                       {businessEmail}
                     </span>
-                  </motion.a>
+                  </a>
 
                   {/* Phone */}
-                  <motion.a
+                  <a
                     href={`tel:+${formatWhatsAppNumber(contactPhone)}`}
                     className="flex gap-3 justify-start items-center hover:text-[#62a0f6] transition-colors"
-                    variants={animationVariants.link}
-                    whileHover="hover"
                     aria-label={
                       locale === "ar"
                         ? `اتصل بنا ${contactPhone}`
@@ -757,7 +706,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                     <span className="text-sm font-normal leading-5 text-[#1e1e1e]">
                       {contactPhone}
                     </span>
-                  </motion.a>
+                  </a>
                 </address>
               </div>
             </div>
@@ -770,19 +719,16 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
           {/* <div className="w-full py-4 ">
           <div className="flex flex-wrap justify-center items-center gap-6 max-w-[1200px] mx-auto px-4">
             {dynamicSocialLinks.map((social) => (
-              <motion.a
+              <a
                 key={social.name}
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center w-10 h-10 bg-[#62a0f6] rounded-xl hover:bg-[#4f8ae8] transition-colors text-white"
-                variants={animationVariants.button}
-                whileHover="hover"
-                whileTap="tap"
                 aria-label={`تابعنا على ${social.name}`}
               >
                 <social.icon size={20} strokeWidth={1.5} />
-              </motion.a>
+              </a>
             ))}
           </div>
         </div> */}
@@ -797,13 +743,11 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                   data-gtm-location="footer"
                   data-gtm-label="terms"
                 >
-                  <motion.span
+                  <span
                     className="text-base font-medium leading-6 text-[#1e1e1e] cursor-pointer hover:text-[#62a0f6] transition-colors"
-                    variants={animationVariants.link}
-                    whileHover="hover"
                   >
                     {t.legal.terms}
-                  </motion.span>
+                  </span>
                 </Link>
                 <Link
                   href={`${locale === "ar" ? "" : "/en"}/privacy`}
@@ -811,13 +755,11 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
                   data-gtm-location="footer"
                   data-gtm-label="privacy"
                 >
-                  <motion.span
+                  <span
                     className="text-base font-medium leading-6 text-[#1e1e1e] cursor-pointer hover:text-[#62a0f6] transition-colors"
-                    variants={animationVariants.link}
-                    whileHover="hover"
                   >
                     {t.legal.privacy}
-                  </motion.span>
+                  </span>
                 </Link>
               </nav>
               <p className="text-base font-medium leading-6 text-[#1e1e1e] text-center">
@@ -840,7 +782,7 @@ function Footer({ locale = "ar", section, settings }: FooterProps) {
             </p>
             <div className="relative shrink-0 w-[92px] h-[32px] sm:w-[120px] sm:h-[42px]">
               <Image
-                src="/assets/images/gosi.png"
+                src="/assets/images/gosi.webp"
                 alt={
                   locale === "ar"
                     ? "شعار المؤسسة العامة للتأمينات الاجتماعية — برنامج تقدير"

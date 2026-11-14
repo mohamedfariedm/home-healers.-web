@@ -1,12 +1,11 @@
 import initTranslations from "@/app/i18n";
 import { AboutAppTwoColumns, Bannar } from "../(homepage)/_components";
+import { FeaturesSection, HeroBanner } from "@/components/AboutUs";
 import {
-  DoctorsSection,
-  FaqSection,
-  FeaturesSection,
-  HeroBanner,
-  PartnersSection,
-} from "@/components/AboutUs";
+  DeferredDoctorsSection,
+  DeferredFaqSection,
+  DeferredPartnersSection,
+} from "@/components/AboutUs/DeferredAboutSections";
 import { createMetadata } from "@/lib/seo";
 import { createFaqPageSchema, renderJsonLd } from "@/lib/structured-data";
 import { formatFaqData } from "@/utils/faq-helpers";
@@ -23,6 +22,7 @@ import {
   slimSettingsForChrome,
 } from "@/lib/public-payload";
 import { localePath } from "@/lib/offers";
+
 export const revalidate = 60;
 
 export async function generateMetadata({
@@ -105,18 +105,21 @@ async function page({ params }: { params: Promise<{ locale: string }> }) {
               <Bannar banner={slimBanner(banner)} />
             </div>
           ))}
-        <DoctorsSection
-          doctorsData={(doctorsData?.data || []).map(slimDoctorCard)}
+        <DeferredDoctorsSection
+          doctorsData={(doctorsData?.data || []).slice(0, 24).map(slimDoctorCard)}
           data={slimHomeSection(doctorsSection, 2)}
           locale={locale}
         />
-        <FaqSection
+        <DeferredFaqSection
           faqsData={faqsData?.data}
           data={slimHomeSection(faqSection, 2)}
           locale={locale}
           settings={slimSettingsForChrome(settings)}
         />
-        <PartnersSection data={slimHomeSection(partnersSection, 12)} locale={locale} />
+        <DeferredPartnersSection
+          data={slimHomeSection(partnersSection, 12)}
+          locale={locale}
+        />
       </div>
     </>
   );
