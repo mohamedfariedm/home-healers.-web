@@ -498,6 +498,39 @@ export default function OfferBookingClient({
     }
   };
 
+  const startHostedTelrPay = async () => {
+    if (!reservationId) return;
+    persistReservationId(reservationId);
+    persistCheckoutBooking(bookingData);
+    const telrResponse = await ClientAPI.payReservationWithTelr(
+      reservationId,
+      locale,
+    );
+    trackEvent(GTM_EVENTS.RESERVATION_PAYMENT, {
+      reservation_id: reservationId,
+      payment_method: "telr",
+      source: "offer_booking",
+      offer_id: offer.id,
+      checkout: "hosted",
+    });
+    router.push(extractTelrRedirectUrl(telrResponse));
+  };
+
+  const handleSeamlessPaid = (meta: {
+    paymentId?: string | null;
+    reservationId: number;
+  }) => {
+    trackEvent(GTM_EVENTS.RESERVATION_PAYMENT, {
+      reservation_id: meta.reservationId,
+      payment_method: "telr",
+      source: "offer_booking",
+      offer_id: offer.id,
+      checkout: "seamless",
+    });
+    const ref = meta.paymentId || String(meta.reservationId);
+    router.push(`/${locale}/success/${encodeURIComponent(ref)}`);
+  };
+
   const handlePay = async () => {
     if (!reservationId) return;
     setPaying(true);
@@ -526,17 +559,7 @@ export default function OfferBookingClient({
         );
         setPhase("done");
       } else {
-        const telrResponse = await ClientAPI.payReservationWithTelr(
-          reservationId,
-          locale,
-        );
-        trackEvent(GTM_EVENTS.RESERVATION_PAYMENT, {
-          reservation_id: reservationId,
-          payment_method: "telr",
-          source: "offer_booking",
-          offer_id: offer.id,
-        });
-        router.push(extractTelrRedirectUrl(telrResponse));
+        await startHostedTelrPay();
       }
     } catch (error: unknown) {
       toast.error(
@@ -691,6 +714,22 @@ export default function OfferBookingClient({
           updateBookingData={updateBookingData}
           onPay={handlePay}
           isPaying={paying}
+          customerEmail={guest.email.trim() || null}
+          onHostedTelrPay={async () => {
+            setPaying(true);
+            try {
+              await startHostedTelrPay();
+            } catch (error: unknown) {
+              toast.error(
+                error instanceof Error
+                  ? error.message
+                  : t("booking.errors.paymentFailed"),
+              );
+            } finally {
+              setPaying(false);
+            }
+          }}
+          onSeamlessPaid={handleSeamlessPaid}
         />
       ) : null}
 

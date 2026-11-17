@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next";
 import type { BookingData } from "@/types/booking";
 import { toast } from "sonner";
 import ClientAPI from "@/app/api/api";
+import TelrLogo from "@/components/payments/TelrLogo";
+import TelrSeamlessPanel from "@/components/payments/TelrSeamlessPanel";
 import {
   applyPaymentMethodToPricing,
   applyPaymentSummaryToBooking,
@@ -25,6 +27,13 @@ interface Step5Props {
   onNext: () => void;
   onPrev: () => void;
   isLoading: boolean;
+  /** Hosted Telr HPP fallback (existing redirect flow) */
+  onHostedTelrPay?: () => void | Promise<void>;
+  /** After Seamless pay is backend-verified as paid */
+  onSeamlessPaid?: (meta: {
+    paymentId?: string | null;
+    reservationId: number;
+  }) => void;
 }
 
 export default function Step5Payment({
@@ -34,6 +43,8 @@ export default function Step5Payment({
   onNext,
   onPrev,
   isLoading,
+  onHostedTelrPay,
+  onSeamlessPaid,
 }: Step5Props) {
   const { t, i18n } = useTranslation("booking");
   const authToken = undefined;
@@ -45,8 +56,11 @@ export default function Step5Payment({
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [isRemovingCoupon, setIsRemovingCoupon] = useState(false);
   const [isSummaryLoading, setIsSummaryLoading] = useState(false);
+  const [seamlessOpen, setSeamlessOpen] = useState(false);
 
   const locale = i18n.language?.startsWith("en") ? "en" : "ar";
+  const showSeamlessCheckout =
+    Boolean(reservationId) && bookingData.paymentMethod === "telr";
 
   const paymentMethods = [
     {
@@ -656,13 +670,48 @@ export default function Step5Payment({
           </div>
         </div>
 
+        {showSeamlessCheckout && reservationId ? (
+          <TelrSeamlessPanel
+            open={seamlessOpen}
+            onOpenChange={setSeamlessOpen}
+            reservationId={reservationId}
+            amount={invoiceTotal}
+            locale={locale}
+            customerEmail={
+              bookingData.selectedPatients?.find((p) => p.email?.trim())
+                ?.email || null
+            }
+            onHostedFallback={async () => {
+              if (onHostedTelrPay) {
+                await onHostedTelrPay();
+                return;
+              }
+              onNext();
+            }}
+            onPaid={(meta) => {
+              setSeamlessOpen(false);
+              if (onSeamlessPaid) {
+                onSeamlessPaid(meta);
+                return;
+              }
+              onNext();
+            }}
+          />
+        ) : null}
+
         {/* Payment Button - moved to floating nav */}
       </div>
     </div>
 
     <BookingStepNav
       onPrev={onPrev}
-      onNext={onNext}
+      onNext={() => {
+        if (showSeamlessCheckout) {
+          setSeamlessOpen(true);
+          return;
+        }
+        onNext();
+      }}
       prevDisabled={isLoading || couponBusy}
       nextDisabled={
         !bookingData.paymentMethod ||
@@ -682,6 +731,11 @@ export default function Step5Payment({
               <Banknote className="w-5 h-5" />
               {t("step5.confirmCash")}
             </>
+          ) : showSeamlessCheckout ? (
+            <>
+              <TelrLogo light showWordmark={false} className="[&_svg]:size-6" />
+              {t("seamless.payWithTelr")}
+            </>
           ) : (
             <>
               <CreditCard className="w-5 h-5" />
@@ -692,7 +746,9 @@ export default function Step5Payment({
         nextLabel={
           bookingData.paymentMethod === "cash"
             ? t("step5.confirmCash")
-            : t("step5.confirmPayment")
+            : showSeamlessCheckout
+              ? t("seamless.payWithTelr")
+              : t("step5.confirmPayment")
         }
       />
     </div>

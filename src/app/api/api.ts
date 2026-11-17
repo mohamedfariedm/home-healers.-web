@@ -344,12 +344,60 @@ const ClientAPI = {
       throwOnError: true,
     }),
 
-  // Payment - Telr (website checkout)
+  // Payment - Telr (website hosted checkout / HPP)
   payReservationWithTelr: (reservationId: number, locale: string) =>
     fetchData("client/payment/telr/pay", locale, {
       method: "POST",
       body: { reservation_id: reservationId, method: "web" },
       throwOnError: true,
+    }),
+
+  /** Telr Seamless public config (feature flag + store_id / currency / test_mode). */
+  getTelrSeamlessConfig: (locale: string) =>
+    fetchData("client/payment/telr/seamless/config", locale, {
+      noCache: true,
+      throwOnError: true,
+    }),
+
+  /**
+   * Telr Seamless pay — card token only; auth key stays on the backend.
+   * `locale` is included so backend return URLs are localized.
+   * `customer_email` is sent only when the profile has no email (backend ignores otherwise).
+   */
+  payReservationWithTelrSeamless: (
+    reservationId: number,
+    cardToken: string,
+    locale: string,
+    options?: { customerEmail?: string }
+  ) => {
+    const payLocale = locale.toLowerCase().startsWith("en") ? "en" : "ar";
+    const body: Record<string, unknown> = {
+      reservation_id: reservationId,
+      card_token: cardToken,
+      locale: payLocale,
+    };
+    const email = options?.customerEmail?.trim();
+    if (email) {
+      body.customer_email = email;
+    }
+    return fetchData("client/payment/telr/seamless/pay", locale, {
+      method: "POST",
+      body,
+      throwOnError: true,
+      noCache: true,
+    });
+  },
+
+  /** Authoritative Seamless payment verification (attempt_id and/or reservation_id). */
+  verifyTelrSeamlessPayment: (
+    payload: { attempt_id?: number; reservation_id?: number },
+    locale: string
+  ) =>
+    fetchData("client/payment/telr/seamless/verify", locale, {
+      method: "POST",
+      body: payload,
+      throwOnError: true,
+      noCache: true,
     }),
 
   // Reservation Review

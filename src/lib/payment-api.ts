@@ -1,4 +1,10 @@
 import { extractApiMessage } from "@/lib/payment-summary";
+import {
+  parseTelrSeamlessPayData,
+  parseTelrSeamlessVerifyData,
+  type TelrSeamlessPayData,
+  type TelrSeamlessVerifyData,
+} from "@/lib/telr-seamless";
 
 export function extractTelrRedirectUrl(response: unknown): string {
   if (!response || typeof response !== "object") {
@@ -17,6 +23,20 @@ export function extractTelrRedirectUrl(response: unknown): string {
   }
 
   throw new Error(extractApiMessage(response, "Payment redirect URL missing"));
+}
+
+/** Parses Seamless pay / 409 responses (challenge URL / status). */
+export function extractTelrSeamlessPayResult(
+  response: unknown
+): TelrSeamlessPayData {
+  return parseTelrSeamlessPayData(response);
+}
+
+/** Parses Seamless verify responses. */
+export function extractTelrSeamlessVerifyResult(
+  response: unknown
+): TelrSeamlessVerifyData {
+  return parseTelrSeamlessVerifyData(response);
 }
 
 export type ReservationPaymentState = {

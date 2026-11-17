@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { Banknote, CreditCard, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import ClientAPI from "@/app/api/api";
+import TelrLogo from "@/components/payments/TelrLogo";
+import TelrSeamlessPanel from "@/components/payments/TelrSeamlessPanel";
 import type { BookingData } from "@/types/booking";
 import {
   applyPaymentMethodToPricing,
@@ -25,6 +27,12 @@ type OfferPaymentPanelProps = {
   ) => void;
   onPay: () => void;
   isPaying: boolean;
+  onHostedTelrPay?: () => void | Promise<void>;
+  onSeamlessPaid?: (meta: {
+    paymentId?: string | null;
+    reservationId: number;
+  }) => void;
+  customerEmail?: string | null;
 };
 
 export default function OfferPaymentPanel({
@@ -34,9 +42,15 @@ export default function OfferPaymentPanel({
   updateBookingData,
   onPay,
   isPaying,
+  onHostedTelrPay,
+  onSeamlessPaid,
+  customerEmail,
 }: OfferPaymentPanelProps) {
   const { t } = useTranslation(["offers", "booking"]);
   const [isSummaryLoading, setIsSummaryLoading] = useState(false);
+  const [seamlessOpen, setSeamlessOpen] = useState(false);
+
+  const showSeamlessCheckout = bookingData.paymentMethod === "telr";
 
   const refreshPaymentSummary = useCallback(async () => {
     setIsSummaryLoading(true);
@@ -182,20 +196,60 @@ export default function OfferPaymentPanel({
         </dl>
       </section>
 
+      {showSeamlessCheckout ? (
+        <TelrSeamlessPanel
+          open={seamlessOpen}
+          onOpenChange={setSeamlessOpen}
+          reservationId={reservationId}
+          amount={invoiceTotal}
+          locale={locale}
+          customerEmail={
+            customerEmail ||
+            bookingData.selectedPatients?.find((p) => p.email?.trim())
+              ?.email ||
+            null
+          }
+          onHostedFallback={async () => {
+            if (onHostedTelrPay) {
+              await onHostedTelrPay();
+              return;
+            }
+            onPay();
+          }}
+          onPaid={(meta) => {
+            setSeamlessOpen(false);
+            if (onSeamlessPaid) {
+              onSeamlessPaid(meta);
+              return;
+            }
+            onPay();
+          }}
+        />
+      ) : null}
+
       <button
         type="button"
-        onClick={onPay}
+        onClick={() => {
+          if (showSeamlessCheckout) {
+            setSeamlessOpen(true);
+            return;
+          }
+          onPay();
+        }}
         disabled={isPaying || !bookingData.paymentMethod}
         data-gtm-event="reservation_payment"
         data-gtm-location="offer_payment_panel"
-        className="inline-flex h-14 w-full items-center justify-center rounded-2xl bg-primary text-base font-semibold text-white disabled:opacity-60 md:col-span-2"
+        className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#62a0f6_0%,#2f6fd6_55%,#143087_100%)] text-base font-semibold text-white shadow-[0_14px_30px_rgba(47,111,214,0.28)] transition hover:brightness-105 disabled:opacity-60 md:col-span-2"
       >
         {isPaying ? (
           <Loader2 className="size-5 animate-spin" />
         ) : bookingData.paymentMethod === "cash" ? (
           t("step5.confirmCash", { ns: "booking" })
         ) : (
-          t("booking.goToPayment")
+          <>
+            <TelrLogo light showWordmark={false} className="[&_svg]:size-6" />
+            {t("seamless.payWithTelr", { ns: "booking" })}
+          </>
         )}
       </button>
     </div>

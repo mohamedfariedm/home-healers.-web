@@ -988,6 +988,40 @@ export default function BookingFlow({
     }
   };
 
+  const startHostedTelrPay = async () => {
+    if (!reservationId) {
+      throw new Error(t("messages.reservationIdMissing"));
+    }
+
+    persistReservationId(reservationId);
+    const telrResponse = await ClientAPI.payReservationWithTelr(
+      reservationId,
+      locale
+    );
+    trackEvent(GTM_EVENTS.RESERVATION_PAYMENT, {
+      reservation_id: reservationId,
+      payment_method: "telr",
+      source: "booking_flow",
+      checkout: "hosted",
+    });
+    const redirectUrl = extractTelrRedirectUrl(telrResponse);
+    route.push(redirectUrl);
+  };
+
+  const handleSeamlessPaid = (meta: {
+    paymentId?: string | null;
+    reservationId: number;
+  }) => {
+    trackEvent(GTM_EVENTS.RESERVATION_PAYMENT, {
+      reservation_id: meta.reservationId,
+      payment_method: "telr",
+      source: "booking_flow",
+      checkout: "seamless",
+    });
+    const ref = meta.paymentId || String(meta.reservationId);
+    route.push(`/${locale}/success/${encodeURIComponent(ref)}`);
+  };
+
   const completePayment = async () => {
     try {
       setIsLoading(true);
@@ -1034,17 +1068,7 @@ export default function BookingFlow({
         );
         setCurrentStep(6);
       } else {
-        const telrResponse = await ClientAPI.payReservationWithTelr(
-          reservationId,
-          locale
-        );
-        trackEvent(GTM_EVENTS.RESERVATION_PAYMENT, {
-          reservation_id: reservationId,
-          payment_method: "telr",
-          source: "booking_flow",
-        });
-        const redirectUrl = extractTelrRedirectUrl(telrResponse);
-        route.push(redirectUrl);
+        await startHostedTelrPay();
       }
     } catch (error: any) {
       console.error("Payment Error:", error);
@@ -1148,9 +1172,25 @@ export default function BookingFlow({
             bookingData={bookingData}
             updateBookingData={updateBookingData}
             reservationId={reservationId}
-            onNext={completePayment} // Call payment completion
+            onNext={completePayment}
             onPrev={prevStep}
             isLoading={isLoading}
+            onHostedTelrPay={async () => {
+              try {
+                setIsLoading(true);
+                await startHostedTelrPay();
+              } catch (error: unknown) {
+                const message =
+                  error instanceof Error
+                    ? error.message
+                    : t("messages.paymentFailed");
+                setError(message);
+                toast.error(message);
+              } finally {
+                setIsLoading(false);
+              }
+            }}
+            onSeamlessPaid={handleSeamlessPaid}
           />
         );
       case 6:
