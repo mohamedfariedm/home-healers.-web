@@ -3,6 +3,7 @@
 import { MessagesSquare, Phone } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { openTawkLiveChat } from "@/lib/tawk";
 import { buildWhatsAppUrl, formatWhatsAppNumber } from "@/constants/whatsapp";
 import { GTM_EVENTS } from "@/lib/gtm";
@@ -10,6 +11,15 @@ import { GTM_EVENTS } from "@/lib/gtm";
 interface FloatingContactProps {
   settings?: any;
   locale?: string;
+}
+
+/** Booking sticky step nav sits at bottom; lift FABs so they don't cover Next/Back. */
+function isBookingRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return (
+    /\/booking(\/|$)/.test(pathname) ||
+    /\/offers\/[^/]+\/book(\/|$)/.test(pathname)
+  );
 }
 
 const labels = {
@@ -29,6 +39,8 @@ export default function FloatingContact({
   settings,
   locale = "ar",
 }: FloatingContactProps) {
+  const pathname = usePathname();
+  const onBooking = isBookingRoute(pathname);
   const isArabic = locale === "ar" || locale.startsWith("ar");
   const t = labels[isArabic ? "ar" : "en"];
 
@@ -74,7 +86,12 @@ export default function FloatingContact({
   ];
 
   return (
-    <div className="fixed end-2 bottom-[10%] z-[60] flex flex-col items-center gap-2 sm:end-4 sm:gap-3">
+    <div
+      className={`fixed end-2 z-[60] flex flex-col items-center gap-2 sm:end-4 sm:gap-3 ${
+        /* Booking sticky nav is taller on very narrow viewports; keep FABs clear of Next/Back. */
+        onBooking ? "bottom-36 sm:bottom-32" : "bottom-[10%]"
+      }`}
+    >
       {actions.map((action) => (
         <div key={action.id} className="group/action relative shrink-0">
           <span

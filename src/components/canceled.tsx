@@ -8,12 +8,35 @@ import { useRouter } from "next/navigation";
 import type { BookingData } from "@/types/booking";
 import ClientAPI from "@/app/api/api";
 import { extractTelrRedirectUrl } from "@/lib/payment-api";
-import { getPersistedReservationId } from "@/lib/checkout-storage";
+import {
+  clearPendingPayment,
+  getPersistedPendingPayment,
+  getPersistedReservationId,
+  persistPendingPayment,
+} from "@/lib/checkout-storage";
+import {
+  mapTamaraStartError,
+  pollTamaraOutcome,
+  resolveTamaraCheckoutContext,
+  startTamaraCheckoutRedirect,
+  tamaraResultPath,
+  TamaraAlreadyPaidError,
+} from "@/lib/tamara";
+import {
+  isPaymentInProgressError,
+  isTelrAlreadyPaidError,
+  isTelrSessionExpiredError,
+  pollTelrReturnOutcome,
+  startTabbyHostedRedirect,
+  verifyTelrReturnOutcome,
+} from "@/lib/telr-seamless";
 import { useTranslation } from "react-i18next";
 
 type PaymentCanceledProps = {
   orderRef?: string;
 };
+
+type ViewState = "checking" | "confirming" | "canceled";
 
 export default function PaymentCanceled({ orderRef }: PaymentCanceledProps) {
   const router = useRouter();
@@ -22,33 +45,279 @@ export default function PaymentCanceled({ orderRef }: PaymentCanceledProps) {
   const [bookingData] = useLocalStorage<BookingData>("bookingData", {} as BookingData);
   const [reservationId, setReservationId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
+  const [view, setView] = useState<ViewState>("checking");
+  const [isTamaraFlow, setIsTamaraFlow] = useState(false);
+  const [isTelrTabbyFlow, setIsTelrTabbyFlow] = useState(false);
+  const [retryBlocked, setRetryBlocked] = useState(false);
 
   useEffect(() => {
-    const persistedId = getPersistedReservationId();
-    if (!persistedId) {
-      toast.error(t("messages.reservationIdMissing"));
-      router.push("/");
-      return;
+    const checkStatus = async () => {
+      const { reservationId: persistedId, pending, isTamara } =
+        resolveTamaraCheckoutContext();
+      const id = persistedId ?? getPersistedReservationId();
+      if (!id) {
+        toast.error(t("messages.reservationIdMissing"));
+        router.push("/");
+        return;
+      }
+      setReservationId(id);
+      setIsTamaraFlow(isTamara);
+      setIsTelrTabbyFlow(
+        pending?.provider === "telr" && pending?.method === "tabby"
+      );
+
+      try {
+        if (isTamara) {
+          const result = await pollTamaraOutcome({
+            reservationId: id,
+            locale,
+            attemptId: pending?.attemptId,
+            attempts: 3,
+            intervalMs: 2000,
+            stopOnTerminal: true,
+          });
+
+          if (result.outcome === "paid") {
+            clearPendingPayment();
+            router.replace(
+              tamaraResultPath(
+                locale,
+                "success",
+                orderRef ?? pending?.orderId ?? String(id)
+              )
+            );
+            return;
+          }
+
+          if (result.outcome === "failed" || result.outcome === "expired") {
+            router.replace(
+              tamaraResultPath(
+                locale,
+                "failed",
+                orderRef ?? pending?.orderId ?? String(id)
+              )
+            );
+            return;
+          }
+
+          if (
+            result.outcome === "pending" ||
+            result.outcome === "unavailable" ||
+            result.outcome === "unknown"
+          ) {
+            setRetryBlocked(true);
+            setView("confirming");
+            toast.message(t("paymentReturn.confirmingMessage"));
+            return;
+          }
+
+          setView("canceled");
+          return;
+        }
+
+        const telrOutcome = await pollTelrReturnOutcome({
+          reservationId: id,
+          locale,
+          attemptId: pending?.attemptId,
+          attempts: 3,
+          intervalMs: 2000,
+        });
+
+        if (telrOutcome === "paid") {
+          clearPendingPayment();
+          router.replace(
+            `/${locale}/success/${encodeURIComponent(orderRef ?? String(id))}`
+          );
+          return;
+        }
+
+        if (telrOutcome === "pending" || telrOutcome === "unavailable") {
+          setRetryBlocked(true);
+          setView("confirming");
+          toast.message(t("paymentReturn.confirmingMessage"));
+          return;
+        }
+
+        setRetryBlocked(false);
+        setView("canceled");
+      } catch (error) {
+        console.error("Canceled payment re-check:", error);
+        setView("canceled");
+      }
+    };
+
+    void checkStatus();
+  }, [locale, orderRef, router, t]);
+
+  const handleRefreshStatus = async () => {
+    if (!reservationId) return;
+    const pending = getPersistedPendingPayment();
+    setView("checking");
+    try {
+      if (pending?.provider === "tamara" || isTamaraFlow) {
+        const result = await pollTamaraOutcome({
+          reservationId,
+          locale,
+          attemptId: pending?.attemptId,
+          attempts: 4,
+          intervalMs: 2000,
+          stopOnTerminal: true,
+        });
+        if (result.outcome === "paid") {
+          clearPendingPayment();
+          router.replace(
+            tamaraResultPath(
+              locale,
+              "success",
+              orderRef ?? pending?.orderId ?? String(reservationId)
+            )
+          );
+          return;
+        }
+        if (result.outcome === "failed" || result.outcome === "expired") {
+          router.replace(
+            tamaraResultPath(
+              locale,
+              "failed",
+              orderRef ?? pending?.orderId ?? String(reservationId)
+            )
+          );
+          return;
+        }
+        if (
+          result.outcome === "pending" ||
+          result.outcome === "unavailable" ||
+          result.outcome === "unknown"
+        ) {
+          setRetryBlocked(true);
+          setView("confirming");
+          return;
+        }
+        setRetryBlocked(false);
+        setView("canceled");
+        return;
+      }
+
+      const telrOutcome = await pollTelrReturnOutcome({
+        reservationId,
+        locale,
+        attemptId: pending?.attemptId,
+        attempts: 4,
+        intervalMs: 2000,
+      });
+      if (telrOutcome === "paid") {
+        clearPendingPayment();
+        router.replace(
+          `/${locale}/success/${encodeURIComponent(orderRef ?? String(reservationId))}`
+        );
+        return;
+      }
+      if (telrOutcome === "pending" || telrOutcome === "unavailable") {
+        setRetryBlocked(true);
+        setView("confirming");
+        return;
+      }
+      setRetryBlocked(false);
+      setView("canceled");
+    } catch {
+      setView("confirming");
+      toast.error(t("paymentReturn.verifyFailed"));
     }
-    setReservationId(persistedId);
-    setIsChecking(false);
-  }, [router, t]);
+  };
 
   const handleRetryPayment = async () => {
-    if (!reservationId) {
-      toast.error(t("messages.reservationIdMissing"));
+    if (!reservationId || retryBlocked) {
+      if (retryBlocked) {
+        toast.message(t("seamless.paymentInProgress"));
+      } else {
+        toast.error(t("messages.reservationIdMissing"));
+      }
       return;
     }
 
     try {
       setIsLoading(true);
+      const precheck = await verifyTelrReturnOutcome(
+        reservationId,
+        locale,
+        getPersistedPendingPayment()?.attemptId
+      );
+      if (precheck === "paid") {
+        router.replace(
+          `/${locale}/success/${encodeURIComponent(orderRef ?? String(reservationId))}`
+        );
+        return;
+      }
+      if (precheck === "pending") {
+        setRetryBlocked(true);
+        setView("confirming");
+        toast.message(t("seamless.paymentInProgress"));
+        return;
+      }
+
       await ClientAPI.getPaymentSummary(reservationId, locale);
-      const response = await ClientAPI.payReservationWithTelr(reservationId, locale);
+      const pending = getPersistedPendingPayment();
+      if (isTamaraFlow || pending?.provider === "tamara") {
+        await startTamaraCheckoutRedirect({
+          reservationId,
+          locale,
+        });
+        return;
+      }
+
+      if (isTelrTabbyFlow || pending?.method === "tabby") {
+        const { redirectUrl } = await startTabbyHostedRedirect({
+          reservationId,
+          locale,
+          previous: pending,
+        });
+        window.location.assign(redirectUrl);
+        return;
+      }
+
+      persistPendingPayment({
+        reservationId,
+        provider: "telr",
+        method: "hpp",
+      });
+      const response = await ClientAPI.payReservationWithTelr(
+        reservationId,
+        locale
+      );
       const redirectUrl = extractTelrRedirectUrl(response);
       router.push(redirectUrl);
     } catch (error: unknown) {
       console.error("Retry Payment Error:", error);
+      if (
+        error instanceof TamaraAlreadyPaidError ||
+        isTelrAlreadyPaidError(error)
+      ) {
+        router.replace(
+          `/${locale}/success/${encodeURIComponent(orderRef ?? String(reservationId))}`
+        );
+        return;
+      }
+      if (isPaymentInProgressError(error)) {
+        setRetryBlocked(true);
+        setView("confirming");
+        toast.error(t("seamless.paymentInProgress"));
+        return;
+      }
+      if (isTelrSessionExpiredError(error)) {
+        toast.error(t("seamless.sessionExpired"));
+        return;
+      }
+      if (isTamaraFlow || getPersistedPendingPayment()?.provider === "tamara") {
+        const message = mapTamaraStartError(error, {
+          alreadyPaid: t("tamara.alreadyPaid"),
+          inProgress: t("tamara.paymentInProgress"),
+          rejected: t("tamara.rejected"),
+          unavailable: t("tamara.unavailable"),
+          fallback: t("messages.paymentFailed"),
+        });
+        toast.error(message);
+        return;
+      }
       const message =
         error instanceof Error ? error.message : t("messages.paymentFailed");
       toast.error(message);
@@ -61,10 +330,23 @@ export default function PaymentCanceled({ orderRef }: PaymentCanceledProps) {
     router.push("/");
   };
 
-  if (isChecking) {
+  if (view === "checking" || view === "confirming") {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center gap-4 px-4 text-center">
         <Loader2 className="h-10 w-10 animate-spin text-[#143087]" />
+        <h1 className="text-xl font-semibold text-[#143087]">
+          {t("paymentReturn.confirmingTitle")}
+        </h1>
+        <p className="text-gray-600">{t("paymentReturn.confirmingMessage")}</p>
+        {view === "confirming" && (
+          <button
+            type="button"
+            onClick={() => void handleRefreshStatus()}
+            className="mt-2 rounded-lg border border-[#62a0f6] px-6 py-2 text-[#62a0f6] hover:bg-[#eff6fe]"
+          >
+            {t("paymentReturn.refreshStatus")}
+          </button>
+        )}
       </div>
     );
   }
@@ -113,7 +395,7 @@ export default function PaymentCanceled({ orderRef }: PaymentCanceledProps) {
         <button
           type="button"
           onClick={handleRetryPayment}
-          disabled={isLoading || !reservationId}
+          disabled={isLoading || !reservationId || retryBlocked}
           data-gtm-event="payment_retry"
           data-gtm-location="payment_canceled"
           className="flex items-center justify-center gap-2 px-8 py-3 bg-[#62a0f6] text-white rounded-lg hover:bg-[#5090e6] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"

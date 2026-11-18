@@ -63,7 +63,16 @@ import {
   extractApiMessage,
   type PaymentSummaryData,
 } from "@/lib/payment-summary";
-import { persistReservationId, clearCheckoutStorage } from "@/lib/checkout-storage";
+import {
+  persistReservationId,
+  persistPendingPayment,
+  clearCheckoutStorage,
+} from "@/lib/checkout-storage";
+import {
+  mapTamaraStartError,
+  startTamaraCheckoutRedirect,
+  TamaraAlreadyPaidError,
+} from "@/lib/tamara";
 import { applyReservationPricingFromApi } from "@/lib/reservation-pricing";
 import { GTM_EVENTS, trackEvent } from "@/lib/gtm";
 import { resolveNationalityId } from "@/lib/saudi-nationality";
@@ -502,6 +511,11 @@ export default function OfferBookingClient({
     if (!reservationId) return;
     persistReservationId(reservationId);
     persistCheckoutBooking(bookingData);
+    persistPendingPayment({
+      reservationId,
+      provider: "telr",
+      method: "hpp",
+    });
     const telrResponse = await ClientAPI.payReservationWithTelr(
       reservationId,
       locale,
@@ -514,6 +528,44 @@ export default function OfferBookingClient({
       checkout: "hosted",
     });
     router.push(extractTelrRedirectUrl(telrResponse));
+  };
+
+  const startTamaraPay = async () => {
+    if (!reservationId) return;
+    persistReservationId(reservationId);
+    persistCheckoutBooking(bookingData);
+    try {
+      trackEvent(GTM_EVENTS.RESERVATION_PAYMENT, {
+        reservation_id: reservationId,
+        payment_method: "tamara",
+        source: "offer_booking",
+        offer_id: offer.id,
+        checkout: "tamara",
+      });
+      await startTamaraCheckoutRedirect({
+        reservationId,
+        locale,
+        customerEmail: guest.email.trim() || undefined,
+      });
+    } catch (error: unknown) {
+      if (error instanceof TamaraAlreadyPaidError) {
+        router.push(
+          `/${locale}/success/${encodeURIComponent(String(reservationId))}`,
+        );
+        return;
+      }
+      throw new Error(
+        mapTamaraStartError(error, {
+          alreadyPaid: t("tamara.alreadyPaid", { ns: "booking" }),
+          inProgress: t("tamara.paymentInProgress", { ns: "booking" }),
+          rejected:
+            (isClientApiError(error) && error.message) ||
+            t("tamara.rejected", { ns: "booking" }),
+          unavailable: t("tamara.unavailable", { ns: "booking" }),
+          fallback: t("messages.paymentFailed", { ns: "booking" }),
+        }),
+      );
+    }
   };
 
   const handleSeamlessPaid = (meta: {
@@ -558,6 +610,8 @@ export default function OfferBookingClient({
           extractApiMessage(cashResponse, t("booking.cashConfirmed")),
         );
         setPhase("done");
+      } else if (bookingData.paymentMethod === "tamara") {
+        await startTamaraPay();
       } else {
         await startHostedTelrPay();
       }
@@ -719,6 +773,20 @@ export default function OfferBookingClient({
             setPaying(true);
             try {
               await startHostedTelrPay();
+            } catch (error: unknown) {
+              toast.error(
+                error instanceof Error
+                  ? error.message
+                  : t("booking.errors.paymentFailed"),
+              );
+            } finally {
+              setPaying(false);
+            }
+          }}
+          onTamaraPay={async () => {
+            setPaying(true);
+            try {
+              await startTamaraPay();
             } catch (error: unknown) {
               toast.error(
                 error instanceof Error

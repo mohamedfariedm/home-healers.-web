@@ -1,10 +1,55 @@
 import { extractApiMessage } from "@/lib/payment-summary";
 import type {
+  TelrCheckoutMethod,
+  TelrMethodPayData,
   TelrSeamlessConfig,
   TelrSeamlessPayData,
   TelrSeamlessPaymentStatus,
   TelrSeamlessVerifyData,
 } from "./types";
+
+const CHECKOUT_METHODS = new Set<TelrCheckoutMethod>([
+  "card",
+  "tabby",
+  "apple_pay",
+]);
+
+/** Normalize backend / env method tokens to our union. */
+export function normalizeTelrCheckoutMethods(
+  value: unknown
+): TelrCheckoutMethod[] {
+  const raw: string[] = [];
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      if (typeof item === "string" && item.trim()) raw.push(item.trim());
+    }
+  } else if (typeof value === "string" && value.trim()) {
+    raw.push(
+      ...value
+        .split(/[,|]/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+    );
+  }
+
+  const out: TelrCheckoutMethod[] = [];
+  for (const token of raw) {
+    const key = token.toLowerCase().replace(/-/g, "_");
+    const mapped: TelrCheckoutMethod | null =
+      key === "card" || key === "cards"
+        ? "card"
+        : key === "tabby"
+          ? "tabby"
+          : key === "apple_pay" || key === "applepay"
+            ? "apple_pay"
+            : null;
+    if (mapped && CHECKOUT_METHODS.has(mapped) && !out.includes(mapped)) {
+      out.push(mapped);
+    }
+  }
+  // Empty is valid — UI methods come from frontend config, not this parser.
+  return out;
+}
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
@@ -56,6 +101,12 @@ export function parseTelrSeamlessConfig(response: unknown): TelrSeamlessConfig |
     asString(data.storeId) ??
     (asNumber(data.store_id) != null ? String(data.store_id) : null);
 
+  const methodsRaw = data.methods ?? data.payment_methods ?? data.panels;
+  const methods =
+    methodsRaw === undefined || methodsRaw === null
+      ? undefined
+      : normalizeTelrCheckoutMethods(methodsRaw);
+
   if (enabled === false) {
     return {
       enabled: false,
@@ -63,6 +114,7 @@ export function parseTelrSeamlessConfig(response: unknown): TelrSeamlessConfig |
       currency: asString(data.currency) ?? "SAR",
       test_mode: parseTestMode(data),
       sdk_url: asString(data.sdk_url) ?? asString(data.sdkUrl),
+      ...(methods?.length ? { methods } : {}),
     };
   }
 
@@ -74,6 +126,41 @@ export function parseTelrSeamlessConfig(response: unknown): TelrSeamlessConfig |
     currency: asString(data.currency) ?? "SAR",
     test_mode: parseTestMode(data),
     sdk_url: asString(data.sdk_url) ?? asString(data.sdkUrl),
+    ...(methods?.length ? { methods } : {}),
+  };
+}
+
+/** Parses POST client/payment/telr/method/pay (Tabby hosted redirect). */
+export function parseTelrMethodPayData(response: unknown): TelrMethodPayData {
+  const root = asRecord(response);
+  if (!root) {
+    throw new Error("Invalid Telr method payment response");
+  }
+
+  const data = asRecord(root.data) ?? root;
+  const redirectUrl =
+    asString(data.redirect_url) ??
+    asString(data.redirect_link) ??
+    asString(data.order_url);
+
+  if (!redirectUrl) {
+    throw new Error(
+      extractApiMessage(response, "Payment redirect URL missing")
+    );
+  }
+
+  return {
+    redirect_url: redirectUrl,
+    attempt_id: asNumber(data.attempt_id) ?? asNumber(data.attemptId),
+    payment_id: asString(data.payment_id) ?? asString(data.paymentId),
+    payment_status: asString(data.payment_status),
+    amount: asNumber(data.amount),
+    currency: asString(data.currency),
+    payment_mode: asString(data.payment_mode) ?? asString(data.paymentMode),
+    reused: asBoolean(data.reused),
+    expires_at: asString(data.expires_at) ?? asString(data.expiresAt),
+    message: asString(data.message) ?? asString(root.message),
+    error: asString(data.error),
   };
 }
 

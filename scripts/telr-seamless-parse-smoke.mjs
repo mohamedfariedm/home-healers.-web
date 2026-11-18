@@ -30,6 +30,29 @@ function asBoolean(value) {
   return undefined;
 }
 
+function normalizeMethods(value) {
+  const raw = [];
+  if (Array.isArray(value)) {
+    for (const item of value) if (typeof item === "string" && item.trim()) raw.push(item.trim());
+  } else if (typeof value === "string" && value.trim()) {
+    raw.push(...value.split(/[,|]/).map((s) => s.trim()).filter(Boolean));
+  }
+  const out = [];
+  for (const token of raw) {
+    const key = token.toLowerCase().replace(/-/g, "_");
+    const mapped =
+      key === "card" || key === "cards"
+        ? "card"
+        : key === "tabby"
+          ? "tabby"
+          : key === "apple_pay" || key === "applepay"
+            ? "apple_pay"
+            : null;
+    if (mapped && !out.includes(mapped)) out.push(mapped);
+  }
+  return out;
+}
+
 function parseTelrSeamlessConfig(response) {
   const root = asRecord(response);
   if (!root) return null;
@@ -38,11 +61,36 @@ function parseTelrSeamlessConfig(response) {
   const storeId =
     asString(data.store_id) ??
     (asNumber(data.store_id) != null ? String(data.store_id) : null);
+  const methodsRaw = data.methods ?? data.payment_methods ?? data.panels;
+  const methods =
+    methodsRaw === undefined || methodsRaw === null
+      ? undefined
+      : normalizeMethods(methodsRaw);
   if (enabled === false) {
-    return { enabled: false, store_id: storeId ?? "", currency: asString(data.currency) ?? "SAR" };
+    return {
+      enabled: false,
+      store_id: storeId ?? "",
+      currency: asString(data.currency) ?? "SAR",
+      ...(methods?.length ? { methods } : {}),
+    };
   }
   if (!storeId) return null;
-  return { enabled: enabled ?? true, store_id: storeId, currency: asString(data.currency) ?? "SAR" };
+  return {
+    enabled: enabled ?? true,
+    store_id: storeId,
+    currency: asString(data.currency) ?? "SAR",
+    ...(methods?.length ? { methods } : {}),
+  };
+}
+
+function parseMethodPay(response) {
+  const root = asRecord(response);
+  if (!root) throw new Error("bad method pay");
+  const data = asRecord(root.data) ?? root;
+  const redirect =
+    asString(data.redirect_url) ?? asString(data.redirect_link) ?? asString(data.order_url);
+  if (!redirect) throw new Error("missing redirect");
+  return { redirect_url: redirect, attempt_id: asNumber(data.attempt_id) };
 }
 
 function parsePay(response) {
@@ -120,6 +168,91 @@ if (verified.payment_status !== "paid" || verified.final !== true) {
 
 if (!CANDIDATE.includes("secure.telr.com/jssdk/v2/telr_sdk.js")) {
   throw new Error("sdk url candidate failed");
+}
+
+const withMethods = parseTelrSeamlessConfig({
+  status: true,
+  data: {
+    enabled: true,
+    store_id: "12345",
+    currency: "SAR",
+    test_mode: true,
+    methods: ["card", "applepay", "tabby"],
+  },
+});
+if (
+  !withMethods ||
+  !withMethods.methods ||
+  withMethods.methods.join(",") !== "card,apple_pay,tabby"
+) {
+  throw new Error("methods parse failed");
+}
+
+const withoutMethods = parseTelrSeamlessConfig({
+  status: true,
+  data: {
+    enabled: true,
+    store_id: "31787",
+    currency: "SAR",
+    test_mode: true,
+  },
+});
+if (!withoutMethods || withoutMethods.methods) {
+  throw new Error("omitted methods must stay undefined (UI is frontend-owned)");
+}
+
+function parseMethodPayFull(response) {
+  const root = asRecord(response);
+  if (!root) throw new Error("bad method pay");
+  const data = asRecord(root.data) ?? root;
+  const redirect =
+    asString(data.redirect_url) ?? asString(data.redirect_link) ?? asString(data.order_url);
+  if (!redirect) throw new Error("missing redirect");
+  return {
+    redirect_url: redirect,
+    attempt_id: asNumber(data.attempt_id),
+    payment_id: asString(data.payment_id),
+    reused: asBoolean(data.reused),
+    expires_at: asString(data.expires_at),
+  };
+}
+
+const methodPay = parseMethodPayFull({
+  status: true,
+  data: {
+    redirect_url: "https://secure.telr.com/gateway/process.html?o=x",
+    attempt_id: 3,
+    payment_id: "ORD123",
+    payment_status: "processing",
+    payment_mode: "hosted_method",
+    reused: false,
+    expires_at: "2026-11-18T12:30:00+00:00",
+  },
+});
+if (
+  methodPay.redirect_url !== "https://secure.telr.com/gateway/process.html?o=x" ||
+  methodPay.attempt_id !== 3 ||
+  methodPay.payment_id !== "ORD123" ||
+  methodPay.reused !== false
+) {
+  throw new Error("method pay parse failed");
+}
+
+function isTelrHostedSessionExpired(expiresAt) {
+  if (!expiresAt) return false;
+  const ms = Date.parse(expiresAt);
+  if (!Number.isFinite(ms)) return false;
+  return ms <= Date.now();
+}
+
+if (!isTelrHostedSessionExpired("2020-01-01T00:00:00+00:00")) {
+  throw new Error("expired session detection failed");
+}
+if (isTelrHostedSessionExpired("2099-01-01T00:00:00+00:00")) {
+  throw new Error("future session must not be treated as expired");
+}
+if (isTelrHostedSessionExpired(null) || isTelrHostedSessionExpired("")) {
+  throw new Error("missing expires_at must not block redirect");
 }
 
 console.log("telr-seamless parse smoke: OK");

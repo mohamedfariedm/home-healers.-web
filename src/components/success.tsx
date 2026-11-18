@@ -15,17 +15,28 @@ import type { BookingData } from "@/types/booking";
 import { toast } from "sonner";
 import { useLocalStorage } from "@/Hooks/use-local-storage";
 import { useRouter } from "next/navigation";
-import ClientAPI from "@/app/api/api";
 import {
   clearCheckoutStorage,
+  clearPendingPayment,
+  getPersistedPendingPayment,
   getPersistedReservationId,
 } from "@/lib/checkout-storage";
-import { parseReservationRecord } from "@/lib/payment-api";
+import {
+  pollTamaraOutcome,
+  resolveTamaraCheckoutContext,
+  tamaraResultPath,
+} from "@/lib/tamara";
+import { pollTelrReturnOutcome } from "@/lib/telr-seamless";
 import { useTranslation } from "react-i18next";
 
 type PaymentSuccessProps = {
   orderRef?: string;
 };
+
+const POLL_ATTEMPTS = 12;
+const POLL_MS = 2500;
+
+type ViewState = "checking" | "confirming" | "paid";
 
 export default function PaymentSuccess({ orderRef }: PaymentSuccessProps) {
   const router = useRouter();
@@ -33,42 +44,104 @@ export default function PaymentSuccess({ orderRef }: PaymentSuccessProps) {
   const locale = i18n.language?.startsWith("en") ? "en" : "ar";
   const [bookingData] = useLocalStorage<BookingData>("bookingData", {} as BookingData);
   const [reservationId, setReservationId] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [paymentVerified, setPaymentVerified] = useState(false);
+  const [view, setView] = useState<ViewState>("checking");
 
   useEffect(() => {
     const verifyPayment = async () => {
-      const persistedId = getPersistedReservationId();
-      if (!persistedId) {
+      const { reservationId: persistedId, pending, isTamara } =
+        resolveTamaraCheckoutContext();
+      const fallbackId = persistedId ?? getPersistedReservationId();
+      if (!fallbackId) {
         toast.error(t("messages.reservationIdMissing"));
         router.push("/");
         return;
       }
 
-      setReservationId(persistedId);
+      setReservationId(fallbackId);
 
       try {
-        const response = await ClientAPI.getReservation(persistedId, locale);
-        const reservation = parseReservationRecord(response);
-        const paymentStatus = reservation?.payment_status;
+        if (isTamara || pending?.provider === "tamara") {
+          const result = await pollTamaraOutcome({
+            reservationId: fallbackId,
+            locale,
+            attemptId: pending?.attemptId,
+            attempts: POLL_ATTEMPTS,
+            intervalMs: POLL_MS,
+            stopOnTerminal: true,
+          });
 
-        if (paymentStatus === "paid") {
-          setPaymentVerified(true);
-          clearCheckoutStorage();
-        } else {
-          toast.error(t("paymentReturn.notPaidYet"));
-          router.push(`/${locale}/failed/${orderRef ?? "unknown"}`);
+          if (result.outcome === "paid") {
+            setView("paid");
+            clearPendingPayment();
+            clearCheckoutStorage();
+            return;
+          }
+
+          if (result.outcome === "cancelled") {
+            router.replace(
+              tamaraResultPath(
+                locale,
+                "canceled",
+                orderRef ?? pending?.orderId ?? String(fallbackId)
+              )
+            );
+            return;
+          }
+
+          if (
+            result.outcome === "failed" ||
+            result.outcome === "expired"
+          ) {
+            router.replace(
+              tamaraResultPath(
+                locale,
+                "failed",
+                orderRef ?? pending?.orderId ?? String(fallbackId)
+              )
+            );
+            return;
+          }
+
+          // Still pending / unavailable — never treat as failed from URL alone.
+          setView("confirming");
+          toast.message(t("paymentReturn.confirmingMessage"));
           return;
         }
+
+        // Telr Card / Tabby / HPP — URL is not authoritative.
+        const telrOutcome = await pollTelrReturnOutcome({
+          reservationId: fallbackId,
+          locale,
+          attemptId: pending?.attemptId,
+          attempts: POLL_ATTEMPTS,
+          intervalMs: POLL_MS,
+        });
+
+        if (telrOutcome === "paid") {
+          setView("paid");
+          clearPendingPayment();
+          clearCheckoutStorage();
+          return;
+        }
+
+        if (telrOutcome === "unpaid") {
+          router.replace(
+            `/${locale}/failed/${encodeURIComponent(orderRef ?? String(fallbackId))}`
+          );
+          return;
+        }
+
+        // Pending / unavailable — keep confirming; do not force failed from URL alone.
+        setView("confirming");
+        toast.message(t("paymentReturn.confirmingMessage"));
       } catch (error) {
         console.error("Failed to verify payment:", error);
         toast.error(t("paymentReturn.verifyFailed"));
-      } finally {
-        setIsLoading(false);
+        setView("confirming");
       }
     };
 
-    verifyPayment();
+    void verifyPayment();
   }, [locale, orderRef, router, t]);
 
   const handleDownloadReceipt = async () => {
@@ -87,21 +160,95 @@ export default function PaymentSuccess({ orderRef }: PaymentSuccessProps) {
     router.push("/");
   };
 
+  const handleRefreshStatus = async () => {
+    const pending = getPersistedPendingPayment();
+    const id = reservationId ?? getPersistedReservationId();
+    if (!id) return;
+    setView("checking");
+    try {
+      if (pending?.provider === "tamara") {
+        const result = await pollTamaraOutcome({
+          reservationId: id,
+          locale,
+          attemptId: pending?.attemptId,
+          attempts: 4,
+          intervalMs: POLL_MS,
+          stopOnTerminal: true,
+        });
+        if (result.outcome === "paid") {
+          setView("paid");
+          clearPendingPayment();
+          clearCheckoutStorage();
+          return;
+        }
+        if (result.outcome === "cancelled") {
+          router.replace(
+            tamaraResultPath(locale, "canceled", orderRef ?? pending?.orderId)
+          );
+          return;
+        }
+        if (result.outcome === "failed" || result.outcome === "expired") {
+          router.replace(
+            tamaraResultPath(locale, "failed", orderRef ?? pending?.orderId)
+          );
+          return;
+        }
+        setView("confirming");
+        toast.message(t("paymentReturn.confirmingMessage"));
+        return;
+      }
+
+      const telrOutcome = await pollTelrReturnOutcome({
+        reservationId: id,
+        locale,
+        attemptId: pending?.attemptId,
+        attempts: 4,
+        intervalMs: POLL_MS,
+      });
+      if (telrOutcome === "paid") {
+        setView("paid");
+        clearPendingPayment();
+        clearCheckoutStorage();
+        return;
+      }
+      if (telrOutcome === "unpaid") {
+        router.replace(
+          `/${locale}/failed/${encodeURIComponent(orderRef ?? String(id))}`
+        );
+        return;
+      }
+      setView("confirming");
+      toast.message(t("paymentReturn.confirmingMessage"));
+    } catch {
+      setView("confirming");
+      toast.error(t("paymentReturn.verifyFailed"));
+    }
+  };
+
   const hasBookingDetails =
     bookingData &&
     Object.keys(bookingData).length > 0 &&
     bookingData.selectedPatients?.length;
 
-  if (isLoading) {
+  if (view === "checking" || view === "confirming") {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center gap-4 px-4 text-center">
         <Loader2 className="h-10 w-10 animate-spin text-[#143087]" />
+        <h1 className="text-xl font-semibold text-[#143087]">
+          {t("paymentReturn.confirmingTitle")}
+        </h1>
+        <p className="text-gray-600">{t("paymentReturn.confirmingMessage")}</p>
+        {view === "confirming" && (
+          <button
+            type="button"
+            onClick={() => void handleRefreshStatus()}
+            className="mt-2 rounded-lg border border-[#62a0f6] px-6 py-2 text-[#62a0f6] hover:bg-[#eff6fe]"
+          >
+            {t("paymentReturn.refreshStatus")}
+          </button>
+        )}
       </div>
     );
-  }
-
-  if (!paymentVerified) {
-    return null;
   }
 
   return (
@@ -181,7 +328,10 @@ export default function PaymentSuccess({ orderRef }: PaymentSuccessProps) {
             </h2>
             <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-green-800 text-sm">
-                ✅ {t("step6.paymentSuccess")} {t("step6.via")} {t("step5.telrPayment")}
+                ✅ {t("step6.paymentSuccess")} {t("step6.via")}{" "}
+                {bookingData.paymentMethod === "tamara"
+                  ? t("step5.tamaraPayment")
+                  : t("step5.telrPayment")}
               </p>
             </div>
           </div>

@@ -37,17 +37,24 @@ Also:
 
 ```text
 Step5 / OfferPaymentPanel
-  └─ GET client/payment/telr/seamless/config  (public; respect enabled)
-       └─ TelrSeamlessPanel
-            ├─ telrSdk.init → #telr_frame (SDK from config.sdk_url || candidate)
-            ├─ POST .../seamless/pay { reservation_id, card_token, locale, customer_email? }
-            ├─ 409 → resume challenge_url (no new charge)
-            ├─ challenge → #telr_iframe + background verify
-            └─ POST .../seamless/verify { attempt_id | reservation_id }
-  └─ Hosted fallback → POST client/payment/telr/pay (HPP)
+  └─ GET client/payment/telr/seamless/config  (+ methods[])
+       └─ TelrSeamlessPanel (Home Healers custom UI — no HPP iframe)
+            ├─ Apple Pay button (if methods includes apple_pay + device OK)
+            │     → POST client/payment/telr/method/pay { method: apple_pay }
+            │     → redirect_url (full page)
+            ├─ New Card (if methods includes card)
+            │     → telrSdk.init → #telr_frame
+            │     → POST .../seamless/pay { card_token, locale, customer_email? }
+            │     → challenge #telr_iframe + verify
+            └─ Tabby (if methods includes tabby)
+                  → POST client/payment/telr/method/pay { method: tabby }
+                  → redirect_url (full page)
+  └─ Hosted fallback → POST client/payment/telr/pay (HPP) when Seamless card unavailable
 ```
 
 Backend return flow (not changed in FE): Telr → backend `/telr/seamless/return/...` → verify → break out to website success/failed/canceled.
+
+**Note:** Telr does not expose a browser “list methods” API. `methods` is merchant config returned by backend.
 
 ---
 

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Banknote, CreditCard, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import ClientAPI from "@/app/api/api";
+import TamaraLogo from "@/components/payments/TamaraLogo";
 import TelrLogo from "@/components/payments/TelrLogo";
 import TelrSeamlessPanel from "@/components/payments/TelrSeamlessPanel";
 import type { BookingData } from "@/types/booking";
@@ -13,6 +14,7 @@ import {
   getPaymentMethodAvailability,
   type PaymentSummaryData,
 } from "@/lib/payment-summary";
+import { parseTamaraConfig } from "@/lib/tamara";
 import { formatOfferPrice } from "@/lib/offers";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +30,7 @@ type OfferPaymentPanelProps = {
   onPay: () => void;
   isPaying: boolean;
   onHostedTelrPay?: () => void | Promise<void>;
+  onTamaraPay?: () => void | Promise<void>;
   onSeamlessPaid?: (meta: {
     paymentId?: string | null;
     reservationId: number;
@@ -43,14 +46,17 @@ export default function OfferPaymentPanel({
   onPay,
   isPaying,
   onHostedTelrPay,
+  onTamaraPay,
   onSeamlessPaid,
   customerEmail,
 }: OfferPaymentPanelProps) {
   const { t } = useTranslation(["offers", "booking"]);
   const [isSummaryLoading, setIsSummaryLoading] = useState(false);
   const [seamlessOpen, setSeamlessOpen] = useState(false);
+  const [tamaraEnabled, setTamaraEnabled] = useState(false);
 
   const showSeamlessCheckout = bookingData.paymentMethod === "telr";
+  const showTamaraCheckout = bookingData.paymentMethod === "tamara";
 
   const refreshPaymentSummary = useCallback(async () => {
     setIsSummaryLoading(true);
@@ -76,6 +82,27 @@ export default function OfferPaymentPanel({
     refreshPaymentSummary();
   }, [refreshPaymentSummary]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const loadTamara = async () => {
+      try {
+        const response = await ClientAPI.getTamaraConfig(locale);
+        const config = parseTamaraConfig(response);
+        if (!cancelled) setTamaraEnabled(Boolean(config?.enabled));
+      } catch {
+        if (!cancelled) setTamaraEnabled(false);
+      }
+    };
+    void loadTamara();
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
+
+  const summaryHasTamara =
+    !bookingData.paymentSummaryMethods?.length ||
+    bookingData.paymentSummaryMethods.some((m) => m.type === "tamara");
+
   const methods = [
     {
       id: "telr",
@@ -83,6 +110,16 @@ export default function OfferPaymentPanel({
       icon: <CreditCard className="size-5" />,
       description: t("step5.telrDesc", { ns: "booking" }),
     },
+    ...(tamaraEnabled && summaryHasTamara
+      ? [
+          {
+            id: "tamara",
+            name: t("step5.tamaraPayment", { ns: "booking" }),
+            icon: <TamaraLogo />,
+            description: t("step5.tamaraDesc", { ns: "booking" }),
+          },
+        ]
+      : []),
     {
       id: "cash",
       name: t("step5.cash", { ns: "booking" }),
@@ -216,6 +253,11 @@ export default function OfferPaymentPanel({
             }
             onPay();
           }}
+          onMethodRedirect={(url) => {
+            if (typeof window !== "undefined") {
+              window.location.assign(url);
+            }
+          }}
           onPaid={(meta) => {
             setSeamlessOpen(false);
             if (onSeamlessPaid) {
@@ -234,6 +276,10 @@ export default function OfferPaymentPanel({
             setSeamlessOpen(true);
             return;
           }
+          if (showTamaraCheckout && onTamaraPay) {
+            void onTamaraPay();
+            return;
+          }
           onPay();
         }}
         disabled={isPaying || !bookingData.paymentMethod}
@@ -245,6 +291,11 @@ export default function OfferPaymentPanel({
           <Loader2 className="size-5 animate-spin" />
         ) : bookingData.paymentMethod === "cash" ? (
           t("step5.confirmCash", { ns: "booking" })
+        ) : showTamaraCheckout ? (
+          <>
+            <TamaraLogo light />
+            {t("step5.payWithTamara", { ns: "booking" })}
+          </>
         ) : (
           <>
             <TelrLogo light showWordmark={false} className="[&_svg]:size-6" />

@@ -29,7 +29,16 @@ import {
   type PaymentSummaryData,
 } from "@/lib/payment-summary";
 import { extractTelrRedirectUrl } from "@/lib/payment-api";
-import { persistReservationId, clearCheckoutStorage } from "@/lib/checkout-storage";
+import {
+  persistReservationId,
+  persistPendingPayment,
+  clearCheckoutStorage,
+} from "@/lib/checkout-storage";
+import {
+  mapTamaraStartError,
+  startTamaraCheckoutRedirect,
+  TamaraAlreadyPaidError,
+} from "@/lib/tamara";
 import {
   resolveNationalityId,
 } from "@/lib/saudi-nationality";
@@ -166,15 +175,17 @@ export default function BookingFlow({
       },
     },
     {
-      // Fresh specialty/service each visit; other draft fields (location, patients, etc.) still restore.
+      // Preserve specialty/service with the rest of the draft. Clearing them on hydrate
+      // while keeping selectedDoctor caused missing category_id on submit and wrong
+      // confirmation specialty (doctor.specialist faker fallback).
       deserialize: (parsed) => {
         const filters = parsed.searchFilters ?? {};
         const { city: _legacyCity, ...restFilters } = filters;
         return {
           ...parsed,
           paymentMethod: normalizePaymentMethod(parsed.paymentMethod),
-          selectedCategory: null,
-          selectedService: null,
+          selectedCategory: parsed.selectedCategory ?? null,
+          selectedService: parsed.selectedService ?? null,
           searchFilters: {
             cityId: restFilters.cityId ?? "",
             gender: restFilters.gender ?? "",
@@ -361,6 +372,65 @@ export default function BookingFlow({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doctorsList, bookingData.selectedCategory]);
 
+  // Keep selected category/service display names aligned with the active
+  // locale catalog (IDs stay stable; name may be locale-specific from API).
+  useEffect(() => {
+    const catalog: Category[] = categoriesData?.data ?? [];
+    if (!catalog.length) return;
+
+    setBookingData((prev) => {
+      let next = prev;
+      let changed = false;
+
+      if (prev.selectedCategory?.id != null) {
+        const fresh = catalog.find(
+          (c) => Number(c.id) === Number(prev.selectedCategory?.id),
+        );
+        if (
+          fresh &&
+          JSON.stringify(fresh.name) !== JSON.stringify(prev.selectedCategory.name)
+        ) {
+          next = {
+            ...next,
+            selectedCategory: {
+              ...prev.selectedCategory,
+              ...fresh,
+              services: prev.selectedCategory.services ?? fresh.services ?? [],
+            },
+          };
+          changed = true;
+        }
+      }
+
+      if (prev.selectedService?.category?.id != null) {
+        const freshCat = catalog.find(
+          (c) => Number(c.id) === Number(prev.selectedService?.category?.id),
+        );
+        if (
+          freshCat &&
+          prev.selectedService &&
+          JSON.stringify(freshCat.name) !==
+            JSON.stringify(prev.selectedService.category?.name)
+        ) {
+          next = {
+            ...next,
+            selectedService: {
+              ...prev.selectedService,
+              category: {
+                ...prev.selectedService.category,
+                id: freshCat.id,
+                name: freshCat.name,
+              },
+            },
+          };
+          changed = true;
+        }
+      }
+
+      return changed ? next : prev;
+    });
+  }, [categoriesData, locale, setBookingData]);
+
   // Step 1: prefer category/service from URL, else default first category (once per visit)
   useEffect(() => {
     const packageId =
@@ -444,10 +514,14 @@ export default function BookingFlow({
     });
   }, [categoriesData, servicesData, searchParams]);
 
-  // Step 2: default first doctor in current filtered list when none selected or selection not in list
+  // Step 2: keep selectedDoctor in sync with the filtered list.
+  // Empty list must clear a stale doctor so Next cannot proceed with an invalid selection.
   useEffect(() => {
-    if (!filteredDoctors?.length) return;
     setBookingData((prev) => {
+      if (!filteredDoctors?.length) {
+        if (!prev.selectedDoctor) return prev;
+        return { ...prev, selectedDoctor: null };
+      }
       if (
         prev.selectedDoctor &&
         filteredDoctors.some((d: Doctor) => d.id === prev.selectedDoctor?.id)
@@ -778,7 +852,17 @@ export default function BookingFlow({
         break;
       case 2:
         if (!data.selectedDoctor) {
-          
+          setError(t("validation.selectDoctor"));
+          toast.error(t("validation.selectDoctor"));
+          return false;
+        }
+        if (
+          data.selectedCategory?.id != null &&
+          !doctorMatchesCategoryId(
+            data.selectedDoctor,
+            data.selectedCategory.id,
+          )
+        ) {
           setError(t("validation.selectDoctor"));
           toast.error(t("validation.selectDoctor"));
           return false;
@@ -805,6 +889,12 @@ export default function BookingFlow({
         if (!data.healthInfo.painLocation.trim()) {
           setError(t("validation.specifyPainLocation"));
           toast.error(t("validation.specifyPainLocation"));
+          return false;
+        }
+        // Backend requires category_id when service_id is absent.
+        if (!data.selectedCategory?.id && !data.selectedService?.id) {
+          setError(t("validation.selectCategoryOrService"));
+          toast.error(t("validation.selectCategoryOrService"));
           return false;
         }
         break;
@@ -994,6 +1084,11 @@ export default function BookingFlow({
     }
 
     persistReservationId(reservationId);
+    persistPendingPayment({
+      reservationId,
+      provider: "telr",
+      method: "hpp",
+    });
     const telrResponse = await ClientAPI.payReservationWithTelr(
       reservationId,
       locale
@@ -1006,6 +1101,47 @@ export default function BookingFlow({
     });
     const redirectUrl = extractTelrRedirectUrl(telrResponse);
     route.push(redirectUrl);
+  };
+
+  const startTamaraPay = async () => {
+    if (!reservationId) {
+      throw new Error(t("messages.reservationIdMissing"));
+    }
+
+    const customerEmail =
+      bookingData.selectedPatients?.find((p) => p.email?.trim())?.email ||
+      undefined;
+
+    try {
+      trackEvent(GTM_EVENTS.RESERVATION_PAYMENT, {
+        reservation_id: reservationId,
+        payment_method: "tamara",
+        source: "booking_flow",
+        checkout: "tamara",
+      });
+      await startTamaraCheckoutRedirect({
+        reservationId,
+        locale,
+        customerEmail,
+      });
+    } catch (error: unknown) {
+      if (error instanceof TamaraAlreadyPaidError) {
+        route.push(
+          `/${locale}/success/${encodeURIComponent(String(reservationId))}`
+        );
+        return;
+      }
+      throw new Error(
+        mapTamaraStartError(error, {
+          alreadyPaid: t("tamara.alreadyPaid"),
+          inProgress: t("tamara.paymentInProgress"),
+          rejected:
+            (isClientApiError(error) && error.message) || t("tamara.rejected"),
+          unavailable: t("tamara.unavailable"),
+          fallback: t("messages.paymentFailed"),
+        })
+      );
+    }
   };
 
   const handleSeamlessPaid = (meta: {
@@ -1067,6 +1203,8 @@ export default function BookingFlow({
           extractApiMessage(cashResponse, t("messages.cashPendingConfirmed"))
         );
         setCurrentStep(6);
+      } else if (bookingData.paymentMethod === "tamara") {
+        await startTamaraPay();
       } else {
         await startHostedTelrPay();
       }
@@ -1080,16 +1218,13 @@ export default function BookingFlow({
   };
 
   const nextStep = () => {
-    if (currentStep === 2) {
-      // نتخطّى validateStep لأن اختيار الطبيب تم داخل Step2
-      setCurrentStep(3 as BookingStep);
-      return;
-    }
     if (currentStep === 4) {
       if (validateStep(currentStep)) {
         submitBooking(); // Submit reservation after Step 4
       }
-    } else if (validateStep(currentStep)) {
+      return;
+    }
+    if (validateStep(currentStep)) {
       setCurrentStep((prev) => Math.min(prev + 1, 6) as BookingStep);
     }
   };
@@ -1179,6 +1314,21 @@ export default function BookingFlow({
               try {
                 setIsLoading(true);
                 await startHostedTelrPay();
+              } catch (error: unknown) {
+                const message =
+                  error instanceof Error
+                    ? error.message
+                    : t("messages.paymentFailed");
+                setError(message);
+                toast.error(message);
+              } finally {
+                setIsLoading(false);
+              }
+            }}
+            onTamaraPay={async () => {
+              try {
+                setIsLoading(true);
+                await startTamaraPay();
               } catch (error: unknown) {
                 const message =
                   error instanceof Error
@@ -1293,7 +1443,7 @@ export default function BookingFlow({
       <div className="relative mt-6 w-full max-w-[1280px] min-h-[520px] px-1 sm:mt-8 sm:min-h-[560px] sm:px-2 md:mt-10">
         {!tourActive && isBookingTourCompleted() && (
           <div
-            className={`group/tour fixed z-[100] bottom-[calc(10%+9.75rem)] sm:bottom-[calc(10%+11.25rem)] ${
+            className={`group/tour fixed z-[100] bottom-[calc(7rem+9.75rem)] sm:bottom-[calc(8rem+11.25rem)] ${
               locale === "ar" || locale?.startsWith("ar")
                 ? "left-2 sm:left-4"
                 : "right-2 sm:right-4"
@@ -1338,6 +1488,7 @@ export default function BookingFlow({
         updateSavedLocations={updateSavedLocations}
         countriesData={countriesData}
         statesData={statesData}
+        citiesData={citiesData}
         initialLocation={editingLocation}
       />
       <SymptomsSearchModal

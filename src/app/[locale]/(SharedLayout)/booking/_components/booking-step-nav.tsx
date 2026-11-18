@@ -41,7 +41,7 @@ export default function BookingStepNav({
       className={`sticky bottom-3 z-30 mt-8 sm:bottom-4 ${className}`}
       data-tour="booking-step-nav"
     >
-      <div className="flex items-center justify-between gap-3 rounded-2xl border border-[#dbe7f8] bg-white/95 px-3 py-3 shadow-[0_8px_24px_rgba(20,48,135,0.12)] backdrop-blur-md ring-1 ring-[#143087]/5 sm:px-5 sm:py-3.5">
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-[#dbe7f8] bg-white/95 px-3 py-3 pe-16 shadow-[0_8px_24px_rgba(20,48,135,0.12)] backdrop-blur-md ring-1 ring-[#143087]/5 sm:px-5 sm:py-3.5 sm:pe-20">
         {showPrev ? (
           <button
             type="button"

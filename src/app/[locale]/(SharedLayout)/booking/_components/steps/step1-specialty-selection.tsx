@@ -15,6 +15,7 @@ const LocationPickerModal = dynamic(
   () => import("../modals/location-picker-modal"),
 );
 import { getPackageCategoryList } from "@/lib/package-categories";
+import { localizedName } from "@/lib/offers";
 import { extractTelrRedirectUrl } from "@/lib/payment-api";
 import { persistReservationId } from "@/lib/checkout-storage";
 import BookingStepNav from "../booking-step-nav";
@@ -149,9 +150,14 @@ export default function Step1SpecialtySelection({
   );
   const visibleCategories = packageScopedCategories ?? allCategories;
 
+  const categoryLabel = (value: unknown) =>
+    localizedName(value, locale) || (typeof value === "string" ? value : "");
+
   const filteredCategories =
     visibleCategories.filter((c: Category) =>
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()),
+      categoryLabel(c.name)
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()),
     ) || [];
 
   const filteredServices =
@@ -174,7 +180,9 @@ export default function Step1SpecialtySelection({
     });
 
     if (!showServiceSelection) {
-      toast.success(`${t("step1.categorySelected")}: ${category.name}`);
+      toast.success(
+        `${t("step1.categorySelected")}: ${categoryLabel(category.name)}`,
+      );
       onNext();
       return;
     }
@@ -187,9 +195,13 @@ export default function Step1SpecialtySelection({
     if (catServices.length) {
       setSelectedType("service");
       setSearchQuery("");
-      toast.success(`${t("step1.categorySelected")}: ${category.name}`);
+      toast.success(
+        `${t("step1.categorySelected")}: ${categoryLabel(category.name)}`,
+      );
     } else {
-      toast.success(`${t("step1.categorySelected")}: ${category.name}`);
+      toast.success(
+        `${t("step1.categorySelected")}: ${categoryLabel(category.name)}`,
+      );
       onNext();
     }
   };
@@ -543,7 +555,7 @@ export default function Step1SpecialtySelection({
                             toSecureMediaUrl(c.image?.[0]?.original) ||
                             "/assets/images/doctorMale.webp"
                           }
-                          alt={c.name}
+                          alt={categoryLabel(c.name)}
                           width={32}
                           height={32}
                           className="h-8 w-8 rounded-full object-cover"
@@ -552,7 +564,7 @@ export default function Step1SpecialtySelection({
                       </div>
                       <div className="text-center">
                         <h3 className="font-semibold text-[#1e1e1e] mb-1">
-                          {c.name}
+                          {categoryLabel(c.name)}
                         </h3>
                         <p className="text-sm text-gray-600">
                           {c.services?.length || 0}{" "}
@@ -601,7 +613,7 @@ export default function Step1SpecialtySelection({
                         </p>
                         {s.category && (
                           <p className="text-xs text-[#62a0f6] mt-2">
-                            {s.category.name}
+                            {categoryLabel(s.category.name)}
                           </p>
                         )}
                       </div>
@@ -627,13 +639,15 @@ export default function Step1SpecialtySelection({
                     <>
                       {" "}
                       - {t("step1.category")}:{" "}
-                      {bookingData.selectedService.category.name}
+                      {categoryLabel(
+                        bookingData.selectedService.category.name,
+                      )}
                     </>
                   )}
                 </>
               ) : bookingData.selectedCategory ? (
                 <>
-                  {bookingData.selectedCategory.name} (
+                  {categoryLabel(bookingData.selectedCategory.name)} (
                   {t("step1.category") || "تخصص"})
                 </>
               ) : null}

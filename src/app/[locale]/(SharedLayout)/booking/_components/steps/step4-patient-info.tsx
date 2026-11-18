@@ -5,6 +5,7 @@ import { User, Plus, FileText, Mic, Paperclip, Edit2, Trash2, Play, Pause } from
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import type { BookingData, Patient } from "@/types/booking";
+import { resolveBookingSpecialtyLabel } from "@/lib/resolve-booking-specialty";
 import BookingStepNav from "../booking-step-nav";
 
 interface Step4Props {
@@ -26,7 +27,8 @@ export default function Step4PatientInfo({
   onPrev,
   onOpenAddPatient,
 }: Step4Props) {
-  const { t } = useTranslation("booking");
+  const { t, i18n } = useTranslation("booking");
+  const locale = i18n.language?.startsWith("en") ? "en" : "ar";
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -223,7 +225,13 @@ export default function Step4PatientInfo({
             </div>
             <div>
               <h3 className="font-semibold text-lg">{bookingData.selectedDoctor.name}</h3>
-              <p className="text-gray-600">{bookingData.selectedDoctor.specialist}</p>
+              <p className="text-gray-600">
+                {resolveBookingSpecialtyLabel(
+                  bookingData,
+                  locale,
+                  bookingData.selectedDoctor.doctor_role || "",
+                )}
+              </p>
               <p className="text-sm text-gray-500">{bookingData.selectedDoctor.clinic_name}</p>
             </div>
           </div>

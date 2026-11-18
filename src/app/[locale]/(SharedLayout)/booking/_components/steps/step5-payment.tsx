@@ -5,8 +5,10 @@ import { useTranslation } from "react-i18next";
 import type { BookingData } from "@/types/booking";
 import { toast } from "sonner";
 import ClientAPI from "@/app/api/api";
+import TamaraLogo from "@/components/payments/TamaraLogo";
 import TelrLogo from "@/components/payments/TelrLogo";
 import TelrSeamlessPanel from "@/components/payments/TelrSeamlessPanel";
+import { parseTamaraConfig } from "@/lib/tamara";
 import {
   applyPaymentMethodToPricing,
   applyPaymentSummaryToBooking,
@@ -27,8 +29,10 @@ interface Step5Props {
   onNext: () => void;
   onPrev: () => void;
   isLoading: boolean;
-  /** Hosted Telr HPP fallback (existing redirect flow) */
+  /** Hosted Telr HPP redirect (Tabby / Apple Pay / full Telr page) */
   onHostedTelrPay?: () => void | Promise<void>;
+  /** Start Tamara BNPL checkout (full-page redirect) */
+  onTamaraPay?: () => void | Promise<void>;
   /** After Seamless pay is backend-verified as paid */
   onSeamlessPaid?: (meta: {
     paymentId?: string | null;
@@ -44,6 +48,7 @@ export default function Step5Payment({
   onPrev,
   isLoading,
   onHostedTelrPay,
+  onTamaraPay,
   onSeamlessPaid,
 }: Step5Props) {
   const { t, i18n } = useTranslation("booking");
@@ -57,10 +62,17 @@ export default function Step5Payment({
   const [isRemovingCoupon, setIsRemovingCoupon] = useState(false);
   const [isSummaryLoading, setIsSummaryLoading] = useState(false);
   const [seamlessOpen, setSeamlessOpen] = useState(false);
+  const [tamaraEnabled, setTamaraEnabled] = useState(false);
 
   const locale = i18n.language?.startsWith("en") ? "en" : "ar";
   const showSeamlessCheckout =
     Boolean(reservationId) && bookingData.paymentMethod === "telr";
+  const showTamaraCheckout =
+    Boolean(reservationId) && bookingData.paymentMethod === "tamara";
+
+  const summaryHasTamara =
+    !bookingData.paymentSummaryMethods?.length ||
+    bookingData.paymentSummaryMethods.some((m) => m.type === "tamara");
 
   const paymentMethods = [
     {
@@ -69,6 +81,16 @@ export default function Step5Payment({
       icon: <CreditCard className="w-6 h-6 text-[#62a0f6]" />,
       description: t("step5.telrDesc"),
     },
+    ...(tamaraEnabled && summaryHasTamara
+      ? [
+          {
+            id: "tamara",
+            name: t("step5.tamaraPayment"),
+            icon: <TamaraLogo className="rounded-lg" />,
+            description: t("step5.tamaraDesc"),
+          },
+        ]
+      : []),
     {
       id: "cash",
       name: t("step5.cash"),
@@ -143,6 +165,25 @@ export default function Step5Payment({
     // Load summary once when reservation is ready
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reservationId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadTamara = async () => {
+      try {
+        const response = await ClientAPI.getTamaraConfig(locale);
+        const config = parseTamaraConfig(response);
+        if (!cancelled) {
+          setTamaraEnabled(Boolean(config?.enabled));
+        }
+      } catch {
+        if (!cancelled) setTamaraEnabled(false);
+      }
+    };
+    void loadTamara();
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
 
   useEffect(() => {
     const loadCoupons = async () => {
@@ -527,7 +568,7 @@ export default function Step5Payment({
               <h2 className="text-xl font-bold">{t("step5.couponSection")}</h2>
             </div>
             <div className="space-y-4">
-              <div className="flex gap-2">
+              <div className="flex min-w-0 flex-col gap-2 sm:flex-row">
                 <input
                   type="text"
                   value={couponInput}
@@ -544,7 +585,7 @@ export default function Step5Payment({
                     isCouponsLoading ||
                     hasAppliedCoupon
                   }
-                  className={`flex-1 p-3 border rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-[#62a0f6] disabled:bg-gray-100 ${
+                  className={`min-w-0 flex-1 p-3 border rounded-lg text-start focus:outline-none focus:ring-2 focus:ring-[#62a0f6] disabled:bg-gray-100 ${
                     hasAppliedCoupon
                       ? "border-green-300 bg-green-50 text-green-800"
                       : "border-gray-300"
@@ -555,7 +596,7 @@ export default function Step5Payment({
                     type="button"
                     onClick={removeCoupon}
                     disabled={isRemovingCoupon || !reservationId}
-                    className="px-6 py-3 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-50 flex items-center gap-2"
+                    className="shrink-0 px-4 sm:px-6 py-3 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {isRemovingCoupon && (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -569,7 +610,7 @@ export default function Step5Payment({
                     disabled={
                       couponBusy || !reservationId || isCouponsLoading
                     }
-                    className="px-6 py-3 bg-[#62a0f6] text-white rounded-lg hover:bg-[#5090e6] disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="shrink-0 px-4 sm:px-6 py-3 bg-[#62a0f6] text-white rounded-lg hover:bg-[#5090e6] disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isApplyingCoupon && (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -688,6 +729,11 @@ export default function Step5Payment({
               }
               onNext();
             }}
+            onMethodRedirect={(url) => {
+              if (typeof window !== "undefined") {
+                window.location.assign(url);
+              }
+            }}
             onPaid={(meta) => {
               setSeamlessOpen(false);
               if (onSeamlessPaid) {
@@ -708,6 +754,10 @@ export default function Step5Payment({
       onNext={() => {
         if (showSeamlessCheckout) {
           setSeamlessOpen(true);
+          return;
+        }
+        if (showTamaraCheckout && onTamaraPay) {
+          void onTamaraPay();
           return;
         }
         onNext();
@@ -731,6 +781,11 @@ export default function Step5Payment({
               <Banknote className="w-5 h-5" />
               {t("step5.confirmCash")}
             </>
+          ) : showTamaraCheckout ? (
+            <>
+              <TamaraLogo light />
+              {t("step5.payWithTamara")}
+            </>
           ) : showSeamlessCheckout ? (
             <>
               <TelrLogo light showWordmark={false} className="[&_svg]:size-6" />
@@ -746,9 +801,11 @@ export default function Step5Payment({
         nextLabel={
           bookingData.paymentMethod === "cash"
             ? t("step5.confirmCash")
-            : showSeamlessCheckout
-              ? t("seamless.payWithTelr")
-              : t("step5.confirmPayment")
+            : showTamaraCheckout
+              ? t("step5.payWithTamara")
+              : showSeamlessCheckout
+                ? t("seamless.payWithTelr")
+                : t("step5.confirmPayment")
         }
       />
     </div>

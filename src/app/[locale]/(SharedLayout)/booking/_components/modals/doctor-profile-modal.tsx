@@ -52,7 +52,7 @@ export default function DoctorProfileModal({
       ? "/assets/images/doctorMale.webp" 
       : doctor.gender?.toLowerCase() === "female"
         ? "/assets/images/doctorFemale.webp"
-        : "/default-doctor.png");
+        : "/assets/images/doctorMale.webp");
 
   // Validate placeholder fields
   const displayRole = doctor.doctor_role !== "atque" ? doctor.doctor_role : doctor.specialist

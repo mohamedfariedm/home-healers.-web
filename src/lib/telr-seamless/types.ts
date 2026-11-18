@@ -14,7 +14,13 @@ export type TelrSeamlessPaymentStatus =
   | "declined"
   | "expired_unused";
 
-/** GET client/payment/telr/seamless/config (public) */
+/**
+ * Telr checkout channel identifiers used by the website.
+ * UI visibility is frontend-owned (`payment-methods.ts`), not this list.
+ */
+export type TelrCheckoutMethod = "card" | "tabby" | "apple_pay";
+
+/** GET client/payment/telr/seamless/config (public) — Card Seamless only */
 export type TelrSeamlessConfig = {
   enabled: boolean;
   store_id: string;
@@ -22,6 +28,33 @@ export type TelrSeamlessConfig = {
   test_mode: boolean;
   /** Backend may return the Telr-hosted script URL once confirmed */
   sdk_url?: string | null;
+  /**
+   * Optional / ignored for UI visibility.
+   * Backend does not discover Telr merchant methods; website uses
+   * `getTelrHybridPaymentMethods()` instead.
+   */
+  methods?: TelrCheckoutMethod[];
+};
+
+/** POST client/payment/telr/method/pay — Tabby hosted session (backend: tabby only) */
+export type TelrMethodPayRequest = {
+  reservation_id: number;
+  method: "tabby";
+  locale?: "ar" | "en";
+};
+
+export type TelrMethodPayData = {
+  redirect_url: string;
+  attempt_id?: number | null;
+  payment_id?: string | null;
+  payment_status?: TelrSeamlessPaymentStatus | string | null;
+  amount?: number | null;
+  currency?: string | null;
+  payment_mode?: string | null;
+  reused?: boolean;
+  expires_at?: string | null;
+  message?: string | null;
+  error?: string | null;
 };
 
 /** POST client/payment/telr/seamless/pay request body */

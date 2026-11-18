@@ -17,6 +17,7 @@ interface LocationPickerModalProps {
   updateSavedLocations: (locations: Location[]) => void;
   countriesData?: any;
   statesData?: any;
+  citiesData?: any;
   initialLocation?: Location | null;
 }
 
@@ -28,6 +29,7 @@ export default function LocationPickerModal({
   updateSavedLocations,
   countriesData,
   statesData,
+  citiesData,
   initialLocation,
 }: LocationPickerModalProps) {
   const params = useParams();
@@ -42,6 +44,7 @@ export default function LocationPickerModal({
   const [isEditing, setIsEditing] = useState(false);
   const [editingLocationId, setEditingLocationId] = useState<number | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     address: "",
@@ -65,9 +68,13 @@ export default function LocationPickerModal({
     return [];
   };
 
-  // Filter helpers based on each entity's status field convention
+  // Filter helpers based on each entity's status field convention.
+  // Missing status is treated as published — slim payloads may omit it.
   const isPublished = (item: any) =>
-    item.status === "Published" || item.status === "1" || item.status === 1;
+    item.status == null ||
+    item.status === "Published" ||
+    item.status === "1" ||
+    item.status === 1;
 
   // All published countries (status: "Published")
   const countries: any[] = normalizeList(countriesData).filter(isPublished);
@@ -120,17 +127,81 @@ export default function LocationPickerModal({
         (c: any) => c.name === initialLocation.country
       );
       if (selectedCountry) {
-        setAvailableCities((selectedCountry.cities || []).filter(isPublished));
+        const allCities = normalizeList(citiesData).filter(isPublished);
+        const citiesFromList =
+          selectedCountry.id != null
+            ? allCities.filter(
+                (city: any) =>
+                  Number(city.country_id) === Number(selectedCountry.id),
+              )
+            : [];
+        const embedded = (selectedCountry.cities || []).filter(isPublished);
+        setAvailableCities(
+          citiesFromList.length > 0 ? citiesFromList : embedded,
+        );
       }
       setAvailableStates(normalizeList(statesData).filter(isPublished));
     }
-  }, [initialLocation, isOpen, countriesData, statesData]);
+  }, [initialLocation, isOpen, countriesData, statesData, citiesData]);
 
   const loadGoogleMapsScript = () => {
-    if (window.google || document.getElementById("google-maps-script")) {
+    setMapError(null);
+
+    if (window.google?.maps) {
+      setIsMapLoaded(true);
       initializeMap();
       return;
     }
+
+    const existing = document.getElementById(
+      "google-maps-script",
+    ) as HTMLScriptElement | null;
+
+    if (existing) {
+      // Script tag exists but Maps may still be loading or may have failed.
+      if (window.google?.maps) {
+        setIsMapLoaded(true);
+        initializeMap();
+        return;
+      }
+      const onExistingLoad = () => {
+        setIsMapLoaded(true);
+        setMapError(null);
+        initializeMap();
+      };
+      const onExistingError = () => {
+        setIsMapLoaded(false);
+        setMapError(
+          locale === "en"
+            ? "Map failed to load. Use manual entry or retry."
+            : "تعذر تحميل الخريطة. يمكنك الإدخال اليدوي أو إعادة المحاولة.",
+        );
+      };
+      existing.addEventListener("load", onExistingLoad, { once: true });
+      existing.addEventListener("error", onExistingError, { once: true });
+      // If the script already failed permanently, surface the error after a short wait.
+      window.setTimeout(() => {
+        if (!window.google?.maps) {
+          setMapError(
+            locale === "en"
+              ? "Map failed to load. Use manual entry or retry."
+              : "تعذر تحميل الخريطة. يمكنك الإدخال اليدوي أو إعادة المحاولة.",
+          );
+        }
+      }, 8000);
+      return;
+    }
+
+    if (!process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY) {
+      setIsMapLoaded(false);
+      setMapError(
+        locale === "en"
+          ? "Map is unavailable. Please enter the location manually."
+          : "الخريطة غير متاحة. يرجى إدخال الموقع يدوياً.",
+      );
+      return;
+    }
+
     const script = document.createElement("script");
     script.id = "google-maps-script";
     script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}&libraries=places&language=ar`;
@@ -138,7 +209,16 @@ export default function LocationPickerModal({
     script.defer = true;
     script.onload = () => {
       setIsMapLoaded(true);
+      setMapError(null);
       initializeMap();
+    };
+    script.onerror = () => {
+      setIsMapLoaded(false);
+      setMapError(
+        locale === "en"
+          ? "Map failed to load. Use manual entry or retry."
+          : "تعذر تحميل الخريطة. يمكنك الإدخال اليدوي أو إعادة المحاولة.",
+      );
     };
     document.head.appendChild(script);
   };
@@ -416,7 +496,7 @@ export default function LocationPickerModal({
     setFormError("");
   };
 
-  // When country changes: extract embedded cities for that country (status "1")
+  // When country changes: prefer slim cities list by country_id, else embedded cities
   const handleCountryChange = (countryName: string) => {
     setFormData((prev) => ({ ...prev, country: countryName, city: "", state: "" }));
     setFormError("");
@@ -426,8 +506,19 @@ export default function LocationPickerModal({
       return;
     }
     const selectedCountry = countries.find((c: any) => c.name === countryName);
-    const embeddedCities: any[] = (selectedCountry?.cities || []).filter(isPublished);
-    setAvailableCities(embeddedCities);
+    const allCities = normalizeList(citiesData).filter(isPublished);
+    const citiesFromList =
+      selectedCountry?.id != null
+        ? allCities.filter(
+            (city: any) => Number(city.country_id) === Number(selectedCountry.id),
+          )
+        : [];
+    const embeddedCities: any[] = (selectedCountry?.cities || []).filter(
+      isPublished,
+    );
+    setAvailableCities(
+      citiesFromList.length > 0 ? citiesFromList : embeddedCities,
+    );
     setAvailableStates([]); // reset states until city is picked
   };
 
@@ -699,10 +790,53 @@ export default function LocationPickerModal({
             <div className="flex-1 relative">
               <div ref={mapRef} className="w-full h-full" />
               {!isMapLoaded && (
-                <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#62a0f6] mx-auto mb-2"></div>
-                    <p className="text-sm text-gray-600">جاري تحميل الخريطة...</p>
+                <div className="absolute inset-0 bg-gray-100 flex items-center justify-center p-4">
+                  <div className="text-center max-w-sm">
+                    {mapError ? (
+                      <>
+                        <p className="text-sm text-red-600 mb-3">{mapError}</p>
+                        <div className="flex flex-col gap-2 items-center">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const stale = document.getElementById(
+                                "google-maps-script",
+                              );
+                              if (stale && !window.google?.maps) {
+                                stale.remove();
+                              }
+                              setMapError(null);
+                              setIsMapLoaded(false);
+                              loadGoogleMapsScript();
+                            }}
+                            className="rounded-xl bg-[#143087] px-4 py-2 text-sm font-medium text-white"
+                          >
+                            {locale === "en" ? "Retry map" : "إعادة تحميل الخريطة"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowForm(true);
+                              setShowSavedLocations(false);
+                            }}
+                            className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700"
+                          >
+                            {locale === "en"
+                              ? "Enter location manually"
+                              : "إدخال موقع يدويًا"}
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#62a0f6] mx-auto mb-2"></div>
+                        <p className="text-sm text-gray-600">
+                          {locale === "en"
+                            ? "Loading map..."
+                            : "جاري تحميل الخريطة..."}
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
               )}

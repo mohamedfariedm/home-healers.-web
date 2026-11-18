@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { BookingData } from "@/types/booking";
+import { resolveBookingSpecialtyLabel } from "@/lib/resolve-booking-specialty";
 import { Document, Page, Text, View, StyleSheet, Font, pdf } from "@react-pdf/renderer";
 import { toast } from "sonner";
 
@@ -117,6 +118,11 @@ interface Step6Props {
 const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => {
   const pricing = bookingData.pricing;
   const dates = bookingData.selectedDates ?? [];
+  const specialtyLabel = resolveBookingSpecialtyLabel(
+    bookingData,
+    "ar",
+    "غير محدد",
+  );
 
   return (
     <Document>
@@ -146,7 +152,7 @@ const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => {
             <Text style={styles.label}>الطبيب المعالج:</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.value}>{bookingData.selectedDoctor?.specialist || "غير محدد"}</Text>
+            <Text style={styles.value}>{specialtyLabel}</Text>
             <Text style={styles.label}>التخصص:</Text>
           </View>
           <View style={styles.row}>
@@ -247,7 +253,13 @@ const ReceiptDocument = ({ bookingData, reservationId }: Step6Props) => {
 };
 
 export default function Step6Confirmation({ bookingData, reservationId }: Step6Props) {
-  const { t } = useTranslation("booking");
+  const { t, i18n } = useTranslation("booking");
+  const locale = i18n.language?.startsWith("en") ? "en" : "ar";
+  const specialtyLabel = resolveBookingSpecialtyLabel(
+    bookingData,
+    locale,
+    t("step5.notSpecified"),
+  );
   const isCashPending =
     bookingData.paymentStatus === "cash_pending" ||
     (bookingData.paymentMethod === "cash" && bookingData.paymentStatus !== "paid");
@@ -326,9 +338,7 @@ export default function Step6Confirmation({ bookingData, reservationId }: Step6P
               <span className="text-gray-600">{t("step6.treatingDoctor")}</span>
             </div>
             <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="font-medium">
-                {bookingData.selectedDoctor?.specialist || t("step5.notSpecified")}
-              </span>
+              <span className="font-medium">{specialtyLabel}</span>
               <span className="text-gray-600">{t("step6.specialty")}</span>
             </div>
             <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">

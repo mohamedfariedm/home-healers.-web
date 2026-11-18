@@ -168,6 +168,102 @@ Implement the endpoints in section C. Until they exist, the website keeps using 
 
 Base: `{API}/client/...` (website uses `NEXT_PUBLIC_API_URL`, currently `https://backend.home-healers.com/api`).
 
+### C.0 Backend handoff — payment options from Telr (read this first)
+
+**Website ask:** Return the payment methods that are enabled on the Home Healers Telr store so the website can render **our own UI** (Card / Tabby / Apple Pay). Do **not** iframe `secure.telr.com`.
+
+#### Important Telr fact
+
+Telr does **not** provide a public “list my payment methods” API for the browser.  
+Available methods come from the **merchant store configuration** (same values as Telr order `panels`).
+
+Backend must:
+
+1. Confirm with Telr / merchant dashboard which panels are enabled (e.g. `card`, `tabby`, `applepay`).
+2. Expose them to the website as `methods` on config.
+3. For Tabby / Apple Pay, create a Telr order with the matching `panels` value and return `redirect_url`.
+
+#### Mapping (Telr panel → website `methods` value)
+
+| Telr `panels` value | Website `methods[]` value |
+|---|---|
+| `card` | `card` |
+| `tabby` | `tabby` |
+| `applepay` | `apple_pay` |
+
+Example Telr order create field:
+
+```text
+panels: "card,tabby,applepay"
+```
+
+Website expects only the methods that are **actually enabled** for this store.
+
+#### Required API changes
+
+1. **Extend** `GET client/payment/telr/seamless/config` with:
+
+```json
+"methods": ["card", "tabby", "apple_pay"]
+```
+
+Source of truth options (pick one, document it):
+
+- Env e.g. `TELR_PAYMENT_METHODS=card,tabby,apple_pay` aligned with Telr merchant settings, **or**
+- Admin/config table that ops updates when Telr enables/disables a panel.
+
+Do **not** hardcode only on the frontend.
+
+2. **Add** `POST client/payment/telr/method/pay`:
+
+```json
+{
+  "reservation_id": 123,
+  "method": "tabby",
+  "locale": "ar"
+}
+```
+
+`method`: `tabby` | `apple_pay`
+
+Response:
+
+```json
+{
+  "status": true,
+  "data": {
+    "redirect_url": "https://...",
+    "attempt_id": 1,
+    "payment_status": "processing"
+  }
+}
+```
+
+Backend creates Telr order via `https://secure.telr.com/gateway/order.json` with:
+
+- store + authkey (server-only)
+- amount / currency / cart id for the reservation
+- `panels`: `tabby` or `applepay` (only that method)
+- return URLs → existing success / failed / canceled flow
+
+Website then **full-page redirects** to `redirect_url` (Tabby / Apple Pay completion). No iframe.
+
+3. Keep existing card Seamless:
+
+- `POST client/payment/telr/seamless/pay` (card token)
+- `POST client/payment/telr/seamless/verify`
+
+#### Acceptance checklist for backend
+
+- [ ] Confirm with Telr which panels are live for Home Healers (card / tabby / applepay).
+- [ ] `GET .../seamless/config` returns `methods` matching those panels.
+- [ ] `POST .../method/pay` with `tabby` returns a working Telr/Tabby `redirect_url`.
+- [ ] `POST .../method/pay` with `apple_pay` returns a working Telr Apple Pay `redirect_url` (or native Remote API later).
+- [ ] Auth key never returned to the website.
+- [ ] Existing HPP `POST client/payment/telr/pay` still works as fallback.
+
+---
+
 ### C.1 Get Seamless config
 
 | | |
@@ -175,7 +271,7 @@ Base: `{API}/client/...` (website uses `NEXT_PUBLIC_API_URL`, currently `https:/
 | Method | `GET` |
 | Path | `client/payment/telr/seamless/config` |
 | Auth | Same as other client payment reads (or public read-only store config) |
-| Purpose | Tell frontend whether Seamless is on and how to init `telrSdk` |
+| Purpose | Tell frontend whether Seamless is on, how to init `telrSdk`, and which payment methods to show |
 
 **Success example**
 
@@ -187,7 +283,8 @@ Base: `{API}/client/...` (website uses `NEXT_PUBLIC_API_URL`, currently `https:/
     "store_id": "12345",
     "currency": "SAR",
     "test_mode": true,
-    "sdk_url": null
+    "sdk_url": null,
+    "methods": ["card", "tabby", "apple_pay"]
   }
 }
 ```
@@ -196,11 +293,55 @@ Base: `{API}/client/...` (website uses `NEXT_PUBLIC_API_URL`, currently `https:/
 
 - If Seamless disabled: `{ "enabled": false, ... }` or `enabled: false` with empty store.
 - Never include auth key.
+- `methods` must mirror Telr store panels enabled for Home Healers (`card`, `tabby`, `applepay` → `apple_pay`). Frontend falls back to `["card"]` if omitted.
 
 **Frontend usage**
 
-- Website calls this before mounting Telr fields.
+- Website calls this before mounting Telr fields and to render custom Card / Tabby / Apple Pay UI.
 - Falls back to `NEXT_PUBLIC_TELR_*` env only for local/dev UI work.
+
+---
+
+### C.1b Method pay (Tabby / Apple Pay redirect)
+
+| | |
+|---|---|
+| Method | `POST` |
+| Path | `client/payment/telr/method/pay` |
+| Auth | Required (client must own reservation) |
+| Purpose | Create a Telr order for a non-card method; return redirect URL (no iframe) |
+
+**Request**
+
+```json
+{
+  "reservation_id": 123,
+  "method": "tabby",
+  "locale": "ar"
+}
+```
+
+`method` is `tabby` | `apple_pay`.
+
+**Success example**
+
+```json
+{
+  "status": true,
+  "data": {
+    "redirect_url": "https://secure.telr.com/...",
+    "attempt_id": 1,
+    "payment_status": "processing"
+  }
+}
+```
+
+**Rules**
+
+- Create Telr order with matching `panels` (`tabby` / `applepay`).
+- Full-page redirect only (Telr blocks iframe embed of HPP).
+- Return URLs same as existing success/failed/canceled flow.
+- Do not invent methods not enabled on the Telr merchant account.
 
 ---
 

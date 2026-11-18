@@ -32,6 +32,7 @@ export function resolvePaymentSummaryMethodType(
 ): string {
   if (paymentMethod === "cash") return "cash";
   if (paymentMethod === "telr") return "telr";
+  if (paymentMethod === "tamara") return "tamara";
   if (paymentMethod === "wallet" || paymentMethod === "apple_pay") return "wallet";
   return paymentMethod;
 }

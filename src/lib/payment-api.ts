@@ -1,7 +1,15 @@
 import { extractApiMessage } from "@/lib/payment-summary";
 import {
+  parseTamaraPayData,
+  parseTamaraVerifyData,
+  type TamaraPayData,
+  type TamaraVerifyData,
+} from "@/lib/tamara";
+import {
+  parseTelrMethodPayData,
   parseTelrSeamlessPayData,
   parseTelrSeamlessVerifyData,
+  type TelrMethodPayData,
   type TelrSeamlessPayData,
   type TelrSeamlessVerifyData,
 } from "@/lib/telr-seamless";
@@ -37,6 +45,21 @@ export function extractTelrSeamlessVerifyResult(
   response: unknown
 ): TelrSeamlessVerifyData {
   return parseTelrSeamlessVerifyData(response);
+}
+
+/** Parses Tabby / Apple Pay method-pay redirect responses. */
+export function extractTelrMethodPayResult(
+  response: unknown
+): TelrMethodPayData {
+  return parseTelrMethodPayData(response);
+}
+
+export function extractTamaraPayResult(response: unknown): TamaraPayData {
+  return parseTamaraPayData(response);
+}
+
+export function extractTamaraVerifyResult(response: unknown): TamaraVerifyData {
+  return parseTamaraVerifyData(response);
 }
 
 export type ReservationPaymentState = {

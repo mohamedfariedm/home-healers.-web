@@ -406,5 +406,7 @@ export function slimGeoList(items: any[] | undefined) {
     name: item.name,
     country_id: item.country_id,
     state_id: item.state_id,
+    // Kept for client filters (e.g. location/patient modals require Published)
+    status: item.status,
   }));
 }

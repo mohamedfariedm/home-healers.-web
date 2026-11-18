@@ -400,6 +400,74 @@ const ClientAPI = {
       noCache: true,
     }),
 
+  /**
+   * Telr method pay — Tabby / Apple Pay redirect session (no iframe).
+   * Backend creates a Telr order with the matching panels value.
+   */
+  payReservationWithTelrMethod: (
+    reservationId: number,
+    method: "tabby",
+    locale: string
+  ) => {
+    const payLocale = locale.toLowerCase().startsWith("en") ? "en" : "ar";
+    return fetchData("client/payment/telr/method/pay", locale, {
+      method: "POST",
+      body: {
+        reservation_id: reservationId,
+        method,
+        locale: payLocale,
+      },
+      throwOnError: true,
+      noCache: true,
+    });
+  },
+
+  /** Tamara BNPL public config (enabled + currency / test_mode). */
+  getTamaraConfig: (locale: string) =>
+    fetchData("client/payment/tamara/config", locale, {
+      noCache: true,
+      throwOnError: true,
+    }),
+
+  /**
+   * Start Tamara checkout for a reservation (website channel).
+   * Never send amount — backend computes from reservation / summary.
+   */
+  payReservationWithTamara: (
+    reservationId: number,
+    locale: string,
+    options?: { customerEmail?: string }
+  ) => {
+    const payLocale = locale.toLowerCase().startsWith("en") ? "en" : "ar";
+    const body: Record<string, unknown> = {
+      reservation_id: reservationId,
+      method: "web",
+      locale: payLocale,
+    };
+    const email = options?.customerEmail?.trim();
+    if (email) {
+      body.customer_email = email;
+    }
+    return fetchData("client/payment/tamara/pay", locale, {
+      method: "POST",
+      body,
+      throwOnError: true,
+      noCache: true,
+    });
+  },
+
+  /** Confirm Tamara payment status (do not trust redirect alone). */
+  verifyTamaraPayment: (
+    payload: { reservation_id: number; attempt_id?: number },
+    locale: string
+  ) =>
+    fetchData("client/payment/tamara/verify", locale, {
+      method: "POST",
+      body: payload,
+      throwOnError: true,
+      noCache: true,
+    }),
+
   // Reservation Review
   submitReservationReview: (reservationId: number | string, payload: {
     doctor_rate: number;

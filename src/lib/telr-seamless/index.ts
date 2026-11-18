@@ -6,13 +6,35 @@ export {
   resolveSdkUrl,
   normalizePayLocale,
 } from "./config";
+export {
+  getTelrHybridPaymentMethods,
+  hasAnyTelrHybridMethod,
+  defaultTelrHybridSelection,
+} from "./payment-methods";
+export type {
+  TelrHybridIntegration,
+  TelrHybridMethodDefinition,
+  TelrHybridPaymentMethodsConfig,
+} from "./payment-methods";
+export {
+  verifyTelrReturnOutcome,
+  pollTelrReturnOutcome,
+  startTabbyHostedRedirect,
+  isTelrHostedSessionExpired,
+  isTelrSessionExpiredError,
+  isTelrAlreadyPaidError,
+  isReservationAlreadyPaid,
+} from "./tabby-flow";
+export type { TelrReturnOutcome } from "./tabby-flow";
 export { initTelrSeamlessFields, clearTelrFrameMount } from "./client";
 export { loadTelrSeamlessSdk, getTelrSdk } from "./load-sdk";
 export {
+  normalizeTelrCheckoutMethods,
   parseTelrSeamlessConfig,
   parseTelrSeamlessPayData,
   tryParseTelrSeamlessPayData,
   parseTelrSeamlessVerifyData,
+  parseTelrMethodPayData,
   isPaymentInProgressError,
   isCustomerEmailRequiredError,
   seamlessPayErrorMessage,
@@ -20,6 +42,9 @@ export {
   isPaidStatus,
 } from "./parse";
 export type {
+  TelrCheckoutMethod,
+  TelrMethodPayData,
+  TelrMethodPayRequest,
   TelrSeamlessConfig,
   TelrSeamlessPayData,
   TelrSeamlessPayRequest,

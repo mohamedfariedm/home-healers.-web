@@ -188,7 +188,7 @@ export default function Step2DoctorSelection({
       return "/assets/images/doctorFemale.webp";
     }
 
-    return "/default-doctor.png";
+    return "/assets/images/doctorMale.webp";
   };
 
   const handleSearch = (query: string) => {
@@ -221,11 +221,19 @@ export default function Step2DoctorSelection({
 
   const handleCategoryFilterChange = (categoryIdStr: string) => {
     if (categoryIdStr === "") {
-      updateBookingData({ selectedCategory: null, selectedService: null });
+      updateBookingData({
+        selectedCategory: null,
+        selectedService: null,
+        selectedDoctor: null,
+      });
     } else {
       const cat = categories.find((c) => String(c.id) === categoryIdStr);
       if (cat) {
-        updateBookingData({ selectedCategory: cat, selectedService: null });
+        updateBookingData({
+          selectedCategory: cat,
+          selectedService: null,
+          selectedDoctor: null,
+        });
       }
     }
     toast.info(t("step2.filtersUpdated"));
@@ -995,13 +1003,13 @@ const handlePackageSelect = (pkg: Package) => {
       <BookingStepNav
         onPrev={onPrev}
         onNext={() => {
-          if (!bookingData.selectedDoctor) {
+          if (!bookingData.selectedDoctor || isDoctorsEmpty) {
             toast.error(t("step2.selectDoctorFirst"));
             return;
           }
           onNext();
         }}
-        nextDisabled={!bookingData.selectedDoctor}
+        nextDisabled={!bookingData.selectedDoctor || isDoctorsEmpty}
       />
     </div>
   );

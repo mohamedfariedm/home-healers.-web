@@ -1,12 +1,14 @@
 import type { TelrSeamlessConfig } from "./types";
 
 /**
- * Public env used only as a local/dev fallback when the config API
- * is unreachable. Never put Telr auth keys here.
+ * Public env used only as a local/dev fallback when the Card Seamless
+ * config API is unreachable. Never put Telr auth keys here.
+ *
+ * Method visibility (Card / Tabby / Apple Pay) is owned by
+ * `payment-methods.ts` — not by Seamless config.
  *
  * Default SDK URL matches Telr's sample (`secure.telr.com/jssdk/v2/telr_sdk.js`).
- * Treat as a candidate until Telr confirms the production URL; backend
- * `sdk_url` from config always wins when present.
+ * Backend `sdk_url` from config always wins when present.
  */
 export const TELR_SEAMLESS_CANDIDATE_SDK_URL =
   "https://secure.telr.com/jssdk/v2/telr_sdk.js";
