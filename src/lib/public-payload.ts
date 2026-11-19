@@ -357,6 +357,23 @@ export function slimBookingDoctor(doctor: any) {
     gender: doctor.gender,
     city,
     image: slimImage(doctor.image),
+    // Keep ids only so specialty filters (doctorMatchesCategoryId) still work.
+    categories: Array.isArray(doctor.categories)
+      ? doctor.categories
+          .map((category: { id?: number }) =>
+            category?.id != null ? { id: category.id } : null,
+          )
+          .filter(Boolean)
+      : [],
+    services: Array.isArray(doctor.services)
+      ? doctor.services
+          .map((service: { category_id?: number }) =>
+            service?.category_id != null
+              ? { category_id: service.category_id }
+              : null,
+          )
+          .filter(Boolean)
+      : [],
   };
 }
 

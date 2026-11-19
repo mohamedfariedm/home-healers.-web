@@ -40,6 +40,7 @@ export type OfferGuestForm = {
   nationality: string;
   nationalityId?: number;
   gender: "male" | "female";
+  birthDate: string;
 };
 
 type OfferBookingFormProps = {
@@ -234,7 +235,7 @@ export default function OfferBookingForm({
               autoComplete="tel"
             />
           </label>
-          <label className="flex flex-col gap-1.5 text-sm font-medium text-[#1e1e1e] sm:col-span-2">
+          <label className="flex flex-col gap-1.5 text-sm font-medium text-[#1e1e1e]">
             {t("booking.nationality")}
             <select
               value={guest.nationalityId != null ? String(guest.nationalityId) : ""}
@@ -256,6 +257,19 @@ export default function OfferBookingForm({
                 </option>
               ))}
             </select>
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm font-medium text-[#1e1e1e]">
+            {t("booking.birthDate")}
+            <input
+              type="date"
+              value={guest.birthDate || ""}
+              onChange={(event) =>
+                onGuestChange({ birthDate: event.target.value })
+              }
+              className={fieldClass}
+              autoComplete="bday"
+              max={new Date().toISOString().slice(0, 10)}
+            />
           </label>
           <div className="flex flex-col gap-1.5 sm:col-span-2">
             <span className="text-sm font-medium text-[#1e1e1e]">{t("booking.gender")}</span>

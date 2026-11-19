@@ -15,7 +15,7 @@ import {
   type PaymentSummaryData,
 } from "@/lib/payment-summary";
 import { parseTamaraConfig } from "@/lib/tamara";
-import { formatOfferPrice } from "@/lib/offers";
+import { formatOfferPrice, localizedName } from "@/lib/offers";
 import { cn } from "@/lib/utils";
 
 type OfferPaymentPanelProps = {
@@ -203,7 +203,10 @@ export default function OfferPaymentPanel({
           <div className="flex justify-between gap-3">
             <dt className="text-[#4a5568]">{t("booking.offer")}</dt>
             <dd className="font-medium text-[#1e1e1e]">
-              {bookingData.selectedPackage?.name}
+              {bookingData.selectedPackage?.name ||
+                bookingData.selectedDoctor?.name ||
+                localizedName(bookingData.selectedCategory?.name, locale) ||
+                "—"}
             </dd>
           </div>
           <div className="flex justify-between gap-3">
@@ -224,6 +227,25 @@ export default function OfferPaymentPanel({
             <div className="flex justify-between gap-3">
               <dt className="text-[#4a5568]">{t("step5.fees", { ns: "booking" })}</dt>
               <dd>{formatOfferPrice(bookingData.pricing.fees, "SAR", locale)}</dd>
+            </div>
+          ) : null}
+          {(bookingData.pricing.couponDiscount ?? 0) > 0 ||
+          bookingData.couponCode ? (
+            <div className="flex justify-between gap-3 text-emerald-700">
+              <dt>
+                {t("step5.couponDiscount", { ns: "booking" })}
+                {bookingData.couponCode
+                  ? ` (${bookingData.couponCode})`
+                  : ""}
+              </dt>
+              <dd>
+                -
+                {formatOfferPrice(
+                  bookingData.pricing.couponDiscount || 0,
+                  "SAR",
+                  locale,
+                )}
+              </dd>
             </div>
           ) : null}
           <div className="flex justify-between gap-3 border-t pt-3 text-base font-bold text-[#143087]">

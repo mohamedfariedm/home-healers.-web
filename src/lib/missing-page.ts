@@ -7,6 +7,7 @@ const STATIC_PAGES = new Set([
   "offers",
   "categories",
   "booking",
+  "claim-offer",
   "privacy",
   "terms",
   "doctors-apply",

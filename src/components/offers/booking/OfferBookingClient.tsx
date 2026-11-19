@@ -204,6 +204,7 @@ export default function OfferBookingClient({
     nationality: "",
     nationalityId: undefined,
     gender: "male",
+    birthDate: "",
   });
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
   const [dateKey, setDateKey] = useState<string | null>(null);
@@ -235,6 +236,8 @@ export default function OfferBookingClient({
         nationalityId:
           draft?.guest_nationality_id || fromPatient.guest_nationality_id,
         gender: draft?.guest_gender || fromPatient.guest_gender || "male",
+        birthDate:
+          draft?.guest_birth_date || fromPatient.guest_birth_date || "",
       });
     }
     if (draft?.address_id) setSelectedAddressId(draft.address_id);
@@ -294,6 +297,7 @@ export default function OfferBookingClient({
       guest_nationality: guest.nationality,
       guest_nationality_id: guest.nationalityId,
       guest_gender: guest.gender,
+      guest_birth_date: guest.birthDate,
     };
     writeJson(draftStorageKey(offer.id), draft);
   }, [
@@ -377,6 +381,8 @@ export default function OfferBookingClient({
       name: guest.name,
       phone: guest.phone,
       nationality: guest.nationality,
+      birthDate: guest.birthDate,
+      requireBirthDate: true,
       address: selectedAddress,
       dateKey,
       time,
@@ -404,6 +410,7 @@ export default function OfferBookingClient({
           nationality: guest.nationality,
           nationalityId,
           gender: guest.gender,
+          birthDate: guest.birthDate,
         },
       });
       const response = await ClientAPI.createReservationWithPackage(
@@ -421,7 +428,7 @@ export default function OfferBookingClient({
       const patient: Patient = {
         id: Date.now(),
         name: guest.name.trim(),
-        birthDate: "",
+        birthDate: guest.birthDate.trim(),
         relationship: undefined,
         nationality: guest.nationality,
         nationality_id: nationalityId,

@@ -1,11 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import ClientAPI from "@/app/api/api";
 import { isClientApiError } from "@/lib/client-api-error";
+import {
+  matchCouponInList,
+  savePendingClaim,
+} from "@/lib/claim-offer";
 import { trackEvent } from "@/lib/gtm";
+import { localePath } from "@/lib/offers";
 import type { OfferPopup } from "@/types/offer-popup";
 import {
   canShowByFrequency,
@@ -50,6 +55,7 @@ function useIsMobile(breakpoint = 768) {
 
 export default function OffersPopup({ locale, popups }: OffersPopupProps) {
   const pathname = usePathname() || "/";
+  const router = useRouter();
   const isMobile = useIsMobile();
   const isRTL = locale === "ar";
 
@@ -275,12 +281,14 @@ export default function OffersPopup({ locale, popups }: OffersPopupProps) {
       if (key === "mobile") return "من فضلك اكتب رقم جوال صحيح";
       if (key === "consent") return "لازم توافق على التواصل علشان نكمل";
       if (key === "service") return "من فضلك اختر الخدمة";
+      if (key === "coupon") return "كود الخصم غير متاح حالياً";
       return "حصل خطأ، حاول مرة تانية";
     }
     if (key === "name") return "Please enter your name";
     if (key === "mobile") return "Please enter a valid mobile number";
     if (key === "consent") return "Consent is required to continue";
     if (key === "service") return "Please select a service";
+    if (key === "coupon") return "This discount code is not available right now";
     return "Something went wrong. Please try again.";
   };
 
@@ -304,11 +312,51 @@ export default function OffersPopup({ locale, popups }: OffersPopupProps) {
     return Object.keys(next).length === 0;
   };
 
+  const resolveCoupon = async () => {
+    const code = active.coupon_code.trim();
+    const couponId = active.coupon_id;
+    if (!code && !couponId) return null;
+
+    try {
+      const query = code
+        ? { code, limit: 20, page: 1 }
+        : { limit: 20, page: 1 };
+      const response = await ClientAPI.getCoupons(locale, query);
+      const list = Array.isArray(response?.data) ? response.data : [];
+      let matched = matchCouponInList(list, { code, couponId });
+
+      if (!matched && code) {
+        const searchResponse = await ClientAPI.getCoupons(locale, {
+          name: code,
+          limit: 20,
+          page: 1,
+        });
+        const searchList = Array.isArray(searchResponse?.data)
+          ? searchResponse.data
+          : [];
+        matched = matchCouponInList(searchList, { code, couponId });
+      }
+
+      return matched;
+    } catch {
+      // If the coupons API is auth-gated for guests, still allow handoff
+      // with the configured admin coupon id/code and apply later on claim page.
+      if (couponId || code) {
+        return {
+          id: couponId ? String(couponId) : "",
+          code: code || String(couponId),
+        };
+      }
+      return null;
+    }
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (form.honeypot) return;
     if (!validate()) return;
     setSubmitting(true);
+    setErrors({});
     try {
       const serviceLabel =
         SERVICE_OPTIONS.find((s) => s.key === form.service)?.[locale] ||
@@ -326,6 +374,12 @@ export default function OffersPopup({ locale, popups }: OffersPopupProps) {
       ]
         .filter(Boolean)
         .join("\n");
+
+      const matchedCoupon = await resolveCoupon();
+      if ((active.coupon_code || active.coupon_id) && !matchedCoupon) {
+        setErrors({ submit: errMsg("coupon") });
+        return;
+      }
 
       if (active.save_to_leads) {
         await ClientAPI.submitCustomerSupport(
@@ -355,6 +409,24 @@ export default function OffersPopup({ locale, popups }: OffersPopupProps) {
           popup_id: active.id,
           offer_title: title,
         });
+      }
+
+      if (matchedCoupon && !preview.preview) {
+        savePendingClaim({
+          popupId: active.id,
+          couponCode: matchedCoupon.code || active.coupon_code,
+          couponId: matchedCoupon.id || active.coupon_id,
+          name: form.name.trim(),
+          mobile: fields.mobile.visible ? toStoredMobile(form.mobile) : "",
+          locale,
+          createdAt: Date.now(),
+          discountType: active.discount_type,
+          discountValue: active.discount_value,
+          offerTitle: title,
+        });
+        setSuccess(true);
+        router.push(localePath(locale, "/claim-offer"));
+        return;
       }
 
       setSuccess(true);
@@ -421,16 +493,30 @@ export default function OffersPopup({ locale, popups }: OffersPopupProps) {
           {success ? (
             <div className="py-6 text-center">
               <p className="text-lg font-semibold text-gray-900">
-                {locale === "ar" ? "تم استلام طلبك" : "Request received"}
+                {active.coupon_code || active.coupon_id
+                  ? locale === "ar"
+                    ? "جاري تحويلك لإكمال الحجز…"
+                    : "Continuing to complete your booking…"
+                  : locale === "ar"
+                    ? "تم استلام طلبك"
+                    : "Request received"}
               </p>
-              <p className="mt-2 text-sm text-gray-600">{successMsg}</p>
-              <button
-                type="button"
-                onClick={() => close("success")}
-                className="mt-5 rounded-xl bg-[#0d7377] px-5 py-2.5 text-sm font-semibold text-white"
-              >
-                {locale === "ar" ? "حسناً" : "OK"}
-              </button>
+              <p className="mt-2 text-sm text-gray-600">
+                {active.coupon_code || active.coupon_id
+                  ? locale === "ar"
+                    ? "سيتم تطبيق الخصم تلقائياً بعد إكمال بياناتك."
+                    : "Your discount will apply automatically after you finish your details."
+                  : successMsg}
+              </p>
+              {!(active.coupon_code || active.coupon_id) ? (
+                <button
+                  type="button"
+                  onClick={() => close("success")}
+                  className="mt-5 rounded-xl bg-[#0d7377] px-5 py-2.5 text-sm font-semibold text-white"
+                >
+                  {locale === "ar" ? "حسناً" : "OK"}
+                </button>
+              ) : null}
             </div>
           ) : (
             <form onSubmit={onSubmit} className="space-y-3">

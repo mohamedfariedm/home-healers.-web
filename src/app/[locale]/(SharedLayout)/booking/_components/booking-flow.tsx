@@ -431,7 +431,8 @@ export default function BookingFlow({
     });
   }, [categoriesData, locale, setBookingData]);
 
-  // Step 1: prefer category/service from URL, else default first category (once per visit)
+  // Step 1: prefer category/service from URL, else default first category (once per visit).
+  // Deep links from category/service pages (?categoryId=&serviceId=) skip to step 2.
   useEffect(() => {
     const packageId =
       searchParams.get("packageId") || searchParams.get("packageid");
@@ -450,32 +451,52 @@ export default function BookingFlow({
     const serviceId = serviceIdParam
       ? Number.parseInt(serviceIdParam, 10)
       : NaN;
+    const hasExplicitCategory = Number.isFinite(categoryId);
 
-    const matchedCategory =
-      Number.isFinite(categoryId)
-        ? categories.find((cat: Category) => Number(cat.id) === categoryId)
-        : undefined;
+    const matchedCategory = hasExplicitCategory
+      ? categories.find((cat: Category) => Number(cat.id) === categoryId)
+      : undefined;
+
+    // URL had a categoryId we can't resolve — stay on step 1 for manual pick.
+    if (hasExplicitCategory && !matchedCategory) {
+      step1DefaultsAppliedRef.current = true;
+      return;
+    }
+
     const targetCategory = matchedCategory ?? categories[0];
     if (!targetCategory) return;
 
+    const catServices = (servicesData?.data ?? []).filter(
+      (s: any) => Number(s.category?.id) === Number(targetCategory.id)
+    );
+    const matchedService = Number.isFinite(serviceId)
+      ? catServices.find((s: any) => Number(s.id) === serviceId)
+      : undefined;
+
     setBookingData((prev: any) => {
-      if (prev.selectedCategory || prev.selectedService || prev.selectedPackage) {
+      // No deep-link: keep an existing draft instead of overwriting it.
+      if (
+        !hasExplicitCategory &&
+        (prev.selectedCategory || prev.selectedService || prev.selectedPackage)
+      ) {
         step1DefaultsAppliedRef.current = true;
         return prev;
       }
+
       step1DefaultsAppliedRef.current = true;
 
-      const catServices = (servicesData?.data ?? []).filter(
-        (s: any) => Number(s.category?.id) === Number(targetCategory.id)
-      );
-      const matchedService =
-        Number.isFinite(serviceId)
-          ? catServices.find((s: any) => Number(s.id) === serviceId)
-          : undefined;
+      const categoryChanged =
+        Number(prev.selectedCategory?.id) !== Number(targetCategory.id);
+      // Deep-link override: clear doctor when category changes so step 2 re-filters.
+      const doctorReset =
+        hasExplicitCategory && categoryChanged
+          ? { selectedDoctor: null as Doctor | null }
+          : {};
 
       if (!SHOW_SERVICE_SELECTION_STEP) {
         return {
           ...prev,
+          ...doctorReset,
           selectedCategory: targetCategory,
           selectedService: matchedService ?? null,
         };
@@ -484,6 +505,7 @@ export default function BookingFlow({
       if (matchedService) {
         return {
           ...prev,
+          ...doctorReset,
           selectedCategory: {
             id: matchedService.category?.id ?? targetCategory.id,
             name: matchedService.category?.name ?? targetCategory.name,
@@ -497,6 +519,7 @@ export default function BookingFlow({
         const s0 = catServices[0];
         return {
           ...prev,
+          ...doctorReset,
           selectedCategory: {
             id: s0.category.id,
             name: s0.category.name,
@@ -508,10 +531,15 @@ export default function BookingFlow({
 
       return {
         ...prev,
+        ...doctorReset,
         selectedCategory: targetCategory,
         selectedService: null,
       };
     });
+
+    if (hasExplicitCategory) {
+      setCurrentStep(2);
+    }
   }, [categoriesData, servicesData, searchParams]);
 
   // Step 2: keep selectedDoctor in sync with the filtered list.

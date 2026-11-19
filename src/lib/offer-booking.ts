@@ -31,6 +31,7 @@ export type OfferBookingDraft = {
   guest_nationality?: string;
   guest_nationality_id?: number;
   guest_gender?: "male" | "female";
+  guest_birth_date?: string;
 };
 
 export type OfferCheckoutState = {
@@ -42,6 +43,7 @@ export type OfferBookingValidationCode =
   | "name_required"
   | "phone_required"
   | "nationality_required"
+  | "birth_date_required"
   | "address_required"
   | "date_required"
   | "time_required"
@@ -164,6 +166,8 @@ export function validateOfferBooking(input: {
   name: string;
   phone: string;
   nationality: string;
+  birthDate?: string;
+  requireBirthDate?: boolean;
   address: Location | null;
   dateKey: string | null;
   time: string | null;
@@ -172,6 +176,9 @@ export function validateOfferBooking(input: {
   if (!input.name.trim()) return "name_required";
   if (!input.phone.trim()) return "phone_required";
   if (!input.nationality.trim()) return "nationality_required";
+  if (input.requireBirthDate !== false && !String(input.birthDate || "").trim()) {
+    return "birth_date_required";
+  }
   if (!input.address) return "address_required";
   if (!input.dateKey) return "date_required";
   if (!input.time) return "time_required";
@@ -200,6 +207,7 @@ export function buildOfferReservationPayload(input: {
     nationality: string;
     nationalityId?: number;
     gender: "male" | "female";
+    birthDate?: string;
   };
 }) {
   const start = combineDateAndTime(input.dateKey, input.time);
@@ -236,7 +244,7 @@ export function buildOfferReservationPayload(input: {
             guest_nationality_id: nationalityId,
           }
         : {}),
-      date_of_birth: "",
+      date_of_birth: String(input.guest.birthDate || "").trim(),
       gender: input.guest.gender,
       national_id: "",
       blood_group: "",
@@ -257,6 +265,7 @@ export function guestFromPatient(patient?: Patient | null): Pick<
   | "guest_nationality"
   | "guest_nationality_id"
   | "guest_gender"
+  | "guest_birth_date"
 > {
   if (!patient) return {};
   return {
@@ -266,6 +275,7 @@ export function guestFromPatient(patient?: Patient | null): Pick<
     guest_nationality: patient.nationality,
     guest_nationality_id: patient.nationality_id,
     guest_gender: patient.gender,
+    guest_birth_date: patient.birthDate,
   };
 }
 
