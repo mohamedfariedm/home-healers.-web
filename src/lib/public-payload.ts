@@ -86,6 +86,7 @@ export function slimBlogForHome(blog: any) {
     description: previewText(blog.description, 160),
     image: slimImage(blog.image),
     show_in_home_page: blog.show_in_home_page,
+    redirect_url: blog.redirect_url ?? null,
   };
 }
 
@@ -113,6 +114,7 @@ export function hydrateRelatedBlogs(
       ...item,
       id: item?.id ?? match?.id,
       image: item?.image || match?.image,
+      redirect_url: item?.redirect_url ?? match?.redirect_url ?? null,
     });
   });
 }

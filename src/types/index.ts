@@ -36,6 +36,8 @@ export interface IBlog {
   avatar: string;
   created_at: string;
   slug?: string | { en?: string; ar?: string };
+  /** When set, open/redirect to this URL instead of the blog detail page. */
+  redirect_url?: string | null;
 }
 
 export interface PageProps {

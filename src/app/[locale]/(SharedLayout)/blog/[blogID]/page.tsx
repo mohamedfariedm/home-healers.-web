@@ -1,6 +1,7 @@
 import initTranslations from "@/app/i18n";
 import BlogRelatedSection from "./_components/BlogSection";
 import BlogLeadForm from "./_components/BlogLeadForm";
+import BlogRedirect from "./_components/BlogRedirect";
 import { blogSlugMatchesLocale } from "@/lib/blog-slug-locale";
 import {
   buildCanonicalUrl,
@@ -11,6 +12,7 @@ import { createArticleSchema, renderJsonLd } from "@/lib/structured-data";
 import { getCachedBlogs, getCachedSettings, getCachedSingleBlog } from "@/lib/cached-api";
 import { hydrateRelatedBlogs } from "@/lib/public-payload";
 import {
+  getBlogRedirectUrl,
   getNewsTitle,
   unwrapDetail,
 } from "@/lib/slugs";
@@ -116,6 +118,7 @@ async function page({
     notFound();
   }
 
+  const redirectTarget = getBlogRedirectUrl(loaded.data);
   const blogSlug = loaded.requested;
 
   const articleTitle = getNewsTitle(loaded.data, locale);
@@ -138,6 +141,7 @@ async function page({
 
   return (
     <div className="page-shell">
+      {redirectTarget ? <BlogRedirect to={redirectTarget} /> : null}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: renderJsonLd(articleSchema) }}

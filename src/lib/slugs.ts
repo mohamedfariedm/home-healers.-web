@@ -179,6 +179,24 @@ export function blogHref(locale: string, blogSlug: string): string {
   return localePath(locale, `/blog/${encodeURIComponent(blogSlug)}`);
 }
 
+const UNSAFE_REDIRECT_PROTOCOL = /^(javascript|data|vbscript):/i;
+
+/**
+ * Normalize blog `redirect_url` from the API.
+ * Returns null when empty/unsafe. Accepts absolute http(s) or a site path.
+ */
+export function getBlogRedirectUrl(
+  news: { redirect_url?: string | null } | null | undefined,
+): string | null {
+  const raw = news?.redirect_url;
+  if (typeof raw !== "string") return null;
+  const target = raw.trim();
+  if (!target || UNSAFE_REDIRECT_PROTOCOL.test(target)) return null;
+  if (/^https?:\/\//i.test(target)) return target;
+  if (target.startsWith("/")) return target;
+  return null;
+}
+
 export function serviceFromCategory(
   service: { slug?: unknown; category?: { slug?: unknown } | null } | null | undefined,
   locale: string,
