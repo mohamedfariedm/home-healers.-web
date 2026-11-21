@@ -130,4 +130,40 @@ if (tabbyBody.method !== "tabby") {
   throw new Error("tabby initiation contract drifted");
 }
 
+// 7) Checkout method → payment summary type mapping
+function resolvePaymentSummaryMethodType(paymentMethod) {
+  if (paymentMethod === "cash") return "cash";
+  if (paymentMethod === "tamara") return "tamara";
+  if (paymentMethod === "wallet") return "wallet";
+  if (
+    paymentMethod === "telr" ||
+    paymentMethod === "card" ||
+    paymentMethod === "tabby" ||
+    paymentMethod === "apple_pay"
+  ) {
+    return "telr";
+  }
+  return paymentMethod;
+}
+
+function normalizeCheckoutPaymentMethod(paymentMethod) {
+  if (!paymentMethod || paymentMethod === "cash_on_delivery") return "cash";
+  if (paymentMethod === "telr") return "card";
+  if (paymentMethod === "wallet") return "apple_pay";
+  return paymentMethod;
+}
+
+if (resolvePaymentSummaryMethodType("card") !== "telr") {
+  throw new Error("card must map to telr summary");
+}
+if (resolvePaymentSummaryMethodType("tabby") !== "telr") {
+  throw new Error("tabby must map to telr summary");
+}
+if (resolvePaymentSummaryMethodType("apple_pay") !== "telr") {
+  throw new Error("apple_pay must map to telr summary");
+}
+if (normalizeCheckoutPaymentMethod("telr") !== "card") {
+  throw new Error("legacy telr must normalize to card");
+}
+
 console.log("payment-lifecycle-smoke: OK");

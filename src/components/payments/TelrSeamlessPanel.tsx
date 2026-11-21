@@ -45,6 +45,7 @@ import {
   type TelrSeamlessVerifyData,
 } from "@/lib/telr-seamless";
 import { resolveTelrSeamlessConfig } from "@/lib/telr-seamless/resolve-config";
+import AcceptedCardBrands from "@/components/payments/AcceptedCardBrands";
 import { cn } from "@/lib/utils";
 
 export type TelrSeamlessPanelProps = {
@@ -59,6 +60,10 @@ export type TelrSeamlessPanelProps = {
    * when the backend needs it (profile has none). Never invent fake emails.
    */
   customerEmail?: string | null;
+  /** Prefer this method when the panel opens (defaults to hybrid default). */
+  initialMethod?: "card" | "tabby";
+  /** Limit which hybrid methods appear inside the panel. */
+  methodsFilter?: Array<"card" | "tabby">;
   onPaid: (meta: { paymentId?: string | null; reservationId: number }) => void;
   /** Last-resort generic Telr HPP redirect */
   onHostedFallback: () => void | Promise<void>;
@@ -77,37 +82,6 @@ type SelectedMethod = "card" | "tabby";
 
 function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-}
-
-function detectApplePayAvailable(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    const ApplePaySession = (
-      window as Window & {
-        ApplePaySession?: {
-          canMakePayments?: () => boolean;
-        };
-      }
-    ).ApplePaySession;
-    return Boolean(ApplePaySession?.canMakePayments?.());
-  } catch {
-    return false;
-  }
-}
-
-function CardBrandPills() {
-  return (
-    <div className="flex shrink-0 items-center gap-1">
-      {(["mada", "VISA", "MC"] as const).map((brand) => (
-        <span
-          key={brand}
-          className="inline-flex h-5 items-center rounded border border-[#e5ebf5] bg-white px-1.5 text-[9px] font-bold tracking-wide text-[#5b6b86]"
-        >
-          {brand}
-        </span>
-      ))}
-    </div>
-  );
 }
 
 function SectionDivider({ label }: { label: string }) {
@@ -130,6 +104,8 @@ export default function TelrSeamlessPanel({
   currencyLabel,
   locale,
   customerEmail,
+  initialMethod,
+  methodsFilter,
   onPaid,
   onHostedFallback,
   onMethodRedirect,
@@ -149,10 +125,19 @@ export default function TelrSeamlessPanel({
     () => customerEmail?.trim() || ""
   );
   const hybridMethods = useMemo(() => getTelrHybridPaymentMethods(), []);
-  const [selectedMethod, setSelectedMethod] = useState<SelectedMethod>(() =>
-    defaultTelrHybridSelection(hybridMethods)
-  );
-  const [applePayDeviceOk, setApplePayDeviceOk] = useState(false);
+  const allowCard =
+    hybridMethods.card.enabled &&
+    (!methodsFilter?.length || methodsFilter.includes("card"));
+  const allowTabby =
+    hybridMethods.tabby.enabled &&
+    (!methodsFilter?.length || methodsFilter.includes("tabby"));
+  const [selectedMethod, setSelectedMethod] = useState<SelectedMethod>(() => {
+    if (initialMethod === "tabby" && allowTabby) return "tabby";
+    if (initialMethod === "card" && allowCard) return "card";
+    if (allowCard) return "card";
+    if (allowTabby) return "tabby";
+    return defaultTelrHybridSelection(hybridMethods);
+  });
   /** Card Seamless SDK / backend config failed — Tabby may still be usable. */
   const [cardSeamlessFailed, setCardSeamlessFailed] = useState(false);
 
@@ -163,10 +148,10 @@ export default function TelrSeamlessPanel({
   const mountedRef = useRef(true);
 
   const currency = currencyLabel || t("step5.currency");
-  const showCard = hybridMethods.card.enabled;
-  const showTabby = hybridMethods.tabby.enabled;
-  const showApplePay =
-    hybridMethods.apple_pay.enabled && applePayDeviceOk;
+  const showCard = allowCard;
+  const showTabby = allowTabby;
+  // Apple Pay is selected at checkout-method level (HPP), not inside this panel.
+  const showApplePay = false;
 
   const locking =
     state === "processing" ||
@@ -203,11 +188,20 @@ export default function TelrSeamlessPanel({
 
   useEffect(() => {
     if (!open) return;
-    setApplePayDeviceOk(detectApplePayAvailable());
-    setSelectedMethod(defaultTelrHybridSelection(hybridMethods));
+    if (initialMethod === "tabby" && allowTabby) {
+      setSelectedMethod("tabby");
+    } else if (initialMethod === "card" && allowCard) {
+      setSelectedMethod("card");
+    } else if (allowCard) {
+      setSelectedMethod("card");
+    } else if (allowTabby) {
+      setSelectedMethod("tabby");
+    } else {
+      setSelectedMethod(defaultTelrHybridSelection(hybridMethods));
+    }
     setCardSeamlessFailed(false);
     setError(null);
-  }, [hybridMethods, open]);
+  }, [allowCard, allowTabby, hybridMethods, initialMethod, open]);
 
   useEffect(() => {
     if (!showCard && showTabby && selectedMethod === "card") {
@@ -863,7 +857,7 @@ export default function TelrSeamlessPanel({
                       <span className="min-w-0 flex-1 text-xs font-semibold text-[#143087]">
                         {t("seamless.methodCard")}
                       </span>
-                      <CardBrandPills />
+                      <AcceptedCardBrands />
                       <span
                         className={cn(
                           "flex size-4 shrink-0 items-center justify-center rounded-full border-2",

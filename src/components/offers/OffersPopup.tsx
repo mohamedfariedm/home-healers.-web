@@ -412,10 +412,18 @@ export default function OffersPopup({ locale, popups }: OffersPopupProps) {
       }
 
       if (matchedCoupon && !preview.preview) {
+        const resolvedCouponId =
+          String(matchedCoupon.id || active.coupon_id || "").trim() || null;
+        const resolvedCouponCode =
+          String(matchedCoupon.code || active.coupon_code || "").trim();
+        if (!resolvedCouponCode && !resolvedCouponId) {
+          setErrors({ submit: errMsg("coupon") });
+          return;
+        }
         savePendingClaim({
           popupId: active.id,
-          couponCode: matchedCoupon.code || active.coupon_code,
-          couponId: matchedCoupon.id || active.coupon_id,
+          couponCode: resolvedCouponCode,
+          couponId: resolvedCouponId,
           name: form.name.trim(),
           mobile: fields.mobile.visible ? toStoredMobile(form.mobile) : "",
           locale,

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { useTranslation } from "react-i18next";
 import {
   Check,
   ChevronLeft,
@@ -62,6 +63,7 @@ export default function ClaimSpecialtyDoctorPicker({
   onSelectDoctor,
   disabled = false,
 }: ClaimSpecialtyDoctorPickerProps) {
+  const { t } = useTranslation("offers");
   const isAr = locale === "ar";
   const [page, setPage] = useState(1);
 
@@ -101,32 +103,27 @@ export default function ClaimSpecialtyDoctorPicker({
             <Stethoscope className="size-4" aria-hidden />
           </span>
           <h2 className="text-lg font-bold text-[#0d7377]">
-            {isAr ? "اختر التخصص والمعالج" : "Choose specialty & doctor"}
+            {t("claim.pickerTitle")}
           </h2>
         </div>
-        <p className="text-sm text-[#5b6b7a]">
-          {isAr
-            ? "حدد التخصص أولاً، ثم اختر المعالج المناسب لجلستك."
-            : "Pick a specialty first, then choose the right therapist for your visit."}
-        </p>
+        <p className="text-sm text-[#5b6b7a]">{t("claim.pickerHint")}</p>
       </div>
 
       <div className="space-y-6 px-5 py-5 sm:px-6 sm:py-6">
         <div>
           <div className="mb-3 flex items-center justify-between gap-3">
             <p className="text-sm font-semibold text-[#1e1e1e]">
-              {isAr ? "التخصص" : "Specialty"}
+              {t("claim.specialty")}
             </p>
             <span className="text-xs text-[#7a8899]">
-              {categories.length}{" "}
-              {isAr ? "تخصص" : "specialties"}
+              {t("claim.specialtyCount", { count: categories.length })}
             </span>
           </div>
 
           <div
             className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:thin]"
             role="listbox"
-            aria-label={isAr ? "التخصصات" : "Specialties"}
+            aria-label={t("claim.specialties")}
           >
             {categories.map((category) => {
               const active = Number(category.id) === selectedCategoryId;
@@ -187,36 +184,30 @@ export default function ClaimSpecialtyDoctorPicker({
           <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-sm font-semibold text-[#1e1e1e]">
-                {isAr ? "المعالجون" : "Therapists"}
+                {t("claim.therapists")}
               </p>
               <p className="mt-0.5 text-xs text-[#7a8899]">
                 {!selectedCategoryId
-                  ? isAr
-                    ? "اختر تخصصاً لعرض المعالجين"
-                    : "Select a specialty to see therapists"
-                  : isAr
-                    ? `${filteredDoctors.length} معالج متاح`
-                    : `${filteredDoctors.length} therapists available`}
+                  ? t("claim.pickSpecialtyFirst")
+                  : t("claim.therapistCount", {
+                      count: filteredDoctors.length,
+                    })}
               </p>
             </div>
             {selectedDoctor ? (
               <span className="rounded-xl bg-[#e7f6f7] px-3 py-1.5 text-xs font-semibold text-[#0d7377]">
-                {isAr ? "المحدد:" : "Selected:"} {selectedDoctor.name}
+                {t("claim.selected")}: {selectedDoctor.name}
               </span>
             ) : null}
           </div>
 
           {!selectedCategoryId ? (
             <div className="rounded-2xl border border-dashed border-[#d7e4e8] bg-[#f8fbfc] px-4 py-10 text-center text-sm text-[#6b7c8a]">
-              {isAr
-                ? "ابدأ باختيار التخصص من الشريط أعلاه"
-                : "Start by choosing a specialty above"}
+              {t("claim.startWithSpecialty")}
             </div>
           ) : filteredDoctors.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-[#d7e4e8] bg-[#f8fbfc] px-4 py-10 text-center text-sm text-[#6b7c8a]">
-              {isAr
-                ? "لا يوجد معالجون متاحون لهذا التخصص حالياً."
-                : "No doctors available for this specialty right now."}
+              {t("claim.noTherapists")}
             </div>
           ) : (
             <>
@@ -277,18 +268,17 @@ export default function ClaimSpecialtyDoctorPicker({
                           ) : null}
                           {Number.isFinite(experience) && experience > 0 ? (
                             <span>
-                              {experience}+{" "}
-                              {isAr ? "سنة خبرة" : "yrs exp"}
+                              {t("claim.yearsExp", { count: experience })}
                             </span>
                           ) : null}
                         </span>
 
-                        <span className="mt-2 block text-sm font-bold text-[#0d7377]">
+                        {/* <span className="mt-2 block text-sm font-bold text-[#0d7377]">
                           {formatOfferPrice(price, "SAR", locale)}
                           <span className="ms-1 text-[11px] font-medium text-[#7a8899]">
-                            {isAr ? "/ جلسة" : "/ session"}
+                            {t("claim.perSession")}
                           </span>
-                        </span>
+                        </span> */}
                       </span>
                     </button>
                   );
@@ -298,9 +288,7 @@ export default function ClaimSpecialtyDoctorPicker({
               {totalPages > 1 ? (
                 <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#eef3f5] pt-4">
                   <p className="text-xs text-[#7a8899]">
-                    {isAr
-                      ? `صفحة ${page} من ${totalPages}`
-                      : `Page ${page} of ${totalPages}`}
+                    {t("claim.pageOf", { page, total: totalPages })}
                   </p>
                   <div className="flex items-center gap-2">
                     <button
@@ -308,7 +296,7 @@ export default function ClaimSpecialtyDoctorPicker({
                       disabled={disabled || page <= 1}
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
                       className="inline-flex size-10 items-center justify-center rounded-xl border border-[#e5edf0] bg-white text-[#0d7377] transition hover:border-[#0d7377]/40 disabled:opacity-35"
-                      aria-label={isAr ? "السابق" : "Previous"}
+                      aria-label={t("claim.prev")}
                     >
                       <ChevronRight
                         className={cn(
@@ -361,7 +349,7 @@ export default function ClaimSpecialtyDoctorPicker({
                         setPage((p) => Math.min(totalPages, p + 1))
                       }
                       className="inline-flex size-10 items-center justify-center rounded-xl border border-[#e5edf0] bg-white text-[#0d7377] transition hover:border-[#0d7377]/40 disabled:opacity-35"
-                      aria-label={isAr ? "التالي" : "Next"}
+                      aria-label={t("claim.next")}
                     >
                       <ChevronLeft
                         className={cn(

@@ -78,7 +78,8 @@ const BookingReservationTour = dynamic(
 
 function normalizePaymentMethod(method: string | undefined): string {
   if (!method || method === "cash_on_delivery") return "cash";
-  if (method === "apple_pay" || method === "wallet") return "telr";
+  if (method === "telr") return "card";
+  if (method === "wallet") return "apple_pay";
   return method;
 }
 
@@ -1127,11 +1128,14 @@ export default function BookingFlow({
       throw new Error(t("messages.reservationIdMissing"));
     }
 
+    const selected = normalizePaymentMethod(bookingData.paymentMethod);
+    const pendingMethod = selected === "apple_pay" ? "apple_pay" : "hpp";
+
     persistReservationId(reservationId);
     persistPendingPayment({
       reservationId,
       provider: "telr",
-      method: "hpp",
+      method: pendingMethod,
     });
     const telrResponse = await ClientAPI.payReservationWithTelr(
       reservationId,
@@ -1139,7 +1143,7 @@ export default function BookingFlow({
     );
     trackEvent(GTM_EVENTS.RESERVATION_PAYMENT, {
       reservation_id: reservationId,
-      payment_method: "telr",
+      payment_method: selected === "apple_pay" ? "apple_pay" : "telr",
       source: "booking_flow",
       checkout: "hosted",
     });

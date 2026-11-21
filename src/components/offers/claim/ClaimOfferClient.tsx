@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { CheckCircle, Loader2, Tag } from "lucide-react";
+import { ArrowLeft, CheckCircle, Loader2, Tag } from "lucide-react";
 import ClientAPI from "@/app/api/api";
 import LocationPickerModal from "@/app/[locale]/(SharedLayout)/booking/_components/modals/location-picker-modal";
 import OfferBookingForm, {
@@ -17,10 +17,17 @@ import { useLocalStorage } from "@/Hooks/use-local-storage";
 import { isClientApiError } from "@/lib/client-api-error";
 import {
   buildClaimReservationPayload,
-  claimCheckoutStorageKey,
+  clearAllClaimOfferStorage,
+  clearClaimCheckout,
+  clearClaimFormDraft,
   clearPendingClaim,
   matchCouponInList,
+  readClaimCheckout,
+  readClaimFormDraft,
   readPendingClaim,
+  saveClaimCheckout,
+  saveClaimFormDraft,
+  savePendingClaim,
   type ClaimCheckoutState,
   type PendingOfferClaim,
 } from "@/lib/claim-offer";
@@ -29,12 +36,9 @@ import {
   combineDateAndTime,
   formatLocalDateTime,
   isSlotInPast,
-  readJson,
-  removeStorage,
   resolveDefaultAddress,
   timePeriodFromStart,
   validateOfferBooking,
-  writeJson,
 } from "@/lib/offer-booking";
 import { doctorMatchesCategoryId } from "@/lib/doctor-matches-category";
 import { formatDiscountDisplay } from "@/lib/offer-popup";
@@ -51,6 +55,7 @@ import {
 } from "@/lib/payment-summary";
 import {
   clearCheckoutStorage,
+  getPersistedReservationId,
   persistPendingPayment,
   persistReservationId,
 } from "@/lib/checkout-storage";
@@ -105,7 +110,7 @@ function emptyBookingData(): BookingData {
       notes: "",
       attachments: [],
     },
-    paymentMethod: "telr",
+    paymentMethod: "card",
     couponCode: "",
     pricing: {
       subTotal: 0,
@@ -202,6 +207,7 @@ export default function ClaimOfferClient({
   const [dateKey, setDateKey] = useState<string | null>(null);
   const [time, setTime] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
+  const shouldRetryCouponRef = useRef(false);
 
   const selectedCategory =
     categories.find((c) => Number(c.id) === selectedCategoryId) ?? null;
@@ -232,59 +238,202 @@ export default function ClaimOfferClient({
 
   useEffect(() => {
     const pending = readPendingClaim();
-    const checkout = readJson<ClaimCheckoutState>(claimCheckoutStorageKey());
-    setClaim(pending);
+    const draft = readClaimFormDraft();
+    const checkout = readClaimCheckout();
+    const persistedReservationId = getPersistedReservationId();
 
-    if (pending) {
+    const claimMeta: PendingOfferClaim | null =
+      pending ||
+      draft?.claim ||
+      (checkout?.couponCode
+        ? {
+            popupId: checkout.popupId || "restored",
+            couponCode: checkout.couponCode,
+            couponId: checkout.couponId || null,
+            name: "",
+            mobile: "",
+            locale,
+            createdAt: checkout.updatedAt || Date.now(),
+            discountType: checkout.discountType,
+            discountValue: checkout.discountValue,
+            offerTitle: checkout.offerTitle,
+          }
+        : null);
+
+    setClaim(claimMeta);
+
+    // Prefer payment restore so refresh after coupon stays on checkout.
+    const paymentReservationId =
+      checkout?.reservationId ||
+      (checkout?.phase === "payment" ? persistedReservationId : null);
+
+    if (paymentReservationId && (checkout?.phase === "payment" || checkout?.phase === "done")) {
+      setReservationId(paymentReservationId);
+      persistReservationId(paymentReservationId);
+      setPhase(checkout?.phase || "payment");
+      // Only auto-retry coupon after a refresh/restore, not right after first apply.
+      shouldRetryCouponRef.current = checkout?.phase === "payment";
+      setBookingData((prev) => {
+        let next: BookingData = {
+          ...prev,
+          couponCode: checkout?.couponCode || prev.couponCode,
+          couponId: checkout?.couponId || prev.couponId,
+        };
+        try {
+          const stored = window.localStorage.getItem("bookingData");
+          if (stored) {
+            const parsed = JSON.parse(stored) as BookingData;
+            if (parsed?.pricing) {
+              next = {
+                ...next,
+                ...parsed,
+                couponCode:
+                  checkout?.couponCode ||
+                  parsed.couponCode ||
+                  next.couponCode,
+                couponId:
+                  checkout?.couponId || parsed.couponId || next.couponId,
+              };
+            }
+          }
+        } catch {
+          // ignore
+        }
+        return next;
+      });
+      if (checkout?.guestEmail) {
+        setGuest((prev) => ({
+          ...prev,
+          email: prev.email || checkout.guestEmail || "",
+        }));
+      }
+      setClaimReady(true);
+      return;
+    }
+
+    if (draft?.claim) {
+      setGuest({
+        name: draft.guest.name || claimMeta?.name || "",
+        phone: draft.guest.phone || claimMeta?.mobile || "",
+        email: draft.guest.email || "",
+        nationality: draft.guest.nationality || "",
+        nationalityId: draft.guest.nationalityId,
+        gender: draft.guest.gender || "male",
+        birthDate: draft.guest.birthDate || "",
+      });
+      setSelectedCategoryId(draft.selectedCategoryId);
+      setSelectedDoctorId(draft.selectedDoctorId);
+      setSelectedAddressId(draft.selectedAddressId);
+      setDateKey(draft.dateKey);
+      setTime(draft.time);
+      setNotes(draft.notes || "");
+      setPhase("form");
+    } else if (claimMeta) {
       setGuest((prev) => ({
         ...prev,
-        name: pending.name || prev.name,
-        phone: pending.mobile || prev.phone,
+        name: claimMeta.name || prev.name,
+        phone: claimMeta.mobile || prev.phone,
       }));
     }
 
-    if (checkout?.reservationId) {
-      setReservationId(checkout.reservationId);
-      persistReservationId(checkout.reservationId);
-      setPhase(checkout.phase);
-      setBookingData((prev) => ({
-        ...prev,
-        couponCode:
-          checkout.couponCode || pending?.couponCode || prev.couponCode,
-        couponId:
-          checkout.couponId ||
-          pending?.couponId ||
-          prev.couponId ||
-          undefined,
-      }));
-      // Rehydrate full booking draft if still in localStorage from this claim.
-      try {
-        const stored = window.localStorage.getItem("bookingData");
-        if (stored) {
-          const parsed = JSON.parse(stored) as BookingData;
-          if (parsed?.pricing) {
-            setBookingData((prev) => ({
-              ...prev,
-              ...parsed,
-              couponCode:
-                checkout.couponCode ||
-                pending?.couponCode ||
-                parsed.couponCode ||
-                prev.couponCode,
-              couponId:
-                checkout.couponId ||
-                pending?.couponId ||
-                parsed.couponId ||
-                prev.couponId,
-            }));
-          }
-        }
-      } catch {
-        // ignore
-      }
-    }
     setClaimReady(true);
-  }, []);
+  }, [locale]);
+
+  // Persist in-progress form so refresh does not reset the claim cycle.
+  useEffect(() => {
+    if (!claimReady || phase !== "form" || !claim?.couponCode) return;
+    saveClaimFormDraft({
+      updatedAt: Date.now(),
+      claim,
+      guest,
+      selectedCategoryId,
+      selectedDoctorId,
+      selectedAddressId,
+      dateKey,
+      time,
+      notes,
+    });
+  }, [
+    claimReady,
+    phase,
+    claim,
+    guest,
+    selectedCategoryId,
+    selectedDoctorId,
+    selectedAddressId,
+    dateKey,
+    time,
+    notes,
+  ]);
+
+  // If payment was restored without a discount, retry coupon apply once.
+  useEffect(() => {
+    if (!claimReady || phase !== "payment" || !reservationId) return;
+    if (!shouldRetryCouponRef.current) return;
+    shouldRetryCouponRef.current = false;
+
+    const code = bookingData.couponCode || claim?.couponCode;
+    if (!code) return;
+    if ((bookingData.pricing?.couponDiscount ?? 0) > 0) return;
+
+    let cancelled = false;
+    const retry = async () => {
+      try {
+        const matched = await applyClaimCoupon(reservationId, {
+          couponCode: code,
+          couponId: bookingData.couponId || claim?.couponId || null,
+        });
+        if (cancelled) return;
+
+        const summaryResponse = await ClientAPI.getPaymentSummary(
+          reservationId,
+          locale,
+        );
+        if (cancelled || !summaryResponse?.data) return;
+
+        setBookingData((prev) => {
+          const withCoupon = {
+            ...prev,
+            couponCode: matched.code,
+            couponId: matched.id,
+          };
+          const next = applyPaymentSummaryToBooking(
+            withCoupon,
+            summaryResponse.data as PaymentSummaryData,
+            withCoupon.paymentMethod,
+          );
+          persistCheckoutBooking(next);
+          return next;
+        });
+        saveClaimCheckout({
+          reservationId,
+          phase: "payment",
+          couponCode: matched.code,
+          couponId: matched.id,
+          offerTitle: claim?.offerTitle,
+          discountType: claim?.discountType,
+          discountValue: claim?.discountValue,
+          popupId: claim?.popupId,
+          guestEmail: guest.email.trim() || undefined,
+          updatedAt: Date.now(),
+        });
+        toast.success(t("claim.createdWithCoupon"));
+      } catch (error) {
+        if (cancelled) return;
+        toast.error(
+          (isClientApiError(error) && error.message) ||
+            t("claim.errors.couponApplyFailed"),
+        );
+      }
+    };
+
+    void retry();
+    return () => {
+      cancelled = true;
+    };
+    // Run once after payment restore.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claimReady, phase, reservationId]);
 
   useEffect(() => {
     if (selectedAddressId) return;
@@ -359,56 +508,80 @@ export default function ClaimOfferClient({
     return t(`booking.errors.${code}`);
   };
 
-  const resolveCouponId = async (): Promise<{
-    id: string;
-    code: string;
-  } | null> => {
-    if (!claim) return null;
-    if (claim.couponId) {
-      return { id: String(claim.couponId), code: claim.couponCode };
-    }
+  const resolveCouponId = async (
+    source?: Pick<PendingOfferClaim, "couponCode" | "couponId"> | null,
+  ): Promise<{ id: string; code: string } | null> => {
+    const target = source || claim;
+    if (!target) return null;
+
+    const code = String(target.couponCode || "").trim();
+    const couponId = String(target.couponId || "").trim();
+    if (!code && !couponId) return null;
+
+    // Always resolve against the coupons API first (same approach as booking step 5).
+    // Do not trust a stale/empty couponId from popup handoff alone.
     try {
-      const response = await ClientAPI.getCoupons(locale, {
-        code: claim.couponCode,
-        limit: 20,
-        page: 1,
-      });
-      const list = Array.isArray(response?.data) ? response.data : [];
-      let matched = matchCouponInList(list, {
-        code: claim.couponCode,
-        couponId: claim.couponId,
-      });
-      if (!matched) {
-        const searchResponse = await ClientAPI.getCoupons(locale, {
-          name: claim.couponCode,
+      if (code) {
+        const byCode = await ClientAPI.getCoupons(locale, {
+          code,
           limit: 20,
           page: 1,
         });
-        const searchList = Array.isArray(searchResponse?.data)
-          ? searchResponse.data
-          : [];
-        matched = matchCouponInList(searchList, {
-          code: claim.couponCode,
-          couponId: claim.couponId,
+        const codeList = Array.isArray(byCode?.data) ? byCode.data : [];
+        const matchedByCode = matchCouponInList(codeList, { code, couponId });
+        if (matchedByCode?.id) return matchedByCode;
+
+        const byName = await ClientAPI.getCoupons(locale, {
+          name: code,
+          limit: 20,
+          page: 1,
         });
+        const nameList = Array.isArray(byName?.data) ? byName.data : [];
+        const matchedByName = matchCouponInList(nameList, { code, couponId });
+        if (matchedByName?.id) return matchedByName;
       }
-      return matched;
+
+      const all = await ClientAPI.getCoupons(locale, { limit: 50, page: 1 });
+      const allList = Array.isArray(all?.data) ? all.data : [];
+      const matchedAll = matchCouponInList(allList, { code, couponId });
+      if (matchedAll?.id) return matchedAll;
     } catch {
-      return null;
+      // Fall through to configured coupon id if API lookup fails for guests.
     }
+
+    if (couponId) {
+      return { id: couponId, code: code || couponId };
+    }
+    return null;
+  };
+
+  const applyClaimCoupon = async (
+    reservationIdToUse: number,
+    source?: Pick<PendingOfferClaim, "couponCode" | "couponId"> | null,
+  ) => {
+    const matchedCoupon = await resolveCouponId(source);
+    if (!matchedCoupon?.id) {
+      throw new Error(t("claim.errors.couponApplyFailed"));
+    }
+    await ClientAPI.applyCouponOnReservation(
+      {
+        reservationId: reservationIdToUse,
+        coupon_id: String(matchedCoupon.id),
+      },
+      locale,
+    );
+    return matchedCoupon;
   };
 
   const handleConfirm = async () => {
     if (submittingRef.current || !claim) return;
 
     if (!selectedCategory) {
-      toast.error(
-        isAr ? "من فضلك اختر التخصص" : "Please select a specialty",
-      );
+      toast.error(t("claim.errors.specialtyRequired"));
       return;
     }
     if (!selectedDoctor) {
-      toast.error(isAr ? "من فضلك اختر المعالج" : "Please select a doctor");
+      toast.error(t("claim.errors.doctorRequired"));
       return;
     }
 
@@ -464,23 +637,6 @@ export default function ClaimOfferClient({
         throw new Error(t("messages.reservationWithoutClient", { ns: "booking" }));
       }
 
-      const matchedCoupon = await resolveCouponId();
-      if (!matchedCoupon?.id) {
-        throw new Error(
-          isAr
-            ? "تعذر تطبيق كود الخصم"
-            : "Could not apply the discount code",
-        );
-      }
-
-      await ClientAPI.applyCouponOnReservation(
-        {
-          reservationId: created.id,
-          coupon_id: matchedCoupon.id,
-        },
-        locale,
-      );
-
       const start = combineDateAndTime(dateKey, time)!;
       const patient: Patient = {
         id: Date.now(),
@@ -495,6 +651,27 @@ export default function ClaimOfferClient({
         gender: guest.gender,
         bloodType: "",
       };
+
+      // Persist reservation immediately so refresh can resume payment even if
+      // coupon apply needs a retry.
+      setReservationId(created.id);
+      persistReservationId(created.id);
+      saveClaimCheckout({
+        reservationId: created.id,
+        phase: "payment",
+        couponCode: claim.couponCode,
+        couponId: claim.couponId || undefined,
+        offerTitle: claim.offerTitle,
+        discountType: claim.discountType,
+        discountValue: claim.discountValue,
+        popupId: claim.popupId,
+        guestEmail: guest.email.trim() || undefined,
+        updatedAt: Date.now(),
+      });
+
+      const matchedCoupon = await applyClaimCoupon(created.id, claim);
+      const appliedCouponCode = matchedCoupon.code;
+      const appliedCouponId = matchedCoupon.id;
 
       let nextBooking = applyReservationPricingFromApi(
         {
@@ -517,9 +694,9 @@ export default function ClaimOfferClient({
             ...emptyBookingData().healthInfo,
             notes,
           },
-          couponCode: matchedCoupon.code,
-          couponId: matchedCoupon.id,
-          paymentMethod: "telr",
+          couponCode: appliedCouponCode,
+          couponId: appliedCouponId,
+          paymentMethod: "card",
           pricing: {
             subTotal: sessionPrice,
             fees: 0,
@@ -563,32 +740,50 @@ export default function ClaimOfferClient({
         console.error("Failed to load payment summary:", summaryError);
       }
 
-      setBookingData(nextBooking);
-      persistCheckoutBooking(nextBooking);
-      setReservationId(created.id);
-      persistReservationId(created.id);
-      writeJson(claimCheckoutStorageKey(), {
+      const checkoutState: ClaimCheckoutState = {
         reservationId: created.id,
         phase: "payment",
-        couponCode: matchedCoupon.code,
-        couponId: matchedCoupon.id,
-      } satisfies ClaimCheckoutState);
+        couponCode: appliedCouponCode,
+        couponId: appliedCouponId,
+        offerTitle: claim.offerTitle,
+        discountType: claim.discountType,
+        discountValue: claim.discountValue,
+        popupId: claim.popupId,
+        guestEmail: guest.email.trim() || undefined,
+        updatedAt: Date.now(),
+      };
+
+      // Keep form draft so the user can go back and edit details.
+      saveClaimFormDraft({
+        updatedAt: Date.now(),
+        claim: {
+          ...claim,
+          couponCode: appliedCouponCode,
+          couponId: appliedCouponId,
+        },
+        guest,
+        selectedCategoryId,
+        selectedDoctorId,
+        selectedAddressId,
+        dateKey,
+        time,
+        notes,
+      });
+      setBookingData(nextBooking);
+      persistCheckoutBooking(nextBooking);
+      saveClaimCheckout(checkoutState);
       clearPendingClaim();
 
       trackEvent(GTM_EVENTS.RESERVATION_CREATED, {
         reservation_id: created.id,
         source: "claim_offer",
-        coupon_code: matchedCoupon.code,
+        coupon_code: appliedCouponCode,
         popup_id: claim.popupId,
       });
 
       setPhase("payment");
       window.scrollTo({ top: 0, behavior: "smooth" });
-      toast.success(
-        isAr
-          ? "تم إنشاء الحجز وتطبيق الخصم"
-          : "Booking created and discount applied",
-      );
+      toast.success(t("claim.createdWithCoupon"));
     } catch (error: unknown) {
       const message =
         (isClientApiError(error) && error.message) ||
@@ -602,14 +797,113 @@ export default function ClaimOfferClient({
     }
   };
 
+  const handleBackToEdit = () => {
+    if (paying || submitting) return;
+
+    const draft = readClaimFormDraft();
+    const checkout = readClaimCheckout();
+    const nextClaim =
+      claim ||
+      draft?.claim ||
+      (bookingData.couponCode
+        ? {
+            popupId: checkout?.popupId || "restored",
+            couponCode: bookingData.couponCode,
+            couponId: bookingData.couponId || checkout?.couponId || null,
+            name: guest.name,
+            mobile: guest.phone,
+            locale,
+            createdAt: checkout?.updatedAt || Date.now(),
+            discountType: checkout?.discountType,
+            discountValue: checkout?.discountValue,
+            offerTitle: checkout?.offerTitle,
+          }
+        : null);
+
+    if (!nextClaim?.couponCode) {
+      toast.error(t("claim.unavailableBody"));
+      return;
+    }
+
+    const patient = bookingData.selectedPatients?.[0];
+    const slot = bookingData.selectedDates?.[0];
+    const nextGuest = draft?.guest
+      ? {
+          name: draft.guest.name || nextClaim.name || guest.name,
+          phone: draft.guest.phone || nextClaim.mobile || guest.phone,
+          email: draft.guest.email || guest.email,
+          nationality: draft.guest.nationality || guest.nationality,
+          nationalityId: draft.guest.nationalityId ?? guest.nationalityId,
+          gender: draft.guest.gender || guest.gender,
+          birthDate: draft.guest.birthDate || guest.birthDate,
+        }
+      : {
+          name: patient?.name || guest.name || nextClaim.name,
+          phone: patient?.phone || guest.phone || nextClaim.mobile,
+          email: patient?.email || guest.email,
+          nationality: patient?.nationality || guest.nationality,
+          nationalityId: patient?.nationality_id ?? guest.nationalityId,
+          gender: patient?.gender || guest.gender,
+          birthDate: patient?.birthDate || guest.birthDate,
+        };
+
+    const nextCategoryId =
+      draft?.selectedCategoryId ??
+      (bookingData.selectedCategory?.id
+        ? Number(bookingData.selectedCategory.id)
+        : selectedCategoryId);
+    const nextDoctorId =
+      draft?.selectedDoctorId ??
+      (bookingData.selectedDoctor?.id
+        ? Number(bookingData.selectedDoctor.id)
+        : selectedDoctorId);
+    const nextAddressId =
+      draft?.selectedAddressId ??
+      (bookingData.selectedLocation?.id
+        ? Number(bookingData.selectedLocation.id)
+        : selectedAddressId);
+    const nextDateKey = draft?.dateKey || slot?.date || dateKey;
+    const nextTime = draft?.time || slot?.time || time;
+    const nextNotes = draft?.notes || bookingData.healthInfo?.notes || notes;
+
+    // Unlock payment restore on refresh; user is editing again.
+    clearClaimCheckout();
+    setReservationId(null);
+    shouldRetryCouponRef.current = false;
+    setClaim(nextClaim);
+    setGuest(nextGuest);
+    setSelectedCategoryId(nextCategoryId);
+    setSelectedDoctorId(nextDoctorId);
+    setSelectedAddressId(nextAddressId);
+    setDateKey(nextDateKey);
+    setTime(nextTime);
+    setNotes(nextNotes);
+    savePendingClaim(nextClaim);
+    saveClaimFormDraft({
+      updatedAt: Date.now(),
+      claim: nextClaim,
+      guest: nextGuest,
+      selectedCategoryId: nextCategoryId,
+      selectedDoctorId: nextDoctorId,
+      selectedAddressId: nextAddressId,
+      dateKey: nextDateKey,
+      time: nextTime,
+      notes: nextNotes,
+    });
+
+    setPhase("form");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const startHostedTelrPay = async () => {
     if (!reservationId) return;
+    const isApplePay = bookingData.paymentMethod === "apple_pay";
     persistReservationId(reservationId);
     persistCheckoutBooking(bookingData);
     persistPendingPayment({
       reservationId,
       provider: "telr",
-      method: "hpp",
+      method: isApplePay ? "apple_pay" : "hpp",
     });
     const telrResponse = await ClientAPI.payReservationWithTelr(
       reservationId,
@@ -617,7 +911,7 @@ export default function ClaimOfferClient({
     );
     trackEvent(GTM_EVENTS.RESERVATION_PAYMENT, {
       reservation_id: reservationId,
-      payment_method: "telr",
+      payment_method: isApplePay ? "apple_pay" : "telr",
       source: "claim_offer",
       checkout: "hosted",
     });
@@ -690,7 +984,7 @@ export default function ClaimOfferClient({
           paymentMethod: "cash",
           paymentStatus: "cash_pending",
         });
-        removeStorage(claimCheckoutStorageKey());
+        clearAllClaimOfferStorage();
         clearCheckoutStorage();
         trackEvent(GTM_EVENTS.RESERVATION_PAYMENT, {
           reservation_id: reservationId,
@@ -701,6 +995,17 @@ export default function ClaimOfferClient({
           extractApiMessage(cashResponse, t("booking.cashConfirmed")),
         );
         setPhase("done");
+        saveClaimCheckout({
+          reservationId,
+          phase: "done",
+          couponCode: bookingData.couponCode,
+          couponId: bookingData.couponId,
+          offerTitle: claim?.offerTitle,
+          discountType: claim?.discountType,
+          discountValue: claim?.discountValue,
+          popupId: claim?.popupId,
+          updatedAt: Date.now(),
+        });
       } else if (bookingData.paymentMethod === "tamara") {
         await startTamaraPay();
       } else {
@@ -729,18 +1034,14 @@ export default function ClaimOfferClient({
     return (
       <div className="mx-auto w-full max-w-xl px-4 py-16 text-center">
         <h1 className="mb-3 text-2xl font-bold text-[#0d7377]">
-          {isAr ? "انتهى العرض أو غير متاح" : "Offer unavailable"}
+          {t("claim.unavailableTitle")}
         </h1>
-        <p className="mb-8 text-[#4a5568]">
-          {isAr
-            ? "لم نجد عرضاً نشطاً. ارجع للرئيسية وحاول مرة أخرى من النافذة المنبثقة."
-            : "We could not find an active claim. Go home and claim the offer from the popup again."}
-        </p>
+        <p className="mb-8 text-[#4a5568]">{t("claim.unavailableBody")}</p>
         <Link
           href={localePath(locale, "/")}
           className="inline-flex h-12 items-center rounded-xl bg-[#0d7377] px-6 font-semibold text-white"
         >
-          {isAr ? "العودة للرئيسية" : "Go home"}
+          {t("booking.goHome")}
         </Link>
       </div>
     );
@@ -779,11 +1080,10 @@ export default function ClaimOfferClient({
         <div className="bg-gradient-to-br from-[#0d7377] to-[#14919b] px-5 py-6 text-white sm:px-8">
           <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
             <Tag className="size-3.5" />
-            {isAr ? "عرض خاص" : "Special offer"}
+            {t("claim.badge")}
           </p>
           <h1 className="text-2xl font-bold leading-tight sm:text-3xl">
-            {claim?.offerTitle ||
-              (isAr ? "أكمل حجزك بالخصم" : "Complete your discounted booking")}
+            {claim?.offerTitle || t("claim.defaultTitle")}
           </h1>
           <div className="mt-4 flex flex-wrap items-end gap-4">
             {discountDisplay ? (
@@ -796,7 +1096,7 @@ export default function ClaimOfferClient({
             ) : null}
             {couponLabel ? (
               <span className="rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold">
-                {isAr ? "كود الخصم" : "Coupon"}: {couponLabel}
+                {t("claim.couponLabel")}: {couponLabel}
               </span>
             ) : null}
           </div>
@@ -846,44 +1146,55 @@ export default function ClaimOfferClient({
           />
         </>
       ) : reservationId ? (
-        <OfferPaymentPanel
-          locale={locale}
-          reservationId={reservationId}
-          bookingData={bookingData}
-          updateBookingData={updateBookingData}
-          onPay={handlePay}
-          isPaying={paying}
-          customerEmail={guest.email.trim() || null}
-          onHostedTelrPay={async () => {
-            setPaying(true);
-            try {
-              await startHostedTelrPay();
-            } catch (error: unknown) {
-              toast.error(
-                error instanceof Error
-                  ? error.message
-                  : t("booking.errors.paymentFailed"),
-              );
-            } finally {
-              setPaying(false);
-            }
-          }}
-          onTamaraPay={async () => {
-            setPaying(true);
-            try {
-              await startTamaraPay();
-            } catch (error: unknown) {
-              toast.error(
-                error instanceof Error
-                  ? error.message
-                  : t("booking.errors.paymentFailed"),
-              );
-            } finally {
-              setPaying(false);
-            }
-          }}
-          onSeamlessPaid={handleSeamlessPaid}
-        />
+        <div className="space-y-4">
+          <button
+            type="button"
+            onClick={handleBackToEdit}
+            disabled={paying}
+            className="inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-2 text-sm font-semibold text-[#0d7377] shadow-sm ring-1 ring-[#d7ecee] transition hover:bg-[#f3fbfb] disabled:opacity-50"
+          >
+            <ArrowLeft className="size-4 rtl:rotate-180" aria-hidden />
+            {t("claim.backToEdit")}
+          </button>
+          <OfferPaymentPanel
+            locale={locale}
+            reservationId={reservationId}
+            bookingData={bookingData}
+            updateBookingData={updateBookingData}
+            onPay={handlePay}
+            isPaying={paying}
+            customerEmail={guest.email.trim() || null}
+            onHostedTelrPay={async () => {
+              setPaying(true);
+              try {
+                await startHostedTelrPay();
+              } catch (error: unknown) {
+                toast.error(
+                  error instanceof Error
+                    ? error.message
+                    : t("booking.errors.paymentFailed"),
+                );
+              } finally {
+                setPaying(false);
+              }
+            }}
+            onTamaraPay={async () => {
+              setPaying(true);
+              try {
+                await startTamaraPay();
+              } catch (error: unknown) {
+                toast.error(
+                  error instanceof Error
+                    ? error.message
+                    : t("booking.errors.paymentFailed"),
+                );
+              } finally {
+                setPaying(false);
+              }
+            }}
+            onSeamlessPaid={handleSeamlessPaid}
+          />
+        </div>
       ) : null}
 
       {phase === "form" ? (
@@ -891,14 +1202,13 @@ export default function ClaimOfferClient({
           <div className="mx-auto flex w-full max-w-[1280px] items-center gap-3 lg:px-4">
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm text-[#4a5568]">
-                {selectedDoctor?.name ||
-                  (isAr ? "أكمل بياناتك" : "Complete your details")}
+                {selectedDoctor?.name || t("claim.completeDetails")}
               </p>
               <p className="font-bold text-[#0d7377]">
                 {selectedDoctor
                   ? formatOfferPrice(sessionPrice, "SAR", locale)
                   : couponLabel
-                    ? `${isAr ? "كود" : "Code"}: ${couponLabel}`
+                    ? `${t("claim.codeShort")}: ${couponLabel}`
                     : "—"}
               </p>
             </div>
@@ -910,10 +1220,8 @@ export default function ClaimOfferClient({
             >
               {submitting ? (
                 <Loader2 className="size-5 animate-spin" />
-              ) : isAr ? (
-                "متابعة للدفع"
               ) : (
-                "Continue to payment"
+                t("claim.continueToPayment")
               )}
             </button>
           </div>

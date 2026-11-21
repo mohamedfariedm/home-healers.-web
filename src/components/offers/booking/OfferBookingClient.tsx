@@ -133,7 +133,7 @@ function emptyBookingData(offer: OfferDetails): BookingData {
       notes: "",
       attachments: [],
     },
-    paymentMethod: "telr",
+    paymentMethod: "card",
     couponCode: "",
     pricing: {
       subTotal: price,
@@ -465,7 +465,7 @@ export default function OfferBookingClient({
             notes,
           },
           addressId: selectedAddress.id,
-          paymentMethod: "telr",
+          paymentMethod: "card",
         },
         created,
       );
@@ -538,12 +538,13 @@ export default function OfferBookingClient({
 
   const startHostedTelrPay = async () => {
     if (!reservationId) return;
+    const isApplePay = bookingData.paymentMethod === "apple_pay";
     persistReservationId(reservationId);
     persistCheckoutBooking(bookingData);
     persistPendingPayment({
       reservationId,
       provider: "telr",
-      method: "hpp",
+      method: isApplePay ? "apple_pay" : "hpp",
     });
     const telrResponse = await ClientAPI.payReservationWithTelr(
       reservationId,
@@ -551,7 +552,7 @@ export default function OfferBookingClient({
     );
     trackEvent(GTM_EVENTS.RESERVATION_PAYMENT, {
       reservation_id: reservationId,
-      payment_method: "telr",
+      payment_method: isApplePay ? "apple_pay" : "telr",
       source: "offer_booking",
       offer_id: offer.id,
       checkout: "hosted",

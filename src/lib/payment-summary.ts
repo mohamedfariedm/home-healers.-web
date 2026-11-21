@@ -27,13 +27,31 @@ export type PaymentSummaryData = {
   methods: PaymentSummaryMethod[];
 };
 
+/** Legacy umbrella `telr` and aliases used in checkout UI. */
+export function normalizeCheckoutPaymentMethod(
+  paymentMethod: string | undefined | null
+): string {
+  if (!paymentMethod || paymentMethod === "cash_on_delivery") return "cash";
+  if (paymentMethod === "telr") return "card";
+  if (paymentMethod === "wallet") return "apple_pay";
+  return paymentMethod;
+}
+
 export function resolvePaymentSummaryMethodType(
   paymentMethod: string
 ): string {
   if (paymentMethod === "cash") return "cash";
-  if (paymentMethod === "telr") return "telr";
   if (paymentMethod === "tamara") return "tamara";
-  if (paymentMethod === "wallet" || paymentMethod === "apple_pay") return "wallet";
+  if (paymentMethod === "wallet") return "wallet";
+  // Card / Tabby / Apple Pay / legacy umbrella Telr all price as Telr.
+  if (
+    paymentMethod === "telr" ||
+    paymentMethod === "card" ||
+    paymentMethod === "tabby" ||
+    paymentMethod === "apple_pay"
+  ) {
+    return "telr";
+  }
   return paymentMethod;
 }
 

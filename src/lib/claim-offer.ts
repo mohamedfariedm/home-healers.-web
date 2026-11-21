@@ -8,6 +8,8 @@ import {
 } from "@/lib/offer-booking";
 
 export const PENDING_CLAIM_KEY = "hh_pending_offer_claim";
+export const CLAIM_FORM_DRAFT_KEY = "hh_claim_offer_draft";
+export const CLAIM_CHECKOUT_KEY = "hh_claim_offer_checkout";
 /** Claims older than this are treated as expired. */
 export const PENDING_CLAIM_TTL_MS = 2 * 60 * 60 * 1000;
 
@@ -24,51 +26,156 @@ export type PendingOfferClaim = {
   offerTitle?: string;
 };
 
-export function savePendingClaim(claim: PendingOfferClaim) {
-  if (typeof window === "undefined") return;
-  try {
-    sessionStorage.setItem(PENDING_CLAIM_KEY, JSON.stringify(claim));
-  } catch {
-    // ignore storage errors
-  }
-}
-
-export function readPendingClaim(): PendingOfferClaim | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = sessionStorage.getItem(PENDING_CLAIM_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as PendingOfferClaim;
-    if (!parsed?.couponCode || !parsed.createdAt) return null;
-    if (Date.now() - parsed.createdAt > PENDING_CLAIM_TTL_MS) {
-      clearPendingClaim();
-      return null;
-    }
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-export function clearPendingClaim() {
-  if (typeof window === "undefined") return;
-  try {
-    sessionStorage.removeItem(PENDING_CLAIM_KEY);
-  } catch {
-    // ignore
-  }
-}
-
-export function claimCheckoutStorageKey() {
-  return "hh_claim_offer_checkout";
-}
+export type ClaimFormDraft = {
+  updatedAt: number;
+  claim: PendingOfferClaim;
+  guest: {
+    name: string;
+    phone: string;
+    email: string;
+    nationality: string;
+    nationalityId?: number;
+    gender: "male" | "female";
+    birthDate: string;
+  };
+  selectedCategoryId: number | null;
+  selectedDoctorId: number | null;
+  selectedAddressId: number | null;
+  dateKey: string | null;
+  time: string | null;
+  notes: string;
+};
 
 export type ClaimCheckoutState = {
   reservationId: number;
   phase: "payment" | "done";
   couponCode?: string;
   couponId?: string;
+  offerTitle?: string;
+  discountType?: OfferPopupDiscountType;
+  discountValue?: number | null;
+  popupId?: string;
+  guestEmail?: string;
+  updatedAt: number;
 };
+
+function readStorageJson<T>(key: string): T | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw =
+      window.localStorage.getItem(key) ?? window.sessionStorage.getItem(key);
+    if (!raw) return null;
+    return JSON.parse(raw) as T;
+  } catch {
+    return null;
+  }
+}
+
+function writeStorageJson(key: string, value: unknown) {
+  if (typeof window === "undefined") return;
+  const raw = JSON.stringify(value);
+  try {
+    window.localStorage.setItem(key, raw);
+  } catch {
+    // ignore
+  }
+  try {
+    window.sessionStorage.setItem(key, raw);
+  } catch {
+    // ignore
+  }
+}
+
+function removeStorageKey(key: string) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    // ignore
+  }
+  try {
+    window.sessionStorage.removeItem(key);
+  } catch {
+    // ignore
+  }
+}
+
+export function savePendingClaim(claim: PendingOfferClaim) {
+  writeStorageJson(PENDING_CLAIM_KEY, claim);
+}
+
+export function readPendingClaim(): PendingOfferClaim | null {
+  const parsed = readStorageJson<PendingOfferClaim>(PENDING_CLAIM_KEY);
+  if (!parsed?.couponCode || !parsed.createdAt) return null;
+  if (Date.now() - parsed.createdAt > PENDING_CLAIM_TTL_MS) {
+    clearPendingClaim();
+    return null;
+  }
+  return parsed;
+}
+
+export function clearPendingClaim() {
+  removeStorageKey(PENDING_CLAIM_KEY);
+}
+
+export function claimCheckoutStorageKey() {
+  return CLAIM_CHECKOUT_KEY;
+}
+
+export function claimFormDraftStorageKey() {
+  return CLAIM_FORM_DRAFT_KEY;
+}
+
+export function saveClaimFormDraft(draft: ClaimFormDraft) {
+  writeStorageJson(CLAIM_FORM_DRAFT_KEY, {
+    ...draft,
+    updatedAt: Date.now(),
+  });
+}
+
+export function readClaimFormDraft(): ClaimFormDraft | null {
+  const draft = readStorageJson<ClaimFormDraft>(CLAIM_FORM_DRAFT_KEY);
+  if (!draft?.claim?.couponCode || !draft.updatedAt) return null;
+  if (Date.now() - draft.updatedAt > PENDING_CLAIM_TTL_MS) {
+    clearClaimFormDraft();
+    return null;
+  }
+  return draft;
+}
+
+export function clearClaimFormDraft() {
+  removeStorageKey(CLAIM_FORM_DRAFT_KEY);
+}
+
+export function saveClaimCheckout(state: ClaimCheckoutState) {
+  writeStorageJson(CLAIM_CHECKOUT_KEY, {
+    ...state,
+    updatedAt: Date.now(),
+  });
+}
+
+export function readClaimCheckout(): ClaimCheckoutState | null {
+  const checkout = readStorageJson<ClaimCheckoutState>(CLAIM_CHECKOUT_KEY);
+  if (!checkout?.reservationId || !checkout.phase) return null;
+  if (
+    checkout.updatedAt &&
+    Date.now() - checkout.updatedAt > PENDING_CLAIM_TTL_MS
+  ) {
+    clearClaimCheckout();
+    return null;
+  }
+  return checkout;
+}
+
+export function clearClaimCheckout() {
+  removeStorageKey(CLAIM_CHECKOUT_KEY);
+}
+
+export function clearAllClaimOfferStorage() {
+  clearPendingClaim();
+  clearClaimFormDraft();
+  clearClaimCheckout();
+}
 
 /** Soft-match a coupon row from ClientAPI.getCoupons list. */
 export function matchCouponInList(

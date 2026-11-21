@@ -4,8 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import { Banknote, CreditCard, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import ClientAPI from "@/app/api/api";
+import AcceptedCardBrands from "@/components/payments/AcceptedCardBrands";
 import TamaraLogo from "@/components/payments/TamaraLogo";
-import TelrLogo from "@/components/payments/TelrLogo";
+import TabbyLogo from "@/components/payments/TabbyLogo";
 import TelrSeamlessPanel from "@/components/payments/TelrSeamlessPanel";
 import type { BookingData } from "@/types/booking";
 import { isClientApiError } from "@/lib/client-api-error";
@@ -17,8 +18,15 @@ import {
   applyPaymentSummaryToBooking,
   extractApiMessage,
   getPaymentMethodAvailability,
+  normalizeCheckoutPaymentMethod,
   type PaymentSummaryData,
 } from "@/lib/payment-summary";
+import {
+  isTelrAlreadyPaidError,
+  isTelrReservationNotPayableError,
+  isTelrSessionExpiredError,
+  startTabbyHostedRedirect,
+} from "@/lib/telr-seamless";
 import { parseTamaraConfig } from "@/lib/tamara";
 import { formatOfferPrice, localizedName } from "@/lib/offers";
 import { cn } from "@/lib/utils";
@@ -60,12 +68,18 @@ export default function OfferPaymentPanel({
   const [isSummaryLoading, setIsSummaryLoading] = useState(false);
   const [seamlessOpen, setSeamlessOpen] = useState(false);
   const [tamaraEnabled, setTamaraEnabled] = useState(false);
+  const [tabbyBusy, setTabbyBusy] = useState(false);
   const [paymentBlockedReason, setPaymentBlockedReason] = useState<string | null>(
     null,
   );
 
-  const showSeamlessCheckout = bookingData.paymentMethod === "telr";
-  const showTamaraCheckout = bookingData.paymentMethod === "tamara";
+  const selectedPaymentMethod = normalizeCheckoutPaymentMethod(
+    bookingData.paymentMethod,
+  );
+  const showCardCheckout = selectedPaymentMethod === "card";
+  const showTabbyCheckout = selectedPaymentMethod === "tabby";
+  const showApplePayCheckout = selectedPaymentMethod === "apple_pay";
+  const showTamaraCheckout = selectedPaymentMethod === "tamara";
   const paymentsBlocked = Boolean(paymentBlockedReason);
 
   const refreshPaymentSummary = useCallback(async () => {
@@ -116,6 +130,12 @@ export default function OfferPaymentPanel({
   }, [refreshPaymentSummary]);
 
   useEffect(() => {
+    if (bookingData.paymentMethod === "telr") {
+      updateBookingData((prev) => applyPaymentMethodToPricing(prev, "card"));
+    }
+  }, [bookingData.paymentMethod, updateBookingData]);
+
+  useEffect(() => {
     let cancelled = false;
     const loadTamara = async () => {
       try {
@@ -138,10 +158,27 @@ export default function OfferPaymentPanel({
 
   const methods = [
     {
-      id: "telr",
-      name: t("step5.telrPayment", { ns: "booking" }),
+      id: "card",
+      name: t("step5.cardPayment", { ns: "booking" }),
       icon: <CreditCard className="size-5" />,
-      description: t("step5.telrDesc", { ns: "booking" }),
+      description: t("step5.cardDesc", { ns: "booking" }),
+      brands: true as const,
+    },
+    {
+      id: "tabby",
+      name: t("step5.tabbyPayment", { ns: "booking" }),
+      icon: <TabbyLogo />,
+      description: t("step5.tabbyDesc", { ns: "booking" }),
+    },
+    {
+      id: "apple_pay",
+      name: t("step5.applePayPayment", { ns: "booking" }),
+      icon: (
+        <span className="inline-flex h-6 min-w-[2.25rem] items-center justify-center rounded bg-black px-1.5 text-[10px] font-semibold text-white">
+          Pay
+        </span>
+      ),
+      description: t("step5.applePayDesc", { ns: "booking" }),
     },
     ...(tamaraEnabled && summaryHasTamara
       ? [
@@ -178,6 +215,52 @@ export default function OfferPaymentPanel({
     return available && !insufficientBalance;
   };
 
+  useEffect(() => {
+    if (!bookingData.paymentSummaryMethods?.length) return;
+    if (isMethodSelectable(selectedPaymentMethod)) return;
+    const fallback = methods.find((method) => isMethodSelectable(method.id));
+    if (fallback && fallback.id !== selectedPaymentMethod) {
+      updateBookingData((prev) =>
+        applyPaymentMethodToPricing(prev, fallback.id),
+      );
+    }
+  }, [bookingData.paymentSummaryMethods, selectedPaymentMethod, updateBookingData]);
+
+  const startTabbyPay = async () => {
+    if (tabbyBusy) return;
+    setTabbyBusy(true);
+    try {
+      const { redirectUrl } = await startTabbyHostedRedirect({
+        reservationId,
+        locale,
+      });
+      if (typeof window !== "undefined") {
+        window.location.assign(redirectUrl);
+      }
+    } catch (error: unknown) {
+      if (isTelrAlreadyPaidError(error)) {
+        onSeamlessPaid?.({ paymentId: null, reservationId });
+        return;
+      }
+      if (isTelrSessionExpiredError(error)) {
+        toast.error(t("seamless.sessionExpired", { ns: "booking" }));
+        return;
+      }
+      if (isTelrReservationNotPayableError(error)) {
+        toast.error(t("messages.reservationWithoutClient", { ns: "booking" }));
+        return;
+      }
+      toast.error(
+        (isClientApiError(error) && error.message) ||
+          (error instanceof Error
+            ? error.message
+            : t("messages.paymentFailed", { ns: "booking" })),
+      );
+    } finally {
+      setTabbyBusy(false);
+    }
+  };
+
   const invoiceTotal = bookingData.pricing.total;
 
   return (
@@ -186,10 +269,10 @@ export default function OfferPaymentPanel({
         <h2 className="mb-4 text-lg font-bold text-[#143087]">
           {t("booking.paymentMethods")}
         </h2>
-        <div className="grid grid-cols-2 gap-3 sm:max-w-xl">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {methods.map((method) => {
             const selectable = isMethodSelectable(method.id);
-            const active = bookingData.paymentMethod === method.id;
+            const active = selectedPaymentMethod === method.id;
             return (
               <button
                 key={method.id}
@@ -208,12 +291,29 @@ export default function OfferPaymentPanel({
                   !selectable && "cursor-not-allowed opacity-50",
                 )}
               >
-                <span className={cn("rounded-xl p-2", active ? "bg-white/15 text-white" : "bg-white text-primary")}>
+                <span
+                  className={cn(
+                    "rounded-xl p-2",
+                    active ? "bg-white/15 text-white" : "bg-white text-primary",
+                  )}
+                >
                   {method.icon}
                 </span>
-                <span>
-                  <span className="block font-semibold">{method.name}</span>
-                  <span className={cn("text-sm", active ? "text-white/80" : "text-[#4a5568]")}>
+                <span className="w-full">
+                  <span className="flex flex-wrap items-center gap-2 font-semibold">
+                    <span>{method.name}</span>
+                    {"brands" in method && method.brands ? (
+                      <AcceptedCardBrands
+                        className={active ? "[&_span]:border-white/30 [&_span]:bg-white/10 [&_span]:text-white" : undefined}
+                      />
+                    ) : null}
+                  </span>
+                  <span
+                    className={cn(
+                      "mt-0.5 block text-sm",
+                      active ? "text-white/80" : "text-[#4a5568]",
+                    )}
+                  >
                     {method.description}
                   </span>
                 </span>
@@ -294,13 +394,15 @@ export default function OfferPaymentPanel({
         </div>
       ) : null}
 
-      {showSeamlessCheckout && !paymentsBlocked ? (
+      {showCardCheckout && !paymentsBlocked ? (
         <TelrSeamlessPanel
           open={seamlessOpen}
           onOpenChange={setSeamlessOpen}
           reservationId={reservationId}
           amount={invoiceTotal}
           locale={locale}
+          initialMethod="card"
+          methodsFilter={["card"]}
           customerEmail={
             customerEmail ||
             bookingData.selectedPatients?.find((p) => p.email?.trim())
@@ -340,8 +442,16 @@ export default function OfferPaymentPanel({
             );
             return;
           }
-          if (showSeamlessCheckout) {
+          if (showCardCheckout) {
             setSeamlessOpen(true);
+            return;
+          }
+          if (showTabbyCheckout) {
+            void startTabbyPay();
+            return;
+          }
+          if (showApplePayCheckout && onHostedTelrPay) {
+            void onHostedTelrPay();
             return;
           }
           if (showTamaraCheckout && onTamaraPay) {
@@ -350,24 +460,42 @@ export default function OfferPaymentPanel({
           }
           onPay();
         }}
-        disabled={isPaying || !bookingData.paymentMethod || paymentsBlocked}
+        disabled={
+          isPaying ||
+          tabbyBusy ||
+          !selectedPaymentMethod ||
+          paymentsBlocked ||
+          !isMethodSelectable(selectedPaymentMethod)
+        }
         data-gtm-event="reservation_payment"
         data-gtm-location="offer_payment_panel"
         className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#62a0f6_0%,#2f6fd6_55%,#143087_100%)] text-base font-semibold text-white shadow-[0_14px_30px_rgba(47,111,214,0.28)] transition hover:brightness-105 disabled:opacity-60 md:col-span-2"
       >
-        {isPaying ? (
+        {isPaying || tabbyBusy ? (
           <Loader2 className="size-5 animate-spin" />
-        ) : bookingData.paymentMethod === "cash" ? (
+        ) : selectedPaymentMethod === "cash" ? (
           t("step5.confirmCash", { ns: "booking" })
         ) : showTamaraCheckout ? (
           <>
             <TamaraLogo light />
             {t("step5.payWithTamara", { ns: "booking" })}
           </>
+        ) : showTabbyCheckout ? (
+          <>
+            <TabbyLogo className="bg-white/20 [&_span:not(.sr-only)]:text-white" />
+            {t("step5.payWithTabby", { ns: "booking" })}
+          </>
+        ) : showApplePayCheckout ? (
+          <>
+            <span className="inline-flex h-5 items-center rounded bg-black/80 px-1.5 text-[10px] font-semibold">
+              Pay
+            </span>
+            {t("step5.payWithApplePay", { ns: "booking" })}
+          </>
         ) : (
           <>
-            <TelrLogo light showWordmark={false} className="[&_svg]:size-6" />
-            {t("seamless.payWithTelr", { ns: "booking" })}
+            <CreditCard className="size-5" />
+            {t("step5.payWithCard", { ns: "booking" })}
           </>
         )}
       </button>

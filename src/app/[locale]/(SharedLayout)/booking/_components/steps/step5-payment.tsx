@@ -5,15 +5,24 @@ import { useTranslation } from "react-i18next";
 import type { BookingData } from "@/types/booking";
 import { toast } from "sonner";
 import ClientAPI from "@/app/api/api";
+import AcceptedCardBrands from "@/components/payments/AcceptedCardBrands";
 import TamaraLogo from "@/components/payments/TamaraLogo";
-import TelrLogo from "@/components/payments/TelrLogo";
+import TabbyLogo from "@/components/payments/TabbyLogo";
 import TelrSeamlessPanel from "@/components/payments/TelrSeamlessPanel";
 import { parseTamaraConfig } from "@/lib/tamara";
+import {
+  isTelrAlreadyPaidError,
+  isTelrReservationNotPayableError,
+  isTelrSessionExpiredError,
+  startTabbyHostedRedirect,
+} from "@/lib/telr-seamless";
+import { isClientApiError } from "@/lib/client-api-error";
 import {
   applyPaymentMethodToPricing,
   applyPaymentSummaryToBooking,
   extractApiMessage,
   getPaymentMethodAvailability,
+  normalizeCheckoutPaymentMethod,
   type PaymentSummaryData,
 } from "@/lib/payment-summary";
 import BookingStepNav from "../booking-step-nav";
@@ -63,12 +72,20 @@ export default function Step5Payment({
   const [isSummaryLoading, setIsSummaryLoading] = useState(false);
   const [seamlessOpen, setSeamlessOpen] = useState(false);
   const [tamaraEnabled, setTamaraEnabled] = useState(false);
+  const [tabbyBusy, setTabbyBusy] = useState(false);
 
   const locale = i18n.language?.startsWith("en") ? "en" : "ar";
-  const showSeamlessCheckout =
-    Boolean(reservationId) && bookingData.paymentMethod === "telr";
+  const selectedPaymentMethod = normalizeCheckoutPaymentMethod(
+    bookingData.paymentMethod
+  );
+  const showCardCheckout =
+    Boolean(reservationId) && selectedPaymentMethod === "card";
+  const showTabbyCheckout =
+    Boolean(reservationId) && selectedPaymentMethod === "tabby";
+  const showApplePayCheckout =
+    Boolean(reservationId) && selectedPaymentMethod === "apple_pay";
   const showTamaraCheckout =
-    Boolean(reservationId) && bookingData.paymentMethod === "tamara";
+    Boolean(reservationId) && selectedPaymentMethod === "tamara";
 
   const summaryHasTamara =
     !bookingData.paymentSummaryMethods?.length ||
@@ -76,10 +93,27 @@ export default function Step5Payment({
 
   const paymentMethods = [
     {
-      id: "telr",
-      name: t("step5.telrPayment"),
+      id: "card",
+      name: t("step5.cardPayment"),
       icon: <CreditCard className="w-6 h-6 text-[#62a0f6]" />,
-      description: t("step5.telrDesc"),
+      description: t("step5.cardDesc"),
+      brands: true as const,
+    },
+    {
+      id: "tabby",
+      name: t("step5.tabbyPayment"),
+      icon: <TabbyLogo />,
+      description: t("step5.tabbyDesc"),
+    },
+    {
+      id: "apple_pay",
+      name: t("step5.applePayPayment"),
+      icon: (
+        <span className="inline-flex h-6 min-w-[2.25rem] items-center justify-center rounded bg-black px-1.5 text-[10px] font-semibold text-white">
+          Pay
+        </span>
+      ),
+      description: t("step5.applePayDesc"),
     },
     ...(tamaraEnabled && summaryHasTamara
       ? [
@@ -240,22 +274,61 @@ export default function Step5Payment({
   };
 
   useEffect(() => {
+    if (bookingData.paymentMethod === "telr") {
+      updateBookingData((prev) => applyPaymentMethodToPricing(prev, "card"));
+    }
+  }, [bookingData.paymentMethod, updateBookingData]);
+
+  useEffect(() => {
     if (!bookingData.paymentSummaryMethods?.length) return;
-    if (isMethodSelectable(bookingData.paymentMethod)) return;
+    if (isMethodSelectable(selectedPaymentMethod)) return;
 
     const fallback = paymentMethods.find((method) =>
       isMethodSelectable(method.id)
     );
-    if (fallback && fallback.id !== bookingData.paymentMethod) {
+    if (fallback && fallback.id !== selectedPaymentMethod) {
       updateBookingData((prev) =>
         applyPaymentMethodToPricing(prev, fallback.id)
       );
     }
   }, [
-    bookingData.paymentMethod,
+    selectedPaymentMethod,
     bookingData.paymentSummaryMethods,
     updateBookingData,
   ]);
+
+  const startTabbyPay = async () => {
+    if (!reservationId || tabbyBusy) return;
+    setTabbyBusy(true);
+    try {
+      const { redirectUrl } = await startTabbyHostedRedirect({
+        reservationId,
+        locale,
+      });
+      if (typeof window !== "undefined") {
+        window.location.assign(redirectUrl);
+      }
+    } catch (error: unknown) {
+      if (isTelrAlreadyPaidError(error)) {
+        onSeamlessPaid?.({ paymentId: null, reservationId });
+        return;
+      }
+      if (isTelrSessionExpiredError(error)) {
+        toast.error(t("seamless.sessionExpired"));
+        return;
+      }
+      if (isTelrReservationNotPayableError(error)) {
+        toast.error(t("messages.reservationWithoutClient"));
+        return;
+      }
+      toast.error(
+        (isClientApiError(error) && error.message) ||
+          (error instanceof Error ? error.message : t("messages.paymentFailed"))
+      );
+    } finally {
+      setTabbyBusy(false);
+    }
+  };
 
   const findCouponByCode = (code: string) =>
     coupons.find((coupon: any) => {
@@ -522,7 +595,7 @@ export default function Step5Payment({
             {paymentMethods.map((method) => {
               const selectable = isMethodSelectable(method.id);
               const disabledReason = getMethodDisabledReason(method.id);
-              const isSelected = bookingData.paymentMethod === method.id;
+              const isSelected = selectedPaymentMethod === method.id;
 
               return (
               <button
@@ -530,7 +603,7 @@ export default function Step5Payment({
                 type="button"
                 onClick={() => handlePaymentMethodChange(method.id)}
                 disabled={isSummaryLoading || couponBusy || !selectable}
-                className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 text-right ${
+                className={`w-full p-4 rounded-lg border-2 transition-all flex items-center gap-4 text-start ${
                   isSelected
                     ? "border-[#62a0f6] bg-[#eff6fe]"
                     : selectable
@@ -545,7 +618,12 @@ export default function Step5Payment({
                 </div>
                 <span className="shrink-0">{method.icon}</span>
                 <div className="flex-1 min-w-0">
-                  <span className="font-medium block">{method.name}</span>
+                  <span className="flex flex-wrap items-center gap-2 font-medium">
+                    <span>{method.name}</span>
+                    {"brands" in method && method.brands ? (
+                      <AcceptedCardBrands />
+                    ) : null}
+                  </span>
                   {method.description && (
                     <span className="text-sm text-gray-500 block mt-0.5">
                       {method.description}
@@ -717,13 +795,15 @@ export default function Step5Payment({
           </div>
         </div>
 
-        {showSeamlessCheckout && reservationId ? (
+        {showCardCheckout && reservationId ? (
           <TelrSeamlessPanel
             open={seamlessOpen}
             onOpenChange={setSeamlessOpen}
             reservationId={reservationId}
             amount={invoiceTotal}
             locale={locale}
+            initialMethod="card"
+            methodsFilter={["card"]}
             customerEmail={
               bookingData.selectedPatients?.find((p) => p.email?.trim())
                 ?.email || null
@@ -758,8 +838,16 @@ export default function Step5Payment({
     <BookingStepNav
       onPrev={onPrev}
       onNext={() => {
-        if (showSeamlessCheckout) {
+        if (showCardCheckout) {
           setSeamlessOpen(true);
+          return;
+        }
+        if (showTabbyCheckout) {
+          void startTabbyPay();
+          return;
+        }
+        if (showApplePayCheckout && onHostedTelrPay) {
+          void onHostedTelrPay();
           return;
         }
         if (showTamaraCheckout && onTamaraPay) {
@@ -768,21 +856,22 @@ export default function Step5Payment({
         }
         onNext();
       }}
-      prevDisabled={isLoading || couponBusy}
+      prevDisabled={isLoading || couponBusy || tabbyBusy}
       nextDisabled={
-        !bookingData.paymentMethod ||
-        !isMethodSelectable(bookingData.paymentMethod) ||
+        !selectedPaymentMethod ||
+        !isMethodSelectable(selectedPaymentMethod) ||
         isLoading ||
         couponBusy ||
-        isSummaryLoading
+        isSummaryLoading ||
+        tabbyBusy
       }
         nextContent={
-          isLoading ? (
+          isLoading || tabbyBusy ? (
             <>
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
               {t("step5.processing")}
             </>
-          ) : bookingData.paymentMethod === "cash" ? (
+          ) : selectedPaymentMethod === "cash" ? (
             <>
               <Banknote className="w-5 h-5" />
               {t("step5.confirmCash")}
@@ -792,10 +881,22 @@ export default function Step5Payment({
               <TamaraLogo light />
               {t("step5.payWithTamara")}
             </>
-          ) : showSeamlessCheckout ? (
+          ) : showTabbyCheckout ? (
             <>
-              <TelrLogo light showWordmark={false} className="[&_svg]:size-6" />
-              {t("seamless.payWithTelr")}
+              <TabbyLogo className="bg-white/20 [&_span:not(.sr-only)]:text-white" />
+              {t("step5.payWithTabby")}
+            </>
+          ) : showApplePayCheckout ? (
+            <>
+              <span className="inline-flex h-5 items-center rounded bg-black/80 px-1.5 text-[10px] font-semibold">
+                Pay
+              </span>
+              {t("step5.payWithApplePay")}
+            </>
+          ) : showCardCheckout ? (
+            <>
+              <CreditCard className="w-5 h-5" />
+              {t("step5.payWithCard")}
             </>
           ) : (
             <>
@@ -805,13 +906,17 @@ export default function Step5Payment({
           )
         }
         nextLabel={
-          bookingData.paymentMethod === "cash"
+          selectedPaymentMethod === "cash"
             ? t("step5.confirmCash")
             : showTamaraCheckout
               ? t("step5.payWithTamara")
-              : showSeamlessCheckout
-                ? t("seamless.payWithTelr")
-                : t("step5.confirmPayment")
+              : showTabbyCheckout
+                ? t("step5.payWithTabby")
+                : showApplePayCheckout
+                  ? t("step5.payWithApplePay")
+                  : showCardCheckout
+                    ? t("step5.payWithCard")
+                    : t("step5.confirmPayment")
         }
       />
     </div>
