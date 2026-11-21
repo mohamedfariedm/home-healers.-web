@@ -100,7 +100,14 @@ export default function Step1SpecialtySelection({
 
   const nationalityOptions: { id: number; name: string }[] = normalizeList(
     nationalitiesData,
-  ).map((n: any) => ({ id: n.id, name: n.name }));
+  ).map((n: any) => ({
+    id: n.id,
+    name: localizedName(n.name, locale) || (typeof n.name === "string" ? n.name : ""),
+  }));
+
+  const geoLabel = (item: any) =>
+    localizedName(item?.name, locale) ||
+    (typeof item?.name === "string" ? item.name : "");
 
   const countries = normalizeList(countriesData).filter(isPublished);
   const allStates = normalizeList(statesData).filter(isPublished);
@@ -271,8 +278,12 @@ export default function Step1SpecialtySelection({
       return;
     }
 
-    const selectedCountry = countries.find((c: any) => c.name === countryName);
-    const embeddedCities = (selectedCountry?.cities || []).filter(isPublished);
+    const selectedCountry = countries.find(
+      (c: any) => geoLabel(c) === countryName,
+    );
+    const embeddedCities = (selectedCountry?.cities || [])
+      .filter(isPublished)
+      .map((city: any) => ({ ...city, name: geoLabel(city) }));
     setAvailableCities(embeddedCities);
     setAvailableStates([]);
   };
@@ -333,41 +344,76 @@ export default function Step1SpecialtySelection({
     setIsSubmitting(true);
 
     try {
+      const nationalityId = quickForm.guest_info.nationality_id;
       const payload = {
-        ...quickForm,
+        pain_location: quickForm.pain_location,
+        notes: quickForm.notes,
+        is_guest: true,
         sub_total: quickForm.sub_total || 500,
         total_amount: quickForm.total_amount || 500,
+        ...(nationalityId != null ? { nationality_id: nationalityId } : {}),
         guest_info: {
-          ...quickForm.guest_info,
-          ...(quickForm.guest_info.nationality_id != null
-            ? { nationality_id: quickForm.guest_info.nationality_id }
+          name: quickForm.guest_info.name,
+          email: quickForm.guest_info.email,
+          mobile: quickForm.guest_info.mobile,
+          address: quickForm.guest_info.address,
+          city: quickForm.guest_info.city,
+          country: quickForm.guest_info.country,
+          nationality: quickForm.guest_info.nationality,
+          ...(nationalityId != null
+            ? {
+                nationality_id: nationalityId,
+                guest_nationality_id: nationalityId,
+              }
             : {}),
+          date_of_birth: quickForm.guest_info.date_of_birth,
+          gender: quickForm.guest_info.gender,
+          national_id: quickForm.guest_info.national_id,
+          blood_group: quickForm.guest_info.blood_group,
+          languages_spoken: quickForm.guest_info.languages_spoken,
         },
+        address_city: quickForm.address_city,
+        address_country: quickForm.address_country,
+        address_state: quickForm.address_state,
+        address_link: quickForm.address_link,
       };
       const res = await ClientAPI.createQueiqReservation(payload, locale);
+      const created = Array.isArray(res?.data) ? res.data[0] : res?.data;
 
-      if (res?.success || res?.data) {
-        toast.success(
-          t("step1.quickBookingSuccess") || "تم إرسال طلب الحجز السريع بنجاح!",
-        );
-        setIsQuickBookingOpen(false);
-        setQuickForm(initialQuickForm);
-        resetLocationCascade();
-        const reservationId = res.data[0].id;
-        persistReservationId(reservationId);
-        const telrResponse = await ClientAPI.payReservationWithTelr(
-          reservationId,
-          locale,
-        );
-
-        router.push(extractTelrRedirectUrl(telrResponse));
-      } else
+      if (res?.status === false || !created?.id) {
         toast.error(
-          t("step1.quickBookingFailed") || "فشل الإرسال، حاول مرة أخرى.",
+          (typeof res?.message === "string" && res.message) ||
+            t("step1.quickBookingFailed") ||
+            "فشل الإرسال، حاول مرة أخرى.",
         );
+        return;
+      }
+
+      if (!created.patient && created.client_id == null && !created.client) {
+        toast.error(t("messages.reservationWithoutClient"));
+        return;
+      }
+
+      toast.success(
+        t("step1.quickBookingSuccess") || "تم إرسال طلب الحجز السريع بنجاح!",
+      );
+      setIsQuickBookingOpen(false);
+      setQuickForm(initialQuickForm);
+      resetLocationCascade();
+      persistReservationId(created.id);
+      const telrResponse = await ClientAPI.payReservationWithTelr(
+        created.id,
+        locale,
+      );
+
+      router.push(extractTelrRedirectUrl(telrResponse));
     } catch (err) {
       console.error(err);
-      toast.error(t("messages.error"));
+      toast.error(
+        err instanceof Error && err.message
+          ? err.message
+          : t("messages.error"),
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -385,8 +431,12 @@ export default function Step1SpecialtySelection({
     const cityName = loc.address_city ?? loc.city ?? "";
     const stateName = loc.address_state ?? loc.state ?? "";
 
-    const selectedCountry = countries.find((c: any) => c.name === countryName);
-    const embeddedCities = (selectedCountry?.cities || []).filter(isPublished);
+    const selectedCountry = countries.find(
+      (c: any) => geoLabel(c) === countryName,
+    );
+    const embeddedCities = (selectedCountry?.cities || [])
+      .filter(isPublished)
+      .map((city: any) => ({ ...city, name: geoLabel(city) }));
     setAvailableCities(embeddedCities);
     setAvailableStates(cityName ? allStates : []);
 
@@ -987,13 +1037,13 @@ export default function Step1SpecialtySelection({
                         {t("step1.countryPlaceholder") || "اختر الدولة"}
                       </option>
                       {countries.map((c: any) => (
-                        <option key={c.id ?? c.name} value={c.name}>
-                          {c.name}
+                        <option key={c.id ?? geoLabel(c)} value={geoLabel(c)}>
+                          {geoLabel(c)}
                         </option>
                       ))}
                       {quickForm.guest_info.country &&
                         !countries.some(
-                          (c: any) => c.name === quickForm.guest_info.country,
+                          (c: any) => geoLabel(c) === quickForm.guest_info.country,
                         ) && (
                           <option value={quickForm.guest_info.country}>
                             {quickForm.guest_info.country}

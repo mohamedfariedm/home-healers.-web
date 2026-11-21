@@ -3,6 +3,7 @@ import { isClientApiError } from "@/lib/client-api-error";
 import {
   extractTelrMethodPayResult,
   extractTelrSeamlessVerifyResult,
+  isReservationNotPayableError,
   parseReservationRecord,
 } from "@/lib/payment-api";
 import {
@@ -188,8 +189,22 @@ export async function startTabbyHostedRedirect(options: {
         throw err;
       }
     }
+    if (isReservationNotPayableError(error)) {
+      const notPayable = new Error("RESERVATION_NOT_PAYABLE");
+      notPayable.name = "TelrReservationNotPayableError";
+      (notPayable as Error & { cause?: unknown }).cause = error;
+      throw notPayable;
+    }
     throw error;
   }
+}
+
+export function isTelrReservationNotPayableError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    (error.name === "TelrReservationNotPayableError" ||
+      error.message === "RESERVATION_NOT_PAYABLE")
+  );
 }
 
 export function isTelrAlreadyPaidError(error: unknown): boolean {
@@ -199,14 +214,22 @@ export function isTelrAlreadyPaidError(error: unknown): boolean {
   );
 }
 
-/** True when method/pay `expires_at` is present and already in the past. */
+/**
+ * Conservative FE margin before backend `expires_at`.
+ * Backend may also enforce a reuse margin; do not assume it is deployed.
+ */
+export const TELR_HOSTED_REUSE_MARGIN_MS = 120_000;
+
+/** True when method/pay `expires_at` is missing validity for safe redirect. */
 export function isTelrHostedSessionExpired(
-  expiresAt?: string | null
+  expiresAt?: string | null,
+  marginMs: number = TELR_HOSTED_REUSE_MARGIN_MS
 ): boolean {
   if (!expiresAt) return false;
   const ms = Date.parse(expiresAt);
   if (!Number.isFinite(ms)) return false;
-  return ms <= Date.now();
+  const safeMargin = Number.isFinite(marginMs) && marginMs > 0 ? marginMs : 0;
+  return ms <= Date.now() + safeMargin;
 }
 
 export function isTelrSessionExpiredError(error: unknown): boolean {

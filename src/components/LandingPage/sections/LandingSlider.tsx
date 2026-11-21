@@ -56,59 +56,13 @@ export default function LandingSlider({
   const buttons = section.buttons || [];
   const isRTL = locale === "ar";
 
-  // Handle package/offer booking with payment link
+  // Never create package reservations without guest/client data — that
+  // produces unpaid drafts payment APIs reject (no associated client).
+  // Route into the full booking flow instead of a bare API create.
   const handlePackageBooking = async (packageId: number) => {
-    if (processingPackage === packageId) return; // Prevent double clicks
-    
+    if (processingPackage === packageId) return;
     setProcessingPackage(packageId);
-    
-    try {
-      // Call the booking-with-packages API
-      const response = await ClientAPI.createReservationWithPackage(
-        {
-          package_id: packageId,
-          payment_method: "web",
-        },
-        locale
-      );
-
-      // Check if payment redirect URL is available
-      if (response?.payment?.redirect_url) {
-        // Open payment page in new tab
-        window.open(response.payment.redirect_url, "_blank", "noopener,noreferrer");
-      } else if (response?.payment?.error) {
-        // Payment link creation failed, show error and redirect to booking page
-        console.error("Payment link creation failed:", response.payment.error);
-        alert(
-          locale === "ar"
-            ? "تم إنشاء الحجز بنجاح، لكن فشل إنشاء رابط الدفع. سيتم توجيهك إلى صفحة الحجز."
-            : "Booking created successfully, but payment link creation failed. Redirecting to booking page."
-        );
-        window.location.href = `/${locale}/booking?packageId=${packageId}`;
-      } else if (response?.data?.[0]?.id) {
-        // Booking created but no payment needed (total_amount = 0)
-        alert(
-          locale === "ar"
-            ? "تم إنشاء الحجز بنجاح!"
-            : "Booking created successfully!"
-        );
-        // Optionally redirect to booking details or stay on page
-      } else {
-        // Fallback to booking page
-        window.location.href = `/${locale}/booking?packageId=${packageId}`;
-      }
-    } catch (error: any) {
-      console.error("Booking error:", error);
-      alert(
-        locale === "ar"
-          ? "حدث خطأ أثناء إنشاء الحجز. يرجى المحاولة مرة أخرى."
-          : "An error occurred while creating the booking. Please try again."
-      );
-      // Fallback to booking page
-      window.location.href = `/${locale}/booking?packageId=${packageId}`;
-    } finally {
-      setProcessingPackage(null);
-    }
+    window.location.href = `/${locale}/booking?packageId=${packageId}`;
   };
 
   useEffect(() => {

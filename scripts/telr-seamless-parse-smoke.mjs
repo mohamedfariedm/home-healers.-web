@@ -238,11 +238,13 @@ if (
   throw new Error("method pay parse failed");
 }
 
-function isTelrHostedSessionExpired(expiresAt) {
+const TELR_HOSTED_REUSE_MARGIN_MS = 120_000;
+function isTelrHostedSessionExpired(expiresAt, marginMs = TELR_HOSTED_REUSE_MARGIN_MS) {
   if (!expiresAt) return false;
   const ms = Date.parse(expiresAt);
   if (!Number.isFinite(ms)) return false;
-  return ms <= Date.now();
+  const safeMargin = Number.isFinite(marginMs) && marginMs > 0 ? marginMs : 0;
+  return ms <= Date.now() + safeMargin;
 }
 
 if (!isTelrHostedSessionExpired("2020-01-01T00:00:00+00:00")) {
@@ -253,6 +255,10 @@ if (isTelrHostedSessionExpired("2099-01-01T00:00:00+00:00")) {
 }
 if (isTelrHostedSessionExpired(null) || isTelrHostedSessionExpired("")) {
   throw new Error("missing expires_at must not block redirect");
+}
+const soon = new Date(Date.now() + 30_000).toISOString();
+if (!isTelrHostedSessionExpired(soon)) {
+  throw new Error("120s safety margin must treat near-expiry as expired");
 }
 
 console.log("telr-seamless parse smoke: OK");

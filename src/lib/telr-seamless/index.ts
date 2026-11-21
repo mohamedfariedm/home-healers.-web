@@ -22,8 +22,10 @@ export {
   startTabbyHostedRedirect,
   isTelrHostedSessionExpired,
   isTelrSessionExpiredError,
+  isTelrReservationNotPayableError,
   isTelrAlreadyPaidError,
   isReservationAlreadyPaid,
+  TELR_HOSTED_REUSE_MARGIN_MS,
 } from "./tabby-flow";
 export type { TelrReturnOutcome } from "./tabby-flow";
 export { initTelrSeamlessFields, clearTelrFrameMount } from "./client";

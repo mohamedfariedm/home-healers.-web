@@ -8,15 +8,21 @@ import TamaraLogo from "@/components/payments/TamaraLogo";
 import TelrLogo from "@/components/payments/TelrLogo";
 import TelrSeamlessPanel from "@/components/payments/TelrSeamlessPanel";
 import type { BookingData } from "@/types/booking";
+import { isClientApiError } from "@/lib/client-api-error";
+import {
+  isReservationNotPayableError,
+} from "@/lib/payment-api";
 import {
   applyPaymentMethodToPricing,
   applyPaymentSummaryToBooking,
+  extractApiMessage,
   getPaymentMethodAvailability,
   type PaymentSummaryData,
 } from "@/lib/payment-summary";
 import { parseTamaraConfig } from "@/lib/tamara";
 import { formatOfferPrice, localizedName } from "@/lib/offers";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 type OfferPaymentPanelProps = {
   locale: string;
@@ -54,29 +60,56 @@ export default function OfferPaymentPanel({
   const [isSummaryLoading, setIsSummaryLoading] = useState(false);
   const [seamlessOpen, setSeamlessOpen] = useState(false);
   const [tamaraEnabled, setTamaraEnabled] = useState(false);
+  const [paymentBlockedReason, setPaymentBlockedReason] = useState<string | null>(
+    null,
+  );
 
   const showSeamlessCheckout = bookingData.paymentMethod === "telr";
   const showTamaraCheckout = bookingData.paymentMethod === "tamara";
+  const paymentsBlocked = Boolean(paymentBlockedReason);
 
   const refreshPaymentSummary = useCallback(async () => {
     setIsSummaryLoading(true);
+    setPaymentBlockedReason(null);
     try {
       const response = await ClientAPI.getPaymentSummary(reservationId, locale);
-      if (response?.data) {
-        updateBookingData((prev) =>
-          applyPaymentSummaryToBooking(
-            prev,
-            response.data as PaymentSummaryData,
-            prev.paymentMethod,
-          ),
+      const httpStatus = Number(response?._httpStatus);
+      if (
+        response?.status === false ||
+        !response?.data ||
+        httpStatus === 422 ||
+        httpStatus === 404
+      ) {
+        const message = extractApiMessage(
+          response,
+          t("messages.reservationWithoutClient", { ns: "booking" }),
         );
+        setPaymentBlockedReason(message);
+        toast.error(message);
+        return;
       }
+      updateBookingData((prev) =>
+        applyPaymentSummaryToBooking(
+          prev,
+          response.data as PaymentSummaryData,
+          prev.paymentMethod,
+        ),
+      );
     } catch (error) {
       console.error("Failed to load payment summary:", error);
+      if (
+        isReservationNotPayableError(error) ||
+        (isClientApiError(error) &&
+          (error.status === 422 || error.status === 404))
+      ) {
+        const message = t("messages.reservationWithoutClient", { ns: "booking" });
+        setPaymentBlockedReason(message);
+        toast.error(message);
+      }
     } finally {
       setIsSummaryLoading(false);
     }
-  }, [locale, reservationId, updateBookingData]);
+  }, [locale, reservationId, t, updateBookingData]);
 
   useEffect(() => {
     refreshPaymentSummary();
@@ -255,7 +288,13 @@ export default function OfferPaymentPanel({
         </dl>
       </section>
 
-      {showSeamlessCheckout ? (
+      {paymentBlockedReason ? (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 md:col-span-2">
+          {paymentBlockedReason}
+        </div>
+      ) : null}
+
+      {showSeamlessCheckout && !paymentsBlocked ? (
         <TelrSeamlessPanel
           open={seamlessOpen}
           onOpenChange={setSeamlessOpen}
@@ -294,6 +333,13 @@ export default function OfferPaymentPanel({
       <button
         type="button"
         onClick={() => {
+          if (paymentsBlocked) {
+            toast.error(
+              paymentBlockedReason ||
+                t("messages.reservationWithoutClient", { ns: "booking" }),
+            );
+            return;
+          }
           if (showSeamlessCheckout) {
             setSeamlessOpen(true);
             return;
@@ -304,7 +350,7 @@ export default function OfferPaymentPanel({
           }
           onPay();
         }}
-        disabled={isPaying || !bookingData.paymentMethod}
+        disabled={isPaying || !bookingData.paymentMethod || paymentsBlocked}
         data-gtm-event="reservation_payment"
         data-gtm-location="offer_payment_panel"
         className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#62a0f6_0%,#2f6fd6_55%,#143087_100%)] text-base font-semibold text-white shadow-[0_14px_30px_rgba(47,111,214,0.28)] transition hover:brightness-105 disabled:opacity-60 md:col-span-2"

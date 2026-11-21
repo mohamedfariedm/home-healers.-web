@@ -418,12 +418,26 @@ export function slimBookingPackage(pkg: any) {
 
 export function slimGeoList(items: any[] | undefined) {
   if (!Array.isArray(items)) return [];
-  return items.map((item) => ({
-    id: item.id,
-    name: item.name,
-    country_id: item.country_id,
-    state_id: item.state_id,
-    // Kept for client filters (e.g. location/patient modals require Published)
-    status: item.status,
-  }));
+  return items.map((item) => {
+    const slim: Record<string, unknown> = {
+      id: item.id,
+      name: item.name,
+      country_id: item.country_id,
+      state_id: item.state_id,
+      // Kept for client filters (e.g. location/patient modals require Published)
+      status: item.status,
+    };
+    // Countries nest their cities. The flat /cities list has no country_id,
+    // so dropping this array leaves the country dropdown with no cities.
+    if (Array.isArray(item.cities)) {
+      slim.cities = item.cities.map((city: any) => ({
+        id: city.id,
+        name: city.name,
+        code: city.code,
+        status: city.status,
+        country_id: city.country_id ?? item.id,
+      }));
+    }
+    return slim;
+  });
 }

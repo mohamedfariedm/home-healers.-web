@@ -33,6 +33,7 @@ import {
   isPaidStatus,
   isPaymentInProgressError,
   isTelrAlreadyPaidError,
+  isTelrReservationNotPayableError,
   isTelrSessionExpiredError,
   isTerminalFailureStatus,
   startTabbyHostedRedirect,
@@ -596,6 +597,12 @@ export default function TelrSeamlessPanel({
       }
       if (isTelrSessionExpiredError(err)) {
         const message = t("seamless.sessionExpired");
+        setError(message);
+        toast.error(message);
+        return;
+      }
+      if (isTelrReservationNotPayableError(err)) {
+        const message = t("messages.reservationWithoutClient");
         setError(message);
         toast.error(message);
         return;

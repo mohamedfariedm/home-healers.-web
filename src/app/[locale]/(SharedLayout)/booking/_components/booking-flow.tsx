@@ -958,9 +958,12 @@ export default function BookingFlow({
         attachmentIds.push(attachmentResponse.data[0].original);
       }
 
-      // Build guest_info if it's a guest reservation (assumes selectedPatients has the guest info)
-      const isGuest = bookingData.selectedPatients?.length === 1;
-      const guest = isGuest ? bookingData.selectedPatients[0] : null;
+      // The website has no logged-in client. Local patient ids (Date.now())
+      // are not server patients. Always send guest_info unless a real clientId exists.
+      // Sending only patient_ids for 2+ patients creates a reservation with no client,
+      // and payment summary then returns "Reservation has no associated client."
+      const guest = bookingData.selectedPatients?.[0] ?? null;
+      const hasServerClient = Number(bookingData.clientId) > 0;
 
       // Check if selected category has has_service: false
       const selectedCategory = bookingData.selectedCategory as (Category & { has_service?: boolean }) | null;
@@ -1016,7 +1019,7 @@ export default function BookingFlow({
         delete reservationData.fees;
       }
       // Handle guest booking
-      if (isGuest && guest) {
+      if (!hasServerClient && guest) {
         reservationData.is_guest = true;
         reservationData.guest_info = {
           name: guest.name,
@@ -1046,13 +1049,17 @@ export default function BookingFlow({
           bookingData.selectedLocation?.state || "N/A";
         reservationData.address_link =
           bookingData.selectedLocation?.link || "N/A";
-      } else {
+      } else if (hasServerClient) {
         // Handle registered user
         reservationData.client_id = bookingData.clientId;
         reservationData.address_id = bookingData.addressId;
         reservationData.patient_ids = bookingData.selectedPatients.map(
           (p) => p.id
         );
+      } else {
+        // No guest patient selected and no authenticated client — do not
+        // create a reservation that payment APIs will reject (e.g. 3021).
+        throw new Error(t("messages.reservationWithoutClient"));
       }
 
       // Send request
@@ -1060,7 +1067,15 @@ export default function BookingFlow({
         ? await ClientAPI.createReservationWithPackage(reservationData, locale)
         : await ClientAPI.createReservation(reservationData, locale);
       
-      const created = response.data[0];
+      const created = Array.isArray(response?.data)
+        ? response.data[0]
+        : response?.data;
+      if (!created?.id) {
+        throw new Error(extractApiMessage(response, t("messages.bookingFailed")));
+      }
+      if (!created.patient && created.client_id == null && !created.client) {
+        throw new Error(t("messages.reservationWithoutClient"));
+      }
       setReservationId(created.id);
       persistReservationId(created.id);
       setBookingData((prev) => applyReservationPricingFromApi(prev, created));
@@ -1072,19 +1087,20 @@ export default function BookingFlow({
         category_id: bookingData.selectedCategory?.id,
       });
 
-      try {
-        const summaryResponse = await ClientAPI.getPaymentSummary(created.id, locale);
-        if (summaryResponse?.data) {
-          setBookingData((prev) =>
-            applyPaymentSummaryToBooking(
-              prev,
-              summaryResponse.data as PaymentSummaryData,
-              prev.paymentMethod
-            )
-          );
-        }
-      } catch (summaryError) {
-        console.error("Failed to load payment summary:", summaryError);
+      const summaryResponse = await ClientAPI.getPaymentSummary(created.id, locale);
+      if (summaryResponse?.status === false) {
+        throw new Error(
+          extractApiMessage(summaryResponse, t("messages.reservationWithoutClient"))
+        );
+      }
+      if (summaryResponse?.data) {
+        setBookingData((prev) =>
+          applyPaymentSummaryToBooking(
+            prev,
+            summaryResponse.data as PaymentSummaryData,
+            prev.paymentMethod
+          )
+        );
       }
 
       setCurrentStep(5);

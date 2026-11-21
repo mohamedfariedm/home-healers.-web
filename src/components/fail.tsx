@@ -25,6 +25,7 @@ import {
 import {
   isPaymentInProgressError,
   isTelrAlreadyPaidError,
+  isTelrReservationNotPayableError,
   isTelrSessionExpiredError,
   pollTelrReturnOutcome,
   startTabbyHostedRedirect,
@@ -303,6 +304,10 @@ export default function PaymentFail({ orderRef }: PaymentFailProps) {
       }
       if (isTelrSessionExpiredError(error)) {
         toast.error(t("seamless.sessionExpired"));
+        return;
+      }
+      if (isTelrReservationNotPayableError(error)) {
+        toast.error(t("messages.reservationWithoutClient"));
         return;
       }
       if (isTamaraFlow || getPersistedPendingPayment()?.provider === "tamara") {

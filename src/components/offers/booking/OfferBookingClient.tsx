@@ -57,7 +57,11 @@ import {
   offerHref,
   toNumber,
 } from "@/lib/offers";
-import { extractTelrRedirectUrl } from "@/lib/payment-api";
+import {
+  extractTelrRedirectUrl,
+  isReservationNotPayableError,
+  reservationHasPayableClient,
+} from "@/lib/payment-api";
 import {
   applyPaymentSummaryToBooking,
   extractApiMessage,
@@ -423,6 +427,9 @@ export default function OfferBookingClient({
       if (!created?.id) {
         throw new Error(t("booking.errors.createFailed"));
       }
+      if (!reservationHasPayableClient(created)) {
+        throw new Error(t("messages.reservationWithoutClient", { ns: "booking" }));
+      }
 
       const start = combineDateAndTime(dateKey, time)!;
       const patient: Patient = {
@@ -483,16 +490,31 @@ export default function OfferBookingClient({
           created.id,
           locale,
         );
-        if (summaryResponse?.data) {
-          const withSummary = applyPaymentSummaryToBooking(
-            nextBooking,
-            summaryResponse.data as PaymentSummaryData,
-            nextBooking.paymentMethod,
+        if (summaryResponse?.status === false || !summaryResponse?.data) {
+          throw new Error(
+            extractApiMessage(
+              summaryResponse,
+              t("messages.reservationWithoutClient", { ns: "booking" }),
+            ),
           );
-          setBookingData(withSummary);
-          persistCheckoutBooking(withSummary);
         }
+        const withSummary = applyPaymentSummaryToBooking(
+          nextBooking,
+          summaryResponse.data as PaymentSummaryData,
+          nextBooking.paymentMethod,
+        );
+        setBookingData(withSummary);
+        persistCheckoutBooking(withSummary);
       } catch (summaryError) {
+        if (
+          isReservationNotPayableError(summaryError) ||
+          (isClientApiError(summaryError) &&
+            (summaryError.status === 422 || summaryError.status === 404))
+        ) {
+          throw new Error(
+            t("messages.reservationWithoutClient", { ns: "booking" }),
+          );
+        }
         console.error("Failed to load payment summary:", summaryError);
       }
 

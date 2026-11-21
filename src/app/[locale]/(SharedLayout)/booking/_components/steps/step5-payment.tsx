@@ -136,21 +136,27 @@ export default function Step5Payment({
         locale,
         authToken
       );
-      if (response?.data) {
-        updateBookingData((prev) =>
-          applyPaymentSummaryToBooking(
-            prev,
-            response.data as PaymentSummaryData,
-            prev.paymentMethod
-          )
-        );
+      if (response?.status === false || !response?.data) {
+        if (response?.status === false) {
+          toast.error(
+            extractApiMessage(response, t("messages.reservationWithoutClient"))
+          );
+        }
+        return;
       }
+      updateBookingData((prev) =>
+        applyPaymentSummaryToBooking(
+          prev,
+          response.data as PaymentSummaryData,
+          prev.paymentMethod
+        )
+      );
     } catch (error) {
       console.error("Failed to load payment summary:", error);
     } finally {
       setIsSummaryLoading(false);
     }
-  }, [reservationId, locale, authToken, updateBookingData]);
+  }, [reservationId, locale, authToken, updateBookingData, t]);
 
   useEffect(() => {
     if (bookingData.couponCode) {
