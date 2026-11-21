@@ -277,12 +277,12 @@ export default function OffersPopup({ locale, popups }: OffersPopupProps) {
 
   const errMsg = (key: string) => {
     if (locale === "ar") {
-      if (key === "name") return "من فضلك اكتب اسمك";
-      if (key === "mobile") return "من فضلك اكتب رقم جوال صحيح";
-      if (key === "consent") return "لازم توافق على التواصل علشان نكمل";
-      if (key === "service") return "من فضلك اختر الخدمة";
+      if (key === "name") return "يرجى إدخال اسمك";
+      if (key === "mobile") return "يرجى إدخال رقم جوال صحيح";
+      if (key === "consent") return "يرجى الموافقة على التواصل لإكمال الطلب";
+      if (key === "service") return "يرجى اختيار الخدمة";
       if (key === "coupon") return "كود الخصم غير متاح حالياً";
-      return "حصل خطأ، حاول مرة تانية";
+      return "حدث خطأ، حاول مرة أخرى";
     }
     if (key === "name") return "Please enter your name";
     if (key === "mobile") return "Please enter a valid mobile number";
@@ -432,7 +432,9 @@ export default function OffersPopup({ locale, popups }: OffersPopupProps) {
           discountValue: active.discount_value,
           offerTitle: title,
         });
-        setSuccess(true);
+        // Close immediately — soft navigation keeps this host mounted, so a
+        // success screen would otherwise sit on top of /claim-offer.
+        close("success");
         router.push(localePath(locale, "/claim-offer"));
         return;
       }
