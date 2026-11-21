@@ -27,6 +27,8 @@ type ClaimSpecialtyDoctorPickerProps = {
   onSelectCategory: (id: number | null) => void;
   onSelectDoctor: (id: number | null) => void;
   disabled?: boolean;
+  /** Highlights specialty/doctor when claim validation fails. */
+  errorField?: "specialty" | "doctor" | string | null;
 };
 
 function categoryLabel(category: Category, locale: string) {
@@ -62,6 +64,7 @@ export default function ClaimSpecialtyDoctorPicker({
   onSelectCategory,
   onSelectDoctor,
   disabled = false,
+  errorField = null,
 }: ClaimSpecialtyDoctorPickerProps) {
   const { t } = useTranslation("offers");
   const isAr = locale === "ar";
@@ -110,7 +113,13 @@ export default function ClaimSpecialtyDoctorPicker({
       </div>
 
       <div className="space-y-6 px-5 py-5 sm:px-6 sm:py-6">
-        <div>
+        <div
+          data-offer-field="specialty"
+          className={cn(
+            "scroll-mt-28 rounded-2xl",
+            errorField === "specialty" && "ring-2 ring-red-400 ring-offset-2",
+          )}
+        >
           <div className="mb-3 flex items-center justify-between gap-3">
             <p className="text-sm font-semibold text-[#1e1e1e]">
               {t("claim.specialty")}
@@ -180,7 +189,13 @@ export default function ClaimSpecialtyDoctorPicker({
           </div>
         </div>
 
-        <div>
+        <div
+          data-offer-field="doctor"
+          className={cn(
+            "scroll-mt-28 rounded-2xl",
+            errorField === "doctor" && "ring-2 ring-red-400 ring-offset-2",
+          )}
+        >
           <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-sm font-semibold text-[#1e1e1e]">

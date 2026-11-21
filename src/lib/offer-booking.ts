@@ -50,6 +50,72 @@ export type OfferBookingValidationCode =
   | "date_in_past"
   | "end_time_after_start";
 
+/** DOM `data-offer-field` keys used to scroll/focus invalid booking fields. */
+export type OfferBookingFieldKey =
+  | "specialty"
+  | "doctor"
+  | "name"
+  | "phone"
+  | "nationality"
+  | "birthDate"
+  | "address"
+  | "date"
+  | "time";
+
+export type OfferBookingScrollTarget =
+  | OfferBookingValidationCode
+  | "specialty_required"
+  | "doctor_required";
+
+const OFFER_BOOKING_FIELD_BY_ERROR: Record<
+  OfferBookingScrollTarget,
+  OfferBookingFieldKey
+> = {
+  specialty_required: "specialty",
+  doctor_required: "doctor",
+  name_required: "name",
+  phone_required: "phone",
+  nationality_required: "nationality",
+  birth_date_required: "birthDate",
+  address_required: "address",
+  date_required: "date",
+  time_required: "time",
+  date_in_past: "time",
+  end_time_after_start: "time",
+};
+
+export function offerBookingFieldForError(
+  target: OfferBookingScrollTarget | null | undefined,
+): OfferBookingFieldKey | null {
+  if (!target) return null;
+  return OFFER_BOOKING_FIELD_BY_ERROR[target] ?? null;
+}
+
+/** Smooth-scroll (and focus when possible) the first invalid offer booking field. */
+export function scrollToOfferBookingError(
+  target: OfferBookingScrollTarget | OfferBookingFieldKey | null | undefined,
+) {
+  if (typeof document === "undefined" || !target) return;
+
+  const field =
+    offerBookingFieldForError(target as OfferBookingScrollTarget) ??
+    (target as OfferBookingFieldKey);
+
+  const el = document.querySelector<HTMLElement>(
+    `[data-offer-field="${field}"]`,
+  );
+  if (!el) return;
+
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  const focusable = (
+    el.matches("input, select, textarea, button")
+      ? el
+      : el.querySelector<HTMLElement>("input, select, textarea, button")
+  );
+  focusable?.focus({ preventScroll: true });
+}
+
 function pad(value: number) {
   return String(value).padStart(2, "0");
 }

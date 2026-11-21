@@ -60,6 +60,8 @@ type OfferBookingFormProps = {
   onNotesChange: (notes: string) => void;
   clockOffset: number;
   disabled?: boolean;
+  /** Highlights the field that failed validation (matches `data-offer-field`). */
+  errorField?: string | null;
 };
 
 const fieldClass =
@@ -71,15 +73,18 @@ function SectionCard({
   extra,
   children,
   className,
+  dataOfferField,
 }: {
   icon: LucideIcon;
   title: ReactNode;
   extra?: ReactNode;
   children: ReactNode;
   className?: string;
+  dataOfferField?: string;
 }) {
   return (
     <section
+      data-offer-field={dataOfferField}
       className={cn(
         "flex min-h-full min-w-0 flex-col overflow-hidden rounded-[28px] border border-[#e8eef8] bg-white p-5 shadow-[0_12px_40px_rgba(20,48,135,0.06)] sm:p-6",
         className,
@@ -131,6 +136,9 @@ function ChoiceTile({
   );
 }
 
+const errorRing =
+  "ring-2 ring-red-400 border-red-400 focus:border-red-500 focus:ring-red-400/30";
+
 export default function OfferBookingForm({
   locale,
   guest,
@@ -148,6 +156,7 @@ export default function OfferBookingForm({
   onNotesChange,
   clockOffset,
   disabled = false,
+  errorField = null,
 }: OfferBookingFormProps) {
   const { t } = useTranslation("offers");
   const isRtl = locale === "ar";
@@ -214,30 +223,35 @@ export default function OfferBookingForm({
     >
       <SectionCard icon={User} title={t("booking.patient")}>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label className="flex flex-col gap-1.5 text-sm font-medium text-[#1e1e1e]">
+          <label className="flex scroll-mt-28 flex-col gap-1.5 text-sm font-medium text-[#1e1e1e]">
             {t("booking.name")}
             <input
+              data-offer-field="name"
               value={guest.name}
               onChange={(event) => onGuestChange({ name: event.target.value })}
               placeholder={t("booking.namePlaceholder")}
-              className={fieldClass}
+              className={cn(fieldClass, errorField === "name" && errorRing)}
               autoComplete="name"
+              aria-invalid={errorField === "name"}
             />
           </label>
-          <label className="flex flex-col gap-1.5 text-sm font-medium text-[#1e1e1e]">
+          <label className="flex scroll-mt-28 flex-col gap-1.5 text-sm font-medium text-[#1e1e1e]">
             {t("booking.phone")}
             <input
+              data-offer-field="phone"
               value={guest.phone}
               onChange={(event) => onGuestChange({ phone: event.target.value })}
               placeholder={t("booking.phonePlaceholder")}
-              className={fieldClass}
+              className={cn(fieldClass, errorField === "phone" && errorRing)}
               inputMode="tel"
               autoComplete="tel"
+              aria-invalid={errorField === "phone"}
             />
           </label>
-          <label className="flex flex-col gap-1.5 text-sm font-medium text-[#1e1e1e]">
+          <label className="flex scroll-mt-28 flex-col gap-1.5 text-sm font-medium text-[#1e1e1e]">
             {t("booking.nationality")}
             <select
+              data-offer-field="nationality"
               value={guest.nationalityId != null ? String(guest.nationalityId) : ""}
               onChange={(event) => {
                 const selected = nationalityOptions.find(
@@ -248,7 +262,8 @@ export default function OfferBookingForm({
                   nationality: selected?.name ?? "",
                 });
               }}
-              className={fieldClass}
+              className={cn(fieldClass, errorField === "nationality" && errorRing)}
+              aria-invalid={errorField === "nationality"}
             >
               <option value="">{t("booking.nationalityPlaceholder")}</option>
               {nationalityOptions.map((item) => (
@@ -258,17 +273,19 @@ export default function OfferBookingForm({
               ))}
             </select>
           </label>
-          <label className="flex flex-col gap-1.5 text-sm font-medium text-[#1e1e1e]">
+          <label className="flex scroll-mt-28 flex-col gap-1.5 text-sm font-medium text-[#1e1e1e]">
             {t("booking.birthDate")}
             <input
+              data-offer-field="birthDate"
               type="date"
               value={guest.birthDate || ""}
               onChange={(event) =>
                 onGuestChange({ birthDate: event.target.value })
               }
-              className={fieldClass}
+              className={cn(fieldClass, errorField === "birthDate" && errorRing)}
               autoComplete="bday"
               max={new Date().toISOString().slice(0, 10)}
+              aria-invalid={errorField === "birthDate"}
             />
           </label>
           <div className="flex flex-col gap-1.5 sm:col-span-2">
@@ -300,6 +317,11 @@ export default function OfferBookingForm({
       <SectionCard
         icon={MapPin}
         title={t("booking.address")}
+        dataOfferField="address"
+        className={cn(
+          "scroll-mt-28",
+          errorField === "address" && "ring-2 ring-red-400",
+        )}
         extra={
           addresses.length > 0 ? (
             <button
@@ -317,7 +339,10 @@ export default function OfferBookingForm({
           <button
             type="button"
             onClick={onAddAddress}
-            className="flex min-h-[10rem] flex-1 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#c9d8f5] bg-[#f8faff] px-4 py-8 text-center transition-colors hover:border-[#143087] hover:bg-white"
+            className={cn(
+              "flex min-h-[10rem] flex-1 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#c9d8f5] bg-[#f8faff] px-4 py-8 text-center transition-colors hover:border-[#143087] hover:bg-white",
+              errorField === "address" && "border-red-400 bg-red-50",
+            )}
           >
             <span className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-white text-[#143087] shadow-sm">
               <Plus className="size-5" aria-hidden />
@@ -370,13 +395,22 @@ export default function OfferBookingForm({
         )}
       </SectionCard>
 
-      <SectionCard icon={CalendarIcon} title={t("booking.date")}>
+      <SectionCard
+        icon={CalendarIcon}
+        title={t("booking.date")}
+        dataOfferField="date"
+        className={cn(
+          "scroll-mt-28",
+          errorField === "date" && "ring-2 ring-red-400",
+        )}
+      >
         <div
           className={cn(
             "mb-4 rounded-2xl border px-4 py-3 transition-colors",
             selectedDate
               ? "border-[#143087]/25 bg-[#eef4ff]"
               : "border-dashed border-[#c9d8f5] bg-[#f8faff]",
+            errorField === "date" && !selectedDate && "border-red-400 bg-red-50",
           )}
         >
           <p className="text-xs font-medium text-[#4a5568]">
@@ -494,7 +528,15 @@ export default function OfferBookingForm({
         ) : null}
       </SectionCard>
 
-      <SectionCard icon={Clock} title={t("booking.time")}>
+      <SectionCard
+        icon={Clock}
+        title={t("booking.time")}
+        dataOfferField="time"
+        className={cn(
+          "scroll-mt-28",
+          errorField === "time" && "ring-2 ring-red-400",
+        )}
+      >
         <div className="grid grid-cols-2 gap-3">
           {OFFER_TIME_SLOTS.map((slot) => {
             const past = Boolean(dateKey && isSlotInPast(dateKey, slot, clockOffset));

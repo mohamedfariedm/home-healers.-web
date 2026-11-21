@@ -36,9 +36,12 @@ import {
   combineDateAndTime,
   formatLocalDateTime,
   isSlotInPast,
+  offerBookingFieldForError,
   resolveDefaultAddress,
+  scrollToOfferBookingError,
   timePeriodFromStart,
   validateOfferBooking,
+  type OfferBookingFieldKey,
 } from "@/lib/offer-booking";
 import { doctorMatchesCategoryId } from "@/lib/doctor-matches-category";
 import { formatDiscountDisplay } from "@/lib/offer-popup";
@@ -207,6 +210,9 @@ export default function ClaimOfferClient({
   const [dateKey, setDateKey] = useState<string | null>(null);
   const [time, setTime] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
+  const [errorField, setErrorField] = useState<OfferBookingFieldKey | null>(
+    null,
+  );
   const shouldRetryCouponRef = useRef(false);
 
   const selectedCategory =
@@ -577,11 +583,15 @@ export default function ClaimOfferClient({
     if (submittingRef.current || !claim) return;
 
     if (!selectedCategory) {
+      setErrorField("specialty");
       toast.error(t("claim.errors.specialtyRequired"));
+      scrollToOfferBookingError("specialty_required");
       return;
     }
     if (!selectedDoctor) {
+      setErrorField("doctor");
       toast.error(t("claim.errors.doctorRequired"));
+      scrollToOfferBookingError("doctor_required");
       return;
     }
 
@@ -600,9 +610,15 @@ export default function ClaimOfferClient({
       clockOffset: 0,
     });
     if (error || !selectedAddress || !dateKey || !time) {
+      const field = offerBookingFieldForError(error) ?? (
+        !selectedAddress ? "address" : !dateKey ? "date" : "time"
+      );
+      setErrorField(field);
       toast.error(validationMessage(error));
+      scrollToOfferBookingError(error ?? field);
       return;
     }
+    setErrorField(null);
 
     submittingRef.current = true;
     setSubmitting(true);
@@ -1111,21 +1127,46 @@ export default function ClaimOfferClient({
             doctors={allDoctors}
             selectedCategoryId={selectedCategoryId}
             selectedDoctorId={selectedDoctorId}
-            onSelectCategory={setSelectedCategoryId}
-            onSelectDoctor={setSelectedDoctorId}
+            onSelectCategory={(id) => {
+              setSelectedCategoryId(id);
+              setErrorField((prev) =>
+                prev === "specialty" || prev === "doctor" ? null : prev,
+              );
+            }}
+            onSelectDoctor={(id) => {
+              setSelectedDoctorId(id);
+              setErrorField((prev) => (prev === "doctor" ? null : prev));
+            }}
             disabled={submitting}
+            errorField={errorField}
           />
 
           <OfferBookingForm
             locale={locale}
             guest={guest}
-            onGuestChange={(updates) =>
-              setGuest((prev) => ({ ...prev, ...updates }))
-            }
+            onGuestChange={(updates) => {
+              setGuest((prev) => ({ ...prev, ...updates }));
+              setErrorField((prev) => {
+                if (!prev) return prev;
+                if (prev === "name" && "name" in updates) return null;
+                if (prev === "phone" && "phone" in updates) return null;
+                if (
+                  prev === "nationality" &&
+                  ("nationality" in updates || "nationalityId" in updates)
+                ) {
+                  return null;
+                }
+                if (prev === "birthDate" && "birthDate" in updates) return null;
+                return prev;
+              });
+            }}
             nationalityOptions={nationalityOptions}
             addresses={savedLocations}
             selectedAddressId={selectedAddressId}
-            onSelectAddress={(location) => setSelectedAddressId(location.id)}
+            onSelectAddress={(location) => {
+              setSelectedAddressId(location.id);
+              setErrorField((prev) => (prev === "address" ? null : prev));
+            }}
             onAddAddress={() => {
               setEditingLocation(null);
               setLocationPickerOpen(true);
@@ -1136,13 +1177,18 @@ export default function ClaimOfferClient({
               setTime((prev) =>
                 prev && isSlotInPast(nextDate, prev, 0) ? null : prev,
               );
+              setErrorField((prev) => (prev === "date" ? null : prev));
             }}
             time={time}
-            onSelectTime={setTime}
+            onSelectTime={(nextTime) => {
+              setTime(nextTime);
+              setErrorField((prev) => (prev === "time" ? null : prev));
+            }}
             notes={notes}
             onNotesChange={setNotes}
             clockOffset={0}
             disabled={submitting}
+            errorField={errorField}
           />
         </>
       ) : reservationId ? (

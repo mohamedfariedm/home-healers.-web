@@ -43,9 +43,12 @@ import {
   serverClockOffset,
   timePeriodFromStart,
   toDateKey,
+  offerBookingFieldForError,
+  scrollToOfferBookingError,
   validateOfferBooking,
   writeJson,
   type OfferBookingDraft,
+  type OfferBookingFieldKey,
   type OfferCheckoutState,
 } from "@/lib/offer-booking";
 import {
@@ -214,6 +217,9 @@ export default function OfferBookingClient({
   const [dateKey, setDateKey] = useState<string | null>(null);
   const [time, setTime] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
+  const [errorField, setErrorField] = useState<OfferBookingFieldKey | null>(
+    null,
+  );
   const [draftReady, setDraftReady] = useState(false);
 
   const selectedAddress = useMemo(
@@ -393,9 +399,15 @@ export default function OfferBookingClient({
       clockOffset,
     });
     if (error || !selectedAddress || !dateKey || !time) {
+      const field = offerBookingFieldForError(error) ?? (
+        !selectedAddress ? "address" : !dateKey ? "date" : "time"
+      );
+      setErrorField(field);
       toast.error(validationMessage(error));
+      scrollToOfferBookingError(error ?? field);
       return;
     }
+    setErrorField(null);
 
     submittingRef.current = true;
     setSubmitting(true);
@@ -767,11 +779,29 @@ export default function OfferBookingClient({
         <OfferBookingForm
           locale={locale}
           guest={guest}
-          onGuestChange={(updates) => setGuest((prev) => ({ ...prev, ...updates }))}
+          onGuestChange={(updates) => {
+            setGuest((prev) => ({ ...prev, ...updates }));
+            setErrorField((prev) => {
+              if (!prev) return prev;
+              if (prev === "name" && "name" in updates) return null;
+              if (prev === "phone" && "phone" in updates) return null;
+              if (
+                prev === "nationality" &&
+                ("nationality" in updates || "nationalityId" in updates)
+              ) {
+                return null;
+              }
+              if (prev === "birthDate" && "birthDate" in updates) return null;
+              return prev;
+            });
+          }}
           nationalityOptions={nationalityOptions}
           addresses={savedLocations}
           selectedAddressId={selectedAddressId}
-          onSelectAddress={(location) => setSelectedAddressId(location.id)}
+          onSelectAddress={(location) => {
+            setSelectedAddressId(location.id);
+            setErrorField((prev) => (prev === "address" ? null : prev));
+          }}
           onAddAddress={() => {
             setEditingLocation(null);
             setLocationPickerOpen(true);
@@ -782,13 +812,18 @@ export default function OfferBookingClient({
             setTime((prev) =>
               prev && isSlotInPast(nextDate, prev, clockOffset) ? null : prev,
             );
+            setErrorField((prev) => (prev === "date" ? null : prev));
           }}
           time={time}
-          onSelectTime={setTime}
+          onSelectTime={(nextTime) => {
+            setTime(nextTime);
+            setErrorField((prev) => (prev === "time" ? null : prev));
+          }}
           notes={notes}
           onNotesChange={setNotes}
           clockOffset={clockOffset}
           disabled={submitting}
+          errorField={errorField}
         />
       ) : reservationId ? (
         <OfferPaymentPanel
